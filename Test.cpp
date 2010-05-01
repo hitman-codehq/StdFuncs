@@ -20,9 +20,13 @@ void RTest::Title()
 
 /* Written: Monday 06-Jul 2009 3:56 pm */
 
-void RTest::Printf(const char *aString)
+void RTest::Printf(const char *aString, ...)
 {
-	printf("%s", aString);
+	va_list Args;
+
+	va_start(Args, aString);
+	vprintf(aString, Args);
+	va_end(Args);
 }
 
 /* Written: Friday 05-Jun-2009 1:14 pm */

@@ -15,7 +15,7 @@ public:
 
 	void Title();
 
-	void Printf(const char *aString);
+	void Printf(const char *aString, ...);
 
 	void Start(const char *aHeading);
 
