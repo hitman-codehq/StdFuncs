@@ -340,17 +340,17 @@ int Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 bool Utils::GetShellHeight(int *a_piHeight)
 {
-
-#ifdef __amigaos4__
-
 	bool RetVal;
-	char Buffer[32], *BufferPtr, Length, Char;
-	int Result;
-	BPTR InHandle, OutHandle;
 
 	/* Assume failure */
 
 	RetVal = false;
+
+#ifdef __amigaos4__
+
+	char Buffer[32], *BufferPtr, Length, Char;
+	int Result;
+	BPTR InHandle, OutHandle;
 
 	/* Get the standard DOS input and output handles to use for querying the shell dimensions */
 
@@ -409,7 +409,33 @@ bool Utils::GetShellHeight(int *a_piHeight)
 
 #else /* ! __amigaos4__ */
 
-	bool RetVal = false; // TODO: CAW
+	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
+	HANDLE StdOut;
+
+	/* Get the handle of the stdin device and from that obtain the console's height */
+
+	if ((StdOut = GetStdHandle(STD_OUTPUT_HANDLE)) != INVALID_HANDLE_VALUE)
+	{
+		if (GetConsoleScreenBufferInfo(StdOut, &ScreenBufferInfo))
+		{
+			/* Signal success */
+
+			RetVal = true;
+
+			/* And save the height of the console for the caller, converting the zero based line */
+			/* number of the bottom most line into a count of lines */
+
+			*a_piHeight = (ScreenBufferInfo.srWindow.Bottom + 1);
+		}
+		else
+		{
+			Utils::Info("Utils::GetShellHeight() => Unable to request window dimensions");
+		}
+	}
+	else
+	{
+		Utils::Info("Utils::GetShellHeight() => Unable get handle to console");
+	}
 
 #endif /* ! __amigaos4__ */
 
