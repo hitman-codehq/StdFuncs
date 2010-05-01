@@ -43,7 +43,6 @@ public:
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Types?
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, TDateTime &a_oDateTime,
 		struct DateStamp &a_roAmigaDate);
 
@@ -61,7 +60,7 @@ public:
 
 class TEntryArray
 {
-	int					iCount;		// TODO: CAW - Should this be in the StdList? Why does list have a ptr to this class?
+	TInt				iCount;		// TODO: CAW - Should this be in the StdList? Why does list have a ptr to this class?
 	StdList<TEntry>		iEntries;	/* Standard list node */
 
 public:
