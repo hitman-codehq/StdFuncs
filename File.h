@@ -30,15 +30,15 @@ public:
 
 	RFile();
 
-	int Create(const char *a_pccName, unsigned int a_uiFileMode);
+	TInt Create(const char *a_pccName, TUint a_uiFileMode);
 
-	int Replace(const char *a_pccName, unsigned int a_uiFileMode);
+	TInt Replace(const char *a_pccName, TUint a_uiFileMode);
 
-	int Open(const char *a_pccName, unsigned int a_uiFileMode);
+	TInt Open(const char *a_pccName, TUint a_uiFileMode);
 
-	int Read(unsigned char *a_pucBuffer, int a_iLength) const;
+	TInt Read(unsigned char *a_pucBuffer, TInt a_iLength) const;
 
-	int Write(const unsigned char *a_pcucBuffer, int a_iLength);
+	TInt Write(const unsigned char *a_pcucBuffer, TInt a_iLength);
 
 	void Close();
 };

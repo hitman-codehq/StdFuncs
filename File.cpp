@@ -12,9 +12,9 @@ RFile::RFile()
 
 /* Written: Friday 02-Jan-2009 8:54 pm */
 
-int RFile::Create(const char *a_pccName, unsigned int a_uiFileMode)
+TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 {
-	int RetVal;
+	TInt RetVal;
 
 	(void) a_uiFileMode;
 
@@ -63,9 +63,9 @@ int RFile::Create(const char *a_pccName, unsigned int a_uiFileMode)
 
 /* Written: Monday 19-Apr-2010 6:26 am */
 
-int RFile::Replace(const char *a_pccName, unsigned int a_uiFileMode)
+TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
 {
-	int RetVal;
+	TInt RetVal;
 
 	/* Try to delete the file specified so that it can be recreated */
 
@@ -83,9 +83,9 @@ int RFile::Replace(const char *a_pccName, unsigned int a_uiFileMode)
 
 /* Written: Friday 02-Jan-2009 8:57 pm */
 
-int RFile::Open(const char *a_pccName, unsigned int a_uiFileMode)
+TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 {
-	int RetVal;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
@@ -128,9 +128,9 @@ int RFile::Open(const char *a_pccName, unsigned int a_uiFileMode)
 
 /* Written: Friday 02-Jan-2009 10:20 pm */
 
-int RFile::Read(unsigned char *a_pucBuffer, int a_iLength) const
+TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 {
-	int RetVal;
+	TInt RetVal;
 
 	// TODO: CAW - Assert on being open
 
@@ -163,9 +163,9 @@ int RFile::Read(unsigned char *a_pucBuffer, int a_iLength) const
 
 /* Written: Friday 02-Jan-2009 10:29 pm */
 
-int RFile::Write(const unsigned char *a_pcucBuffer, int a_iLength)
+TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
-	int RetVal;
+	TInt RetVal;
 
 	// TODO: CAW - Assert on being open
 
@@ -183,7 +183,7 @@ int RFile::Write(const unsigned char *a_pcucBuffer, int a_iLength)
 	DWORD BytesWritten;
 
 	if ((WriteFile(m_oHandle, a_pcucBuffer, a_iLength, &BytesWritten, NULL)) &&
-		((int) BytesWritten == a_iLength))
+		((TInt) BytesWritten == a_iLength))
 	{
 		RetVal = a_iLength;
 	}

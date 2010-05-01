@@ -56,7 +56,7 @@ TBool TEntry::IsHidden() const
 
 #ifdef __amigaos4__
 
-	return(false); // TODO: CAW + use a similar check to below above?
+	return(EFalse); // TODO: CAW + use a similar check to below above?
 
 #else /* ! __amigaos4__ */
 
@@ -216,7 +216,7 @@ RDir::RDir()
 #endif /* __amigaos4__ */
 
 	iSingleEntry.iName = NULL;
-	iSingleEntryOk = false;
+	iSingleEntryOk = EFalse;
 }
 
 /* Written: Saturday 03-Nov-2007 4:43 pm */
@@ -241,7 +241,7 @@ TInt RDir::Open(const char *a_pccPattern) // TODO: CAW - Rename a_pccPattern
 	{
 		if (!(iSingleEntry.IsDir()))
 		{
-			iSingleEntryOk = true;
+			iSingleEntryOk = ETrue;
 
 			/* Append the entry to the array of files and directories being listed */
 
@@ -273,7 +273,7 @@ TInt RDir::Open(const char *a_pccPattern) // TODO: CAW - Rename a_pccPattern
 #ifdef __amigaos4__
 
 	char *Pattern;
-	int Length;
+	TInt Length;
 	LONG Result;
 	STRPTR FileNameOffset;
 
@@ -469,7 +469,7 @@ void RDir::Close()
 	delete [] (char *) iSingleEntry.iName;
 	iSingleEntry.iName = NULL;
 
-	iSingleEntryOk = false;
+	iSingleEntryOk = EFalse;
 }
 
 /* Written: Saturday 03-Nov-2007 5:38 pm */
@@ -480,10 +480,9 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 #ifdef __amigaos4__
 
-	bool AddFile;
 	char *LinkName;
-	int Length, Size;
-	TBool Error;
+	TBool AddFile, Error;
+	TInt Length, Size;
 	struct ClockData ClockData;
 	struct ExamineData *ExamineData;
 	struct TEntry *Entry, LinkEntry;
@@ -503,7 +502,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 		{
 			/* Add the file to the list by default */
 
-			AddFile = true;
+			AddFile = ETrue;
 
 			/* If we are using pattern matching then check to see if the file matches the patttern */
 			/* and if not, don't add it to the list */
@@ -512,7 +511,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 			{
 				if (!(IDOS->MatchPatternNoCase(iPattern, ExamineData->Name)))
 				{
-					AddFile = false; // TODO: CAW - What about error checking using IDOS->IoErr() below?
+					AddFile = EFalse; // TODO: CAW - What about error checking using IDOS->IoErr() below?
 				}
 			}
 

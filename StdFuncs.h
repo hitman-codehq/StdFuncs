@@ -17,7 +17,6 @@
 
 /* Fundamental type declarations */
 
-// TODO: CAW - Decide on these
 typedef signed int TInt;
 typedef unsigned int TUint;
 typedef int TBool;

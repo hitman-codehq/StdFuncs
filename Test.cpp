@@ -5,7 +5,6 @@
 
 /* Written: Friday 05-Jun-2009 11:47 am */
 
-// TODO; CAW - Amiga style parameters?
 RTest::RTest(const char *aTitle)
 {
 	iTitle = aTitle;

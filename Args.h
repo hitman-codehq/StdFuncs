@@ -15,25 +15,25 @@ public:
 
 	RArgs();
 
-	int Open(const char *a_pccTemplate, int a_iNumOptions, const char *a_pccArgV[], int a_iArgC);
+	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
-	int Open(const char *a_pccTemplate, int a_iNumOptions, const struct WBStartup *a_poWBStartup);
+	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup);
 
 	void Close();
 
-	int Count();
+	TInt Count();
 
 	const char *ProjectFileName();
 
-	int Valid();
+	TInt Valid();
 
-	const char *operator[](int a_iIndex);
+	const char *operator[](TInt a_iIndex);
 
 private:
 
 	char			*m_pcCommandLine;		/* Buffer for emulating CLI command line when running from Workbench */
 	char			*m_pcProjectFileName;	/* Name of project icon that was started with the program, if any */
-	int				m_iNumArgs;				/* # of entries in the iArgs array */
+	TInt			m_iNumArgs;				/* # of entries in the iArgs array */
 	LONG			*m_plArgs;				/* Array of LONGs into which to place ptrs to arguments */
 	struct RDArgs	*m_poRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading arguments */
 	struct RDArgs	*m_poTTRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading tooltypes */

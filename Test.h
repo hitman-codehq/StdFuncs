@@ -7,7 +7,7 @@
 class RTest
 {
 	const char	*iTitle;	/* Title to be printed by Title() */
-	int			iLevel;		/* # of currently executing test */
+	TInt		iLevel;		/* # of currently executing test */
 
 public:
 
@@ -23,7 +23,6 @@ public:
 
 	void End();
 
-	// TODO: CAW - TInt - Get rid of?
 	void operator()(TInt aResult, TInt aLineNumber, const char *aFileName);
 };
 

@@ -21,10 +21,10 @@
 
 /* Written: Thursday 16-Jul-2009 6:37 am */
 
-static char *ExtractOption(const char *a_pccTemplate, int a_iIndex, char *a_pcType)
+static char *ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char *a_pcType)
 {
 	char Char, *RetVal;
-	int Offset, StartOffset, EndOffset;
+	TInt Offset, StartOffset, EndOffset;
 
 	RetVal = NULL;
 	Offset = StartOffset = EndOffset = 0;
@@ -101,9 +101,9 @@ RArgs::RArgs()
 
 /* Written: Sunday 04-Nov-2007 11:51 am */
 
-int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const char *a_pccArgV[], int a_iArgC)
+TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
-	int RetVal;
+	TInt RetVal;
 
 	/* Assume failure */
 
@@ -136,7 +136,7 @@ int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const char *a_pccA
 #else /* ! __amigaos4__ */
 
 		char **ArgV, *OptionName, Type;
-		int Arg, Index;
+		TInt Arg, Index;
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
@@ -223,15 +223,15 @@ int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const char *a_pccA
 
 /* Written: Saturday 10-Jan-2009 3:12 pm */
 
-int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const struct WBStartup *a_poWBStartup)
+TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
 {
-	int RetVal;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
-	bool Directory, FoundEquals;
 	char *Source, *Dest;
-	int Index, Length;
+	TBool Directory, FoundEquals;
+	TInt Index, Length;
 	STRPTR *ToolTypes;
 	struct DiskObject *DiskObject;
 	struct RDArgs *RDArgs;
@@ -294,7 +294,7 @@ int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const struct WBSta
 
 					while ((ToolTypes[Index]) && (*ToolTypes[Index]))
 					{
-						FoundEquals = false;
+						FoundEquals = EFalse;
 						Source = ToolTypes[Index];
 						Dest = (m_pcCommandLine + strlen(m_pcCommandLine));
 
@@ -309,7 +309,7 @@ int RArgs::Open(const char *a_pccTemplate, int a_iNumOptions, const struct WBSta
 
 							if (*Source++ == '=')
 							{
-								FoundEquals = true;
+								FoundEquals = ETrue;
 								*Dest++ = '"';
 							}
 						}
@@ -487,7 +487,7 @@ void RArgs::Close()
 
 /* Written: Sunday 04-Nov-2007 12:12 pm */
 
-int RArgs::Count()
+TInt RArgs::Count()
 {
 	return(m_iNumArgs);
 }
@@ -501,9 +501,9 @@ const char *RArgs::ProjectFileName()
 
 /* Written: Sunday 04-Nov-2007 12:17 pm */
 
-int RArgs::Valid()
+TInt RArgs::Valid()
 {
-	int Index, RetVal;
+	TInt Index, RetVal;
 
 	/* Assume no arguments were passed in */
 
@@ -524,7 +524,7 @@ int RArgs::Valid()
 
 /* Written: Sunday 04-Nov-2007 11:57 am */
 
-const char *RArgs::operator[](int a_iIndex)
+const char *RArgs::operator[](TInt a_iIndex)
 {
 	ASSERTM(((a_iIndex >= 0) && (a_iIndex < m_iNumArgs)), "RArgs::operator[]() => a_iIndex is out of range");
 

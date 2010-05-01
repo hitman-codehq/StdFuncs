@@ -14,31 +14,31 @@ enum TMonth
 
 class TDateTime
 {
-	int		iYear;		/* The current year */
-	int		iMonth;		/* The month of the current year, starting with 0 */
-	int		iDay;		/* The day of the current month */
-	int		iHour;		/* The hour of the current day */
-	int		iMinute;	/* The minute of the current day */
-	int		iSecond;	/* The second of the current minute */
+	TInt	iYear;		/* The current year */
+	TInt	iMonth;		/* The month of the current year, starting with 0 */
+	TInt	iDay;		/* The day of the current month */
+	TInt	iHour;		/* The hour of the current day */
+	TInt	iMinute;	/* The minute of the current day */
+	TInt	iSecond;	/* The second of the current minute */
 
 public:
 
 	// TODO: CAW - Initialise + double check all this stuff in the SDL
 	TDateTime() { }
 
-	TDateTime(int a_iYear, TMonth a_iMonth, int a_iDay, int a_iHour, int a_iMinute, int a_iSecond, int a_iMicroSecond);
+	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMicroSecond);
 
-	int Year() const { return(iYear); }
+	TInt Year() const { return(iYear); }
 
-	int Month() const { return(iMonth); }
+	TInt Month() const { return(iMonth); }
 
-	int Day() const { return(iDay); }
+	TInt Day() const { return(iDay); }
 
-	int Hour() const { return(iHour); }
+	TInt Hour() const { return(iHour); }
 
-	int Minute() const { return(iMinute); }
+	TInt Minute() const { return(iMinute); }
 
-	int Second() const { return(iSecond); }
+	TInt Second() const { return(iSecond); }
 };
 
 class TTime
@@ -56,7 +56,7 @@ public:
 
 	TTime &operator=(const TDateTime &a_oDateTime);
 
-	bool operator==(TTime a_oTime) const;
+	TBool operator==(TTime a_oTime) const;
 };
 
 #endif /* ! TIME_H */

@@ -116,7 +116,7 @@ private:
 #endif /* __amigaos4__ */
 
 	TEntry			iSingleEntry;	/* If a single entry is being examined, Open() will populate this */
-	bool			iSingleEntryOk;	/* true if the contents of iSingleEntry are valid, else false */
+	TBool			iSingleEntryOk;	/* ETrue if the contents of iSingleEntry are valid, else EFalse */
 	TEntryArray		iEntries;		/* Array of TEntry classes containing directory and file information */
 };
 

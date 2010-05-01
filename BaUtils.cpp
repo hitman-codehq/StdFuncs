@@ -14,7 +14,7 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 
 #else /* ! __amigaos4__ */
 
-	int RetVal;
+	TInt RetVal;
 
 	RetVal = KErrNotFound;
 

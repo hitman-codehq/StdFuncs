@@ -35,13 +35,13 @@ static const char *g_apccMonths[] =
 
 #endif /* ! __amigaos4__ */
 
-bool g_bFromWorkbench;	/* true if launched from Workbench */
+TBool g_bFromWorkbench;	/* ETrue if launched from Workbench */
 
 /* Written: Thursday 16-Jul-2009 3:58 pm */
 
-bool Utils::AddPart(char *a_pcDest, const char *a_pccSource, unsigned int a_iDestLength)
+TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLength)
 {
-	bool RetVal;
+	TBool RetVal;
 
 #ifdef __amigaos4__
 
@@ -49,11 +49,11 @@ bool Utils::AddPart(char *a_pcDest, const char *a_pccSource, unsigned int a_iDes
 
 #else /* ! __amigaos4__ */
 
-	unsigned int Length;
+	TUint Length;
 
 	/* Assume failure */
 
-	RetVal = false;
+	RetVal = EFalse;
 
 	/* If there is anything already in the destination string, check there is enough space to */
 	/* append to it before doing anything */
@@ -62,7 +62,7 @@ bool Utils::AddPart(char *a_pcDest, const char *a_pccSource, unsigned int a_iDes
 	{
 		if ((Length + 1 + strlen(a_pccSource)) <= a_iDestLength)
 		{
-			RetVal = true;
+			RetVal = ETrue;
 
 			/* Append the source string, plus a directory separator if required */
 
@@ -82,7 +82,7 @@ bool Utils::AddPart(char *a_pcDest, const char *a_pccSource, unsigned int a_iDes
 	{
 		if (strlen(a_pccSource) < a_iDestLength)
 		{
-			RetVal = true;
+			RetVal = ETrue;
 
 			strcpy(a_pcDest, a_pccSource);
 		}
@@ -119,9 +119,9 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 /* Written: Saturday 18-Jul-2009 8:25 am */
 
-int Utils::CreateDirectory(const char *a_pccDirectoryName)
+TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 {
-	int RetVal;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
@@ -185,13 +185,13 @@ void Utils::Error(const char *a_pccMessage, ...)
 #ifdef __amigaos4__
 // TODO: CAW
 
-bool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, bool *a_pbDirectory)
+TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory)
 {
-	bool RetVal;
 	char Path[1024]; // TODO: CAW + Comment this function
+	TBool RetVal;
 	struct ExamineData *ExamineData;
 
-	RetVal = false;
+	RetVal = EFalse;
 
 	if (a_poWBArg->wa_Lock)
 	{
@@ -203,7 +203,7 @@ bool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, bool 
 
 				if (IDOS->AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)))
 				{
-					RetVal = true;
+					RetVal = ETrue;
 
 					*a_pbDirectory = EXD_IS_DIRECTORY(ExamineData);
 				}
@@ -232,10 +232,10 @@ bool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, bool 
 
 /* Written: Saturday 04-Jul-2009 9:20 pm */
 
-int Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
+TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
-	int RetVal;
 	char *Name;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
@@ -338,18 +338,18 @@ int Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 /* Written: Thursday 09-Jul-2009 06:58 am */
 
-bool Utils::GetShellHeight(int *a_piHeight)
+TBool Utils::GetShellHeight(TInt *a_piHeight)
 {
-	bool RetVal;
+	TBool RetVal;
 
 	/* Assume failure */
 
-	RetVal = false;
+	RetVal = EFalse;
 
 #ifdef __amigaos4__
 
 	char Buffer[32], *BufferPtr, Length, Char;
-	int Result;
+	TInt Result;
 	BPTR InHandle, OutHandle;
 
 	/* Get the standard DOS input and output handles to use for querying the shell dimensions */
@@ -393,7 +393,7 @@ bool Utils::GetShellHeight(int *a_piHeight)
 
 			if ((Length > 9) && (Buffer[0] == '\x9b'))
 			{
-				RetVal = true;
+				RetVal = ETrue;
 				IDOS->StrToLong(&Buffer[5], (LONG *) a_piHeight);
 			}
 		}
@@ -420,7 +420,7 @@ bool Utils::GetShellHeight(int *a_piHeight)
 		{
 			/* Signal success */
 
-			RetVal = true;
+			RetVal = ETrue;
 
 			/* And save the height of the console for the caller, converting the zero based line */
 			/* number of the bottom most line into a count of lines */
@@ -476,14 +476,14 @@ void Utils::Info(const char *a_pccMessage, ...)
 /* Written: Monday 15-Feb-2010 8:59 am */
 
 // TODO: CAW - Implement this for OS4 as well or get rid of this
-bool Utils::IsDevice(const char *a_pccPath)
+TBool Utils::IsDevice(const char *a_pccPath)
 {
-	bool RetVal;
-	int Character;
+	TBool RetVal;
+	TInt Character;
 
 	/* Assume the path passed in does not represent a device name */
 
-	RetVal = false;
+	RetVal = EFalse;
 
 	/* If the path passed in is only two characters long then see if it represents a driver letter */
 
@@ -495,7 +495,7 @@ bool Utils::IsDevice(const char *a_pccPath)
 		{
 			if (a_pccPath[1] == ':')
 			{
-				RetVal = true;
+				RetVal = ETrue;
 			}
 		}
 	}
@@ -509,17 +509,17 @@ bool Utils::IsDevice(const char *a_pccPath)
 // TODO: CAW
 #ifdef __amigaos4__
 
-bool Utils::IsDirectory(const char *a_pccFileName, bool *a_pbDirectory)
+TBool Utils::IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory)
 {
-	bool RetVal;
+	TBool RetVal;
 	struct ExamineData *ExamineData;
 
-	RetVal = false;
+	RetVal = EFalse;
 
 	if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, a_pccFileName, TAG_DONE)) != NULL)
 	{
-		RetVal = true;
-		*a_pbDirectory = (EXD_IS_DIRECTORY(ExamineData)) ? true : false;
+		RetVal = ETrue;
+		*a_pbDirectory = (EXD_IS_DIRECTORY(ExamineData)) ? ETrue : EFalse;
 
 		IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 	}
@@ -534,10 +534,10 @@ bool Utils::IsDirectory(const char *a_pccFileName, bool *a_pbDirectory)
 #endif
 
 // TODO: CAW - This is going to break AMC + standardise on errors
-int Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
+TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 {
 	unsigned char *Buffer;
-	int RetVal;
+	TInt RetVal;
 	TEntry Entry;
 
 	/* Obtain information about the file, such as its size */
@@ -554,7 +554,7 @@ int Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 			if ((RetVal = File.Open(a_pccFileName, EFileRead)) == KErrNone)
 			{
-				if ((RetVal = File.Read(Buffer, Entry.iSize)) == (int) Entry.iSize)
+				if ((RetVal = File.Read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
 				{
 					RetVal = KErrNone;
 
@@ -639,15 +639,15 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 #ifdef __amigaos4__
 
 // TODO: CAW - Convert this to use RDir
-bool Utils::ScanDirectory(const char *a_pccDirectoryName, bool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData)
+TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData)
 {
-	bool Error, RetVal;
+	TBool Error, RetVal;
 	APTR Context;
 	struct ExamineData *ExamineData;
 
 	/* Assume failure */
 
-	Error = RetVal = false;
+	Error = RetVal = EFalse;
 
 	// TODO: CAW - Fix all comments & error messages. Check result of ExamineDir()
 	/* Allocate some data structures into which the information about the directory entries may be placed, */
@@ -659,7 +659,7 @@ bool Utils::ScanDirectory(const char *a_pccDirectoryName, bool a_bScanFiles, Sca
 
 	if (Context)
 	{
-		RetVal = true;
+		RetVal = ETrue;
 
 		while ((ExamineData = IDOS->ExamineDir(Context)) != NULL)
 		{
@@ -670,7 +670,7 @@ bool Utils::ScanDirectory(const char *a_pccDirectoryName, bool a_bScanFiles, Sca
 				{
 					if (!(a_pfScanFunc((const char *) ExamineData->Name, a_pvUserData)))
 					{
-						Error = true;
+						Error = ETrue;
 
 						break;
 					}
@@ -682,7 +682,7 @@ bool Utils::ScanDirectory(const char *a_pccDirectoryName, bool a_bScanFiles, Sca
 				{
 					if (!(a_pfScanFunc((const char *) ExamineData->Name, a_pvUserData)))
 					{
-						Error = true;
+						Error = ETrue;
 
 						break;
 					}
@@ -704,9 +704,9 @@ bool Utils::ScanDirectory(const char *a_pccDirectoryName, bool a_bScanFiles, Sca
 
 /* Written: Saturday 18-Jul-2009 8:06 am */
 
-int Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
+TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 {
-	int RetVal;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
@@ -741,9 +741,9 @@ int Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 /* Written: Saturday 18-Jul-2009 7:59 am */
 
-int Utils::SetProtection(const char *a_pccFileName, unsigned int a_uiAttributes)
+TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 {
-	int RetVal;
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
