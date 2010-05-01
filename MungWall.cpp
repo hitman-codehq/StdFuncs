@@ -1,6 +1,12 @@
 
 #include "StdFuncs.h"
+
+#ifdef __amigaos4__
+
 #include <proto/exec.h>
+
+#endif /* __amigaos4__ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +30,6 @@ class MungWall oMungWall;
 
 MungWall::~MungWall()
 {
-	char acMessage[256];
 	void *pvBlock;
 	ULONG ulBytesLeaked, ulNews;
 	struct Arena *paArena;
@@ -53,14 +58,11 @@ MungWall::~MungWall()
 		{
 			if (paArena->iSourceLine)
 			{
-				// TODO: CAW - No need for sprintf + check for tabs
-				sprintf(acMessage, "*** MungWall alert: File %s, line %d: %d bytes still allocated", paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
-				Utils::Info(acMessage);
+				Utils::Info("*** MungWall alert: File %s, line %d: %d bytes still allocated", paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
 			}
 			else
 			{
-				sprintf(acMessage, "*** MungWall alert: File %s: %d bytes still allocated", paArena->pcSourceFile, paArena->stOrigSize);
-				Utils::Info(acMessage);
+				Utils::Info("*** MungWall alert: File %s: %d bytes still allocated", paArena->pcSourceFile, paArena->stOrigSize);
 			}
 
 			paArena = paArena->paNext;
