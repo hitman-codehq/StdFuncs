@@ -5,6 +5,14 @@
 #include <stdarg.h>
 #include "Dir.h"
 
+#ifdef WIN32
+
+/* Disable a bogus MSVC warning */
+
+#pragma warning(disable : 4710) /* Function not expanded */
+
+#endif /* WIN32 */
+
 /* Forward declaration to avoid including Dir.h */
 
 class TEntry;

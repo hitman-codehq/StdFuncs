@@ -64,7 +64,6 @@ TBool TEntry::IsHidden() const
 
 #endif /* ! __amigaos4__ */
 
-	return(iIsLink);
 }
 
 /* Written: Saturday 03-Nov-2007 6:42 pm */

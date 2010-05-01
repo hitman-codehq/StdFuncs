@@ -105,7 +105,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	if (g_bFromWorkbench)
 	{
-		MessageBox("Assertion", a_pccMessage, Args);
+		MessageBox("Assertion Failure", a_pccMessage, Args);
 	}
 	else
 	{
@@ -446,29 +446,38 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 
 void Utils::Info(const char *a_pccMessage, ...)
 {
-
-// TODO: CAW
-#ifdef __amigaos4__
-
 	char Message[512];
 	va_list Args;
 
 	va_start(Args, a_pccMessage);
-	vsnprintf(Message, sizeof(Message), a_pccMessage, Args);
+	strcpy(Message, "Info: " );
+	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
+
+#ifdef __amigaos4__
 
 	if (g_bFromWorkbench)
 	{
-		IExec->DebugPrintF("Info: %s\n", Message);
+		IExec->DebugPrintF("%s\n", Message);
 	}
 	else
 	{
-		IDOS->Printf("Info: %s\n", Message);
+		IDOS->Printf("%s\n", Message);
 	}
 
+#else /* ! __amigaos4__ */
+
+	if (g_bFromWorkbench)
+	{
+		OutputDebugString(Message);
+	}
+	else
+	{
+		printf("%s\n", Message);
+	}
+
+#endif /* ! __amigaos4__ */
+
 	va_end(Args);
-
-#endif /* __amigaos4__ */
-
 }
 
 #endif /* _DEBUG */
@@ -601,15 +610,14 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs)
 {
+	char Message[512];
 
-// TODO: CAW
+	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
+
 #ifdef __amigaos4__
 
-	char Message[512];
 	struct EasyStruct EasyStruct;
 	struct Window *Requester;
-
-	vsnprintf(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
 	EasyStruct.es_StructSize = sizeof(struct EasyStruct);
 	EasyStruct.es_Flags = 0;
@@ -631,7 +639,11 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 		IDOS->Printf(": %s\n", Message);
 	}
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	::MessageBox(NULL, Message, a_pccTitle, MB_OK);
+
+#endif /* ! __amigaos4__ */
 
 }
 
