@@ -190,40 +190,43 @@ void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL b
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
-	if (CheckBlockValidity(pvBlock))
+	if (pvBlock)
 	{
-		CheckOverWrites(paArena);
-		--ulNumNews;
-
-		if (paArena == paFirstArena)
+		if (CheckBlockValidity(pvBlock))
 		{
-			paFirstArena = paArena->paNext;
-		}
+			CheckOverWrites(paArena);
+			--ulNumNews;
 
-		if (paArena->paPrev)
-		{
-			paArena->paPrev->paNext = paArena->paNext;
-		}
+			if (paArena == paFirstArena)
+			{
+				paFirstArena = paArena->paNext;
+			}
 
-		if (paArena->paNext)
-		{
-			paArena->paNext->paPrev = paArena->paPrev;
+			if (paArena->paPrev)
+			{
+				paArena->paPrev->paNext = paArena->paNext;
+			}
+
+			if (paArena->paNext)
+			{
+				paArena->paNext->paPrev = paArena->paPrev;
+			}
+			else
+			{
+				MungeMem((ULONG *) paArena, paArena->stOrigSize);
+				free(paArena);
+			}
 		}
 		else
 		{
-			MungeMem((ULONG *) paArena, paArena->stOrigSize);
-			free(paArena);
-		}
-	}
-	else
-	{
-		if (bHasSource)
-		{
-			Utils::Info("MungWall alert: File %s, line %d: Invalid block passed in", pcSourceFile, iSourceLine);
-		}
-		else
-		{
-			Utils::Info("*** MungWall alert: Invalid block passed in");
+			if (bHasSource)
+			{
+				Utils::Info("MungWall alert: File %s, line %d: Invalid block passed in", pcSourceFile, iSourceLine);
+			}
+			else
+			{
+				Utils::Info("*** MungWall alert: Invalid block passed in");
+			}
 		}
 	}
 }
