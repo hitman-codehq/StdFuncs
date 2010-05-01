@@ -805,4 +805,3 @@ ULONG Utils::Blue32(unsigned long a_ulColour)
 
 	return((Blue << 24) | (Blue << 16) | (Blue << 8) | Blue);
 }
-

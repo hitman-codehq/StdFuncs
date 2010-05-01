@@ -14,7 +14,7 @@ class RArgs
 public:
 
 	RArgs();
-	
+
 	int Open(const char *a_pccTemplate, int a_iNumOptions, const char *a_pccArgV[], int a_iArgC);
 
 	int Open(const char *a_pccTemplate, int a_iNumOptions, const struct WBStartup *a_poWBStartup);
