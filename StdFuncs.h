@@ -6,14 +6,19 @@
 
 #include <proto/exec.h>
 #include <proto/dos.h>
-#include "MungWall.h"
 
 #else /* ! __amigaos4__ */
 
 #include <windows.h>
 #include <signal.h>
 
+// TODO: CAW - Check type on Amiga
+typedef void * APTR;
+typedef unsigned char UBYTE;
+
 #endif /* ! __amigaos4__ */
+
+#include "MungWall.h"
 
 /* Fundamental type declarations */
 
