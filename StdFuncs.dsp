@@ -101,6 +101,10 @@ SOURCE=.\File.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MungWall.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
