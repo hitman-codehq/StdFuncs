@@ -21,7 +21,6 @@ void RTest::Title()
 
 /* Written: Monday 06-Jul 2009 3:56 pm */
 
-// TODO: CAW - Should be able to pass parameters in
 void RTest::Printf(const char *aString)
 {
 	printf("%s", aString);
