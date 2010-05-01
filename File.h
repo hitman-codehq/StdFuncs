@@ -22,7 +22,7 @@ class RFile
 
 #else /* ! __amigaos4__ */
 
-	HANDLE	m_oHandle;		// TODO: CAW
+	HANDLE	m_oHandle;		/* Handle to the open file or 0 if closed */
 
 #endif /* ! __amigaos4__ */
 

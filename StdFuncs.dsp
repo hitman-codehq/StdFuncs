@@ -7,19 +7,19 @@
 CFG=StdFuncs - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "StdFuncs.mak".
-!MESSAGE
+!MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "StdFuncs.mak" CFG="StdFuncs - Win32 Debug"
-!MESSAGE
+!MESSAGE 
 !MESSAGE Possible choices for configuration are:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "StdFuncs - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "StdFuncs - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -28,7 +28,7 @@ CFG=StdFuncs - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF "$(CFG)" == "StdFuncs - Win32 Release"
+!IF  "$(CFG)" == "StdFuncs - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,7 +51,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
-!ELSEIF "$(CFG)" == "StdFuncs - Win32 Debug"
+!ELSEIF  "$(CFG)" == "StdFuncs - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -74,7 +74,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
-!ENDIF
+!ENDIF 
 
 # Begin Target
 
@@ -134,6 +134,10 @@ SOURCE=.\Dir.h
 # Begin Source File
 
 SOURCE=.\File.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MungWall.h
 # End Source File
 # Begin Source File
 

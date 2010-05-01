@@ -1,6 +1,4 @@
 
-// TODO: CAW - Not everything has dates.  What about other files?
-
 #include "StdFuncs.h"
 
 #ifdef __amigaos4__
@@ -183,7 +181,6 @@ void Utils::Error(const char *a_pccMessage, ...)
 /* Written: Monday 09-Apr-2007 12:06 am */
 
 #ifdef __amigaos4__
-// TODO: CAW
 
 TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory)
 {
@@ -459,10 +456,6 @@ void Utils::Info(const char *a_pccMessage, ...)
 	{
 		IExec->DebugPrintF("%s\n", Message);
 	}
-	else
-	{
-		IDOS->Printf("%s\n", Message);
-	}
 
 #else /* ! __amigaos4__ */
 
@@ -470,47 +463,18 @@ void Utils::Info(const char *a_pccMessage, ...)
 	{
 		OutputDebugString(Message);
 	}
-	else
-	{
-		printf("%s\n", Message);
-	}
 
 #endif /* ! __amigaos4__ */
+
+	else
+	{
+		PRINTF("%s\n", Message);
+	}
 
 	va_end(Args);
 }
 
 #endif /* _DEBUG */
-
-/* Written: Monday 15-Feb-2010 8:59 am */
-
-// TODO: CAW - Implement this for OS4 as well or get rid of this
-TBool Utils::IsDevice(const char *a_pccPath)
-{
-	TBool RetVal;
-	TInt Character;
-
-	/* Assume the path passed in does not represent a device name */
-
-	RetVal = EFalse;
-
-	/* If the path passed in is only two characters long then see if it represents a driver letter */
-
-	if (strlen(a_pccPath) == 2)
-	{
-		Character = tolower(*a_pccPath);
-
-		if ((Character >= 'a') && (Character <= 'z'))
-		{
-			if (a_pccPath[1] == ':')
-			{
-				RetVal = ETrue;
-			}
-		}
-	}
-
-	return(RetVal);
-}
 
 // TODO: CAW - Make this GetFileInfo() so that LoadFile() and OpenDirectory() can use it.  Comments all through here!
 /* Written: Monday 09-Apr-2007 12:20 am */
@@ -647,10 +611,10 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 
 }
 
-// TODO: CAW
 #ifdef __amigaos4__
 
-// TODO: CAW - Convert this to use RDir
+// TODO: CAW - Convert this to use RDir?  Why is it OS4 only?  Comments and error messages, ExamineDir() result
+//             ObtainDirContextTags() are not all required
 TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData)
 {
 	TBool Error, RetVal;
@@ -661,13 +625,11 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 
 	Error = RetVal = EFalse;
 
-	// TODO: CAW - Fix all comments & error messages. Check result of ExamineDir()
 	/* Allocate some data structures into which the information about the directory entries may be placed, */
 	/* and a control structure for scanning through the directory */
 
-	// TODO: CAW - Not all of these are required
 	Context = IDOS->ObtainDirContextTags(EX_StringNameInput, a_pccDirectoryName,
-		EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_END); // TODO: CAW
+		EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_END);
 
 	if (Context)
 	{
@@ -724,7 +686,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 	// TODO: Return value here and for SetProtection(). Should this be in Utils?
 	RetVal = KErrNone;
-	IDOS->SetFileDate(a_pccFileName, &a_roEntry.iAmigaDate);
+	IDOS->SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate);
 
 #else /* ! __amigaos4__ */
 
@@ -738,7 +700,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 	if ((Handle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) != INVALID_HANDLE_VALUE)
 	{
-		if (SetFileTime(Handle, &a_roEntry.iWindowsDate, &a_roEntry.iWindowsDate, &a_roEntry.iWindowsDate))
+		if (SetFileTime(Handle, &a_roEntry.iPlatformDate, &a_roEntry.iPlatformDate, &a_roEntry.iPlatformDate))
 		{
 			RetVal = KErrNone;
 		}
@@ -788,15 +750,13 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry
 
 	struct DateTime DateTime = { { 0, 0, 0 }, FORMAT_DOS, DTF_SUBST, NULL, NULL, NULL };
 
-	// TODO: CAW - This is broken
-	DateTime.dat_Stamp = a_roEntry.iAmigaDate;
+	// TODO: CAW - This is broken and return code should be checked
+	DateTime.dat_Stamp = a_roEntry.iPlatformDate;
 	DateTime.dat_StrTime = a_pcTime;
 	DateTime.dat_StrDate = a_pcDate;
 
 	if (IDOS->DateToStr(&DateTime))
 	{
-		// TODO: CAW - Return value
-		//printf(" %s %s", Time, Date);
 	}
 
 #else /* ! __amigaos4__ */

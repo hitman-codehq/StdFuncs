@@ -44,7 +44,7 @@ public:
 		return((m_oHead.m_poNext != &m_oTail) ? m_oHead.m_poNext->m_poThis : NULL);
 	}
 
-	T *GetSucc(T* a_poCurrent) const
+	T *GetSucc(const T* a_poCurrent) const
 	{
 		return((a_poCurrent->m_oStdListNode.m_poNext != &m_oTail) ? a_poCurrent->m_oStdListNode.m_poNext->m_poThis : NULL);
 	}

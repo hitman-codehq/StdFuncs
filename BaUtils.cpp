@@ -4,7 +4,6 @@
 
 /* Written: Wednesday 01-Jul-2009 7:54 pm */
 
-// TODO: CAW - Move into Utils and rename it
 TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 {
 

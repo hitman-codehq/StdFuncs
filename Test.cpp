@@ -53,6 +53,6 @@ void RTest::operator()(TInt aResult, TInt aLineNumber, const char *aFileName)
 	if (!(aResult))
 	{
 		printf("RTEST: FAIL : %s failed check at line %d of %s\n", iTitle, aLineNumber, aFileName);
-		exit(1); // TODO: CAW - Use Amiga OS code
+		exit(RETURN_ERROR);
 	}
 }

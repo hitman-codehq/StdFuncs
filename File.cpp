@@ -132,7 +132,7 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 {
 	TInt RetVal;
 
-	// TODO: CAW - Assert on being open
+	ASSERTM(m_oHandle, "RFile::Read() => File is not open");
 
 #ifdef __amigaos4__
 
@@ -167,7 +167,7 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
 	TInt RetVal;
 
-	// TODO: CAW - Assert on being open
+	ASSERTM(m_oHandle, "RFile::Write() => File is not open");
 
 #ifdef __amigaos4__
 

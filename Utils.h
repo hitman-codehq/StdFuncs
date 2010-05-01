@@ -51,8 +51,6 @@ public:
 
 #endif /* ! _DEBUG */
 
-	static TBool IsDevice(const char *a_pccPath);
-
 	static TBool IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory);
 
 	static TInt LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer);

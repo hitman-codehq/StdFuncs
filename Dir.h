@@ -23,11 +23,11 @@ public:
 #ifdef __amigaos4__
 
 	// TODO: CAW - I don't like this, nor the Set() function below
-	struct DateStamp	iAmigaDate;			/* Date and time in Amiga specific format */
+	struct DateStamp	iPlatformDate;		/* Date and time in Amiga specific format */
 
 #else /* ! __amigaos4__ */
 
-	FILETIME			iWindowsDate;		/* Date and time in Windows specific format */
+	FILETIME			iPlatformDate;		/* Date and time in Windows specific format */
 
 #endif /* ! __amigaos4__ */
 
@@ -43,13 +43,13 @@ public:
 
 #ifdef __amigaos4__
 
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, TDateTime &a_oDateTime,
-		struct DateStamp &a_roAmigaDate);
+	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
+		const struct DateStamp &a_roAmigaDate);
 
 #else /* ! __amigaos4__ */
 
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, TDateTime &a_oDateTime,
-		FILETIME &a_roWindowsDate);
+	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
+		const FILETIME &a_roWindowsDate);
 
 #endif /* ! __amigaos4__ */
 
@@ -81,6 +81,8 @@ public:
 	const TEntry *GetHead() const;
 
 	const TEntry *GetSucc(const TEntry *a_poEntry) const;
+
+	void Purge();
 
 	void Remove(const TEntry *a_poEntry);
 };

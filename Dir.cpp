@@ -70,14 +70,13 @@ TBool TEntry::IsHidden() const
 
 #ifdef __amigaos4__
 
-// TODO: CAW - Const?
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, TDateTime &a_roDateTime,
-	struct DateStamp &a_roAmigaDate)
+void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
+	const struct DateStamp &a_roPlatformDate)
 
 #else /* ! __amigaos4__ */
 
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, TDateTime &a_roDateTime,
-	FILETIME &a_roWindowsDate)
+void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
+	const FILETIME &a_roPlatformDate)
 
 #endif /* ! __amigaos4__ */
 
@@ -87,18 +86,7 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttr
 	iSize = a_uiSize;
 	iAttributes = a_uiAttributes;
 	iModified = a_roDateTime;
-
-#ifdef __amigaos4__
-
-	// TODO: CAW - Use a common name?
-	iAmigaDate = a_roAmigaDate;
-
-#else /* ! __amigaos4__ */
-
-	iWindowsDate = a_roWindowsDate;
-
-#endif /* ! __amigaos4__ */
-
+	iPlatformDate = a_roPlatformDate;
 }
 
 /* Written: Saturday 03-Nov-2007 5:57 pm */
@@ -112,14 +100,7 @@ TEntryArray::TEntryArray()
 
 TEntryArray::~TEntryArray()
 {
-	TEntry *Entry;
-
-	/* Iterate through the list of nodes and delete each one */
-
-	while ((Entry = iEntries.RemHead()) != NULL)
-	{
-		delete Entry;
-	}
+	Purge();
 }
 
 /* Written: Friday 19-Jun-2009 7:11 am */
@@ -180,8 +161,7 @@ const TEntry &TEntryArray::operator[](TInt a_iIndex) const
 	return(*Entry);
 }
 
-// TODO:CAW - Should these be inline to make the debug version faster?
-/* Written: Saturday 11-Jul-2000 10:44 pm */
+/* Written: Saturday 11-Jul-2008 10:44 pm */
 
 const TEntry *TEntryArray::GetHead() const
 {
@@ -190,10 +170,28 @@ const TEntry *TEntryArray::GetHead() const
 
 const TEntry *TEntryArray::GetSucc(const TEntry *a_poEntry) const
 {
-	return(iEntries.GetSucc((TEntry *) a_poEntry)); // TODO: CAW - Cast
+	return(iEntries.GetSucc(a_poEntry));
 }
 
-/* Written: Saturday 11-Jul-2000 11:42 pm */
+/* Written: Saturday 11-Jul-2010 3:36 pm */
+
+void TEntryArray::Purge()
+{
+	TEntry *Entry;
+
+	/* Iterate through the list of nodes and delete each one */
+
+	while ((Entry = iEntries.RemHead()) != NULL)
+	{
+		delete Entry;
+	}
+
+	/* And indicate that the array is now empty */
+
+	iCount = 0;
+}
+
+/* Written: Saturday 11-Jul-2008 11:42 pm */
 
 void TEntryArray::Remove(const TEntry *a_poEntry)
 {
@@ -220,13 +218,10 @@ RDir::RDir()
 
 /* Written: Saturday 03-Nov-2007 4:43 pm */
 
-TInt RDir::Open(const char *a_pccPattern) // TODO: CAW - Rename a_pccPattern
+TInt RDir::Open(const char *a_pccPattern)
 {
 	TInt RetVal;
 	TEntry *Entry;
-
-	// TODO: CAW
-	Close();
 
 	/* Assume failure */
 
@@ -254,17 +249,7 @@ TInt RDir::Open(const char *a_pccPattern) // TODO: CAW - Rename a_pccPattern
 				Entry->iSize = iSingleEntry.iSize;
 				Entry->iAttributes = iSingleEntry.iAttributes;
 				Entry->iModified = iSingleEntry.iModified;
-
-#ifdef __amigaos4__
-
-				Entry->iAmigaDate = iSingleEntry.iAmigaDate;
-
-#else /* ! __amigaos4__ */
-
-				Entry->iWindowsDate = iSingleEntry.iWindowsDate;
-
-#endif /* ! __amigaos4__ */
-
+				Entry->iPlatformDate = iSingleEntry.iPlatformDate;
 			}
 		}
 	}
@@ -431,13 +416,9 @@ TInt RDir::Open(const char *a_pccPattern) // TODO: CAW - Rename a_pccPattern
 
 void RDir::Close()
 {
-	const TEntry *Entry;
+	/* Free the contents of the TEntry array in case it the RDir class is reused */
 
-	// TODO: CAW
-	while ((Entry = iEntries.GetHead()) != NULL)
-	{
-		iEntries.Remove(Entry);
-	}
+	iEntries.Purge();
 
 #ifdef __amigaos4__
 
@@ -447,7 +428,6 @@ void RDir::Close()
 	delete [] iPattern;
 	iPattern = NULL;
 
-	// TODO: CAW - What about freeing the TEntryArray? Test that Count() == 0 afterwards!
 	if (iContext)
 	{
 		IDOS->ReleaseDirContext(iContext);
