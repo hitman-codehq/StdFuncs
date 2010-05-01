@@ -3,9 +3,6 @@
 #include <Dir.h>
 #include "Test.h"
 
-// TODO: CAW - Use Test.Printf() and get rid of this
-#include <stdio.h>
-
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
 
@@ -25,11 +22,11 @@ static void TestScan(const char *a_pccPath)
 	test(Result == KErrNone);
 
 	Count = Entries->Count();
-	printf("Path \"%s\" count = %d\n", a_pccPath, Count);
+	Test.Printf("Path \"%s\" count = %d\n", a_pccPath, Count);
 
 	for (Index = 0; Index < Count; ++Index)
 	{
-		printf("%s\n", (*Entries)[Index].iName);
+		Test.Printf("%s\n", (*Entries)[Index].iName);
 	}
 
 	g_oDir.Close();

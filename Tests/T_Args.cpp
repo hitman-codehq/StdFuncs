@@ -3,9 +3,6 @@
 #include <Args.h>
 #include "Test.h"
 
-// TODO: CAW - Use Test.Printf() and get rid of this
-#include <stdio.h>
-
 /* Fake command line used for testing, with parameters shuffled up to exercise RArgs class */
 
 const char *a_pccArgV[] =
@@ -60,11 +57,11 @@ int main()
 	{
 		if (Args[Index])
 		{
-			printf("%s\n", Args[Index]);
+			Test.Printf("%s\n", Args[Index]);
 		}
 		else
 		{
-			printf("Argument %d not specified\n", Index);
+			Test.Printf("Argument %d not specified\n", Index);
 		}
 	}
 
