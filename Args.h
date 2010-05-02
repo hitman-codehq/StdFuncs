@@ -31,6 +31,12 @@ public:
 
 private:
 
+	TInt ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char **a_ppcOption, char *a_pcType);
+
+	TInt ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
+
+private:
+
 	char			*m_pcCommandLine;		/* Buffer for emulating CLI command line when running from Workbench */
 	char			*m_pcProjectFileName;	/* Name of project icon that was started with the program, if any */
 	TInt			m_iNumArgs;				/* # of entries in the iArgs array */

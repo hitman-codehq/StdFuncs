@@ -15,80 +15,6 @@
 #include <string.h>
 #include "Args.h"
 
-#ifndef __amigaos4__
-
-// TODO: CAW - Comment all through here
-
-/* Written: Thursday 16-Jul-2009 6:37 am */
-
-static char *ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char *a_pcType)
-{
-	char Char, *RetVal;
-	TInt Offset, StartOffset, EndOffset;
-
-	RetVal = NULL;
-	Offset = StartOffset = EndOffset = 0;
-	*a_pcType = '\0';
-
-	while (a_iIndex >= 0)
-	{
-		for ( ; ; )
-		{
-			Char = a_pccTemplate[Offset];
-
-			if ((Char == '\0') || (Char == ','))
-			{
-				if (a_iIndex > 0)
-				{
-					--a_iIndex;
-					StartOffset = EndOffset = (Offset + 1);
-				}
-				else
-				{
-					a_iIndex = -1;
-
-					break;
-				}
-			}
-			else
-			{
-				if (Char == '/')
-				{
-					EndOffset = Offset;
-					*a_pcType = a_pccTemplate[Offset + 1];
-				}
-			}
-
-			++Offset;
-
-			if (Char == '\0')
-			{
-				a_iIndex = -1;
-
-				break;
-			}
-		}
-	}
-
-	if (StartOffset < EndOffset)
-	{
-		// TODO: CAW - I don't like this because it doesn't differentiate between out of memory and other failures
-		if ((RetVal = new char[(EndOffset - StartOffset) + 1]) != NULL)
-		{
-			for (Offset = 0; StartOffset < EndOffset; ++StartOffset)
-			{
-				RetVal[Offset++] = a_pccTemplate[StartOffset];
-			}
-
-			RetVal[Offset] = '\0';
-		}
-	}
-
-	return(RetVal);
-}
-
-#endif /* ! __amigaos4__ */
-
 /* Written: Sunday 04-Nov-2007 11:48 am */
 
 RArgs::RArgs()
@@ -105,10 +31,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 {
 	TInt RetVal;
 
-	/* Assume failure */
-
-	RetVal = KErrNoMemory;
-
 	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
 
 	if ((m_plArgs = new LONG[a_iNumOptions]) != NULL)
@@ -124,6 +46,8 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		(void) a_pccArgV;
 		(void) a_iArgC;
 
+		/* For Amiga OS we can let dos.library do the hard work for us */
+
 		if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, NULL)) != NULL)
 		{
 			RetVal = KErrNone;
@@ -135,72 +59,21 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 #else /* ! __amigaos4__ */
 
-		char **ArgV, *OptionName, Type;
-		TInt Arg, Index;
+		/* If the user has requested to display the template then do so and request input and parse that instead */
+		/* of what was passed in on the command line */
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
-			// TODO: CAW - Emulate real Amiga OS behaviour
+			// TODO: CAW
+			char Buffer[1024];
 			printf("%s\n", a_pccTemplate);
+			scanf("%s", Buffer);
+			const char *ArgV[1] = { Buffer };
+			RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, 1);
 		}
 		else
 		{
-			if ((ArgV = new char *[a_iArgC]) != NULL)
-			{
-				RetVal = KErrNone;
-				memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
-				memcpy(ArgV, a_pccArgV, (sizeof(char *) * a_iArgC));
-
-				for (Index = 0; Index < a_iNumOptions; ++Index)
-				{
-					if ((OptionName = ExtractOption(a_pccTemplate, Index, &Type)) != NULL)
-					{
-						if (Type == 'S')
-						{
-							for (Arg = 1; Arg < a_iArgC; ++Arg)
-							{
-								if ((ArgV[Arg]) && (!(stricmp(ArgV[Arg], OptionName))))
-								{
-									m_plArgs[Index] = (LONG) ArgV[Arg];
-									ArgV[Arg] = NULL;
-
-									break;
-								}
-							}
-						}
-
-						delete [] OptionName;
-					}
-				}
-
-				for (Index = 0; Index < a_iNumOptions; ++Index)
-				{
-					if ((OptionName = ExtractOption(a_pccTemplate, Index, &Type)) != NULL)
-					{
-						if (Type == 'A')
-						{
-							for (Arg = 1; Arg < a_iArgC; ++Arg)
-							{
-								if (ArgV[Arg])
-								{
-									m_plArgs[Index] = (LONG) ArgV[Arg];
-									ArgV[Arg] = NULL;
-
-									break;
-								}
-							}
-						}
-
-						delete [] OptionName;
-					}
-				}
-
-				delete [] ArgV;
-			}
-			else
-			{
-				Utils::Info("RDArgs::Open() => Unable to allocate buffe for arguments");
-			}
+			RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, a_pccArgV, a_iArgC);
 		}
 
 #endif /* ! __amigaos4__ */
@@ -208,6 +81,8 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 	}
 	else
 	{
+		RetVal = KErrNoMemory;
+
 		Utils::Info("RArgs::Open() => Unable to allocate array for arguments");
 	}
 
@@ -492,12 +367,191 @@ TInt RArgs::Count()
 	return(m_iNumArgs);
 }
 
+#ifndef __amigaos4__
+
+/* Written: Thursday 16-Jul-2009 6:37 am */
+
+TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char **a_ppcOption, char *a_pcType)
+{
+	char Char, *Option;
+	TInt Offset, StartOffset, EndOffset, RetVal;
+
+	/* Assume the option wasn't extracted successfully */
+
+	RetVal = KErrNotFound;
+	*a_ppcOption = NULL;
+	*a_pcType = '\0';
+
+	/* Iterate through the template, extracting the name and type of each option until the requested */
+	/* one is found */
+
+	Offset = StartOffset = EndOffset = 0;
+
+	while (a_iIndex >= 0)
+	{
+		Char = a_pccTemplate[Offset];
+
+		/* If we are at the end of the template then break out of the loop */
+
+		if (Char == '\0')
+		{
+			break;
+		}
+
+		/* If we are at the end of the option currently being examined, decrement the option count. */
+		/* If this results in the option count going to zero then we have found the start of the */
+		/* option we are looking for so set the start offset to point to the start of the next option */
+		/* in preparation for extraction */
+
+		if (Char == ',')
+		{
+			if (--a_iIndex == 0)
+			{
+				StartOffset = (Offset + 1);
+			}
+		}
+
+		/* Otherwise if we have found the type separator then save its offset so that the option can be */
+		/* extracted later, and save the type itself */
+
+		else if (Char == '/')
+		{
+			EndOffset = Offset;
+			*a_pcType = a_pccTemplate[Offset + 1];
+		}
+
+		++Offset;
+	}
+
+	/* If we have found a keyword terminated by a '/' then we have found the requested option so */
+	/* allocate a buffer for it and extract the option so it can be returned.  In this case the type */
+	/* of the option will already have been returned by the code above */
+
+	if (StartOffset < EndOffset)
+	{
+		if ((*a_ppcOption = Option = new char[(EndOffset - StartOffset) + 1]) != NULL)
+		{
+			/* Indicate success */
+
+			RetVal = KErrNone;
+
+			/* And copy the found option into the allocated buffer */
+
+			for (Offset = 0; StartOffset < EndOffset; ++StartOffset)
+			{
+				Option[Offset++] = a_pccTemplate[StartOffset];
+			}
+
+			Option[Offset] = '\0';
+		}
+		else
+		{
+			RetVal = KErrNoMemory;
+		}
+	}
+
+	return(RetVal);
+}
+
+#endif /* ! __amigaos4__ */
+
 /* Written: Tuesday 13-Jan-2009 7:19 am */
 
 const char *RArgs::ProjectFileName()
 {
 	return(m_pcProjectFileName);
 }
+
+#ifndef __amigaos4__
+
+/* Written: Sunday 02-05-2010 8:52 am */
+
+TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
+{
+	char **ArgV, *OptionName, Type;
+	TInt Arg, Index, RetVal;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+	/* Allocate a buffer large enouth to hold the arguments passed in from the command line.  This */
+	/* is used to keep track of which arguments have been found already so that /A options can be */
+	/* automatically filled in after scanning the other options */
+
+	if ((ArgV = new char *[a_iArgC]) != NULL)
+	{
+		memcpy(ArgV, a_pccArgV, (sizeof(char *) * a_iArgC));
+		memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
+
+		for (Index = 0; Index < a_iNumOptions; ++Index)
+		{
+			if ((RetVal = ExtractOption(a_pccTemplate, Index, &OptionName, &Type)) == KErrNone)
+			{
+				if (Type == 'S')
+				{
+					for (Arg = 1; Arg < a_iArgC; ++Arg)
+					{
+						if ((ArgV[Arg]) && (!(stricmp(ArgV[Arg], OptionName))))
+						{
+							m_plArgs[Index] = (LONG) ArgV[Arg];
+							ArgV[Arg] = NULL;
+
+							break;
+						}
+					}
+				}
+
+				delete [] OptionName;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if (RetVal == KErrNone)
+		{
+			for (Index = 0; Index < a_iNumOptions; ++Index)
+			{
+				if ((RetVal = ExtractOption(a_pccTemplate, Index, &OptionName, &Type)) == KErrNone)
+				{
+					if (Type == 'A')
+					{
+						for (Arg = 1; Arg < a_iArgC; ++Arg)
+						{
+							if (ArgV[Arg])
+							{
+								m_plArgs[Index] = (LONG) ArgV[Arg];
+								ArgV[Arg] = NULL;
+
+								break;
+							}
+						}
+					}
+
+					delete [] OptionName;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		delete [] ArgV;
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+
+		Utils::Info("RDArgs::Open() => Unable to allocate buffer for arguments");
+	}
+
+	return(RetVal);
+}
+
+#endif /* ! __amigaos4__ */
 
 /* Written: Sunday 04-Nov-2007 12:17 pm */
 
