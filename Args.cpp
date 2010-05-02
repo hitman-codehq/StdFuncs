@@ -371,7 +371,7 @@ TInt RArgs::Count()
 
 /* Written: Thursday 16-Jul-2009 6:37 am */
 
-TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char **a_ppcOption, char *a_pcType)
+TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType)
 {
 	char Char, *Option;
 	TInt Offset, StartOffset, EndOffset, RetVal;
@@ -382,33 +382,22 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char **a_ppc
 	*a_ppcOption = NULL;
 	*a_pcType = '\0';
 
-	/* Iterate through the template, extracting the name and type of each option until the requested */
-	/* one is found */
+	/* Iterate through the template, starting at the offset passed in, and look for the type separator for */
+	/* the current option and the ',' that separates this option from the next one */
 
-	Offset = StartOffset = EndOffset = 0;
+	Offset = StartOffset = EndOffset = *a_piOffset;
 
-	while (a_iIndex >= 0)
+	for ( ; ; )
 	{
 		Char = a_pccTemplate[Offset];
 
-		/* If we are at the end of the template then break out of the loop */
+		/* If we are at the end of the template or the current option then break out of the loop */
 
-		if (Char == '\0')
+		if ((Char == '\0') || (Char == ','))
 		{
+			++Offset;
+
 			break;
-		}
-
-		/* If we are at the end of the option currently being examined, decrement the option count. */
-		/* If this results in the option count going to zero then we have found the start of the */
-		/* option we are looking for so set the start offset to point to the start of the next option */
-		/* in preparation for extraction */
-
-		if (Char == ',')
-		{
-			if (--a_iIndex == 0)
-			{
-				StartOffset = (Offset + 1);
-			}
 		}
 
 		/* Otherwise if we have found the type separator then save its offset so that the option can be */
@@ -422,6 +411,11 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt a_iIndex, char **a_ppc
 
 		++Offset;
 	}
+
+	/* Update the user's offset value so that we can continue on from the same place next time */
+	/* we are called */
+
+	*a_piOffset = Offset;
 
 	/* If we have found a keyword terminated by a '/' then we have found the requested option so */
 	/* allocate a buffer for it and extract the option so it can be returned.  In this case the type */
@@ -469,7 +463,7 @@ const char *RArgs::ProjectFileName()
 TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
 	char **ArgV, *OptionName, Type;
-	TInt Arg, Index, RetVal;
+	TInt Arg, Index, Offset, RetVal;
 
 	/* Assume success */
 
@@ -483,17 +477,26 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 	{
 		memcpy(ArgV, a_pccArgV, (sizeof(char *) * a_iArgC));
 		memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
+		Offset = 0;
+
+		/* Iterate through the template and extract all S options */
 
 		for (Index = 0; Index < a_iNumOptions; ++Index)
 		{
-			if ((RetVal = ExtractOption(a_pccTemplate, Index, &OptionName, &Type)) == KErrNone)
+			if ((RetVal = ExtractOption(a_pccTemplate, &Offset, &OptionName, &Type)) == KErrNone)
 			{
 				if (Type == 'S')
 				{
+					/* Now scan through the arguments passed in and see if this option has been specified */
+
 					for (Arg = 1; Arg < a_iArgC; ++Arg)
 					{
 						if ((ArgV[Arg]) && (!(stricmp(ArgV[Arg], OptionName))))
 						{
+							/* Found the option!  Copy it into the args array so that queries by client code */
+							/* return that it has been found and set the temporary copy to NULL so that only */
+							/* unused arguments are left after S option extraction */
+
 							m_plArgs[Index] = (LONG) ArgV[Arg];
 							ArgV[Arg] = NULL;
 
@@ -510,18 +513,29 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 			}
 		}
 
+		/* If no error occurred, now we have to iterate through the template again, this time looking for A */
+		/* options and using whatever arguments are leftover on the command line as their values */
+
 		if (RetVal == KErrNone)
 		{
+			Offset = 0;
+
 			for (Index = 0; Index < a_iNumOptions; ++Index)
 			{
-				if ((RetVal = ExtractOption(a_pccTemplate, Index, &OptionName, &Type)) == KErrNone)
+				if ((RetVal = ExtractOption(a_pccTemplate, &Offset, &OptionName, &Type)) == KErrNone)
 				{
 					if (Type == 'A')
 					{
+						/* Now scan through the arguments passed in looking for an unused one */
+
 						for (Arg = 1; Arg < a_iArgC; ++Arg)
 						{
 							if (ArgV[Arg])
 							{
+								/* Found an unused argument so copy this into the args array so that it represents */
+								/* the current A option when queried by client code.  Set the temporary copy to NULL */
+								/* so taht it is not reused again for the next A option */
+
 								m_plArgs[Index] = (LONG) ArgV[Arg];
 								ArgV[Arg] = NULL;
 
