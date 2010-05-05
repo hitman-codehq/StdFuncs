@@ -29,7 +29,8 @@ RArgs::RArgs()
 
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
-	TInt RetVal;
+	const char **ArgV;
+	TInt ArgC, RetVal;
 
 	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
 
@@ -64,12 +65,19 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
-			// TODO: CAW
-			char Buffer[1024];
-			printf("%s\n", a_pccTemplate);
-			scanf("%s", Buffer);
-			const char *ArgV[1] = { Buffer };
-			RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, 1);
+			if ((ArgV = InputCommandLine(a_pccTemplate, &ArgC)) != NULL)
+			{
+				/* Command line has been input so put the executable's name in the first argument slot and parse */
+				/* it for arguments */
+
+				ArgV[0] = a_pccArgV[0];
+				RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+				delete [] ArgV;
+			}
+			else
+			{
+				RetVal = KErrNoMemory;
+			}
 		}
 		else
 		{
@@ -458,7 +466,92 @@ const char *RArgs::ProjectFileName()
 
 #ifndef __amigaos4__
 
-/* Written: Sunday 02-05-2010 8:52 am */
+/* Written: Sunday 03-05-2010 9:38 am */
+
+const char **RArgs::InputCommandLine(const char *a_pccTemplate, TInt *a_piArgC)
+{
+	char *Arg, Buffer[1024], Char;
+	const char **RetVal;
+	TBool CharFound;
+	TInt Index, Offset, NumArgs, Source, Dest;
+
+	/* Display the template a la Amiga OS and prompt the user for input */
+
+	printf("%s\n", a_pccTemplate);
+	gets(Buffer);
+
+	/* Iterate through the command line the user just entered and strip out any extranneous spaces */
+	/* in the input.  It is easier to pull out the individual tokens if they are separated by just */
+	/* one space.  We will also count the number of tokens that are input in this loop */
+
+	CharFound = EFalse;
+	Dest = 0;
+	NumArgs = 2;
+
+	for (Source = 0; Buffer[Source]; ++Source)
+	{
+		Char = Buffer[Source];
+
+		/* If the current character is a space then copy it only if the previous character was not */
+		/* also a space */
+
+		if (Char == ' ')
+		{
+			if (!(CharFound))
+			{
+				CharFound = ETrue;
+				Buffer[Dest++] = Buffer[Source];
+				++NumArgs;
+			}
+		}
+
+		/* The current character is not a space so just copy it and indicate this fact */
+
+		else
+		{
+			CharFound = EFalse;
+			Buffer[Dest++] = Buffer[Source];
+		}
+	}
+
+	Buffer[Dest] = '\0';
+
+	/* Allocate an array of ptrs to strings, that can be used as an ArgV style array to hold ptrs */
+	/* to the tokens entered above */
+
+	if ((RetVal = new const char *[NumArgs]) != NULL)
+	{
+		/* Iterate through the command line entered and extract each token, NULL terminating it and */
+		/* putting a ptr to it in the ArgV array */
+
+		Offset = 0;
+
+		for (Index = 1; Index < NumArgs; ++Index)
+		{
+			if ((Arg = strtok(&Buffer[Offset], " ")) != NULL)
+			{
+				RetVal[Index] = Arg;
+				Offset += (strlen(Arg) + 1);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		/* And save the number of tokens actually extracted */
+
+		*a_piArgC = Index;
+	}
+	else
+	{
+		Utils::Info("RDArgs::InputCommandLine() => Out of memory");
+	}
+
+	return(RetVal);
+}
+
+/* Written: Saturday 02-05-2010 8:52 am */
 
 TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
