@@ -256,7 +256,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #ifdef __amigaos4__
 
-	char *Pattern;
+	const char *Pattern;
 	TInt Length;
 	LONG Result;
 	STRPTR FileNameOffset;

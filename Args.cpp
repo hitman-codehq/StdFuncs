@@ -29,8 +29,7 @@ RArgs::RArgs()
 
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
-	const char **ArgV;
-	TInt ArgC, RetVal;
+	TInt RetVal;
 
 	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
 
@@ -55,10 +54,15 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		}
 		else
 		{
+			RetVal = KErrNoMemory;
+
 			Utils::Info("RArgs::Open() => Unable to read command line arguments");
 		}
 
 #else /* ! __amigaos4__ */
+
+		const char **ArgV;
+		TInt ArgC;
 
 		/* If the user has requested to display the template then do so and request input and parse that instead */
 		/* of what was passed in on the command line */
