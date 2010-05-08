@@ -105,6 +105,14 @@ SOURCE=.\MungWall.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdApplication.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdWindow.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
@@ -141,11 +149,19 @@ SOURCE=.\MungWall.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdApplication.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdFuncs.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\StdList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdWindow.h
 # End Source File
 # Begin Source File
 

@@ -13,8 +13,8 @@ endif
 
 LIBRARY = $(OBJ)/libStdFuncs.a
 
-OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/MungWall.o $(OBJ)/Test.o \
-	$(OBJ)/Time.o $(OBJ)/Utils.o
+OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/MungWall.o $(OBj)/StdApplication.o \
+	$(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Time.o $(OBJ)/Utils.o
 
 All: $(OBJ) $(LIBRARY)
 
