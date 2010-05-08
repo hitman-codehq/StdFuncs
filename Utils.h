@@ -37,6 +37,8 @@ public:
 
 	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry);
 
+	static void GetScreenSize(TInt *a_piWidth, TInt *a_piHeight);
+
 	static TBool GetShellHeight(TInt *a_piHeight);
 
 #ifdef _DEBUG

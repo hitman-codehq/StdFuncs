@@ -333,6 +333,39 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	return(RetVal);
 }
 
+/* Written: Saturday 08-May-2010 3:16 pm */
+
+void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
+{
+
+#ifdef __amigaos4__
+
+	struct Screen *Screen;
+
+	if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
+	{
+		*a_piWidth = Screen->Width;
+		*a_piHeight = Screen->Height;
+
+		IIntuition->UnlockPubScreen(NULL, Screen);
+	}
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Implement for Windows
+	if (0)
+	{
+	}
+
+#endif /* ! __amigaos4__ */
+
+	else
+	{
+		*a_piWidth = 640;
+		*a_piHeight = 480;
+	}
+}
+
 /* Written: Thursday 09-Jul-2009 06:58 am */
 
 TBool Utils::GetShellHeight(TInt *a_piHeight)
