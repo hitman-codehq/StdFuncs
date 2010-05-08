@@ -54,7 +54,7 @@ int main()
 
 	/* Test that Open() with a directory path works */
 
-	TestScan("Debug");
+	TestScan("T_Args_Debug");
 
 	/* Test that Open() with a directory path and pattern works */
 
