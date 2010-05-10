@@ -171,6 +171,13 @@ ULONG CWindow::GetSignal()
 	return((m_poWindow) ? (1 << m_poWindow->UserPort->mp_SigBit) : 0);
 }
 
+/* Written: Saturday 08-May-2010 6:26 pm */
+
+struct Window *CWindow::GetWindow()
+{
+	return(m_poWindow);
+}
+
 #endif /* __amigaos4__ */
 
 /* Written: Monday 08-Feb-2010 7:19 am */

@@ -23,7 +23,7 @@ int RApplication::Main()
 
 		if (Signal & WindowSignal)
 		{
-			while ((IntuiMessage = (struct IntuiMessage *) IExec->GetMsg(m_poWindow->Window()->UserPort)) != NULL)
+			while ((IntuiMessage = (struct IntuiMessage *) IExec->GetMsg(m_poWindow->GetWindow()->UserPort)) != NULL)
 			{
 				switch (IntuiMessage->Class)
 				{

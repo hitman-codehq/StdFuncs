@@ -35,6 +35,8 @@ public:
 
 	ULONG GetSignal();
 
+	struct Window *GetWindow();
+
 #endif /* __amigaos4__ */
 
 };
