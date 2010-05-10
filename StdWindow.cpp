@@ -10,9 +10,11 @@
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
+// TODO: CAW - WindowFunc?  Change name of a_hWindow to match others?
 LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	LRESULT RetVal;
+	CWindow *Window;
 
 	RetVal = 0;
 
@@ -21,6 +23,20 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 		case WM_DESTROY :
 		{
 			PostQuitMessage(0);
+
+			break;
+		}
+
+		case WM_PAINT :
+		{
+			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
+
+			// TODO: CAW - Bodgey
+			Window->m_poDC = BeginPaint(a_hWindow, &Window->m_oPaintStruct);
+
+			Window->Draw();
+
+			EndPaint(a_hWindow, &Window->m_oPaintStruct);
 
 			break;
 		}
@@ -40,9 +56,9 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 
 /* Written: Monday 08-Feb-2010 7:13 am */
 
-int CWindow::Open(const char *a_pccTitle)
+TInt CWindow::Open(const char *a_pccTitle)
 {
-	int RetVal, ScreenWidth, ScreenHeight;
+	TInt RetVal, ScreenWidth, ScreenHeight;
 
 	/* Get the size of the screen so we can open the window filling its full size */
 
@@ -78,8 +94,8 @@ int CWindow::Open(const char *a_pccTitle)
 	Instance = GetModuleHandle(NULL);
 	WndClass.style = 0;
 	WndClass.lpfnWndProc = WindowProcedure;
-	WndClass.cbClsExtra = 0;
-	WndClass.cbWndExtra = 0;
+	WndClass.cbClsExtra = 10;
+	WndClass.cbWndExtra = 20;
 	WndClass.hInstance = Instance;
 	WndClass.hIcon = 0;
 	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
@@ -97,6 +113,9 @@ int CWindow::Open(const char *a_pccTitle)
 			/* Indicate success */
 
 			RetVal = KErrNone;
+
+			// TODO: CAW
+			SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
 
 			/* And display the window on the screen, maximised */
 

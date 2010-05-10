@@ -12,7 +12,12 @@ private:
 
 #else /* ! __amigaos4__ */
 
-	HWND	m_poWindow;				/* Ptr to underlying Windows window */
+// TODO: CAW - Use accessors?
+public:
+
+	HWND			m_poWindow;		/* Ptr to underlying Windows window */
+	HDC				m_poDC;			// TODO: CAW - What about initialising these?
+	PAINTSTRUCT		m_oPaintStruct;	// TODO: CAW
 
 #endif /* ! __amigaos4__ */
 
@@ -20,9 +25,11 @@ public:
 
 	~CWindow();
 
-	int Open(const char *a_pccTitle);
+	TInt Open(const char *a_pccTitle);
 
 	void Close();
+
+	virtual void Draw() = 0;
 
 #ifdef __amigaos4__
 
