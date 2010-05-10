@@ -109,6 +109,10 @@ SOURCE=.\StdApplication.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdFont.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdWindow.cpp
 # End Source File
 # Begin Source File
@@ -150,6 +154,10 @@ SOURCE=.\MungWall.h
 # Begin Source File
 
 SOURCE=.\StdApplication.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdFont.h
 # End Source File
 # Begin Source File
 
