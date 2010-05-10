@@ -1,6 +1,6 @@
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef STDAPPLICATION_H
+#define STDAPPLICATION_H
 
 /* Forward declaration to reduce the # of includes required */
 
@@ -19,4 +19,4 @@ public:
 	void AddWindow(CWindow *a_poWindow);
 };
 
-#endif /* ! APPLICATION_H */
+#endif /* ! STDAPPLICATION_H */
