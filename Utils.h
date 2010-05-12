@@ -21,6 +21,18 @@ class TEntry;
 
 extern TBool g_bFromWorkbench; /* ETrue if launched from Workbench */
 
+/* Macro that can be used by frontend code to determine whether the program was started from Workbench */
+
+#ifdef __amigaos4__
+
+#define DETECT_WORKBENCH g_bFromWorkbench = (a_iArgC == 0);
+
+#else /* ! __amigaos4__ */
+
+#define DETECT_WORKBENCH g_bFromWorkbench = true;
+
+#endif /* ! __amigaos4__ */
+
 typedef TBool (*ScanFunc)(const char *a_pccFileName, void *a_pvUserData);
 
 class Utils
