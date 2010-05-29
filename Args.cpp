@@ -483,6 +483,8 @@ const char **RArgs::InputCommandLine(const char *a_pccTemplate, TInt *a_piArgC)
 
 	/* Display the template a la Amiga OS and prompt the user for input */
 
+	// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary
+	Buffer[0] = '\0';
 	printf("%s\n", a_pccTemplate);
 	gets(Buffer);
 
