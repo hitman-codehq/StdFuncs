@@ -43,6 +43,7 @@ typedef int TBool;
 #define KErrInUse			-14
 #define KErrCompletion		-17
 #define KErrWrite			-23
+#define KErrEof				-25
 
 #ifndef __amigaos4__
 
