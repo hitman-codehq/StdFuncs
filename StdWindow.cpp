@@ -33,7 +33,7 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 
 			// TODO: CAW
 			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
-			Window->OffsetKeyEvent(a_oLParam & 0x00ffffff);
+			Window->OfferKeyEvent(a_oLParam & 0x00ffffff);
 
 			break;
 		}

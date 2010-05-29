@@ -35,7 +35,7 @@ public:
 	void DrawNow();
 
 	// TODO: CAW - Shouldn't be pure
-	virtual void OffsetKeyEvent(int a_iKey) = 0;
+	virtual void OfferKeyEvent(int a_iKey) = 0;
 
 #ifdef __amigaos4__
 
