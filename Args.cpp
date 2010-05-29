@@ -35,6 +35,8 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 	if ((m_plArgs = new LONG[a_iNumOptions]) != NULL)
 	{
+		memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
+
 		/* Save the # of arguments for l8r */
 
 		m_iNumArgs = a_iNumOptions;
@@ -573,7 +575,6 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 	if ((ArgV = new char *[a_iArgC]) != NULL)
 	{
 		memcpy(ArgV, a_pccArgV, (sizeof(char *) * a_iArgC));
-		memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
 		Offset = 0;
 
 		/* Iterate through the template and extract all S options */
@@ -627,7 +628,9 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 						for (Arg = 1; Arg < a_iArgC; ++Arg)
 						{
-							if (ArgV[Arg])
+							/* Only use the argument if it is not an empty string ("") */
+
+							if ((ArgV[Arg]) && (strlen(ArgV[Arg]) > 0))
 							{
 								/* Found an unused argument so copy this into the args array so that it represents */
 								/* the current A option when queried by client code.  Set the temporary copy to NULL */
