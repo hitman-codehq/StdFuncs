@@ -21,8 +21,7 @@ public:
 		m_poWindow = a_poWindow;
 	}
 
-	// TODO: CAW - What is the Symbian name?
-	void DrawText(const char *a_pcText, TInt a_iX, TInt a_iY);
+	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
 };
 
 #endif /* ! STDFONT_H */

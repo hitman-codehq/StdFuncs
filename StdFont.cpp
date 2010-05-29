@@ -5,8 +5,7 @@
 
 /* Written: Sunday 09-May-2010 6:57 pm */
 
-// TODO: CAW - Rename or remove a_iX
-void RFont::DrawText(const char *a_pcText, TInt a_iX, TInt a_iY)
+void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 {
 
 #ifdef __amigaos4__
@@ -22,8 +21,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		Height = TextMetric.tmHeight;
 
 		// TODO: CAW - What about checking m_poDC is ok?
-		//::DrawText(m_poWindow->m_poDC, a_pcText, strlen(a_pcText), &m_poWindow->m_oPaintStruct.rcPaint, 0);
-		TextOut(m_poWindow->m_poDC, 0, (a_iY * Height), a_pcText, strlen(a_pcText));
+		TextOut(m_poWindow->m_poDC, 0, (a_iY * Height), a_pcText, a_iLength);
 	}
 
 #endif /* ! __amigaos4__ */
