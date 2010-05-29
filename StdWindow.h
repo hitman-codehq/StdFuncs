@@ -31,6 +31,12 @@ public:
 
 	virtual void Draw() = 0;
 
+	// TODO: CAW - Check type
+	void DrawNow();
+
+	// TODO: CAW - Shouldn't be pure
+	virtual void OffsetKeyEvent(int a_iKey) = 0;
+
 #ifdef __amigaos4__
 
 	ULONG GetSignal();

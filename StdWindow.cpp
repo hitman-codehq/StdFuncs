@@ -27,6 +27,17 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 			break;
 		}
 
+		case WM_KEYDOWN :
+		{
+			RetVal = 0;
+
+			// TODO: CAW
+			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
+			Window->OffsetKeyEvent(a_oLParam & 0x00ffffff);
+
+			break;
+		}
+
 		case WM_PAINT :
 		{
 			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
@@ -38,6 +49,7 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 
 			EndPaint(a_hWindow, &Window->m_oPaintStruct);
 
+			// TODO: CAW - Return code?
 			break;
 		}
 
@@ -157,6 +169,22 @@ void CWindow::Close()
 		CloseWindow(m_poWindow);
 		m_poWindow = NULL;
 	}
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Saturday 29-May-2010 1:07 pm*/
+
+void CWindow::DrawNow()
+{
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Check this
+	InvalidateRect(m_poWindow, NULL, TRUE); // TODO: CAW - Should be FALSE for erase
 
 #endif /* ! __amigaos4__ */
 
