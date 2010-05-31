@@ -12,11 +12,12 @@
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
-// TODO: CAW - WindowFunc?  Change name of a_hWindow to match others?
-LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
+LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	LRESULT RetVal;
 	CWindow *Window;
+
+	/* Return 0 by default for processed messages */
 
 	RetVal = 0;
 
@@ -31,10 +32,10 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 
 		case WM_KEYDOWN :
 		{
-			RetVal = 0;
+			/* Get the ptr to the C++ class associated with this window from the window word */
+			/* and call the CWindow::OfferKeyEvent() function */
 
-			// TODO: CAW
-			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
+			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 			Window->OfferKeyEvent(a_oLParam & 0x00ffffff);
 
 			break;
@@ -42,22 +43,25 @@ LRESULT CALLBACK WindowProcedure(HWND a_hWindow, unsigned int a_uiMessage, WPARA
 
 		case WM_PAINT :
 		{
-			Window = (CWindow *) GetWindowLong(a_hWindow, GWL_USERDATA);
+			/* Get the ptr to the C++ class associated with this window from the window word */
 
-			// TODO: CAW - Bodgey
-			Window->m_poDC = BeginPaint(a_hWindow, &Window->m_oPaintStruct);
+			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
-			Window->Draw();
+			/* Prepare the device context for painting and call the CWindow::Draw() routine. */
+			/* If this fails then there isn't much we can do besides ignore the error */
 
-			EndPaint(a_hWindow, &Window->m_oPaintStruct);
+			if ((Window->m_poDC = BeginPaint(a_poWindow, &Window->m_oPaintStruct)) != NULL)
+			{
+				Window->Draw();
+				EndPaint(a_poWindow, &Window->m_oPaintStruct);
+			}
 
-			// TODO: CAW - Return code?
 			break;
 		}
 
 		default :
 		{
-			RetVal = DefWindowProc(a_hWindow, a_uiMessage, a_oWParam, a_oLParam);
+			RetVal = DefWindowProc(a_poWindow, a_uiMessage, a_oWParam, a_oLParam);
 
 			break;
 		}
@@ -117,7 +121,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 
 	Instance = GetModuleHandle(NULL);
 	WndClass.style = 0;
-	WndClass.lpfnWndProc = WindowProcedure;
+	WndClass.lpfnWndProc = WindowProc;
 	WndClass.cbClsExtra = 10;
 	WndClass.cbWndExtra = 20;
 	WndClass.hInstance = Instance;
@@ -224,7 +228,10 @@ void CWindow::DrawNow()
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Check this + either use FALSE for erase or use TRUE and make Amiga version consistent
+	/* Invalidate the client rect and redraw it, automatically filling the background with the */
+	/* background colour first.  If this fails then there isn't much we can do besides ignore */
+	/* the error */
+
 	InvalidateRect(m_poWindow, NULL, TRUE);
 
 #endif /* ! __amigaos4__ */

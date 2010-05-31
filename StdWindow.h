@@ -4,11 +4,7 @@
 
 class CWindow
 {
-// TODO: CAW - Use accessors?
-public:
-
-	TInt			m_iInnerWidth;	/* Width of window, minus left and right borders */
-	TInt			m_iInnerHeight;	/* Height of window, minus top and bottom borders */
+private:
 
 #ifdef __amigaos4__
 
@@ -17,8 +13,16 @@ public:
 #else /* ! __amigaos4__ */
 
 	HWND			m_poWindow;		/* Ptr to underlying Windows window */
-	HDC				m_poDC;			// TODO: CAW - What about initialising these?
-	PAINTSTRUCT		m_oPaintStruct;	// TODO: CAW
+
+protected:
+
+	TInt			m_iInnerWidth;	/* Width of window, minus left and right borders */
+	TInt			m_iInnerHeight;	/* Height of window, minus top and bottom borders */
+
+public:
+
+	HDC				m_poDC;			/* Device context and paint structure into which to */
+	PAINTSTRUCT		m_oPaintStruct;	/* render;  valid only during calls to CWindow::Draw() */
 
 #endif /* ! __amigaos4__ */
 
@@ -32,11 +36,9 @@ public:
 
 	virtual void Draw() = 0;
 
-	// TODO: CAW - Check type
 	void DrawNow();
 
-	// TODO: CAW - Shouldn't be pure
-	virtual void OfferKeyEvent(TInt a_iKey) = 0;
+	virtual void OfferKeyEvent(TInt /*a_iKey*/) { }
 
 #ifdef __amigaos4__
 
