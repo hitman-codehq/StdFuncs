@@ -3,7 +3,11 @@
 #include "StdFont.h"
 #include "StdWindow.h"
 
+#ifdef __amigaos4__
+
 #include <proto/graphics.h>
+
+#endif /* __amigaos4__ */
 
 /* Written: Sunday 31-May-2010 1:41 pm */
 
