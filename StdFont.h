@@ -10,16 +10,18 @@ class RFont
 {
 private:
 
-	// TODO: CAW - Make reference?
+#ifdef __amigaos4__
+
+	int			m_iBaseline;	/* Distance from the top of char to baseline */
+	int			m_iHeight;		/* Height of the font in pixels */
+
+#endif /* __amigaos4__ */
+
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
 public:
 
-	// TODO: CAW - Move?
-	RFont(CWindow *a_poWindow)
-	{
-		m_poWindow = a_poWindow;
-	}
+	RFont(CWindow *a_poWindow);
 
 	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
 };
