@@ -4,6 +4,14 @@
 
 #include <stdlib.h>
 
+#ifdef WIN32
+
+/* Disable a bogus MSVC warning */
+
+#pragma warning(disable : 4291) /* no matching operator delete found */
+
+#endif /* WIN32 */
+
 #ifdef _DEBUG
 
 #ifdef __cplusplus
