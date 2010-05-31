@@ -87,6 +87,8 @@ TInt CWindow::Open(const char *a_pccTitle)
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW), WA_CloseGadget, TRUE,
 		TAG_DONE)) != NULL)
 	{
+		/* Indicate success */
+
 		RetVal = KErrNone;
 
 		/* Calculate the inner width and height of the window, for l8r use */
@@ -104,6 +106,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 #else /* ! __amigaos4__ */
 
 	HINSTANCE Instance;
+	RECT Rect;
 	WNDCLASS WndClass;
 
 	/* Assume failure */
@@ -111,6 +114,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 	RetVal = KErrGeneral;
 
 	/* Populate a WNDCLASS structure in preparation for registering the window class */
+
 	Instance = GetModuleHandle(NULL);
 	WndClass.style = 0;
 	WndClass.lpfnWndProc = WindowProcedure;
@@ -130,17 +134,27 @@ TInt CWindow::Open(const char *a_pccTitle)
 		if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, Instance, 0)) != NULL)
 		{
-			/* Indicate success */
+			/* Save a ptr to the window handle for use in the WindowProc() routine */
 
-			RetVal = KErrNone;
-
-			// TODO: CAW
 			SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
 
 			/* And display the window on the screen, maximised */
 
 			ShowWindow(m_poWindow, SW_MAXIMIZE);
-			UpdateWindow(m_poWindow);
+
+			if (GetClientRect(m_poWindow, &Rect))
+			{
+				/* Indicate success */
+
+				RetVal = KErrNone;
+
+				m_iInnerWidth = (Rect.right - Rect.left);
+				m_iInnerHeight = (Rect.bottom - Rect.top);
+			}
+			else
+			{
+				Utils::Info("Unable to obtain window client dimensions");
+			}
 		}
 		else
 		{
@@ -150,6 +164,13 @@ TInt CWindow::Open(const char *a_pccTitle)
 	else
 	{
 		Utils::Info("Unable to register window class");
+	}
+
+	/* If anything went wrong, close the window */
+
+	if (RetVal != KErrNone)
+	{
+		Close();
 	}
 
 #endif /* ! __amigaos4__ */

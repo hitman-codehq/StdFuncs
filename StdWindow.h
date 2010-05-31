@@ -7,10 +7,11 @@ class CWindow
 // TODO: CAW - Use accessors?
 public:
 
-#ifdef __amigaos4__
-
 	TInt			m_iInnerWidth;	/* Width of window, minus left and right borders */
 	TInt			m_iInnerHeight;	/* Height of window, minus top and bottom borders */
+
+#ifdef __amigaos4__
+
 	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
