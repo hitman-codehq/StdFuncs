@@ -4,16 +4,14 @@
 
 class CWindow
 {
-private:
+// TODO: CAW - Use accessors?
+public:
 
 #ifdef __amigaos4__
 
 	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
-
-// TODO: CAW - Use accessors?
-public:
 
 	HWND			m_poWindow;		/* Ptr to underlying Windows window */
 	HDC				m_poDC;			// TODO: CAW - What about initialising these?
