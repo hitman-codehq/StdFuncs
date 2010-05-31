@@ -352,9 +352,12 @@ void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Implement for Windows
-	if (0)
+	RECT Rect;
+
+	if (GetWindowRect(GetDesktopWindow(), &Rect))
 	{
+		*a_piWidth = (Rect.right - Rect.left);
+		*a_piHeight = (Rect.bottom - Rect.top);
 	}
 
 #endif /* ! __amigaos4__ */
