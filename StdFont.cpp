@@ -62,3 +62,18 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 #endif /* ! __amigaos4__ */
 
 }
+
+/* Written: Sunday 31-May-2010 2:36 pm */
+
+TInt RFont::Height()
+{
+
+#ifdef __amigaos4__
+
+	return(m_iHeight);
+
+#else /* ! __amigaos4__ */
+
+#endif /* ! __amigaos4__ */
+
+}

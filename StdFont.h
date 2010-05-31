@@ -24,6 +24,8 @@ public:
 	RFont(CWindow *a_poWindow);
 
 	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
+
+	TInt Height();
 };
 
 #endif /* ! STDFONT_H */
