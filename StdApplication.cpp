@@ -14,6 +14,8 @@ int RApplication::Main()
 	ULONG Signal, WindowSignal;
 	struct IntuiMessage *IntuiMessage;
 
+	ASSERTM(m_poWindow, "RApplication::Main() => Window handle must not be NULL");
+
 	Done = false;
 	WindowSignal = m_poWindow->GetSignal();
 
@@ -30,6 +32,20 @@ int RApplication::Main()
 					case IDCMP_CLOSEWINDOW :
 					{
 						Done = true;
+
+						break;
+					}
+
+					case IDCMP_RAWKEY :
+					{
+						m_poWindow->OfferKeyEvent(IntuiMessage->Code);
+
+						break;
+					}
+
+					case IDCMP_REFRESHWINDOW :
+					{
+						m_poWindow->Draw();
 
 						break;
 					}
