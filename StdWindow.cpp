@@ -5,6 +5,8 @@
 #ifdef __amigaos4__
 
 #include <proto/intuition.h>
+#include <intuition/gui.h>
+#include <intuition/imageclass.h>
 
 #else /* ! __amigaos4__ */
 
@@ -80,11 +82,17 @@ TInt CWindow::Open(const char *a_pccTitle)
 
 	/* Open the window on the screen, maximised */
 
-	if ((m_poWindow = IIntuition->OpenWindowTags(NULL, WA_IDCMP, IDCMP_CLOSEWINDOW, WA_CloseGadget, TRUE,
+	if ((m_poWindow = IIntuition->OpenWindowTags(NULL, WA_Flags, WFLG_SIMPLE_REFRESH,
 		WA_Activate, TRUE, WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Title, (ULONG) a_pccTitle,
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW), WA_CloseGadget, TRUE,
 		TAG_DONE)) != NULL)
 	{
 		RetVal = KErrNone;
+
+		/* Calculate the inner width and height of the window, for l8r use */
+
+		m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
+		m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
 	}
 	else
 	{
@@ -181,10 +189,20 @@ void CWindow::DrawNow()
 
 #ifdef __amigaos4__
 
+	/* Fill the window background with the standard background colour */
+
+	IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
+		m_iInnerWidth, m_iInnerHeight, LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL,
+		IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+
+	/* And call the derived rendering function to perform a redraw immediately */
+
+	Draw();
+
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Check this
-	InvalidateRect(m_poWindow, NULL, TRUE); // TODO: CAW - Should be FALSE for erase
+	// TODO: CAW - Check this + either use FALSE for erase or use TRUE and make Amiga version consistent
+	InvalidateRect(m_poWindow, NULL, TRUE);
 
 #endif /* ! __amigaos4__ */
 

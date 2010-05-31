@@ -9,6 +9,8 @@ public:
 
 #ifdef __amigaos4__
 
+	int				m_iInnerWidth;	/* Width of window, minus left and right borders */
+	int				m_iInnerHeight;	/* Height of window, minus top and bottom borders */
 	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
