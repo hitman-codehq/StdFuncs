@@ -9,8 +9,8 @@ public:
 
 #ifdef __amigaos4__
 
-	int				m_iInnerWidth;	/* Width of window, minus left and right borders */
-	int				m_iInnerHeight;	/* Height of window, minus top and bottom borders */
+	TInt			m_iInnerWidth;	/* Width of window, minus left and right borders */
+	TInt			m_iInnerHeight;	/* Height of window, minus top and bottom borders */
 	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
@@ -35,7 +35,7 @@ public:
 	void DrawNow();
 
 	// TODO: CAW - Shouldn't be pure
-	virtual void OfferKeyEvent(int a_iKey) = 0;
+	virtual void OfferKeyEvent(TInt a_iKey) = 0;
 
 #ifdef __amigaos4__
 

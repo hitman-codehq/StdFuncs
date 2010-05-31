@@ -12,8 +12,8 @@ private:
 
 #ifdef __amigaos4__
 
-	int			m_iBaseline;	/* Distance from the top of char to baseline */
-	int			m_iHeight;		/* Height of the font in pixels */
+	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
+	TInt		m_iHeight;		/* Height of the font in pixels */
 
 #endif /* __amigaos4__ */
 
