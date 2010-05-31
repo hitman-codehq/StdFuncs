@@ -15,14 +15,50 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
+	m_poWindow = a_poWindow;
+}
+
+/* Written: Sunday 31-May-2010 3:38 pm */
+
+TInt RFont::Open()
+{
+	TInt RetVal;
+
 #ifdef __amigaos4__
+
+	ASSERTM(m_poWindow, "RFont::Open() => Window handle not set");
+
+	/* RFont::Open() cannow fail on the Amiga */
+
+	RetVal = KErrNone;
+
+	/* Determine the baseline & height of the font from the window */
 
 	m_iBaseline = a_poWindow->m_poWindow->IFont->tf_Baseline;
 	m_iHeight = a_poWindow->m_poWindow->IFont->tf_YSize;
 
-#endif /*  __amigaos4__ */
+#else /*  ! __amigaos4__ */
 
-	m_poWindow = a_poWindow;
+	TEXTMETRIC TextMetric;
+
+	ASSERTM(m_poWindow->m_poDC, "RFont::Open() => Function should only be called from CWindow::Draw");
+
+	/* Determine the height of the font from the device context */
+
+	if (GetTextMetrics(m_poWindow->m_poDC, &TextMetric))
+	{
+		RetVal = KErrNone;
+
+		m_iHeight = TextMetric.tmHeight;
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+	}
+
+#endif /*  ! __amigaos4__ */
+
+	return(RetVal);
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
@@ -51,17 +87,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Do this in open so it can be cached?
-	TInt Height;
-	TEXTMETRIC TextMetric;
-
-	if (GetTextMetrics(m_poWindow->m_poDC, &TextMetric))
-	{
-		Height = TextMetric.tmHeight;
-
-		// TODO: CAW - What about checking m_poDC is ok?
-		TextOut(m_poWindow->m_poDC, 0, (a_iY * Height), a_pcText, a_iLength);
-	}
+	TextOut(m_poWindow->m_poDC, 0, (a_iY * m_iHeight), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
 
@@ -71,13 +97,5 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 
 TInt RFont::Height()
 {
-
-#ifdef __amigaos4__
-
 	return(m_iHeight);
-
-#else /* ! __amigaos4__ */
-
-#endif /* ! __amigaos4__ */
-
 }
