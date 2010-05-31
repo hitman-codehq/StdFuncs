@@ -52,6 +52,24 @@ typedef int TBool;
 
 #endif /* ! __amigaos4__ */
 
+/* Standard key scancodes for Amiga OS and Windows */
+
+#ifdef __amigaos4__
+
+#define STD_KEY_UP 0x4c
+#define STD_KEY_DOWN 0x4d
+#define STD_KEY_PGUP 0x48
+#define STD_KEY_PGDN 0x49
+
+#else /* ! __amigaos4__ */
+
+#define STD_KEY_UP 0x00480001
+#define STD_KEY_DOWN 0x00500001
+#define STD_KEY_PGUP 0x00490001
+#define STD_KEY_PGDN 0x00510001
+
+#endif /* ! __amigaos4__ */
+
 #include "Utils.h"
 
 #endif /* ! STDFUNCS_H */
