@@ -189,11 +189,13 @@ void CWindow::DrawNow()
 
 #ifdef __amigaos4__
 
-	/* Fill the window background with the standard background colour */
+	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
+	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
+	/* the rect to draw */
 
 	IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
-		m_iInnerWidth, m_iInnerHeight, LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL,
-		IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+		(m_poWindow->Width - m_poWindow->BorderRight - 1), (m_poWindow->Height - m_poWindow->BorderBottom - 1),
+		LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 
 	/* And call the derived rendering function to perform a redraw immediately */
 
