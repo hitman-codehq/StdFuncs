@@ -12,7 +12,6 @@
 #include <windows.h>
 #include <signal.h>
 
-// TODO: CAW - Check type on Amiga
 typedef void * APTR;
 typedef unsigned char UBYTE;
 
