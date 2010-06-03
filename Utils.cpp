@@ -33,7 +33,7 @@ static const char *g_apccMonths[] =
 
 #endif /* ! __amigaos4__ */
 
-TBool g_bFromWorkbench;	/* ETrue if launched from Workbench */
+TBool g_bUsingGUI;	/* ETrue if running a GUI based program */
 
 /* Written: Thursday 16-Jul-2009 3:58 pm */
 
@@ -101,7 +101,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	va_start(Args, a_pccMessage);
 
-	if (g_bFromWorkbench)
+	if (g_bUsingGUI)
 	{
 		MessageBox("Assertion Failure", a_pccMessage, Args);
 	}
@@ -165,7 +165,7 @@ void Utils::Error(const char *a_pccMessage, ...)
 
 	va_start(Args, a_pccMessage);
 
-	if (g_bFromWorkbench)
+	if (g_bUsingGUI)
 	{
 		MessageBox("Error", a_pccMessage, Args);
 	}
@@ -488,14 +488,14 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #ifdef __amigaos4__
 
-	if (g_bFromWorkbench)
+	if (g_bUsingGUI)
 	{
 		IExec->DebugPrintF("%s\n", Message);
 	}
 
 #else /* ! __amigaos4__ */
 
-	if (g_bFromWorkbench)
+	if (g_bUsingGUI)
 	{
 		OutputDebugString(Message);
 	}
