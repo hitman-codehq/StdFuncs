@@ -302,14 +302,14 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 			{
 				RetVal = KErrNone;
 
-				Utils::Info("RArgs::Read() => Icon contains no tooltypes");
+				Utils::Info("RArgs::Open() => Icon contains no tooltypes");
 			}
 
 			IIcon->FreeDiskObject(DiskObject);
 		}
 		else
 		{
-			Utils::Info("RArgs::Read() => Unable to open icon for object \"%s\"", WBArg->wa_Name);
+			Utils::Info("RArgs::Open() => Unable to open icon for object \"%s\"", WBArg->wa_Name);
 		}
 
 #endif /* __amigaos4__ */
