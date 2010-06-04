@@ -71,7 +71,16 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
-			if ((ArgV = InputCommandLine(a_pccTemplate, &ArgC)) != NULL)
+			/* Display the template a la Amiga OS and prompt the user for input */
+
+			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary
+			char Buffer[1024];
+
+			Buffer[0] = '\0';
+			printf("%s\n", a_pccTemplate);
+			gets(Buffer);
+
+			if ((ArgV = ExtractArguments(Buffer, &ArgC)) != NULL)
 			{
 				/* Command line has been input so put the executable's name in the first argument slot and parse */
 				/* it for arguments */
@@ -383,6 +392,54 @@ TInt RArgs::Count()
 
 #ifndef __amigaos4__
 
+/* Written: Sunday 03-05-2010 9:38 am */
+
+const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
+{
+	char *Arg;
+	const char **RetVal;
+	TInt Index, Offset, NumArgs;
+
+	/* Find out how many arguments are present in the string passed in */
+
+	// TODO: CAW - +1 bodginess
+	NumArgs = (Utils::CountTokens(a_pcBuffer) + 1);
+
+	/* Allocate an array of ptrs to strings, that can be used as an ArgV style array to hold ptrs */
+	/* to the tokens entered above */
+
+	if ((RetVal = new const char *[NumArgs]) != NULL)
+	{
+		/* Iterate through the command line entered and extract each token, NULL terminating it and */
+		/* putting a ptr to it in the ArgV array */
+
+		Offset = 0;
+
+		for (Index = 1; Index < NumArgs; ++Index)
+		{
+			if ((Arg = strtok(&a_pcBuffer[Offset], " ")) != NULL)
+			{
+				RetVal[Index] = Arg;
+				Offset += (strlen(Arg) + 1);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		/* And save the number of tokens actually extracted */
+
+		*a_piArgC = Index;
+	}
+	else
+	{
+		Utils::Info("RDArgs::ExtractTokens() => Out of memory");
+	}
+
+	return(RetVal);
+}
+
 /* Written: Thursday 16-Jul-2009 6:37 am */
 
 TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType)
@@ -478,93 +535,6 @@ const char *RArgs::ProjectFileName()
 }
 
 #ifndef __amigaos4__
-
-/* Written: Sunday 03-05-2010 9:38 am */
-
-const char **RArgs::InputCommandLine(const char *a_pccTemplate, TInt *a_piArgC)
-{
-	char *Arg, Buffer[1024], Char;
-	const char **RetVal;
-	TBool CharFound;
-	TInt Index, Offset, NumArgs, Source, Dest;
-
-	/* Display the template a la Amiga OS and prompt the user for input */
-
-	// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary
-	Buffer[0] = '\0';
-	printf("%s\n", a_pccTemplate);
-	gets(Buffer);
-
-	/* Iterate through the command line the user just entered and strip out any extranneous spaces */
-	/* in the input.  It is easier to pull out the individual tokens if they are separated by just */
-	/* one space.  We will also count the number of tokens that are input in this loop */
-
-	CharFound = EFalse;
-	Dest = 0;
-	NumArgs = 2;
-
-	for (Source = 0; Buffer[Source]; ++Source)
-	{
-		Char = Buffer[Source];
-
-		/* If the current character is a space then copy it only if the previous character was not */
-		/* also a space */
-
-		if (Char == ' ')
-		{
-			if (!(CharFound))
-			{
-				CharFound = ETrue;
-				Buffer[Dest++] = Buffer[Source];
-				++NumArgs;
-			}
-		}
-
-		/* The current character is not a space so just copy it and indicate this fact */
-
-		else
-		{
-			CharFound = EFalse;
-			Buffer[Dest++] = Buffer[Source];
-		}
-	}
-
-	Buffer[Dest] = '\0';
-
-	/* Allocate an array of ptrs to strings, that can be used as an ArgV style array to hold ptrs */
-	/* to the tokens entered above */
-
-	if ((RetVal = new const char *[NumArgs]) != NULL)
-	{
-		/* Iterate through the command line entered and extract each token, NULL terminating it and */
-		/* putting a ptr to it in the ArgV array */
-
-		Offset = 0;
-
-		for (Index = 1; Index < NumArgs; ++Index)
-		{
-			if ((Arg = strtok(&Buffer[Offset], " ")) != NULL)
-			{
-				RetVal[Index] = Arg;
-				Offset += (strlen(Arg) + 1);
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		/* And save the number of tokens actually extracted */
-
-		*a_piArgC = Index;
-	}
-	else
-	{
-		Utils::Info("RDArgs::InputCommandLine() => Out of memory");
-	}
-
-	return(RetVal);
-}
 
 /* Written: Saturday 02-05-2010 8:52 am */
 

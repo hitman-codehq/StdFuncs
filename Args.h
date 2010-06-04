@@ -31,9 +31,9 @@ public:
 
 private:
 
-	TInt ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType);
+	const char **ExtractArguments(char *a_pcBuffer, TInt *a_piArgC);
 
-	const char **InputCommandLine(const char *a_pccTemplate, TInt *a_piArgC);
+	TInt ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType);
 
 	TInt ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
