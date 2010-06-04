@@ -115,6 +115,51 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 #endif /* _DEBUG */
 
+/* Written: Friday 04-Jun-2010 7:58 am */
+
+TInt Utils::CountTokens(char *a_pcBuffer)
+{
+	char Char;
+	TBool TokenStart;
+	TInt Source, Dest, RetVal;
+
+	/* Iterate through the string passed in and determine how many tokens are present */
+
+	TokenStart = ETrue;
+	Dest = RetVal = 0;
+
+	for (Source = 0; a_pcBuffer[Source]; ++Source)
+	{
+		Char = a_pcBuffer[Source];
+
+		/* If the current character is a space then copy it only if the previous character was not */
+		/* also a space */
+
+		if (Char == ' ')
+		{
+			TokenStart = ETrue;
+			a_pcBuffer[Dest++] = a_pcBuffer[Source];
+		}
+
+		/* The current character is not a space so just copy it */
+
+		else
+		{
+			a_pcBuffer[Dest++] = a_pcBuffer[Source];
+
+			/* If this is the first character of a token then increment the token count */
+
+			if (TokenStart)
+			{
+				++RetVal;
+				TokenStart = EFalse;
+			}
+		}
+	}
+
+	return(RetVal);
+}
+
 /* Written: Saturday 18-Jul-2009 8:25 am */
 
 TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
