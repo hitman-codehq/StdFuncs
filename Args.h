@@ -17,6 +17,8 @@ public:
 
 	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
+	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments);
+
 	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup);
 
 	void Close();

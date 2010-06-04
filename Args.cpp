@@ -119,6 +119,33 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 	return(RetVal);
 }
 
+/* Written: Friday 04-Jun-2010 8:36 am  */
+
+TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
+{
+	const char **ArgV;
+	TInt ArgC, RetVal;
+
+	/* Extract the arguments from the string into an ArgV style ptr array */
+
+	if ((ArgV = ExtractArguments(a_pcArguments, &ArgC)) != NULL)
+	{
+		/* And pass that array into the standard RArgs::Open() to extract the arguments */
+
+		ArgV[0] = "Test"; // TODO: CAW - How to obtain this?
+		RetVal = Open(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+		delete [] ArgV;
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+
+		Utils::Info("RArgs::Open() => Unable to allocate array for arguments");
+	}
+
+	return(RetVal);
+}
+
 /* Written: Saturday 10-Jan-2009 3:12 pm */
 
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
