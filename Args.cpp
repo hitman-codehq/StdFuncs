@@ -409,6 +409,13 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 
 		if ((Char == '\0') || (Char == ','))
 		{
+			/* If no '/' was found then the option is optional but should still be extracted */
+
+			if (EndOffset == StartOffset)
+			{
+				EndOffset = Offset;
+			}
+
 			++Offset;
 
 			break;
@@ -431,8 +438,8 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 
 	*a_piOffset = Offset;
 
-	/* If we have found a keyword terminated by a '/' then we have found the requested option so */
-	/* allocate a buffer for it and extract the option so it can be returned.  In this case the type */
+	/* If we have found a keyword terminated by a '/' then we have found an option so allocate */
+	/* a buffer for it and extract the option so it can be returned.  In this case the type */
 	/* of the option will already have been returned by the code above */
 
 	if (StartOffset < EndOffset)
@@ -614,7 +621,8 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 		}
 
 		/* If no error occurred, now we have to iterate through the template again, this time looking for A */
-		/* options and using whatever arguments are leftover on the command line as their values */
+		/* options and optional options and using whatever arguments are leftover on the command line as their */
+		/* values */
 
 		if (RetVal == KErrNone)
 		{
@@ -624,7 +632,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 			{
 				if ((RetVal = ExtractOption(a_pccTemplate, &Offset, &OptionName, &Type)) == KErrNone)
 				{
-					if (Type == 'A')
+					if ((Type == 'A') || (Type == '\0'))
 					{
 						/* Now scan through the arguments passed in looking for an unused one */
 
