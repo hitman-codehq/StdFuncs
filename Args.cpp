@@ -417,8 +417,6 @@ TInt RArgs::Count()
 	return(m_iNumArgs);
 }
 
-#ifndef __amigaos4__
-
 /* Written: Sunday 03-05-2010 9:38 am */
 
 const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
@@ -466,6 +464,8 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 
 	return(RetVal);
 }
+
+#ifndef __amigaos4__
 
 /* Written: Thursday 16-Jul-2009 6:37 am */
 
