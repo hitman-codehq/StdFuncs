@@ -30,13 +30,28 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 			break;
 		}
 
-		case WM_KEYDOWN :
+		case WM_CHAR :
 		{
 			/* Get the ptr to the C++ class associated with this window from the window word */
 			/* and call the CWindow::OfferKeyEvent() function */
 
 			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 			Window->OfferKeyEvent(a_oWParam);
+
+			break;
+		}
+
+		case WM_KEYDOWN :
+		{
+			/* Get the ptr to the C++ class associated with this window from the window word */
+			/* and call the CWindow::OfferKeyEvent() function, but only for non ASCII keys */
+
+			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
+
+			if ((a_oWParam >= VK_PRIOR) && (a_oWParam <= VK_HELP))
+			{
+				Window->OfferKeyEvent(a_oWParam);
+			}
 
 			break;
 		}
