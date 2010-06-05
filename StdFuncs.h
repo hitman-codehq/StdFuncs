@@ -62,10 +62,10 @@ typedef int TBool;
 
 #else /* ! __amigaos4__ */
 
-#define STD_KEY_UP 0x00480001
-#define STD_KEY_DOWN 0x00500001
-#define STD_KEY_PGUP 0x00490001
-#define STD_KEY_PGDN 0x00510001
+#define STD_KEY_UP VK_UP
+#define STD_KEY_DOWN VK_DOWN
+#define STD_KEY_PGUP VK_PRIOR
+#define STD_KEY_PGDN VK_NEXT
 
 #endif /* ! __amigaos4__ */
 

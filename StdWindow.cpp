@@ -36,7 +36,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 			/* and call the CWindow::OfferKeyEvent() function */
 
 			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
-			Window->OfferKeyEvent(a_oLParam & 0x00ffffff);
+			Window->OfferKeyEvent(a_oWParam);
 
 			break;
 		}
