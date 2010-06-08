@@ -61,6 +61,32 @@ TInt RFont::Open()
 	return(RetVal);
 }
 
+/* Written: Tuesday 08-Jun-2010 6:22 am */
+
+void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
+{
+	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
+	char Cursor[1] = { '@' };
+	SIZE Size;
+
+	/* Given the X position of the cursor, determine the number of pixels between the left of */
+	/* the window and the position at which the cursor is to be displayed, and use this and the */
+	/* font height to display the cursor in the correct position */
+
+	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pcText, a_iX, &Size))
+	{
+		TextOut(m_poWindow->m_poDC, Size.cx, (a_iY * m_iHeight), Cursor, 1);
+	}
+
+#endif /* ! __amigaos4__ */
+
+}
+
 /* Written: Sunday 09-May-2010 6:57 pm */
 
 void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
