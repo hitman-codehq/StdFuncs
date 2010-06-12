@@ -543,6 +543,7 @@ void Utils::Info(const char *a_pccMessage, ...)
 	if (g_bUsingGUI)
 	{
 		OutputDebugString(Message);
+		OutputDebugString("\n");
 	}
 
 #endif /* ! __amigaos4__ */
