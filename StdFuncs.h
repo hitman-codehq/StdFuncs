@@ -67,6 +67,8 @@ typedef int TBool;
 #define STD_KEY_DOWN VK_DOWN
 #define STD_KEY_LEFT VK_LEFT
 #define STD_KEY_RIGHT VK_RIGHT
+#define STD_KEY_HOME VK_HOME
+#define STD_KEY_END VK_END
 #define STD_KEY_PGUP VK_PRIOR
 #define STD_KEY_PGDN VK_NEXT
 
