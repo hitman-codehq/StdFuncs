@@ -48,7 +48,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
-			if ((a_oWParam >= VK_PRIOR) && (a_oWParam <= VK_HELP))
+			if ((a_oWParam >= VK_BACK) && (a_oWParam <= VK_HELP) && (a_oWParam != VK_RETURN))
 			{
 				Window->OfferKeyEvent(a_oWParam);
 			}

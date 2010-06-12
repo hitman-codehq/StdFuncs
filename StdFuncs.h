@@ -62,6 +62,7 @@ typedef int TBool;
 
 #else /* ! __amigaos4__ */
 
+#define STD_KEY_ENTER VK_RETURN
 #define STD_KEY_UP VK_UP
 #define STD_KEY_DOWN VK_DOWN
 #define STD_KEY_LEFT VK_LEFT
