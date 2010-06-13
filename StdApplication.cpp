@@ -11,6 +11,7 @@ int RApplication::Main()
 #ifdef __amigaos4__
 
 	bool Done;
+	int Code;
 	ULONG Signal, WindowSignal;
 	struct IntuiMessage *IntuiMessage;
 
@@ -37,6 +38,18 @@ int RApplication::Main()
 					}
 
 					case IDCMP_RAWKEY :
+					{
+						Code = IntuiMessage->Code;
+
+						if (((Code >= STD_KEY_PGUP) && (Code <= STD_KEY_LEFT)) || ((Code >= STD_KEY_HOME) && (Code <= STD_KEY_END)))
+						{
+							m_poWindow->OfferKeyEvent(IntuiMessage->Code);
+						}
+
+						break;
+					}
+
+					case IDCMP_VANILLAKEY :
 					{
 						m_poWindow->OfferKeyEvent(IntuiMessage->Code);
 
