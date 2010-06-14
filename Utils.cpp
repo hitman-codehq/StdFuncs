@@ -314,7 +314,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	{
 		RetVal = KErrNotFound;
 
-		Info("GetFileInfo() => Unable to examine object");
+		Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 	}
 
 #else /* ! __amigaos4__ */
