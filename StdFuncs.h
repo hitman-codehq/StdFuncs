@@ -76,6 +76,7 @@ typedef int TBool;
 #define STD_KEY_END VK_END
 #define STD_KEY_PGUP VK_PRIOR
 #define STD_KEY_PGDN VK_NEXT
+#define STD_KEY_DELETE VK_DELETE
 
 #endif /* ! __amigaos4__ */
 
