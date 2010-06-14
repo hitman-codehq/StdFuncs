@@ -531,25 +531,14 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #ifdef __amigaos4__
 
-	if (g_bUsingGUI)
-	{
-		IExec->DebugPrintF("%s\n", Message);
-	}
+	IExec->DebugPrintF("%s\n", Message);
 
 #else /* ! __amigaos4__ */
 
-	if (g_bUsingGUI)
-	{
-		OutputDebugString(Message);
-		OutputDebugString("\n");
-	}
+	OutputDebugString(Message);
+	OutputDebugString("\n");
 
 #endif /* ! __amigaos4__ */
-
-	else
-	{
-		PRINTF("%s\n", Message);
-	}
 
 	va_end(Args);
 }
