@@ -170,7 +170,6 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 	BPTR Lock;
 
-	// TODO: CAW - Hacky test + do error checking (IoErr()?)
 	if ((Lock = IDOS->CreateDir(a_pccDirectoryName)) != 0)
 	{
 		RetVal = KErrNone;
@@ -179,8 +178,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 	}
 	else
 	{
-
-		RetVal = KErrGeneral;
+		RetVal = (IDOS->IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
 #else /* ! __amigaos4__ */
