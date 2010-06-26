@@ -35,7 +35,7 @@ public:
 
 	void DrawNow();
 
-	virtual void OfferKeyEvent(TInt /*a_iKey*/) { }
+	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 
 #ifdef __amigaos4__
 
