@@ -117,6 +117,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 /* Written: Friday 04-Jun-2010 7:58 am */
 
+// TODO: CAW - Oddly named function + doesn't take " into account
 TInt Utils::CountTokens(char *a_pcBuffer)
 {
 	char Char;
