@@ -30,6 +30,17 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 			break;
 		}
 
+		case WM_COMMAND :
+		{
+			/* Get the ptr to the C++ class associated with this window from the window word */
+			/* and call the CWindow::HandleCommand() function */
+
+			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
+			Window->HandleCommand(LOWORD(a_oWParam));
+
+			break;
+		}
+
 		case WM_CHAR :
 		{
 			/* Get the ptr to the C++ class associated with this window from the window word */
@@ -144,7 +155,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 	WndClass.hIcon = 0;
 	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
 	WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-	WndClass.lpszMenuName = 0;
+	WndClass.lpszMenuName = MAKEINTRESOURCE(101);
 	WndClass.lpszClassName = a_pccTitle;
 
 	/* Register the window class and open the window */
@@ -190,6 +201,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 
 	if (RetVal != KErrNone)
 	{
+		// TODO: CAW - Unregister on error
 		Close();
 	}
 

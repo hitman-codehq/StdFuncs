@@ -35,6 +35,8 @@ public:
 
 	void DrawNow();
 
+	virtual void HandleCommand(TInt /*a_iCommand*/) { }
+
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 
 #ifdef __amigaos4__

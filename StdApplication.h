@@ -10,9 +10,17 @@ class RApplication
 {
 private:
 
-	CWindow		*m_poWindow;	/* Ptr to window used by the application */
+	CWindow		*m_poWindow;		/* Ptr to window used by the application */
+
+#ifdef WIN32
+
+	HACCEL		m_poAccelerators;	/* Ptr to application's accelerator table, if any */
+
+#endif /* WIN32 */
 
 public:
+
+	RApplication();
 
 	int Main();
 

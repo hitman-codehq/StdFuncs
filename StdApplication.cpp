@@ -3,6 +3,19 @@
 #include "StdApplication.h"
 #include "StdWindow.h"
 
+/* Written: Saturday 26-Jun-2010 11:53 am */
+
+RApplication::RApplication()
+{
+
+#ifdef WIN32
+
+	m_poAccelerators = NULL;
+
+#endif /* WIN32 */
+
+}
+
 /* Written: Monday 08-Feb-2010 6:54 am */
 
 int RApplication::Main()
@@ -76,12 +89,31 @@ int RApplication::Main()
 
 	MSG Msg;
 
-	/* Standard Windows message loop */
+	/* Try to load the default accelerator table.  If this is not found then this is not an error; */
+	/* just continue without accelerators */
+
+	m_poAccelerators = LoadAccelerators(GetModuleHandle(NULL), MAKEINTRESOURCE(103));
+
+	/* Standard Windows message loop with accelerator handling */
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
-		TranslateMessage(&Msg);
-		DispatchMessage(&Msg);
+		/* Try to translate the message;  Windows will handle m_poAccelerators being NULL */
+
+		if (TranslateAccelerator(m_poWindow->m_poWindow, m_poAccelerators, &Msg) == 0)
+		{
+			/* No accelerator found so do the standard message translation and despatch */
+
+			TranslateMessage(&Msg);
+			DispatchMessage(&Msg);
+		}
+	}
+
+	/* Destroy the accelerators if they have been loaded */
+
+	if (m_poAccelerators)
+	{
+		DestroyAcceleratorTable(m_poAccelerators);
 	}
 
 #endif /* ! __amigaos4__ */
