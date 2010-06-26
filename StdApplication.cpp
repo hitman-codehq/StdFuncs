@@ -125,5 +125,15 @@ int RApplication::Main()
 
 void RApplication::AddWindow(CWindow *a_poWindow)
 {
+	ASSERTM((a_poWindow != NULL), "RApplication::AddWindow() => Window ptr must be passed in");
+
 	m_poWindow = a_poWindow;
+	m_poWindow->SetApplication(this);
+}
+
+/* Written: Monday 26-Jun-2010 2:18 pm */
+
+void RApplication::Exit()
+{
+	PostQuitMessage(0);
 }

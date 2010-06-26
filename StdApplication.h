@@ -25,6 +25,8 @@ public:
 	int Main();
 
 	void AddWindow(CWindow *a_poWindow);
+
+	void Exit();
 };
 
 #endif /* ! STDAPPLICATION_H */

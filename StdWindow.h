@@ -2,12 +2,17 @@
 #ifndef STDWINDOW_H
 #define STDWINDOW_H
 
+/* Forward declaration to reduce the # of includes required */
+
+class RApplication;
+
 class CWindow
 {
 protected:
 
-	TInt			m_iInnerWidth;	/* Width of window, minus left and right borders */
-	TInt			m_iInnerHeight;	/* Height of window, minus top and bottom borders */
+	TInt			m_iInnerWidth;		/* Width of window, minus left and right borders */
+	TInt			m_iInnerHeight;		/* Height of window, minus top and bottom borders */
+	RApplication	*m_poApplication;	/* Ptr to application that owns this window */
 
 public:
 
@@ -38,6 +43,11 @@ public:
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
+
+	void SetApplication(RApplication *a_poApplication)
+	{
+		m_poApplication = a_poApplication;
+	}
 
 #ifdef __amigaos4__
 
