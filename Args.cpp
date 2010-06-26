@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "Lex.h"
 
 #ifdef __amigaos4__
 
@@ -435,6 +436,8 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 
 	if ((RetVal = new const char *[NumArgs]) != NULL)
 	{
+		TLex Lex(a_pcBuffer);
+
 		/* Iterate through the command line entered and extract each token, NULL terminating it and */
 		/* putting a ptr to it in the ArgV array */
 
@@ -442,7 +445,7 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 
 		for (Index = 1; Index < NumArgs; ++Index)
 		{
-			if ((Arg = strtok(&a_pcBuffer[Offset], " ")) != NULL)
+			if ((Arg = Lex.NextToken()) != NULL)
 			{
 				RetVal[Index] = Arg;
 				Offset += (strlen(Arg) + 1);

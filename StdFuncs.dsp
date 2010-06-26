@@ -101,6 +101,10 @@ SOURCE=.\File.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Lex.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MungWall.cpp
 # End Source File
 # Begin Source File
@@ -146,6 +150,10 @@ SOURCE=.\Dir.h
 # Begin Source File
 
 SOURCE=.\File.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Lex.h
 # End Source File
 # Begin Source File
 
