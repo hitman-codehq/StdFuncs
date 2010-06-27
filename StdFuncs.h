@@ -36,6 +36,7 @@ typedef int TBool;
 #define KErrNone			0
 #define KErrNotFound		-1
 #define KErrGeneral			-2
+#define KErrCancel			-3
 #define KErrNoMemory		-4
 #define KErrAlreadyExists	-11
 #define KErrPathNotFound	-12
