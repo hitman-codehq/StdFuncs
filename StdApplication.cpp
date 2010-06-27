@@ -131,7 +131,7 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	m_poWindow->SetApplication(this);
 }
 
-/* Written: Monday 26-Jun-2010 2:18 pm */
+/* Written: Saturday 26-Jun-2010 2:18 pm */
 
 void RApplication::Exit()
 {
