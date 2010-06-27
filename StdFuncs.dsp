@@ -113,6 +113,10 @@ SOURCE=.\StdApplication.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdFileRequester.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdFont.cpp
 # End Source File
 # Begin Source File
@@ -162,6 +166,10 @@ SOURCE=.\MungWall.h
 # Begin Source File
 
 SOURCE=.\StdApplication.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdFileRequester.h
 # End Source File
 # Begin Source File
 
