@@ -56,6 +56,8 @@ typedef int TBool;
 
 #ifdef __amigaos4__
 
+#define STD_KEY_CONTROL 0x63
+#define STD_KEY_BACKSPACE 0x08
 #define STD_KEY_ENTER 0x0d
 #define STD_KEY_UP 0x4c
 #define STD_KEY_DOWN 0x4d
@@ -65,6 +67,7 @@ typedef int TBool;
 #define STD_KEY_END 0x71
 #define STD_KEY_PGUP 0x48
 #define STD_KEY_PGDN 0x49
+#define STD_KEY_DELETE 0x7f
 
 #else /* ! __amigaos4__ */
 
