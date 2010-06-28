@@ -6,6 +6,14 @@
 
 TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 {
+
+#ifdef __amigaos4__
+
+	// TODO: CAW
+	return(KErrGeneral);
+
+#else /* ! __amigaos4__ */
+
 	TInt RetVal;
 	OPENFILENAME OpenFileName;
 
@@ -31,4 +39,7 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 	}
 
 	return(RetVal);
+
+#endif /* ! __amigaos4__ */
+
 }

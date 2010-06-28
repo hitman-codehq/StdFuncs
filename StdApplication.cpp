@@ -2,6 +2,7 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdWindow.h"
+#include <stdio.h>
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
 
@@ -52,11 +53,12 @@ int RApplication::Main()
 
 					case IDCMP_RAWKEY :
 					{
-						Code = IntuiMessage->Code;
+						Code = (IntuiMessage->Code & ~IECODE_UP_PREFIX);
 
-						if (((Code >= STD_KEY_PGUP) && (Code <= STD_KEY_LEFT)) || ((Code >= STD_KEY_HOME) && (Code <= STD_KEY_END)))
+						if (((Code >= STD_KEY_PGUP) && (Code <= STD_KEY_LEFT)) || (Code == STD_KEY_CONTROL) ||
+							((Code >= STD_KEY_HOME) && (Code <= STD_KEY_END)))
 						{
-							m_poWindow->OfferKeyEvent(IntuiMessage->Code);
+							m_poWindow->OfferKeyEvent(Code, (!(IntuiMessage->Code & IECODE_UP_PREFIX)));
 						}
 
 						break;
@@ -64,7 +66,7 @@ int RApplication::Main()
 
 					case IDCMP_VANILLAKEY :
 					{
-						m_poWindow->OfferKeyEvent(IntuiMessage->Code);
+						m_poWindow->OfferKeyEvent(IntuiMessage->Code, ETrue);
 
 						break;
 					}
@@ -135,5 +137,13 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 void RApplication::Exit()
 {
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
 	PostQuitMessage(0);
+
+#endif /* ! __amigaos4__ */
+
 }
