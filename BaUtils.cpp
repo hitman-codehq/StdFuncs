@@ -46,7 +46,7 @@ TInt BaflUtils::RenameFile(const char *a_pccOldFullName, const char *a_pccNewFul
 
 #ifdef __amigaos4__
 
-	RetVal = KErrGeneral;
+	RetVal = (IDOS->Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
 
 #else /* ! __amigaos4__ */
 
