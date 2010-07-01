@@ -114,8 +114,9 @@ TInt CWindow::Open(const char *a_pccTitle)
 	/* Open the window on the screen, maximised */
 
 	if ((m_poWindow = IIntuition->OpenWindowTags(NULL, WA_SimpleRefresh, TRUE, WA_DepthGadget, TRUE,
-		WA_Activate, TRUE, WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Title, (ULONG) a_pccTitle,
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_VANILLAKEY), WA_CloseGadget, TRUE,
+		WA_Activate, TRUE, WA_NewLookMenus, TRUE, WA_CloseGadget, TRUE,
+		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Title, (ULONG) a_pccTitle,
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_VANILLAKEY),
 		TAG_DONE)) != NULL)
 	{
 		/* Indicate success */
