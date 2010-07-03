@@ -211,11 +211,9 @@ void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL b
 			{
 				paArena->paNext->paPrev = paArena->paPrev;
 			}
-			else
-			{
-				MungeMem((ULONG *) paArena, paArena->stOrigSize);
-				free(paArena);
-			}
+
+			MungeMem((ULONG *) paArena, paArena->stOrigSize);
+			free(paArena);
 		}
 		else
 		{
