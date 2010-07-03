@@ -105,6 +105,7 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 #endif /* __amigaos__ */
 
 /* Written: Thursday 01-Jul-2010 6:46 am */
+/* Applications that derive from this class should call this method to initialise their menus */
 
 TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 {
