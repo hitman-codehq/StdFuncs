@@ -1,9 +1,14 @@
 
 #include "StdFuncs.h"
-#include <proto/gadtools.h>
-#include <proto/intuition.h>
 #include "StdApplication.h"
 #include "StdWindow.h"
+
+#ifdef __amigaos__
+
+#include <proto/gadtools.h>
+#include <proto/intuition.h>
+
+#endif /* __amigaos__ */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
 
@@ -24,14 +29,15 @@ RApplication::RApplication()
 	m_pcoMenuItems = NULL;
 }
 
-#ifdef __amigaos__
-
 /* Written: Wednesday 30-Jun-2010 6:53 am */
 /* @param a_pcoMenuItems Ptr to array of menu items to be created.  Must be persisted for the lifetime */
 /*                       of the RApplication class that uses them */
 
 TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 {
+
+#ifdef __amigaos__
+
 	TInt Index, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
 	struct NewMenu *NewMenus;
@@ -100,6 +106,13 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 	}
 
 	return(RetVal);
+
+#else /* ! __amigaos__ */
+
+	return(KErrNone);
+
+#endif /* ! __amigaos__ */
+
 }
 
 #endif /* __amigaos__ */

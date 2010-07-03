@@ -48,11 +48,7 @@ private:
 
 private:
 
-#ifdef __amigaos__
-
 	TBool CreateMenus(const struct SStdMenuItem *a_pcoMenuItems);
-
-#endif /* __amigaos__ */
 
 public:
 
