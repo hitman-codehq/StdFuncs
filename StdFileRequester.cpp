@@ -26,7 +26,6 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 
 	TInt RetVal;
 	APTR Requester;
-	struct FileRequester *FileRequester;
 
 	/* Allocate an ASL file requester */
 
