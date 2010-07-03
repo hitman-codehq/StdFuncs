@@ -344,6 +344,9 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 #endif /* __amigaos4__ */
 
+	/* Schedule a redraw to ensure the newly added window is refreshed */
+
+	m_poWindow->DrawNow();
 }
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
