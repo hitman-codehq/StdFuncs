@@ -2,12 +2,12 @@
 #include "StdFuncs.h"
 #include "StdFileRequester.h"
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 #include <proto/asl.h>
 #include <string.h>
 
-#endif /* __amigaos__ */
+#endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 2:48 pm */
 /* @param a_bOpen ETrue to prompt for a file to open, else EFalse for a file to save */

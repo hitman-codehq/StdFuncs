@@ -32,17 +32,17 @@ private:
 
 	CWindow			*m_poWindow;		/* Ptr to window used by the application */
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
 	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
 	TBool			m_bMenuStripSet;	/* ETrue if menus have been added to the main window */
 
-#else /* !__amigaos__ */
+#else /* !__amigaos4__ */
 
 	HACCEL			m_poAccelerators;	/* Ptr to application's accelerator table, if any */
 
-#endif /* ! __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 	const struct SStdMenuItem *m_pcoMenuItems;	/* Ptr to a list of structures describing the application's menus */
 

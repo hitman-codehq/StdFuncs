@@ -3,28 +3,28 @@
 #include "StdApplication.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 #include <proto/gadtools.h>
 #include <proto/intuition.h>
 
-#endif /* __amigaos__ */
+#endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
 
 RApplication::RApplication()
 {
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	m_bDone = m_bMenuStripSet = EFalse;
 	m_poMenus = NULL;
 
-#else /* ! __amigaos__ */
+#else /* ! __amigaos4__ */
 
 	m_poAccelerators = NULL;
 
-#endif /* ! __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 	m_pcoMenuItems = NULL;
 }
@@ -36,7 +36,7 @@ RApplication::RApplication()
 TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 {
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	TInt Index, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
@@ -107,15 +107,15 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 	return(RetVal);
 
-#else /* ! __amigaos__ */
+#else /* ! __amigaos4__ */
+
+	(void) a_pcoMenuItems;
 
 	return(KErrNone);
 
-#endif /* ! __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 }
-
-#endif /* __amigaos__ */
 
 /* Written: Thursday 01-Jul-2010 6:46 am */
 /* Applications that derive from this class should call this method to initialise their menus */
@@ -329,6 +329,8 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	m_poWindow = a_poWindow;
 	m_poWindow->SetApplication(this);
 
+#ifdef __amigaos4__
+
 	// TODO: CAW - Is this safe to do multiple times?  Return value handling?  Matching RemoveWindow()?
 	/* Add the global application menus to the window, if they exist */
 
@@ -339,6 +341,9 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 			m_bMenuStripSet = ETrue;
 		}
 	}
+
+#endif /* __amigaos4__ */
+
 }
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
