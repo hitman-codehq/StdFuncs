@@ -1,7 +1,7 @@
 
 #include <StdFuncs.h>
 #include <Args.h>
-#include "Test.h"
+#include <Test.h>
 
 /* Fake command lines used for testing, with parameters shuffled up to exercise RArgs class */
 

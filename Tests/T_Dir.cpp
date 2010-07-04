@@ -1,7 +1,7 @@
 
 #include <StdFuncs.h>
 #include <Dir.h>
-#include "Test.h"
+#include <Test.h>
 
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */

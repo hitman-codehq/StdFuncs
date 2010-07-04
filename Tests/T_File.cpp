@@ -3,7 +3,7 @@
 #include <BaUtils.h>
 #include <File.h>
 #include <string.h>
-#include "Test.h"
+#include <Test.h>
 
 static const char *WriteText = "This is a test of file reading and writing\n";
 static RTest Test("T_File");
