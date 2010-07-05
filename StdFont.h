@@ -14,11 +14,14 @@ private:
 
 	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
 
-	TInt		m_iHeight;		/* Height of the font in pixels */
 	HFONT		m_poFont;		/* Win32 font with which to render */
 	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
+
+#endif /* ! __amigaos4__ */
+
+	TInt		m_iHeight;		/* Height of the font in pixels */
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
 public:
