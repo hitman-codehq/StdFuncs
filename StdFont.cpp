@@ -15,6 +15,12 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
+#ifndef __amigaos4__
+
+	m_poFont = m_poOldFont = NULL;
+
+#endif /* ! __amigaos4__ */
+
 	m_poWindow = a_poWindow;
 }
 
@@ -39,9 +45,25 @@ TInt RFont::Open()
 
 #else /*  ! __amigaos4__ */
 
+	int Height;
 	TEXTMETRIC TextMetric;
 
 	ASSERTM(m_poWindow->m_poDC, "RFont::Open() => Function should only be called from CWindow::Draw");
+
+	/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
+	/* that uses that size */
+
+	Height = -MulDiv(10, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
+
+	if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
+	{
+		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont));
+	}
+	else
+	{
+		Utils::Info("RFont::Open() => Unable to open requested font, using default");
+	}
 
 	/* Determine the height of the font from the device context */
 
@@ -59,6 +81,29 @@ TInt RFont::Open()
 #endif /*  ! __amigaos4__ */
 
 	return(RetVal);
+}
+
+/* Written: Monday 05-Jul-2010 7:13 am */
+
+void RFont::Close()
+{
+
+#ifndef __amigaos4__
+
+	if (m_poOldFont)
+	{
+		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont));
+		m_poOldFont = NULL;
+	}
+
+	if (m_poFont)
+	{
+		DEBUGCHECK(DeleteObject(m_poFont));
+		m_poFont = NULL;
+	}
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Tuesday 08-Jun-2010 6:22 am */

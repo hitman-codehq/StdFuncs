@@ -17,6 +17,8 @@ private:
 #endif /* __amigaos4__ */
 
 	TInt		m_iHeight;		/* Height of the font in pixels */
+	HFONT		m_poFont;		/* Win32 font with which to render */
+	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
 public:
@@ -24,6 +26,8 @@ public:
 	RFont(CWindow *a_poWindow);
 
 	TInt Open();
+
+	void Close();
 
 	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY);
 

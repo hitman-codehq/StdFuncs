@@ -86,4 +86,16 @@ public:
 
 #endif /* _DEBUG */
 
+/* A macro to call a function and check its return value only in debug builds */
+
+#ifdef _DEBUG
+
+#define DEBUGCHECK(Function) { if (!(Function)) Utils::AssertionFailure("DEBUGCHECK failed in file \"%s\", line %d", __FILE__, __LINE__); }
+
+#else /* ! _DEBUG */
+
+#define DEBUGCHECK(Function) { Function; }
+
+#endif /* ! _DEBUG */
+
 #endif /* ! UTILS_H */
