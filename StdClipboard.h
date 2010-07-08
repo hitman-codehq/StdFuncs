@@ -13,13 +13,14 @@ class RClipboard
 {
 private:
 
-	char	*m_pcData;		/* Ptr to locked clipboard data, if any */
+	const char	*m_pccData;			/* Ptr to locked clipboard data, if any */
+	const char	*m_pccCurrentData;	/* Ptr to current line of clipboard data, if any */
 
 public:
 
 	RClipboard()
 	{
-		m_pcData = NULL;
+		m_pccData = m_pccCurrentData = NULL;
 	}
 
 	int Open(CWindow *a_poWindow);
@@ -27,6 +28,8 @@ public:
 	void Close();
 
 	const char *LockData();
+
+	const char *GetNextLine(TInt *a_piLength, TBool *a_bHasEOL);
 
 	void UnlockData();
 };

@@ -37,18 +37,73 @@ void RClipboard::Close()
 
 #ifdef __amigaos4__
 
+#else /* ! __amigaos4__ */
+
 	DEBUGCHECK(CloseClipboard());
 
 #endif /* __amigaos4__ */
 
 }
 
+/* Written: Wednesday 07-Jul-2010 6:37 am */
+
+const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
+{
+	const char *NextChar, *RetVal;
+
+	/* Assume we are going to return the current line and that it has no EOL characters */
+
+	NextChar = RetVal = m_pccCurrentData;
+	*a_bHasEOL = EFalse;
+
+	/* Find the end of the current line, being either NULL terminated or the EOL characters */
+
+	while ((*NextChar) && (*NextChar != 0x0d) && (*NextChar != 0x0a))
+	{
+		++NextChar;
+	}
+
+	/* Save the length for the calling code */
+
+	*a_piLength = (NextChar - m_pccCurrentData);
+
+	/* Check for CR and LF characters and if present, note their presence and skip them */
+
+	if (*NextChar == 0x0d)
+	{
+		*a_bHasEOL = ETrue;
+		++NextChar;
+	}
+
+	if (*NextChar == 0x0a)
+	{
+		*a_bHasEOL = ETrue;
+		++NextChar;
+	}
+
+	/* If neither characters nor any EOL characters were found then we are at the end of the */
+	/* clipboard data so return that there are no more lines */
+
+	if (NextChar == RetVal)
+	{
+		RetVal = NULL;
+	}
+
+	/* Save the current position in the string for use in the next call */
+
+	m_pccCurrentData = NextChar;
+
+	return(RetVal);
+}
+
 /* Written: Tuesday 06-Jul-2010 7:47 am */
 
 const char *RClipboard::LockData()
 {
-	char *RetVal;
+	const char *RetVal;
 	HANDLE Handle;
+
+	/* Assume failure */
 
 	RetVal = NULL;
 
@@ -64,7 +119,7 @@ const char *RClipboard::LockData()
 		{
 			/* Lock the handle into memory and return a ptr to it */
 
-			if ((RetVal = m_pcData = (char *) GlobalLock(Handle)) == NULL)
+			if ((RetVal = m_pccData = m_pccCurrentData = (const char *) GlobalLock(Handle)) == NULL)
 			{
 				Utils::Info("RClipboard::LockData() => Unable to lock keyboard data into memory");
 			}
@@ -88,12 +143,12 @@ const char *RClipboard::LockData()
 
 void RClipboard::UnlockData()
 {
-	ASSERTM((m_pcData != NULL), "RClipboard::UnlockData() => UnlockData() must not be called without LockData() being called");
+	ASSERTM((m_pccData != NULL), "RClipboard::UnlockData() => UnlockData() must not be called without LockData() being called");
 
 #ifdef __amigaos4__
 
-	GlobalUnlock(m_pcData);
-	m_pcData = NULL;
+	GlobalUnlock(m_pccData);
+	m_pccData = NULL;
 
 #endif /* __amigaos4__ */
 
