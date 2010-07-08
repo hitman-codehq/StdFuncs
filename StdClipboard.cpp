@@ -96,6 +96,63 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 	return(RetVal);
 }
 
+/* Written: Thursday 08-Jul-2010 7:06 am */
+
+int RClipboard::InsertData(const char *a_pcData, int a_iLength)
+{
+	char *Data;
+	int RetVal;
+	HANDLE Handle;
+
+	/* Assume failure */
+
+	RetVal = KErrNoMemory;
+
+	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
+
+	if (EmptyClipboard())
+	{
+		/* Allocate a global moveable memory block into which to copy the data being inserted */
+		/* and lock it temporarily into memory and copy the data into it */
+
+		if ((Handle = GlobalAlloc(GMEM_MOVEABLE, a_iLength)) != NULL)
+		{
+			if ((Data = (char *) GlobalLock(Handle)) != NULL)
+			{
+				memcpy(Data, a_pcData, a_iLength);
+				DEBUGCHECK(GlobalUnlock(Data));
+
+				/* And assign ownership of the memory block to the clipboard */
+
+				if (SetClipboardData(CF_TEXT, Handle) != NULL)
+				{
+					RetVal = KErrNone;
+				}
+				else
+				{
+					Utils::Info("RClipboard::InsertData() => Unable to set clipboard data");
+				}
+			}
+			else
+			{
+				Utils::Info("RClipboard::InsertData() => Unable to copy clipboard data");
+
+				GlobalFree(Handle);
+			}
+		}
+		else
+		{
+			Utils::Info("RClipboard::InsertData() => Unable to allocate memory for clipboard");
+		}
+	}
+	else
+	{
+		Utils::Info("RClipboard::InsertData() => Unable to claim ownership of clipboard");
+	}
+
+	return(RetVal);
+}
+
 /* Written: Tuesday 06-Jul-2010 7:47 am */
 
 const char *RClipboard::LockData()

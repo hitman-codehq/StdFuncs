@@ -27,6 +27,8 @@ public:
 
 	void Close();
 
+	int InsertData(const char *a_pcData, int a_iLength);
+
 	const char *LockData();
 
 	const char *GetNextLine(TInt *a_piLength, TBool *a_bHasEOL);
