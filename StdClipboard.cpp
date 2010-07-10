@@ -112,14 +112,17 @@ int RClipboard::InsertData(const char *a_pcData, int a_iLength)
 
 	if (EmptyClipboard())
 	{
-		/* Allocate a global moveable memory block into which to copy the data being inserted */
-		/* and lock it temporarily into memory and copy the data into it */
+		/* Allocate a global moveable memory block into which to copy the data being inserted, */
+		/* lock it temporarily into memory and copy the data into it.  We allocate an extra */
+		/* byte to NULL terminate the memory block to indicate the end, or Windows will to do */
+		/* funny things to the end of the data, like overwriting an LF with a NULL terminator */
 
-		if ((Handle = GlobalAlloc(GMEM_MOVEABLE, a_iLength)) != NULL)
+		if ((Handle = GlobalAlloc(GMEM_MOVEABLE, (a_iLength + 1))) != NULL)
 		{
 			if ((Data = (char *) GlobalLock(Handle)) != NULL)
 			{
 				memcpy(Data, a_pcData, a_iLength);
+				Data[a_iLength] = '\0';
 				DEBUGCHECK(GlobalUnlock(Data));
 
 				/* And assign ownership of the memory block to the clipboard */
