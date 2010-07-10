@@ -25,7 +25,7 @@ int RClipboard::Open(CWindow *a_poWindow)
 		Utils::Info("RClipboard::Open() => Unable to open clipboard");
 	}
 
-#endif /* ! RClipboard::UnlockData */
+#endif /* ! __amigaos4__ */
 
 	return(RetVal);
 }
@@ -53,7 +53,7 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 
 	/* Assume we are going to return the current line and that it has no EOL characters */
 
-	NextChar = RetVal = m_pccCurrentData;
+	NextChar = RetVal = m_pccCurrentGetData;
 	*a_bHasEOL = EFalse;
 
 	/* Find the end of the current line, being either NULL terminated or the EOL characters */
@@ -65,7 +65,7 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 
 	/* Save the length for the calling code */
 
-	*a_piLength = (NextChar - m_pccCurrentData);
+	*a_piLength = (NextChar - m_pccCurrentGetData);
 
 	/* Check for CR and LF characters and if present, note their presence and skip them */
 
@@ -91,18 +91,16 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 
 	/* Save the current position in the string for use in the next call */
 
-	m_pccCurrentData = NextChar;
+	m_pccCurrentGetData = NextChar;
 
 	return(RetVal);
 }
 
 /* Written: Thursday 08-Jul-2010 7:06 am */
 
-int RClipboard::InsertData(const char *a_pcData, int a_iLength)
+int RClipboard::SetDataStart(int a_iMaxLength)
 {
-	char *Data;
 	int RetVal;
-	HANDLE Handle;
 
 	/* Assume failure */
 
@@ -117,48 +115,69 @@ int RClipboard::InsertData(const char *a_pcData, int a_iLength)
 		/* byte to NULL terminate the memory block to indicate the end, or Windows will to do */
 		/* funny things to the end of the data, like overwriting an LF with a NULL terminator */
 
-		if ((Handle = GlobalAlloc(GMEM_MOVEABLE, (a_iLength + 1))) != NULL)
+		if ((m_poHandle = GlobalAlloc(GMEM_MOVEABLE, (a_iMaxLength + 1))) != NULL)
 		{
-			if ((Data = (char *) GlobalLock(Handle)) != NULL)
+			if ((m_pcSetData = (char *) GlobalLock(m_poHandle)) != NULL)
 			{
-				memcpy(Data, a_pcData, a_iLength);
-				Data[a_iLength] = '\0';
-				DEBUGCHECK(GlobalUnlock(Data));
-
-				/* And assign ownership of the memory block to the clipboard */
-
-				if (SetClipboardData(CF_TEXT, Handle) != NULL)
-				{
-					RetVal = KErrNone;
-				}
-				else
-				{
-					Utils::Info("RClipboard::InsertData() => Unable to set clipboard data");
-				}
+				RetVal = KErrNone;
+				m_pcSetData[a_iMaxLength] = '\0';
 			}
 			else
 			{
-				Utils::Info("RClipboard::InsertData() => Unable to copy clipboard data");
+				Utils::Info("RClipboard::SetDataStart() => Unable to copy clipboard data");
 
-				GlobalFree(Handle);
+				GlobalFree(m_poHandle);
+				m_poHandle = NULL;
 			}
 		}
 		else
 		{
-			Utils::Info("RClipboard::InsertData() => Unable to allocate memory for clipboard");
+			Utils::Info("RClipboard::SetDataStart() => Unable to allocate memory for clipboard");
 		}
 	}
 	else
 	{
-		Utils::Info("RClipboard::InsertData() => Unable to claim ownership of clipboard");
+		Utils::Info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
 	return(RetVal);
 }
 
+/* Written: Saturday 10-Jul-2010 12:43 pm */
+
+void RClipboard::AppendData(const char *a_pcData, int a_iOffset, int a_iLength)
+{
+	ASSERTM((m_pcSetData != NULL), "RClipboard::AppendData() => SetDataStart() must be called first");
+
+	memcpy((m_pcSetData + a_iOffset), a_pcData, a_iLength);
+}
+
+/* Written: Saturday 10-Jul-2010 1:34 pm */
+
+void RClipboard::SetDataEnd()
+{
+	ASSERTM((m_pcSetData != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
+	ASSERTM((m_poHandle != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
+
+	/* Unlock the block of memory we have been writing to */
+
+	DEBUGCHECK(GlobalUnlock(m_pcSetData));
+
+	/* And assign ownership of the memory block to the clipboard */
+
+	if (SetClipboardData(CF_TEXT, m_poHandle) != NULL)
+	{
+		m_poHandle = NULL;
+	}
+	else
+	{
+		Utils::Info("RClipboard::SetDataEnd() => Unable to set clipboard data");
+	}
+}
+
 /* Written: Tuesday 06-Jul-2010 7:47 am */
 
-const char *RClipboard::LockData()
+const char *RClipboard::GetDataStart()
 {
 	const char *RetVal;
 	HANDLE Handle;
@@ -179,19 +198,19 @@ const char *RClipboard::LockData()
 		{
 			/* Lock the handle into memory and return a ptr to it */
 
-			if ((RetVal = m_pccData = m_pccCurrentData = (const char *) GlobalLock(Handle)) == NULL)
+			if ((RetVal = m_pccGetData = m_pccCurrentGetData = (const char *) GlobalLock(Handle)) == NULL)
 			{
-				Utils::Info("RClipboard::LockData() => Unable to lock keyboard data into memory");
+				Utils::Info("RClipboard::GetDataStart() => Unable to lock keyboard data into memory");
 			}
 		}
 		else
 		{
-			Utils::Info("RClipboard::LockData() => Unable to get handle to clipboard data");
+			Utils::Info("RClipboard::GetDataStart() => Unable to get handle to clipboard data");
 		}
 	}
 	else
 	{
-		Utils::Info("RClipboard::LockData() => No clipboard data available");
+		Utils::Info("RClipboard::GetDataStart() => No clipboard data available");
 	}
 
 #endif /* ! __amigaos4__ */
@@ -201,15 +220,17 @@ const char *RClipboard::LockData()
 
 /* Written: Tuesday 06-Jul-2010 7:49 am */
 
-void RClipboard::UnlockData()
+void RClipboard::GetDataEnd()
 {
-	ASSERTM((m_pccData != NULL), "RClipboard::UnlockData() => UnlockData() must not be called without LockData() being called");
+	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => SetDataStart() must be called first");
 
 #ifdef __amigaos4__
 
-	GlobalUnlock(m_pccData);
-	m_pccData = NULL;
+#else /* ! __amigaos4__ */
 
-#endif /* __amigaos4__ */
+	GlobalUnlock((void *) m_pccGetData);
+	m_pccGetData = NULL;
+
+#endif /* ! __amigaos4__ */
 
 }

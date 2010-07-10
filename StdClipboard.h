@@ -13,27 +13,35 @@ class RClipboard
 {
 private:
 
-	const char	*m_pccData;			/* Ptr to locked clipboard data, if any */
-	const char	*m_pccCurrentData;	/* Ptr to current line of clipboard data, if any */
+	const char	*m_pccGetData;			/* Ptr to data being read */
+	const char	*m_pccCurrentGetData;	/* Ptr to current line of clipboard data being read */
+	char		*m_pcSetData;			/* Ptr to buffer containing data to be written */
+	HANDLE		m_poHandle;				/* Handle to data to be written */
 
 public:
 
 	RClipboard()
 	{
-		m_pccData = m_pccCurrentData = NULL;
+		m_pccGetData = m_pccCurrentGetData = NULL;
+		m_pcSetData = NULL;
+		m_poHandle = NULL;
 	}
 
 	int Open(CWindow *a_poWindow);
 
 	void Close();
 
-	int InsertData(const char *a_pcData, int a_iLength);
+	int SetDataStart(int a_iMaxLength);
 
-	const char *LockData();
+	void AppendData(const char *a_pcData, int a_iOffset, int a_iLength);
+
+	void SetDataEnd();
+
+	const char *GetDataStart();
 
 	const char *GetNextLine(TInt *a_piLength, TBool *a_bHasEOL);
 
-	void UnlockData();
+	void GetDataEnd();
 };
 
 #endif /* ! STDCLIPBOARD_H */
