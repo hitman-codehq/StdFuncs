@@ -158,7 +158,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 /* Written: Sunday 09-May-2010 6:57 pm */
 
-void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
+void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iHighlight)
 {
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 
@@ -181,6 +181,26 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength);
 
 #else /* ! __amigaos4__ */
+
+	static TBool Switched = EFalse;
+
+	// TODO: CAW - Do this properly
+	COLORREF Background = GetBkColor(m_poWindow->m_poDC);
+	COLORREF Text = GetTextColor(m_poWindow->m_poDC);
+
+	if ((a_iHighlight) && (!(Switched)))
+	{
+		Switched = ETrue;
+		SetBkColor(m_poWindow->m_poDC, Text);
+		SetTextColor(m_poWindow->m_poDC, Background);
+	}
+
+	if ((!(a_iHighlight)) && (Switched))
+	{
+		Switched = EFalse;
+		SetBkColor(m_poWindow->m_poDC, Text);
+		SetTextColor(m_poWindow->m_poDC, Background);
+	}
 
 	TextOut(m_poWindow->m_poDC, 0, (a_iY * m_iHeight), a_pcText, a_iLength);
 
