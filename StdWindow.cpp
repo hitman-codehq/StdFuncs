@@ -46,8 +46,13 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 			/* Get the ptr to the C++ class associated with this window from the window word */
 			/* and call the CWindow::OfferKeyEvent() function */
 
-			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
-			Window->OfferKeyEvent(a_oWParam, ETrue);
+			// TODO: CAW - Backspace is getting sent twice from here and WM_CHAR.  We need to rethink
+			//             keyboard handling on both Amiga OS and Windows to account for this
+			if (a_oWParam != VK_BACK)
+			{
+				Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
+				Window->OfferKeyEvent(a_oWParam, ETrue);
+			}
 
 			break;
 		}
@@ -60,7 +65,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
-			if ((a_oWParam >= VK_TAB) && (a_oWParam <= VK_HELP) && (a_oWParam != VK_RETURN) && (a_oWParam != VK_SPACE))
+			if ((a_oWParam >= VK_BACK) && (a_oWParam <= VK_HELP) && (a_oWParam != VK_RETURN) && (a_oWParam != VK_SPACE))
 			{
 				Window->OfferKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
 			}
