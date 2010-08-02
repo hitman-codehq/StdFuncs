@@ -125,6 +125,10 @@ SOURCE=.\StdFont.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdTextFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdWindow.cpp
 # End Source File
 # Begin Source File
@@ -190,6 +194,10 @@ SOURCE=.\StdFuncs.h
 # Begin Source File
 
 SOURCE=.\StdList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdTextFile.h
 # End Source File
 # Begin Source File
 

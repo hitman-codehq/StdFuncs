@@ -1,5 +1,6 @@
 
-#include <StdFuncs.h>
+#include "StdFuncs.h"
+#include "StdTextFile.h"
 
 /* Written: Friday 23-Jul-2010 8:00 am */
 
