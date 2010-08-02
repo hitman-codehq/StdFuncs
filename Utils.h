@@ -35,6 +35,10 @@ public:
 
 	static void Error(const char *a_pccMessage, ...);
 
+	static const char *Extension(const char *a_pccFileName);
+
+	static const char *FilePart(const char *a_pccPath);
+
 	static TBool FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory);
 
 	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry);
@@ -68,6 +72,8 @@ public:
 	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);
 
 	static void TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
+
+	static void TrimString(char *a_pcString);
 
 	static ULONG Red32(unsigned long a_ulColour);
 

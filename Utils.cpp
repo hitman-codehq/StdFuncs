@@ -222,6 +222,63 @@ void Utils::Error(const char *a_pccMessage, ...)
 	va_end(Args);
 }
 
+/* Written: Thursday 22-Jul-2010 8:47 am */
+
+const char *Utils::Extension(const char *a_pccFileName)
+{
+	char Char;
+	const char *RetVal;
+
+	RetVal = (a_pccFileName + strlen(a_pccFileName));
+
+	while (RetVal >= a_pccFileName)
+	{
+		Char = *RetVal;
+
+		if (Char == '.')
+		{
+			++RetVal;
+
+			break;
+		}
+
+		--RetVal;
+	}
+
+	if (RetVal < a_pccFileName)
+	{
+		RetVal = NULL;
+	}
+
+	return(RetVal);
+}
+
+/* Written: Thursday 22-Jul-2010 8:11 am */
+
+const char *Utils::FilePart(const char *a_pccPath)
+{
+	char Char;
+	const char *RetVal;
+
+	RetVal = (a_pccPath + strlen(a_pccPath));
+
+	while (RetVal > a_pccPath)
+	{
+		Char = *RetVal;
+
+		if ((Char == '/') || (Char == '\\') || (Char == ':'))
+		{
+			++RetVal;
+
+			break;
+		}
+
+		--RetVal;
+	}
+
+	return(RetVal);
+}
+
 /* Written: Monday 09-Apr-2007 12:06 am */
 
 #ifdef __amigaos4__
@@ -839,6 +896,61 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry
 
 #endif /* __amigaos4__ */
 
+}
+
+/* Written: Sunday 01-Aug-2010 1:20 pm */
+/* @param a_pcString Ptr to the string to be trimmed of white space */
+/* Trims white space from the start and end of a string, modifying the string that was passed in */
+
+void Utils::TrimString(char *a_pcString)
+{
+	char *String, *Dest;
+	int Length;
+
+	/* Firstly determine if there is any white space at the start of the string that needs to be trimmed */
+
+	String = a_pcString;
+
+	while ((*String) && ((*String == ' ') || (*String == '\t')))
+	{
+		++String;
+	}
+
+	/* If any white space was found then we need copy copy the string over the top of the white space */
+	/* to remove it */
+
+	if (String != a_pcString)
+	{
+		Dest = a_pcString;
+
+		while (*String)
+		{
+			*Dest++ = *String++;
+		}
+
+		*Dest = '\0';
+	}
+
+	/* Now trim any white space found at the end of the string.  To start with, ensure there are actually */
+	/* characters in the string to be trimmed */
+
+	if ((Length = strlen(a_pcString)) > 0)
+	{
+		/* Get a ptr to the last character of the string before the NULL terminator */
+
+		String = (a_pcString + Length - 1);
+
+		/* Iterate backwards until a non white space character or the beginning of the string is found */
+
+		while ((String > a_pcString) && ((*String == ' ') || (*String == '\t')))
+		{
+			--String;
+		}
+
+		/* And NULL terminate the string after the non white space character */
+
+		*(String + 1) = '\0';
+	}
 }
 
 /* Written: Saturday 16-Sep-2006 4:49 pm */
