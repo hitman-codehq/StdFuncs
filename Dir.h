@@ -61,7 +61,7 @@ public:
 class TEntryArray
 {
 	TInt				iCount;		// TODO: CAW - Should this be in the StdList? Why does list have a ptr to this class?
-	StdList<TEntry>		iEntries;	/* Standard list node */
+	StdList<TEntry>		iEntries;	/* List of entries */
 
 public:
 
