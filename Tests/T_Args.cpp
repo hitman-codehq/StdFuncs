@@ -27,6 +27,8 @@ const char *g_pccOneString = "\"Source Dir\" \"Dest Dir\" copy";
 const char *g_pccOneStringExtraWhite = " \"Source Dir\" \t \"Dest Dir\"  copy \t ";
 const char *g_pccOneStringNoWhite = "\"Source Dir\"\"Dest Dir\"copy";
 
+#define ONESTRING_ARGV_COUNT 3
+
 /* Template for use in obtaining command line parameters */
 
 static const char g_accTemplate[] = "SOURCE/A,DEST/A,COPY/S,DELETE/S,DELETEDIRS/S,NOCASE/S,NOERRORS/S,NOPROTECT/S";
@@ -69,6 +71,7 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
+	test(Args.Valid() == ARGS_NUM_ARGS);
 
 	/* Ensure that the entries have been read as expected */
 
@@ -91,6 +94,7 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
+	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
 	/* Ensure that the entries have been read as expected */
 
@@ -108,6 +112,7 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
+	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
 	/* Ensure that the entries have been read as expected */
 
@@ -126,6 +131,7 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
+	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
 	/* Ensure that the entries have been read as expected */
 
