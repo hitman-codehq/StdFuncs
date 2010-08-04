@@ -87,7 +87,7 @@ int main()
 
 	Test.Next("Parse complex command line arguments");
 
-	OneString = new char[strlen(g_pccOneString) + 1];
+	OneString = new char[strlen(g_pccOneStringExtraWhite) + 1];
 	test(OneString != NULL);
 	strcpy(OneString, g_pccOneString);
 
