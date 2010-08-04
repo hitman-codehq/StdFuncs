@@ -106,7 +106,15 @@ SOURCE=..\Inferno\InfList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\MungWall.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\StdFuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\StdList.h
 # End Source File
 # Begin Source File
 
