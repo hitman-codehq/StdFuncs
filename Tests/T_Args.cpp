@@ -12,6 +12,15 @@ const char *g_pccArgV[] =
 
 #define ARGV_COUNT 9
 
+/* Fake command line to test a missing argument */
+
+const char *g_pccMissingArgV[] =
+{
+	"T_Args", "SourceDir"
+};
+
+#define MISSING_ARGV_COUNT 2
+
 /* Strings for testing white space and " handling */
 
 const char *g_pccOneString = "\"Source Dir\" \"Dest Dir\" copy";
@@ -125,6 +134,13 @@ int main()
 	CHECK_ARG(Args[2], "copy");
 
 	Args.Close();
+
+	/* Test not passing in a parameter for an /A option */
+
+	Test.Next("Not passing in a parameter for an /A option");
+
+	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
+	test(Result == KErrNotFound);
 
 	delete [] OneString;
 	Test.End();

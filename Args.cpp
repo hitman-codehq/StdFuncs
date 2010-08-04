@@ -652,6 +652,18 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								break;
 							}
 						}
+
+						/* If the option was an A option and it was not found then signal that an error has occurred */
+
+						if ((Type == 'A') && (Arg == a_iArgC))
+						{
+							Utils::Info("RArgs::ReadArgs() => Option \"%s\" must have an argument", OptionName);
+
+							RetVal = KErrNotFound;
+							delete [] OptionName;
+
+							break;
+						}
 					}
 
 					delete [] OptionName;
