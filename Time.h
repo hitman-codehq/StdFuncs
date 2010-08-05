@@ -23,8 +23,11 @@ class TDateTime
 
 public:
 
-	// TODO: CAW - Initialise + double check all this stuff in the SDL
-	TDateTime() { }
+	// TODO: CAW - Double check all this stuff in the SDL
+	TDateTime()
+	{
+		iYear = iMonth = iDay = iHour = iMinute = iSecond = 0;
+	}
 
 	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMicroSecond);
 
@@ -47,7 +50,6 @@ class TTime
 
 public:
 
-	// TODO: CAW - Set fields to 0?
 	TTime() { }
 
 	TTime(const TDateTime &a_oDateTime);
