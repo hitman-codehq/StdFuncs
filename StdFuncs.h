@@ -52,25 +52,6 @@ typedef int TBool;
 
 #endif /* ! __amigaos4__ */
 
-/* Standard key scancodes for Amiga OS and Windows */
-
-#ifdef __amigaos4__
-
-#define STD_KEY_CONTROL 0x63
-#define STD_KEY_BACKSPACE 0x08
-#define STD_KEY_ENTER 0x0d
-#define STD_KEY_UP 0x4c
-#define STD_KEY_DOWN 0x4d
-#define STD_KEY_LEFT 0x4f
-#define STD_KEY_RIGHT 0x4e
-#define STD_KEY_HOME 0x70
-#define STD_KEY_END 0x71
-#define STD_KEY_PGUP 0x48
-#define STD_KEY_PGDN 0x49
-#define STD_KEY_DELETE 0x7f
-
-#endif /* __amigaos4__ */
-
 /* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
 
 #define STD_KEY_SHIFT 128
