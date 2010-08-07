@@ -69,23 +69,31 @@ typedef int TBool;
 #define STD_KEY_PGDN 0x49
 #define STD_KEY_DELETE 0x7f
 
-#else /* ! __amigaos4__ */
+#endif /* __amigaos4__ */
 
-#define STD_KEY_SHIFT VK_SHIFT
-#define STD_KEY_CONTROL VK_CONTROL
-#define STD_KEY_BACKSPACE VK_BACK
-#define STD_KEY_ENTER VK_RETURN
-#define STD_KEY_UP VK_UP
-#define STD_KEY_DOWN VK_DOWN
-#define STD_KEY_LEFT VK_LEFT
-#define STD_KEY_RIGHT VK_RIGHT
-#define STD_KEY_HOME VK_HOME
-#define STD_KEY_END VK_END
-#define STD_KEY_PGUP VK_PRIOR
-#define STD_KEY_PGDN VK_NEXT
-#define STD_KEY_DELETE VK_DELETE
+/* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
 
-#endif /* ! __amigaos4__ */
+#define STD_KEY_SHIFT 128
+#define STD_KEY_CONTROL 129
+#define STD_KEY_BACKSPACE 130
+#define STD_KEY_ENTER 131
+#define STD_KEY_UP 132
+#define STD_KEY_DOWN 133
+#define STD_KEY_LEFT 134
+#define STD_KEY_RIGHT 135
+#define STD_KEY_HOME 136
+#define STD_KEY_END 137
+#define STD_KEY_PGUP 138
+#define STD_KEY_PGDN 139
+#define STD_KEY_DELETE 140
+
+/* Structure used for mapping standard keycodes onto native keycodes */
+
+struct SKeyMapping
+{
+	int	m_iStdKey;			/* Standard keycode */
+	int	m_iNativeKey;		/* Native keycode */
+};
 
 #include "Utils.h"
 

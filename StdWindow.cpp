@@ -10,10 +10,24 @@
 
 #else /* ! __amigaos4__ */
 
+/* Array of key mappings for mapping Windows keys onto standard keys */
+
+static const SKeyMapping KeyMap[] =
+{
+	{ STD_KEY_SHIFT, VK_SHIFT }, { STD_KEY_CONTROL, VK_CONTROL }, { STD_KEY_BACKSPACE, VK_BACK },
+	{ STD_KEY_ENTER, VK_RETURN }, { STD_KEY_UP, VK_UP }, { STD_KEY_DOWN, VK_DOWN },
+	{ STD_KEY_LEFT, VK_LEFT }, { STD_KEY_RIGHT, VK_RIGHT }, { STD_KEY_HOME, VK_HOME },
+	{ STD_KEY_END, VK_END }, { STD_KEY_PGUP, VK_PRIOR }, { STD_KEY_PGDN, VK_NEXT },
+	{ STD_KEY_DELETE, VK_DELETE }
+};
+
+#define NUM_KEYMAPPINGS 13
+
 /* Written: Saturday 08-May-2010 4:43 pm */
 
 LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
+	int Index;
 	LRESULT RetVal;
 	CWindow *Window;
 
@@ -43,12 +57,10 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 		case WM_CHAR :
 		{
-			/* Get the ptr to the C++ class associated with this window from the window word */
-			/* and call the CWindow::OfferKeyEvent() function */
+			/* Get the ptr to the C++ class associated with this window from the window word and */
+			/* call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
-			// TODO: CAW - Backspace is getting sent twice from here and WM_CHAR.  We need to rethink
-			//             keyboard handling on both Amiga OS and Windows to account for this
-			if (a_oWParam != VK_BACK)
+			if ((a_oWParam >= ' ') && (a_oWParam <= '~'))
 			{
 				Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 				Window->OfferKeyEvent(a_oWParam, ETrue);
@@ -65,9 +77,22 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
-			if ((a_oWParam >= VK_BACK) && (a_oWParam <= VK_HELP) && (a_oWParam != VK_RETURN) && (a_oWParam != VK_SPACE))
+			/* Scan through the key mappings and find the one that has just been pressed */
+
+			for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
 			{
-				Window->OfferKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
+				if (KeyMap[Index].m_iNativeKey == (int) a_oWParam)
+				{
+					break;
+				}
+			}
+
+			/* If it was a known key then convert it to the standard value and pass it to the */
+			/* CWindow::OfferKeyEvent() function */
+
+			if (Index < NUM_KEYMAPPINGS)
+			{
+				Window->OfferKeyEvent(KeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
 			}
 
 			break;
