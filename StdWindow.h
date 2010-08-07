@@ -32,7 +32,7 @@ public:
 
 	~CWindow();
 
-	TInt Open(const char *a_pccTitle);
+	TInt Open(const char *a_pccTitle, const char *a_pccPubScreenName);
 
 	void Close();
 

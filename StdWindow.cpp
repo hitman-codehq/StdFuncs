@@ -121,7 +121,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 /* Written: Monday 08-Feb-2010 7:13 am */
 
-TInt CWindow::Open(const char *a_pccTitle)
+TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 {
 	TInt RetVal, ScreenWidth, ScreenHeight;
 
@@ -137,7 +137,7 @@ TInt CWindow::Open(const char *a_pccTitle)
 		WA_Activate, TRUE, WA_NewLookMenus, TRUE, WA_CloseGadget, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Title, (ULONG) a_pccTitle,
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
-		TAG_DONE)) != NULL)
+		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE, TAG_DONE)) != NULL)
 	{
 		/* Indicate success */
 
@@ -160,6 +160,8 @@ TInt CWindow::Open(const char *a_pccTitle)
 	HINSTANCE Instance;
 	RECT Rect;
 	WNDCLASS WndClass;
+
+	(void) a_pccPubScreenName;
 
 	/* Assume failure */
 
