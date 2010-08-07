@@ -21,7 +21,11 @@ private:
 
 	HANDLE		m_poHandle;				/* Handle to data to be written */
 
-#endif /* WIN32 */
+#else /* ! WIN32 */
+
+	int			m_iDataSize;			/* Size of buffer to be written */
+
+#endif /* ! WIN32 */
 
 public:
 

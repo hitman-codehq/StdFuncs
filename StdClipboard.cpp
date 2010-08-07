@@ -115,6 +115,14 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 
 #ifdef __amigaos4__
 
+	/* Allocate a temporary buffer into which the client can write its data */
+
+	if ((m_pcSetData = new char[a_iMaxLength]) != NULL)
+	{
+		RetVal = KErrNone;
+		m_iDataSize = a_iMaxLength;
+	}
+
 #else /* ! __amigaos4__ */
 
 	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
@@ -172,6 +180,15 @@ void RClipboard::SetDataEnd()
 	ASSERTM((m_pcSetData != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
 
 #ifdef __amigaos4__
+
+	/* Write the block of data to the clipboard */
+
+	ITextClip->WriteClipVector(m_pcSetData, m_iDataSize);
+
+	/* And free the temporary buffer */
+
+	delete [] m_pcSetData;
+	m_pcSetData = NULL;
 
 #else /* ! __amigaos4__ */
 
