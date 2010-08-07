@@ -86,6 +86,7 @@ typedef int TBool;
 #define STD_KEY_PGUP 138
 #define STD_KEY_PGDN 139
 #define STD_KEY_DELETE 140
+#define STD_KEY_TAB 141
 
 /* Structure used for mapping standard keycodes onto native keycodes */
 
