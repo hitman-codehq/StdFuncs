@@ -4,6 +4,12 @@
 #include "StdClipboard.h"
 #include "StdWindow.h"
 
+#ifdef __amigaos4__
+
+#include <proto/textclip.h>
+
+#endif /* __amigaos4__ */
+
 /* Written: Tuesday 06-Jul-2010 7:42 am */
 
 int RClipboard::Open(CWindow *a_poWindow)
@@ -15,7 +21,7 @@ int RClipboard::Open(CWindow *a_poWindow)
 
 #ifdef __amigaos4__
 
-	RetVal = KErrGeneral;
+	RetVal = KErrNone;
 
 #else /* ! __amigaos4__ */
 
@@ -202,6 +208,15 @@ const char *RClipboard::GetDataStart()
 
 #ifdef __amigaos4__
 
+	ULONG Size;
+
+	/* Check to see if there is any plain text available on the clipboard and if so, get a ptr to it */
+
+	if (ITextClip->ReadClipVector((STRPTR *) &RetVal, &Size))
+	{
+		m_pccGetData = m_pccCurrentGetData = (const char *) RetVal;
+	}
+
 #else /* ! __amigaos4__ */
 
 	HANDLE Handle;
@@ -242,11 +257,13 @@ void RClipboard::GetDataEnd()
 
 #ifdef __amigaos4__
 
+	ITextClip->DisposeClipVector((STRPTR) m_pccGetData);
+
 #else /* ! __amigaos4__ */
 
 	GlobalUnlock((void *) m_pccGetData);
-	m_pccGetData = NULL;
 
 #endif /* ! __amigaos4__ */
 
+	m_pccGetData = NULL;
 }
