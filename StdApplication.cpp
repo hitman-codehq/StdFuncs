@@ -7,6 +7,20 @@
 
 #include <proto/gadtools.h>
 #include <proto/intuition.h>
+#include <proto/keymap.h>
+
+/* Array of key mappings for mapping Amiga keys onto standard keys */
+
+static const SKeyMapping g_aoKeyMap[] =
+{
+	{ STD_KEY_SHIFT, 0x60 }, { STD_KEY_CONTROL, 0x63 }, { STD_KEY_BACKSPACE, 0x41 },
+	{ STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c }, { STD_KEY_DOWN, 0x4d },
+	{ STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e }, { STD_KEY_HOME, 0x70 },
+	{ STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 }, { STD_KEY_PGDN, 0x49 },
+	{ STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 }
+};
+
+#define NUM_KEYMAPPINGS 14
 
 #endif /* __amigaos4__ */
 
@@ -145,9 +159,12 @@ int RApplication::Main()
 
 #ifdef __amigaos4__
 
-	int Code, Menu, MenuItem;
+	char KeyBuffer[5];
+	bool KeyHandled;
+	int Code, Index, Menu, MenuItem, NumChars;
 	ULONG Signal, WindowSignal;
 	const struct SStdMenuItem *MenuItems;
+	struct InputEvent InputEvent;
 	struct IntuiMessage *IntuiMessage;
 
 	ASSERTM(m_poWindow, "RApplication::Main() => Window handle must not be NULL");
@@ -235,20 +252,58 @@ int RApplication::Main()
 
 					case IDCMP_RAWKEY :
 					{
-						Code = (IntuiMessage->Code & ~IECODE_UP_PREFIX);
+						/* Mising IDCMP_RAWKEY and IDCMP_VANILLAKEY doesn't really work on Amiga OS so */
+						/* we will handle cooking the keys ourselves.  Assume to start with that the */
+						/* cooked key will not be handled */
 
-						if (((Code >= STD_KEY_PGUP) && (Code <= STD_KEY_LEFT)) || (Code == STD_KEY_CONTROL) ||
-							((Code >= STD_KEY_HOME) && (Code <= STD_KEY_END)))
+						KeyHandled = false;
+
+						/* If this is a key down event then cook the key and if the resulting key is a */
+						/* printable ASCII key then send it to the client code and we're done */
+
+						if (!(IntuiMessage->Code & IECODE_UP_PREFIX))
 						{
-							m_poWindow->OfferKeyEvent(Code, (!(IntuiMessage->Code & IECODE_UP_PREFIX)));
+							InputEvent.ie_Class = IECLASS_RAWKEY;
+							InputEvent.ie_SubClass = 0;
+							InputEvent.ie_Code = IntuiMessage->Code;
+							InputEvent.ie_Qualifier = IntuiMessage->Qualifier;
+							InputEvent.ie_EventAddress= (APTR *) *((ULONG *) IntuiMessage->IAddress);
+
+							if ((NumChars = IKeymap->MapRawKey(&InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+							{
+								if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
+								{
+									m_poWindow->OfferKeyEvent(KeyBuffer[0], ETrue);
+									KeyHandled = true;
+								}
+							}
 						}
 
-						break;
-					}
+						/* If the key wasn't handled then it is probably a non printable ASCII key so */
+						/* map it onto the standard keycode and send it to the client code */
 
-					case IDCMP_VANILLAKEY :
-					{
-						m_poWindow->OfferKeyEvent(IntuiMessage->Code, ETrue);
+						if (!(KeyHandled))
+						{
+							Code = (IntuiMessage->Code & ~IECODE_UP_PREFIX);
+
+							/* Scan through the key mappings and find the one that has just been pressed */
+
+							for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+							{
+								if (g_aoKeyMap[Index].m_iNativeKey == Code)
+								{
+									break;
+								}
+							}
+
+							/* If it was a known key then convert it to the standard value and pass it to the */
+							/* CWindow::OfferKeyEvent() function */
+
+							if (Index < NUM_KEYMAPPINGS)
+							{
+								m_poWindow->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (!(IntuiMessage->Code & IECODE_UP_PREFIX)));
+							}
+						}
 
 						break;
 					}
