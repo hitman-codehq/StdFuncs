@@ -16,7 +16,12 @@ private:
 	const char	*m_pccGetData;			/* Ptr to data being read */
 	const char	*m_pccCurrentGetData;	/* Ptr to current line of clipboard data being read */
 	char		*m_pcSetData;			/* Ptr to buffer containing data to be written */
+
+#ifdef WIN32
+
 	HANDLE		m_poHandle;				/* Handle to data to be written */
+
+#endif /* WIN32 */
 
 public:
 
@@ -24,7 +29,13 @@ public:
 	{
 		m_pccGetData = m_pccCurrentGetData = NULL;
 		m_pcSetData = NULL;
+
+#ifdef WIN32
+
 		m_poHandle = NULL;
+
+#endif /* WIN32 */
+
 	}
 
 	int Open(CWindow *a_poWindow);

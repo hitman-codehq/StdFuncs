@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include <string.h>
 #include "StdClipboard.h"
 #include "StdWindow.h"
 
@@ -106,6 +107,10 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 
 	RetVal = KErrNoMemory;
 
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
 	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
 
 	if (EmptyClipboard())
@@ -140,6 +145,8 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 		Utils::Info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
+#endif /* ! __amigaos4__ */
+
 	return(RetVal);
 }
 
@@ -157,6 +164,11 @@ void RClipboard::AppendData(const char *a_pcData, int a_iOffset, int a_iLength)
 void RClipboard::SetDataEnd()
 {
 	ASSERTM((m_pcSetData != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
 	ASSERTM((m_poHandle != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
 
 	/* Unlock the block of memory we have been writing to */
@@ -173,6 +185,9 @@ void RClipboard::SetDataEnd()
 	{
 		Utils::Info("RClipboard::SetDataEnd() => Unable to set clipboard data");
 	}
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Tuesday 06-Jul-2010 7:47 am */
@@ -180,7 +195,6 @@ void RClipboard::SetDataEnd()
 const char *RClipboard::GetDataStart()
 {
 	const char *RetVal;
-	HANDLE Handle;
 
 	/* Assume failure */
 
@@ -189,6 +203,8 @@ const char *RClipboard::GetDataStart()
 #ifdef __amigaos4__
 
 #else /* ! __amigaos4__ */
+
+	HANDLE Handle;
 
 	/* Check to see if there is any plain text available on the clipboard and if so, get a handle to it */
 
