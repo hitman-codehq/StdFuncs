@@ -12,7 +12,7 @@
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
-static const SKeyMapping KeyMap[] =
+static const SKeyMapping g_aoKeyMap[] =
 {
 	{ STD_KEY_SHIFT, VK_SHIFT }, { STD_KEY_CONTROL, VK_CONTROL }, { STD_KEY_BACKSPACE, VK_BACK },
 	{ STD_KEY_ENTER, VK_RETURN }, { STD_KEY_UP, VK_UP }, { STD_KEY_DOWN, VK_DOWN },
@@ -75,7 +75,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 			for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
 			{
-				if (KeyMap[Index].m_iNativeKey == (int) a_oWParam)
+				if (g_aoKeyMap[Index].m_iNativeKey == (int) a_oWParam)
 				{
 					break;
 				}
@@ -86,7 +86,7 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 			if (Index < NUM_KEYMAPPINGS)
 			{
-				Window->OfferKeyEvent(KeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
+				Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
 			}
 
 			break;
