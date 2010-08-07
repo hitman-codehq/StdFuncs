@@ -35,6 +35,11 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 	RetVal = 0;
 
+	/* Get the ptr to the C++ class associated with this window from the window word */
+	/* and call the CWindow::HandleCommand() function */
+
+	Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
+
 	switch (a_uiMessage)
 	{
 		case WM_DESTROY :
@@ -46,10 +51,6 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 		case WM_COMMAND :
 		{
-			/* Get the ptr to the C++ class associated with this window from the window word */
-			/* and call the CWindow::HandleCommand() function */
-
-			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 			Window->HandleCommand(LOWORD(a_oWParam));
 
 			break;
@@ -57,12 +58,10 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 		case WM_CHAR :
 		{
-			/* Get the ptr to the C++ class associated with this window from the window word and */
-			/* call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
 			if ((a_oWParam >= ' ') && (a_oWParam <= '~'))
 			{
-				Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 				Window->OfferKeyEvent(a_oWParam, ETrue);
 			}
 
@@ -72,11 +71,6 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 		case WM_KEYDOWN :
 		case WM_KEYUP :
 		{
-			/* Get the ptr to the C++ class associated with this window from the window word */
-			/* and call the CWindow::OfferKeyEvent() function, but only for non ASCII keys */
-
-			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
-
 			/* Scan through the key mappings and find the one that has just been pressed */
 
 			for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
@@ -100,10 +94,6 @@ LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_
 
 		case WM_PAINT :
 		{
-			/* Get the ptr to the C++ class associated with this window from the window word */
-
-			Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
-
 			/* Prepare the device context for painting and call the CWindow::Draw() routine. */
 			/* If this fails then there isn't much we can do besides ignore the error */
 
