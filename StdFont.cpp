@@ -164,6 +164,9 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iH
 
 #ifdef __amigaos4__
 
+	TInt NumChars;
+	struct TextExtent TextExtent;
+
 	/* Move to the position at which to print, taking into account the left and top border sizes, */
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
 	/* routine prints at the baseline position, not the top of the font */
@@ -184,9 +187,15 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iH
 		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
 	}
 
-	/* And draw the text passed in */
+	/* Calculate the maximum number of characters that can fit in the client area of the window, */
+	/* as text is not automatically clipped by the Amiga OS text drawing routine */
 
-	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength);
+	NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
+		m_poWindow->InnerWidth(), m_poWindow->InnerHeight());
+
+	/* And draw as much of the text passed in as will fit in the client area */
+
+	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
 
 #else /* ! __amigaos4__ */
 
