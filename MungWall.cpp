@@ -22,6 +22,14 @@
 
 class MungWall oMungWall;
 
+/* Error message strings that can be used in multiple places */
+
+static const char acLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %lu bytes in %lu allocation(s) manually";
+static const char acStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %d bytes still allocated";
+static const char acStillAllocated[] = "*** MungWall alert: File %s: %d bytes still allocated";
+static const char acInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
+static const char acInvalidBlock[] = "*** MungWall alert: Invalid block passed in";
+
 /**********************************************************************/
 /* MungWall::~MungWall will check to see if there are any outstanding */
 /* memory allocations and will print a list of any that exist.        */
@@ -48,7 +56,9 @@ MungWall::~MungWall()
 			Delete(pvBlock);
 		}
 
-		Utils::Info("*** MungWall alert: Severe memory leakage, cleaned up %lu bytes in %lu allocation(s) manually", ulBytesLeaked, ulNews);
+		Utils::Info(acLeakage, ulBytesLeaked, ulNews);
+		printf(acLeakage, ulBytesLeaked, ulNews);
+		printf("\n");
 	}
 	else
 	{
@@ -58,11 +68,15 @@ MungWall::~MungWall()
 		{
 			if (paArena->iSourceLine)
 			{
-				Utils::Info("*** MungWall alert: File %s, line %d: %d bytes still allocated", paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				Utils::Info(acStillAllocatedLine, paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				printf(acStillAllocatedLine, paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				printf("\n");
 			}
 			else
 			{
-				Utils::Info("*** MungWall alert: File %s: %d bytes still allocated", paArena->pcSourceFile, paArena->stOrigSize);
+				Utils::Info(acStillAllocated, paArena->pcSourceFile, paArena->stOrigSize);
+				printf(acStillAllocated, paArena->pcSourceFile, paArena->stOrigSize);
+				printf("\n");
 			}
 
 			paArena = paArena->paNext;
@@ -167,6 +181,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 
 		sprintf(&acMessage[strlen(acMessage)], " overwritten");
 		Utils::Info(acMessage);
+		printf("%s\n", acMessage);
 	}
 }
 
@@ -219,11 +234,15 @@ void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL b
 		{
 			if (bHasSource)
 			{
-				Utils::Info("MungWall alert: File %s, line %d: Invalid block passed in", pcSourceFile, iSourceLine);
+				Utils::Info(acInvalidBlockLine, pcSourceFile, iSourceLine);
+				printf(acInvalidBlockLine, pcSourceFile, iSourceLine);
+				printf("\n");
 			}
 			else
 			{
-				Utils::Info("*** MungWall alert: Invalid block passed in");
+				Utils::Info(acInvalidBlock);
+				printf(acInvalidBlock);
+				printf("\n");
 			}
 		}
 	}
