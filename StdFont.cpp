@@ -173,8 +173,16 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iH
 
 	/* Set the background and foreground pens, in case they have been changed since the last call */
 
-	IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
-	IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+	if (a_iHighlight)
+	{
+		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
+		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
+	}
+	else
+	{
+		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
+		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+	}
 
 	/* And draw the text passed in */
 
