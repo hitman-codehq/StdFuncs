@@ -40,6 +40,16 @@ public:
 
 	void DrawNow();
 
+	TInt InnerWidth()
+	{
+		return(m_iInnerWidth);
+	}
+
+	TInt InnerHeight()
+	{
+		return(m_iInnerHeight);
+	}
+
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
