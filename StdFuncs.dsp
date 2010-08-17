@@ -129,6 +129,10 @@ SOURCE=.\StdTextFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdWildcard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdWindow.cpp
 # End Source File
 # Begin Source File
@@ -198,6 +202,10 @@ SOURCE=.\StdList.h
 # Begin Source File
 
 SOURCE=.\StdTextFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdWildcard.h
 # End Source File
 # Begin Source File
 
