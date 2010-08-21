@@ -133,10 +133,23 @@ ULONG MungWall::CheckOverWrite(UBYTE *pubBuffer)
 	{
 		if (*(ULONG *) (pubBuffer + ulIndex) != 0xdeadbeef)
 		{
-			if (pubBuffer[ulIndex] != 0xde) ++ulNumOverWrites;
+
+#ifdef __amigaos__
+
+			if (pubBuffer[ulIndex + 0] != 0xde) ++ulNumOverWrites;
 			if (pubBuffer[ulIndex + 1] != 0xad) ++ulNumOverWrites;
 			if (pubBuffer[ulIndex + 2] != 0xbe) ++ulNumOverWrites;
 			if (pubBuffer[ulIndex + 3] != 0xef) ++ulNumOverWrites;
+
+#else /* ! __amigaos4__ */
+
+			if (pubBuffer[ulIndex + 3] != 0xde) ++ulNumOverWrites;
+			if (pubBuffer[ulIndex + 2] != 0xad) ++ulNumOverWrites;
+			if (pubBuffer[ulIndex + 1] != 0xbe) ++ulNumOverWrites;
+			if (pubBuffer[ulIndex + 0] != 0xef) ++ulNumOverWrites;
+
+#endif /* ! __amigaos4__ */
+
 		}
 	}
 
