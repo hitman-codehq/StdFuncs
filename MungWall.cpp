@@ -186,7 +186,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 		{
 			if (ulNumStartOverWrites)
 			{
-			   sprintf(&acMessage[strlen(acMessage)], " and");
+				sprintf(&acMessage[strlen(acMessage)], " and");
 			}
 
 			sprintf(&acMessage[strlen(acMessage)], " %ld byte%s after allocation", ulNumEndOverWrites, ((ulNumEndOverWrites > 1) ? "s" : ""));
