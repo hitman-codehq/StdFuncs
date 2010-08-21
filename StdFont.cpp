@@ -78,6 +78,11 @@ TInt RFont::Open()
 		RetVal = KErrGeneral;
 	}
 
+	/* Save the background and text colours for l8r use */
+
+	m_oBackground = GetBkColor(m_poWindow->m_poDC);
+	m_oText = GetTextColor(m_poWindow->m_poDC);
+
 #endif /*  ! __amigaos4__ */
 
 	return(RetVal);
@@ -87,6 +92,10 @@ TInt RFont::Open()
 
 void RFont::Close()
 {
+	/* Set the text and background colours back to their default as these are held by the */
+	/* operating system and will persist across instances of the RFont class */
+
+	SetHighlight(EFalse);
 
 #ifndef __amigaos4__
 
@@ -158,7 +167,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 /* Written: Sunday 09-May-2010 6:57 pm */
 
-void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iHighlight)
+void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 {
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 
@@ -199,26 +208,6 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iH
 
 #else /* ! __amigaos4__ */
 
-	static TBool Switched = EFalse;
-
-	// TODO: CAW - Do this properly
-	COLORREF Background = GetBkColor(m_poWindow->m_poDC);
-	COLORREF Text = GetTextColor(m_poWindow->m_poDC);
-
-	if ((a_iHighlight) && (!(Switched)))
-	{
-		Switched = ETrue;
-		SetBkColor(m_poWindow->m_poDC, Text);
-		SetTextColor(m_poWindow->m_poDC, Background);
-	}
-
-	if ((!(a_iHighlight)) && (Switched))
-	{
-		Switched = EFalse;
-		SetBkColor(m_poWindow->m_poDC, Text);
-		SetTextColor(m_poWindow->m_poDC, Background);
-	}
-
 	TextOut(m_poWindow->m_poDC, 0, (a_iY * m_iHeight), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
@@ -230,4 +219,22 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iH
 TInt RFont::Height()
 {
 	return(m_iHeight);
+}
+
+/* Written: Saturday 21-Aug-2010 8:27 pm */
+
+void RFont::SetHighlight(TBool a_iHighlight)
+{
+	/* Toggle the text highlight on or off as appropriate */
+
+	if (a_iHighlight)
+	{
+		SetBkColor(m_poWindow->m_poDC, m_oText);
+		SetTextColor(m_poWindow->m_poDC, m_oBackground);
+	}
+	else
+	{
+		SetBkColor(m_poWindow->m_poDC, m_oBackground);
+		SetTextColor(m_poWindow->m_poDC, m_oText);
+	}
 }

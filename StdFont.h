@@ -18,6 +18,8 @@ private:
 
 	HFONT		m_poFont;		/* Win32 font with which to render */
 	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
+	COLORREF	m_oBackground;	/* Background colour and text colours at the */
+	COLORREF	m_oText;		/* time that RFont.Open() was callsed */
 
 #endif /* ! __amigaos4__ */
 
@@ -34,9 +36,11 @@ public:
 
 	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY);
 
-	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY, TBool a_iHighlight);
+	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
 
 	TInt Height();
+
+	void SetHighlight(TBool a_iHighlight);
 };
 
 #endif /* ! STDFONT_H */
