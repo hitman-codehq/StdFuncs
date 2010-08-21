@@ -11,19 +11,19 @@ class RTest
 
 public:
 
-	RTest(const char *aTitle);
+	RTest(const char *a_pccTitle);
 
 	void Title();
 
-	void Printf(const char *aString, ...);
+	void Printf(const char *a_ccString, ...);
 
-	void Start(const char *aHeading);
+	void Start(const char *a_pccHeading);
 
-	void Next(const char *aHeading);
+	void Next(const char *a_pccHeading);
 
 	void End();
 
-	void operator()(TInt aResult, TInt aLineNumber, const char *aFileName);
+	void operator()(TInt a_iResult, TInt a_iLineNumber, const char *a_pccFileName);
 };
 
 #endif /* ! TEST_H */

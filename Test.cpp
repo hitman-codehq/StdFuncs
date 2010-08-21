@@ -5,9 +5,9 @@
 
 /* Written: Friday 05-Jun-2009 11:47 am */
 
-RTest::RTest(const char *aTitle)
+RTest::RTest(const char *a_pccTitle)
 {
-	iTitle = aTitle;
+	iTitle = a_pccTitle;
 	iLevel = 0;
 }
 
@@ -20,29 +20,29 @@ void RTest::Title()
 
 /* Written: Monday 06-Jul 2009 3:56 pm */
 
-void RTest::Printf(const char *aString, ...)
+void RTest::Printf(const char *a_pccString, ...)
 {
 	va_list Args;
 
-	va_start(Args, aString);
-	vprintf(aString, Args);
+	va_start(Args, a_pccString);
+	vprintf(a_pccString, Args);
 	va_end(Args);
 }
 
 /* Written: Friday 05-Jun-2009 1:14 pm */
 
-void RTest::Start(const char *aHeading)
+void RTest::Start(const char *a_pccHeading)
 {
 	printf("RTEST: Level %03d\n", ++iLevel);
-	printf("Next test - %s\n", aHeading);
+	printf("Next test - %s\n", a_pccHeading);
 }
 
 /* Written: Friday 05-Jun-2009 1:34 pm */
 
-void RTest::Next(const char *aHeading)
+void RTest::Next(const char *a_pccHeading)
 {
 	printf("RTEST: Level %03d\n", ++iLevel);
-	printf("Next test - %s\n", aHeading);
+	printf("Next test - %s\n", a_pccHeading);
 }
 
 /* Written: Friday 05-Jun-2009 1:35 pm */
@@ -52,11 +52,11 @@ void RTest::End()
 	printf("RTEST: SUCCESS : %s test completed O.K.\n", iTitle);
 }
 
-void RTest::operator()(TInt aResult, TInt aLineNumber, const char *aFileName)
+void RTest::operator()(TInt a_iResult, TInt a_iLineNumber, const char *a_pccFileName)
 {
-	if (!(aResult))
+	if (!(a_iResult))
 	{
-		printf("RTEST: FAIL : %s failed check at line %d of %s\n", iTitle, aLineNumber, aFileName);
+		printf("RTEST: FAIL : %s failed check at line %d of %s\n", iTitle, a_iLineNumber, a_pccFileName);
 		exit(RETURN_ERROR);
 	}
 }
