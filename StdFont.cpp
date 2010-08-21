@@ -183,19 +183,6 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 	IGraphics->Move(m_poWindow->m_poWindow->RPort, m_poWindow->m_poWindow->BorderLeft,
 		(m_poWindow->m_poWindow->BorderTop + (a_iY * m_iHeight) + m_iBaseline));
 
-	/* Set the background and foreground pens, in case they have been changed since the last call */
-
-	if (a_iHighlight)
-	{
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
-		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
-	}
-	else
-	{
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
-		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
-	}
-
 	/* Calculate the maximum number of characters that can fit in the client area of the window, */
 	/* as text is not automatically clipped by the Amiga OS text drawing routine */
 
@@ -227,6 +214,21 @@ void RFont::SetHighlight(TBool a_iHighlight)
 {
 	/* Toggle the text highlight on or off as appropriate */
 
+#ifdef __amigaos4__
+
+	if (a_iHighlight)
+	{
+		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
+		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
+	}
+	else
+	{
+		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
+		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+	}
+
+#else /* ! __amigaos4__ */
+
 	if (a_iHighlight)
 	{
 		SetBkColor(m_poWindow->m_poDC, m_oText);
@@ -237,4 +239,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		SetBkColor(m_poWindow->m_poDC, m_oBackground);
 		SetTextColor(m_poWindow->m_poDC, m_oText);
 	}
+
+#endif /* ! __amigaos4__ */
+
 }
