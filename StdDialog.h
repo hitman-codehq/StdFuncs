@@ -32,6 +32,8 @@ public:
 		delete [] m_pcTextBuffer;
 	}
 
+	virtual void InitDialog() { }
+
 	virtual TBool HandleCommand(TInt /*a_iCommand*/)
 	{
 		return(EFalse);
@@ -41,9 +43,11 @@ protected:
 
 	CDialog() { }
 
+	virtual TInt Open(TInt a_ResourceID);
+
 	TBool GetGadgetText(TInt a_iGadgetID);
 
-	virtual TInt Open(TInt a_ResourceID);
+	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
 };
 
 #endif /* ! STDDIALOG_H */

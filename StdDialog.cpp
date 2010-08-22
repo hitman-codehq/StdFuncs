@@ -21,7 +21,12 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 			/* where we can get to them l8r */
 
 			SetWindowLong(a_poWindow, GWL_USERDATA, a_oLParam);
-			((CDialog *) a_oLParam)->m_poWindow = a_poWindow;
+			Dialog = (CDialog *) a_oLParam;
+			Dialog->m_poWindow = a_poWindow;
+
+			/* Allow the concrete class to peform any dialog initialisation it needs to */
+
+			Dialog->InitDialog();
 
 			RetVal = 1;
 		}
@@ -89,6 +94,21 @@ TBool CDialog::GetGadgetText(TInt a_iGadgetID)
 	}
 
 	return(RetVal);
+}
+
+void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
+{
+
+#ifdef _DEBUG
+
+	ASSERTM((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
+
+#else /* ! _DEBUG */
+
+	SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText);
+
+#endif /* ! _DEBUG */
+
 }
 
 /* Written: Saturday 21-Aug-2010 12:16 pm */
