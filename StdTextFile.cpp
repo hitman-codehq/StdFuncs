@@ -32,7 +32,7 @@ void RTextFile::Close()
 
 /* Written: Friday 23-Jul-2010 8:05 am */
 /* Finds the next available line in the file, NULL terminates it and returns a ptr to it */
-/* @return	A ptr to the start of the next available line else NULL if there are no more lines */
+/* @returns	A ptr to the start of the next available line else NULL if there are no more lines */
 
 char *RTextFile::GetLine()
 {
