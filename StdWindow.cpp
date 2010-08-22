@@ -25,7 +25,7 @@ static const SKeyMapping g_aoKeyMap[] =
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
-LRESULT CALLBACK WindowProc(HWND a_poWindow, unsigned int a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
+static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	int Index;
 	LRESULT RetVal;
