@@ -6,7 +6,9 @@
 
 static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
-	int Result, RetVal;
+	int Result, RetVal, Width, Height, WindowWidth, WindowHeight;
+	RECT Size;
+
 	CDialog *Dialog;
 
 	/* Assume we don't handle the message */
@@ -23,6 +25,16 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 			SetWindowLong(a_poWindow, GWL_USERDATA, a_oLParam);
 			Dialog = (CDialog *) a_oLParam;
 			Dialog->m_poWindow = a_poWindow;
+
+			/* Determine the size of the screen and centre the dialog in the middle of it */
+
+			Utils::GetScreenSize(&Width, &Height);
+			GetWindowRect(a_poWindow, &Size);
+			WindowWidth = (Size.right - Size.left);
+			WindowHeight = (Size.bottom - Size.top);
+
+			DEBUGCHECK(SetWindowPos(a_poWindow, 0, ((Width - WindowWidth) / 2), ((Height - WindowHeight) / 2), 0, 0,
+				(SWP_NOZORDER | SWP_NOSIZE)), "DialogProc() => SetWindowPos() failed");
 
 			/* Allow the concrete class to peform any dialog initialisation it needs to */
 

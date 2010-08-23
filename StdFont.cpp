@@ -58,7 +58,7 @@ TInt RFont::Open()
 	if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 		CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
 	{
-		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont));
+		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
 	}
 	else
 	{
@@ -101,13 +101,13 @@ void RFont::Close()
 
 	if (m_poOldFont)
 	{
-		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont));
+		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont), "RFont::Close() => Unable to unselect font from device context");
 		m_poOldFont = NULL;
 	}
 
 	if (m_poFont)
 	{
-		DEBUGCHECK(DeleteObject(m_poFont));
+		DEBUGCHECK(DeleteObject(m_poFont), "RFont::Close() => Unable to delete font object");
 		m_poFont = NULL;
 	}
 

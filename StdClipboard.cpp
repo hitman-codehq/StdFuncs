@@ -46,7 +46,7 @@ void RClipboard::Close()
 
 #else /* ! __amigaos4__ */
 
-	DEBUGCHECK(CloseClipboard());
+	DEBUGCHECK(CloseClipboard(), "RClipboard::Close() => Unable to close clipboard");
 
 #endif /* __amigaos4__ */
 
@@ -196,7 +196,7 @@ void RClipboard::SetDataEnd()
 
 	/* Unlock the block of memory we have been writing to */
 
-	DEBUGCHECK(GlobalUnlock(m_pcSetData));
+	DEBUGCHECK(GlobalUnlock(m_pcSetData), "RClipboard::SetDataEnd() => Unable to unlock global clipboard data");
 
 	/* And assign ownership of the memory block to the clipboard */
 

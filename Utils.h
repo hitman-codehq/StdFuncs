@@ -96,11 +96,11 @@ public:
 
 #ifdef _DEBUG
 
-#define DEBUGCHECK(Function) { if (!(Function)) Utils::AssertionFailure("DEBUGCHECK failed in file \"%s\", line %d", __FILE__, __LINE__); }
+#define DEBUGCHECK(Function, Message) if (!(Function)) Utils::AssertionFailure(Message);
 
 #else /* ! _DEBUG */
 
-#define DEBUGCHECK(Function) { Function; }
+#define DEBUGCHECK(Function, Message) Function
 
 #endif /* ! _DEBUG */
 
