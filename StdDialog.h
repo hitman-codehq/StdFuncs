@@ -6,6 +6,13 @@
 
 class CWindow;
 
+/* Event types that can be sent to CDialog::HandleEvent() */
+
+enum TStdEventType
+{
+	EStdEventChange = 0x0300		/* Gadget contents have changed */
+};
+
 /* This is the base class for all platform specific dialogs */
 
 class CDialog
@@ -17,8 +24,8 @@ protected:
 
 public:
 
-	HWND	m_poWindow;			/* Ptr to underlying Windows window for dialog */
-	CWindow	*m_poParentWindow;	/* Ptr to window in which dialog is opened */
+	HWND	m_poWindow;				/* Ptr to underlying Windows window for dialog */
+	CWindow	*m_poParentWindow;		/* Ptr to window in which dialog is opened */
 
 public:
 
@@ -39,13 +46,17 @@ public:
 		return(EFalse);
 	}
 
+	virtual void HandleEvent(enum TStdEventType /*a_eEventID*/, TInt /*a_iGadgetID*/) { }
+
 protected:
 
 	CDialog() { }
 
 	virtual TInt Open(TInt a_ResourceID);
 
-	TBool GetGadgetText(TInt a_iGadgetID);
+	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);
+
+	TInt GetGadgetText(TInt a_iGadgetID, TBool a_bGetText);
 
 	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
 };

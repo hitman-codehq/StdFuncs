@@ -6,7 +6,7 @@
 
 static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
-	int Result, RetVal, Width, Height, WindowWidth, WindowHeight;
+	int HiWord, LoWord, Result, RetVal, Width, Height, WindowWidth, WindowHeight;
 	RECT Size;
 
 	CDialog *Dialog;
@@ -50,7 +50,26 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 			Dialog = (CDialog *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
-			if ((Result = Dialog->HandleCommand(LOWORD(a_oWParam))) > 0)
+			/* Find out whether this command refers to a notification and the ID of the gadget to */
+			/* which it refers */
+
+			HiWord = HIWORD(a_oWParam);
+			LoWord = LOWORD(a_oWParam);
+
+			/* If this is an notification then convert the notification type to a standardised value */
+			/* and let the client know about it */
+
+			if (HiWord > 0)
+			{
+				if (HiWord == EN_CHANGE)
+				{
+					Dialog->HandleEvent(EStdEventChange, LoWord);
+				}
+			}
+
+			/* Otherwise it's a normal command so just let the client handle the it */
+
+			else if ((Result = Dialog->HandleCommand(LoWord)) > 0)
 			{
 				EndDialog(a_poWindow, Result);
 			}
@@ -62,47 +81,83 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 	return(RetVal);
 }
 
+/* Written: Tuesday 24-Aug-2010 7:07 am */
+/* @param	a_iGadgetID	ID of the gadget to be enabled or disabled */
+/*			a_bEnabled	ETrue to enable the gadget, else EFalse to disable it */
+/* Enables or disables a particular gadget in a dialog, specified by gadget ID. */
+/* Disabling means that the gadget is greyed out and cannot be used */
+
+void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
+{
+	HWND DialogItem;
+
+	/* Get a handle to the gadget to be enabled or disabled */
+
+	DialogItem = GetDlgItem(m_poWindow, a_iGadgetID);
+	ASSERTM(DialogItem, "CDialog::EnableGadget() => Unable to get handle to gadget");
+
+	/* And enable or disable it */
+
+	EnableWindow(DialogItem, a_bEnable);
+}
+
 /* Written: Saturday 21-Aug-2010 1:08 pm */
 /* @param	a_iGadgetID	ID of the gadget for which to obtain the text */
-/* @returns	ETrue if the text was obtained successfully, else EFalse */
-/* Queries the gadget specified by the a_iGadgetID identifier for its text contents. */
-/* No checking is performed that the ID is valid or that it refers to a text gadget */
+/*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
+/* @returns	Length of the text if successful, else KErrNoMemory */
+/* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
+/* and length.  Optionally, this function can obtain just the length */
 
-TBool CDialog::GetGadgetText(TInt a_iGadgetID)
+TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
-	int Length;
-	TBool RetVal;
+	TInt Length, RetVal;
 
 	/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
 	Length = (GetWindowTextLength(GetDlgItem(m_poWindow, a_iGadgetID)) + 1);
 
-	/* If the currently allocated buffer is too small then delete it */
+	/* If the user wants the contents of get gadget as well then obtain them */
 
-	if (m_iTextBufferLength < Length)
+	if (a_bGetText)
 	{
-		delete [] m_pcTextBuffer;
-		m_iTextBufferLength = 0;
+		/* Assume failure */
+
+		RetVal = KErrNoMemory;
+
+		/* If the currently allocated buffer is too small then delete it */
+
+		if (m_iTextBufferLength < Length)
+		{
+			delete [] m_pcTextBuffer;
+			m_pcTextBuffer = NULL;
+			m_iTextBufferLength = 0;
+		}
+
+		/* And allocate a buffer large enough */
+
+		if (!(m_pcTextBuffer))
+		{
+			m_pcTextBuffer = new char[Length];
+		}
+
+		/* If the buffer was allocated successfully the get the contents of the text gadget into it */
+
+		if (m_pcTextBuffer)
+		{
+			m_iTextBufferLength = Length;
+
+			if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
+			{
+				RetVal = Length;
+			}
+		}
 	}
 
-	/* And allocate a buffer large enough */
+	/* Otherwise just return the length of the gadget's text */
 
-	if (!(m_pcTextBuffer))
-	{
-		m_pcTextBuffer = new char[Length];
-	}
-
-	/* If the buffer was allocated successfully the get the contents of the text gadget into it */
-
-	if (m_pcTextBuffer)
-	{
-		m_iTextBufferLength = Length;
-
-		RetVal = (GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length) > 0) ? ETrue : EFalse;
-	}
 	else
 	{
-		RetVal = EFalse;
+		RetVal = Length;
 	}
 
 	return(RetVal);
