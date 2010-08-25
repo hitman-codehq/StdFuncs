@@ -106,7 +106,9 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 /*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
 /* @returns	Length of the text if successful, else KErrNoMemory */
 /* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
-/* and length.  Optionally, this function can obtain just the length */
+/* and length.  Optionally, this function can obtain just the length.  This function gets the */
+/* text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so */
+/* the text is only valid until the next call to this function. */
 
 TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
