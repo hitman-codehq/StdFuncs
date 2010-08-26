@@ -2,6 +2,8 @@
 #include "StdFuncs.h"
 #include "StdDialog.h"
 
+#ifdef WIN32
+
 /* Written: Saturday 21-Aug-2010 12:21 pm */
 
 static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
@@ -81,6 +83,8 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 	return(RetVal);
 }
 
+#endif /* WIN32 */
+
 /* Written: Tuesday 24-Aug-2010 7:07 am */
 /* @param	a_iGadgetID	ID of the gadget to be enabled or disabled */
 /*			a_bEnabled	ETrue to enable the gadget, else EFalse to disable it */
@@ -89,6 +93,11 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 {
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
 	HWND DialogItem;
 
 	/* Get a handle to the gadget to be enabled or disabled */
@@ -99,6 +108,9 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 	/* And enable or disable it */
 
 	EnableWindow(DialogItem, a_bEnable);
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Saturday 21-Aug-2010 1:08 pm */
@@ -114,9 +126,17 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
 	TInt Length, RetVal;
 
+#ifdef __amigaos4__
+
+	Length = 1;
+
+#else /* ! __amigaos4__ */
+
 	/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
 	Length = (GetWindowTextLength(GetDlgItem(m_poWindow, a_iGadgetID)) + 1);
+
+#endif /* ! __amigaos4__ */
 
 	/* If the user wants the contents of get gadget as well then obtain them */
 
@@ -148,7 +168,12 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		{
 			m_iTextBufferLength = Length;
 
+#ifdef WIN32
+
 			if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
+
+#endif /* WIN32 */
+
 			{
 				RetVal = Length;
 			}
@@ -168,6 +193,8 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 {
 
+#ifdef WIN32
+
 #ifdef _DEBUG
 
 	ASSERTM((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
@@ -177,6 +204,8 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 	SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText);
 
 #endif /* ! _DEBUG */
+
+#endif /* WIN32 */
 
 }
 
@@ -190,9 +219,14 @@ TInt CDialog::Open(TInt a_iResourceID)
 {
 	TInt RetVal;
 
+#ifdef WIN32
+
 	/* Open the dialog specified by the ID passed in */
 
 	if ((RetVal = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), NULL, DialogProc, (LPARAM) this)) < 0)
+
+#endif /* WIN32 */
+
 	{
 		RetVal = KErrGeneral;
 	}
