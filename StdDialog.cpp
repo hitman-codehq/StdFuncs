@@ -284,7 +284,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 #else /* ! __amigaos4__ */
 
-	return(IsDlgButtonChecked(m_poWindow, EDialogFindMatchCase) == BST_CHECKED);
+	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
 
 #endif /* ! __amigaos4__ */
 
