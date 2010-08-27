@@ -17,15 +17,15 @@ private:
 	const char	*m_pccCurrentGetData;	/* Ptr to current line of clipboard data being read */
 	char		*m_pcSetData;			/* Ptr to buffer containing data to be written */
 
-#ifdef WIN32
-
-	HANDLE		m_poHandle;				/* Handle to data to be written */
-
-#else /* ! WIN32 */
+#ifdef __amigaos4__
 
 	int			m_iDataSize;			/* Size of buffer to be written */
 
-#endif /* ! WIN32 */
+#else /* ! __amigaos4__ */
+
+	HANDLE		m_poHandle;				/* Handle to data to be written */
+
+#endif /* ! __amigaos4__ */
 
 public:
 
