@@ -45,12 +45,23 @@ typedef int TBool;
 #define KErrWrite			-23
 #define KErrEof				-25
 
+/* Useful Amiga OS return value constants for main() */
+
 #ifndef __amigaos4__
 
 #define RETURN_OK 0
 #define RETURN_ERROR 10
 
 #endif /* ! __amigaos4__ */
+
+/* Useful Win32 constants for OK and cancel buttons */
+
+#ifndef WIN32
+
+#define IDOK 1
+#define IDCANCEL 2
+
+#endif /* WIN32 */
 
 /* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
 
