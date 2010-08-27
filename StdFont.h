@@ -23,6 +23,7 @@ private:
 
 #endif /* ! __amigaos4__ */
 
+	TBool		m_iHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iHeight;		/* Height of the font in pixels */
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
@@ -34,7 +35,7 @@ public:
 
 	void Close();
 
-	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY);
+	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
 
 	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
 

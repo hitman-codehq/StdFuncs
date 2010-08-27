@@ -21,6 +21,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 #endif /* ! __amigaos4__ */
 
+	m_iHighlight = EFalse;
 	m_poWindow = a_poWindow;
 }
 
@@ -117,17 +118,26 @@ void RFont::Close()
 
 /* Written: Tuesday 08-Jun-2010 6:22 am */
 
-void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
+void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter)
 {
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 
-	char Cursor[1] = { '@' };
+	char Space[1] = { ' ' };
+	const char *Cursor;
+
+	/* Invert the current highlight state before drawing the cursor and draw the letter under */
+	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
+	/* use ETrue and EFalse so that the cursor works within highlighted blocks of text as well */
+
+	SetHighlight(!(m_iHighlight));
+
+	/* Draw the text or a space instead as requested */
+
+	Cursor = (a_iDrawCharacter) ? &a_pcText[a_iX] : Space;
 
 #ifdef __amigaos4__
 
 	int Width;
-
-	(void) a_pcText;
 
 	/* Move to the position at which to print, taking into account the left and top border sizes, */
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
@@ -139,12 +149,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
 	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * Width)),
 		(m_poWindow->m_poWindow->BorderTop + (a_iY * m_iHeight) + m_iBaseline));
 
-	/* Set the background and foreground pens, in case they have been changed since the last call */
-
-	IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
-	IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
-
-	/* And draw the text passed in */
+	/* And draw the cursor! */
 
 	IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
 
@@ -158,11 +163,17 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pcText, a_iX, &Size))
 	{
+		/* And draw the cursor! */
+
 		TextOut(m_poWindow->m_poDC, Size.cx, (a_iY * m_iHeight), Cursor, 1);
 	}
 
 #endif /* ! __amigaos4__ */
 
+	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
+	/* above will have set the state of the highlight flag */
+
+	SetHighlight(!(m_iHighlight));
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
@@ -242,4 +253,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 #endif /* ! __amigaos4__ */
 
+	/* And save the highlight state for l8r use */
+
+	m_iHighlight = a_iHighlight;
 }
