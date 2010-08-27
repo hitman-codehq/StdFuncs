@@ -61,7 +61,13 @@ protected:
 
 	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);
 
+	TInt GetGadgetInt(TInt a_iGadgetID);
+
 	TInt GetGadgetText(TInt a_iGadgetID, TBool a_bGetText);
+
+	void CheckGadget(TInt a_iGadgetID);
+
+	TBool IsGadgetChecked(TInt a_iGadgetID);
 
 	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
 };

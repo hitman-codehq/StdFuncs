@@ -96,6 +96,10 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
+	(void) a_iGadgetID;
+	(void) a_bEnable;
+	// TODO: CAW - Implement
+
 #else /* ! __amigaos4__ */
 
 	HWND DialogItem;
@@ -108,6 +112,27 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 	/* And enable or disable it */
 
 	EnableWindow(DialogItem, a_bEnable);
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Saturday 27-Aug-2010 10:12 am */
+
+TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	(void) a_iGadgetID;
+	// TODO: CAW - Implement
+
+	return(0);
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Add an appropriate assert here + check parameters above
+	return(GetDlgItemInt(m_poWindow, a_iGadgetID, NULL, FALSE));
 
 #endif /* ! __amigaos4__ */
 
@@ -127,6 +152,9 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	TInt Length, RetVal;
 
 #ifdef __amigaos4__
+
+	(void) a_iGadgetID;
+	// TODO: CAW - Implement
 
 	Length = 1;
 
@@ -193,7 +221,13 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 {
 
-#ifdef WIN32
+#ifdef __amigaos4__
+
+	(void) a_iGadgetID;
+	(void) a_pccText;
+	// TODO: CAW - Implement
+
+#else /* ! __amigaos4__ */
 
 #ifdef _DEBUG
 
@@ -205,7 +239,54 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #endif /* ! _DEBUG */
 
-#endif /* WIN32 */
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Saturday 27-Aug-2010 10:25 am */
+/* @param	a_iGadgetID	ID of the gadget to be checked */
+/* Enables the checkmark on a checkbox gadget.  It is assumed that the gadget represented by */
+/* the ID passed in is a valid checkbox gadget and no error checking is done to confirm this */
+
+void CDialog::CheckGadget(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+
+	(void) a_iGadgetID;
+
+#else /* ! __amigaos4__ */
+
+	CheckDlgButton(m_poWindow, a_iGadgetID, BST_CHECKED);
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Saturday 27-Aug-2010 10:28 am */
+/* @param	a_iGadgetID	ID of the gadget for which to obtain checked status */
+/* @returns ETrue if the gadget is checked, else EFalse */
+/* Examines the checkbox gadget respresented by the ID passed in to see if it is checked. */
+/* It is assumed that this gadget is a valid checkbox gadget and no error checking is done */
+/* to confirm this */
+
+TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+	(void) a_iGadgetID;
+
+	return(EFalse);
+
+#else /* ! __amigaos4__ */
+
+	return(IsDlgButtonChecked(m_poWindow, EDialogFindMatchCase) == BST_CHECKED);
+
+#endif /* ! __amigaos4__ */
 
 }
 
@@ -219,13 +300,17 @@ TInt CDialog::Open(TInt a_iResourceID)
 {
 	TInt RetVal;
 
-#ifdef WIN32
+#ifdef __amigaos4__
+
+	(void) a_iResourceID;
+
+#else /* ! __amigaos4__ */
 
 	/* Open the dialog specified by the ID passed in */
 
 	if ((RetVal = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), NULL, DialogProc, (LPARAM) this)) < 0)
 
-#endif /* WIN32 */
+#endif /* ! __amigaos4__ */
 
 	{
 		RetVal = KErrGeneral;
