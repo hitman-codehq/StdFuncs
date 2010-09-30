@@ -2,12 +2,29 @@
 #ifndef STDWINDOW_H
 #define STDWINDOW_H
 
+#ifdef __amigaos4__
+
+#include <intuition/classes.h>
+
+#endif /* __amigaos4__ */
+
 /* Forward declaration to reduce the # of includes required */
 
 class RApplication;
 
+/* This is the base class for all platform specific windows and dialog boxes */
+
 class CWindow
 {
+	/* RApplication class needs to be able to access this class's internals in order to */
+	/* link windows into its window list */
+
+	friend class RApplication;
+
+private:
+
+	CWindow			*m_poNext;			/* Ptr to next window in list */
+
 protected:
 
 	TInt			m_iInnerWidth;		/* Width of window, minus left and right borders */
@@ -18,6 +35,7 @@ public:
 
 #ifdef __amigaos4__
 
+	Object			*m_poWindowObj;	/* Ptr to underlying Reaction window */
 	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
@@ -36,8 +54,6 @@ public:
 
 	void Close();
 
-	virtual void Draw() = 0;
-
 	void DrawNow();
 
 	TInt InnerWidth()
@@ -49,10 +65,6 @@ public:
 	{
 		return(m_iInnerHeight);
 	}
-
-	virtual void HandleCommand(TInt /*a_iCommand*/) { }
-
-	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 
 	void SetApplication(RApplication *a_poApplication)
 	{
@@ -67,6 +79,13 @@ public:
 
 #endif /* __amigaos4__ */
 
+	/* Functions can be implemented by client software */
+
+	virtual void Draw() { }
+
+	virtual void HandleCommand(TInt /*a_iCommand*/) { }
+
+	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 };
 
 #endif /* ! STDWINDOW_H */

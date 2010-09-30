@@ -34,6 +34,7 @@ private:
 
 #ifdef __amigaos4__
 
+	ULONG			m_ulWindowSignals;	/* Signals representing all currently open windows */
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
 	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
 	TBool			m_bMenuStripSet;	/* ETrue if menus have been added to the main window */
@@ -59,6 +60,8 @@ public:
 	int Main();
 
 	void AddWindow(CWindow *a_poWindow);
+
+	void RemoveWindow(CWindow *a_poWindow);
 
 	void Exit();
 };

@@ -1,10 +1,15 @@
 
 #include "StdFuncs.h"
+#include "StdApplication.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos4__
 
+#define ALL_REACTION_CLASSES
+#define ALL_REACTION_MACROS
+
 #include <proto/intuition.h>
+#include <reaction/reaction.h>
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
 
@@ -131,28 +136,50 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 #ifdef __amigaos4__
 
-	/* Open the window on the screen, maximised */
+	/* Assume failure */
 
-	if ((m_poWindow = IIntuition->OpenWindowTags(NULL, WA_SimpleRefresh, TRUE, WA_DepthGadget, TRUE,
-		WA_Activate, TRUE, WA_NewLookMenus, TRUE, WA_CloseGadget, TRUE,
-		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Title, (ULONG) a_pccTitle,
+	RetVal = KErrGeneral;
+
+	/* Create a Reaction Window and open it on the requested screen at the maximum size of */
+	/* the screen.  If no screen name is specified, fall back to the Workbench */
+
+	m_poWindowObj = (Object *) WindowObject,
+		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
+		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
+		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
+		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
-		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE, TAG_DONE)) != NULL)
+	EndWindow;
+
+	if (m_poWindowObj)
 	{
-		/* Indicate success */
+		if (RA_OpenWindow(m_poWindowObj))
+		{
+			/* Get a ptr to the underlying Intuition Window, as it is handy to have for such */
+			/* things as obtaining the window's signal bit */
 
-		RetVal = KErrNone;
+			IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
 
-		/* Calculate the inner width and height of the window, for l8r use */
+			/* Indicate success */
 
-		m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
-		m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+			RetVal = KErrNone;
+
+			/* Calculate the inner width and height of the window, for l8r use */
+
+			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
+			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+		}
+		else
+		{
+			IIntuition->DisposeObject(m_poWindowObj);
+			m_poWindowObj = NULL;
+
+			Utils::Info("Unable to open window");
+		}
 	}
 	else
 	{
-		RetVal = KErrGeneral;
-
-		Utils::Info("Unable to open window");
+		Utils::Info("Unable to create window");
 	}
 
 #else /* ! __amigaos4__ */
@@ -240,10 +267,10 @@ void CWindow::Close()
 
 #ifdef __amigaos4__
 
-	if (m_poWindow)
+	if (m_poWindowObj)
 	{
-		IIntuition->CloseWindow(m_poWindow);
-		m_poWindow = NULL;
+		IIntuition->DisposeObject(m_poWindowObj);
+		m_poWindowObj = NULL;
 	}
 
 #else /* ! __amigaos4__ */
@@ -256,6 +283,12 @@ void CWindow::Close()
 
 #endif /* ! __amigaos4__ */
 
+	/* And remove the window from the application's list of windows, if it has been added */
+
+	if (m_poApplication)
+	{
+		m_poApplication->RemoveWindow(this);
+	}
 }
 
 /* Written: Saturday 29-May-2010 1:07 pm*/

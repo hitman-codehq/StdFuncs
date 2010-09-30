@@ -2,9 +2,7 @@
 #ifndef STDDIALOG_H
 #define STDDIALOG_H
 
-/* Forward declaration to reduce the # of includes required */
-
-class CWindow;
+#include "StdWindow.h"
 
 /* Event types that can be sent to CDialog::HandleEvent() */
 
@@ -13,9 +11,9 @@ enum TStdEventType
 	EStdEventChange = 0x0300		/* Gadget contents have changed */
 };
 
-/* This is the base class for all platform specific dialogs */
+/* This is the base class for all platform specific dialog boxes */
 
-class CDialog
+class CDialog : public CWindow
 {
 protected:
 
@@ -44,14 +42,11 @@ public:
 		delete [] m_pcTextBuffer;
 	}
 
-	virtual void InitDialog() { }
-
-	virtual TBool HandleCommand(TInt /*a_iCommand*/)
-	{
-		return(EFalse);
-	}
+	/* Functions can be implemented by client software */
 
 	virtual void HandleEvent(enum TStdEventType /*a_eEventID*/, TInt /*a_iGadgetID*/) { }
+
+	virtual void InitDialog() { }
 
 protected:
 

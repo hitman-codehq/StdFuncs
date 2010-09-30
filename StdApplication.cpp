@@ -5,8 +5,12 @@
 
 #ifdef __amigaos4__
 
+#define ALL_REACTION_CLASSES
+#define ALL_REACTION_MACROS
+
 #include <proto/gadtools.h>
 #include <proto/intuition.h>
+#include <reaction/reaction.h>
 #include <proto/keymap.h>
 
 /* Array of key mappings for mapping Amiga keys onto standard keys */
@@ -40,6 +44,7 @@ RApplication::RApplication()
 
 #endif /* ! __amigaos4__ */
 
+	m_poWindow = NULL;
 	m_pcoMenuItems = NULL;
 }
 
@@ -89,6 +94,7 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 			NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
 			NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
 			NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
+			NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
 		}
 
 		/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
@@ -161,85 +167,66 @@ int RApplication::Main()
 
 	char KeyBuffer[5];
 	bool KeyHandled;
-	int Code, Index, Menu, MenuItem, NumChars;
-	ULONG Signal, WindowSignal;
-	const struct SStdMenuItem *MenuItems;
-	struct InputEvent InputEvent;
-	struct IntuiMessage *IntuiMessage;
+	int Index, NumChars;
+	TBool KeyDown;
+	ULONG Result, Signal;
+	UWORD Code;
+	struct InputEvent *InputEvent;
+	struct MenuItem *MenuItem;
+	CWindow *Window;
 
-	ASSERTM(m_poWindow, "RApplication::Main() => Window handle must not be NULL");
-
-	WindowSignal = m_poWindow->GetSignal();
+	ASSERTM(m_poWindow, "RApplication::Main() => Application must have at least one window");
 
 	do
 	{
-		Signal = IExec->Wait(WindowSignal);
+		Signal = IExec->Wait(m_ulWindowSignals);
 
-		if (Signal & WindowSignal)
+		Window = m_poWindow;
+
+		while (Window)
 		{
-			while ((IntuiMessage = (struct IntuiMessage *) IExec->GetMsg(m_poWindow->GetWindow()->UserPort)) != NULL)
+			if (Signal & Window->GetSignal())
 			{
-				switch (IntuiMessage->Class)
+				break;
+			}
+
+			Window = Window->m_poNext;
+		}
+
+		if (Window)
+		{
+			while ((Result = RA_HandleInput(Window->m_poWindowObj, &Code)) != WMHI_LASTMSG)
+			{
+				switch (Result & WMHI_CLASSMASK)
 				{
-					case IDCMP_CLOSEWINDOW :
+					case WMHI_CLOSEWINDOW :
 					{
-						m_bDone = ETrue;
+						Window->HandleCommand(IDCANCEL);
 
 						break;
 					}
 
-					case IDCMP_MENUPICK :
+					case WMHI_GADGETUP :
 					{
-						/* Obtain the code of the first menu item that was selected */
+						Window->HandleCommand(Result & WMHI_GADGETMASK);
 
-						Code = IntuiMessage->Code;
+						break;
+					}
 
+					case WMHI_MENUPICK :
+					{
 						/* Scan through the messages, processing each one.  There may be multiple */
-						/* messages waiting due to the user selecting more than one */
+						/* messages waiting due to the user selecting more than one menu item */
 
 						while (Code != MENUNULL)
 						{
-							/* Map the menu item that was selected onto its generic command ID.  The */
-							/* idea here it to iterate through the Amiga OS style menus, figuring */
-							/* out the menu and menu item number of each one, until we find one that */
-							/* matches the menu and menu item number passed in with the message */
+							/* Get the address of the underlying Intuition MenuItem and from that */
+							/* we can extract the command ID of the menu item from the user data */
+							/* field and pass it to CWindow::HandleCommand() */
 
-							Menu = -1;
-							MenuItem = 0;
-							MenuItems = m_pcoMenuItems;
-
-							while (MenuItems->m_eType != EStdMenuEnd)
+							if ((MenuItem = IIntuition->ItemAddress(m_poMenus, Code)) != NULL)
 							{
-								/* Each time we find a menu title, the menu number increases by 1 and */
-								/* the menu item number resets.  The first title is 0, hence starting */
-								/* with -1 above */
-
-								if (MenuItems->m_eType == EStdMenuTitle)
-								{
-									++Menu;
-									MenuItem = 0;
-								}
-								else
-								{
-									/* If this menu item the one we are looking for then handle the */
-									/* command that represents the menu item */
-
-									if ((MENUNUM(Code) == Menu) && (ITEMNUM(Code) == MenuItem))
-									{
-										m_poWindow->HandleCommand(MenuItems->m_iCommand);
-
-										break;
-									}
-
-									/* Otherwise just increment the menu item # and keep searching */
-
-									else
-									{
-										++MenuItem;
-									}
-								}
-
-								++MenuItems;
+								Window->HandleCommand((TInt) GTMENUITEM_USERDATA(MenuItem));
 							}
 
 							/* And get the code of the next menu item selected */
@@ -250,75 +237,79 @@ int RApplication::Main()
 						break;
 					}
 
-					case IDCMP_RAWKEY :
+					case WMHI_RAWKEY :
 					{
-						/* Mising IDCMP_RAWKEY and IDCMP_VANILLAKEY doesn't really work on Amiga OS so */
+						/* Mixing IDCMP_RAWKEY and IDCMP_VANILLAKEY doesn't really work on Amiga OS so */
 						/* we will handle cooking the keys ourselves.  Assume to start with that the */
 						/* cooked key will not be handled */
 
 						KeyHandled = false;
 
-						/* If this is a key down event then cook the key and if the resulting key is a */
-						/* printable ASCII key then send it to the client code and we're done */
+						/* Get a ptr to the InputEvent from Reaction */
 
-						if (!(IntuiMessage->Code & IECODE_UP_PREFIX))
+						if (IIntuition->GetAttr(WINDOW_InputEvent, Window->m_poWindowObj, (ULONG *) &InputEvent) > 0)
 						{
-							InputEvent.ie_Class = IECLASS_RAWKEY;
-							InputEvent.ie_SubClass = 0;
-							InputEvent.ie_Code = IntuiMessage->Code;
-							InputEvent.ie_Qualifier = IntuiMessage->Qualifier;
-							InputEvent.ie_EventAddress= (APTR *) *((ULONG *) IntuiMessage->IAddress);
+							/* If this is a key down event then cook the key and if the resulting key is a */
+							/* printable ASCII key then send it to the client code and we're done */
 
-							if ((NumChars = IKeymap->MapRawKey(&InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+							KeyDown = (!(Code & IECODE_UP_PREFIX));
+
+							if (KeyDown)
 							{
-								if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
+								if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 								{
-									m_poWindow->OfferKeyEvent(KeyBuffer[0], ETrue);
-									KeyHandled = true;
+									if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
+									{
+										Window->OfferKeyEvent(KeyBuffer[0], ETrue);
+										KeyHandled = true;
+									}
+								}
+							}
+
+							/* If the key wasn't handled then it is probably a non printable ASCII key so */
+							/* map it onto the standard keycode and send it to the client code */
+
+							if (!(KeyHandled))
+							{
+								Code = (Code & ~IECODE_UP_PREFIX);
+
+								/* Scan through the key mappings and find the one that has just been pressed */
+
+								for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+								{
+									if (g_aoKeyMap[Index].m_iNativeKey == Code)
+									{
+										break;
+									}
+								}
+
+								/* If it was a known key then convert it to the standard value and pass it to the */
+								/* CWindow::OfferKeyEvent() function */
+
+								if (Index < NUM_KEYMAPPINGS)
+								{
+									Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
 								}
 							}
 						}
-
-						/* If the key wasn't handled then it is probably a non printable ASCII key so */
-						/* map it onto the standard keycode and send it to the client code */
-
-						if (!(KeyHandled))
+						else
 						{
-							Code = (IntuiMessage->Code & ~IECODE_UP_PREFIX);
-
-							/* Scan through the key mappings and find the one that has just been pressed */
-
-							for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
-							{
-								if (g_aoKeyMap[Index].m_iNativeKey == Code)
-								{
-									break;
-								}
-							}
-
-							/* If it was a known key then convert it to the standard value and pass it to the */
-							/* CWindow::OfferKeyEvent() function */
-
-							if (Index < NUM_KEYMAPPINGS)
-							{
-								m_poWindow->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (!(IntuiMessage->Code & IECODE_UP_PREFIX)));
-							}
+							Utils::Info("RApplication::Main() => Unable to get InputEvent for WMHI_RAWKEY");
 						}
 
 						break;
 					}
 
-					case IDCMP_REFRESHWINDOW :
+					// TODO: CAW - Needs to be implemented
+					/*case WHMI_REFRESHWINDOW :
 					{
-						m_poWindow->Draw();
+						IDOS->Printf("Calling Draw()\n");
+
+						Window->Draw();
 
 						break;
-					}
+					}*/
 				}
-
-				/* And reply to the processed message */
-
-				IExec->ReplyMsg((struct Message *) IntuiMessage);
 			}
 		}
 	}
@@ -379,19 +370,44 @@ int RApplication::Main()
 
 void RApplication::AddWindow(CWindow *a_poWindow)
 {
+	CWindow *Window;
+
 	ASSERTM((a_poWindow != NULL), "RApplication::AddWindow() => Window ptr must be passed in");
 
-	m_poWindow = a_poWindow;
-	m_poWindow->SetApplication(this);
+	/* If the window list is empty then make this window the first in the list */
+
+	if (!(m_poWindow))
+	{
+		m_poWindow = a_poWindow;
+	}
+
+	/* Otherwise iterate through the window list and append this window to the end of it */
+
+	else
+	{
+		Window = m_poWindow;
+		ASSERTM((Window != a_poWindow), "RApplication::AddWindow() => Window already on window list");
+
+		while (Window->m_poNext)
+		{
+			Window = Window->m_poNext;
+			ASSERTM((Window != a_poWindow), "RApplication::AddWindow() => Window already on window list");
+		}
+
+		Window->m_poNext = a_poWindow;
+	}
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Is this safe to do multiple times?  Return value handling?  Matching RemoveWindow()?
+	/* And add the new window's signal bit to the list of signals that the application will wait on */
+
+	m_ulWindowSignals |= a_poWindow->GetSignal();
+
 	/* Add the global application menus to the window, if they exist */
 
 	if (m_poMenus)
 	{
-		if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
+		if (IIntuition->SetMenuStrip(a_poWindow->m_poWindow, m_poMenus))
 		{
 			m_bMenuStripSet = ETrue;
 		}
@@ -399,9 +415,70 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 #endif /* __amigaos4__ */
 
+	/* Let the window know that it is now attached to an application */
+
+	a_poWindow->SetApplication(this);
+
 	/* Schedule a redraw to ensure the newly added window is refreshed */
 
-	m_poWindow->DrawNow();
+	a_poWindow->DrawNow();
+}
+
+/* Written: Saturday 25-Sep-2010 3:18 pm */
+
+void RApplication::RemoveWindow(CWindow *a_poWindow)
+{
+	CWindow *Window, *PrevWindow;
+
+	ASSERTM((a_poWindow != NULL), "RApplication::RemoveWindow() => Window ptr must be passed in");
+
+	/* Iterate through the list of attached windows and find the window to be removed.  We */
+	/* keep track of the window before the one to be removed as well, as this is a single */
+	/* linked list of windows only */
+
+	Window = m_poWindow;
+	PrevWindow = NULL;
+
+	while ((Window) && (Window != a_poWindow))
+	{
+		PrevWindow = Window;
+		Window = Window->m_poNext;
+	}
+
+	ASSERTM((Window != NULL), "RApplication::RemoveWindow() => Cannot find window to be removed");
+
+	/* Remove the window from the list, taking into account that it may or may not be the first */
+	/* in the list */
+
+	if (PrevWindow)
+	{
+		PrevWindow->m_poNext = Window->m_poNext;
+	}
+	else
+	{
+		m_poWindow = a_poWindow->m_poNext;
+	}
+
+#ifdef __amigaos4__
+
+	/* Recalculate the set of window signals that the application will wait on.	 We do it like this */
+	/* rather than anding out the signal bit for the window being removed as the underlying Intuition */
+	/* window has already been closed by the time this function is called and so is thus inaccessible */
+
+	m_ulWindowSignals = 0;
+	Window = m_poWindow;
+
+	while (Window)
+	{
+		m_ulWindowSignals |= Window->GetSignal();
+		Window = Window->m_poNext;
+	}
+
+#endif /*  __amigaos4__ */
+
+	/* And finally, let the window know that it is no longer attached to an application */
+
+	a_poWindow->SetApplication(NULL);
 }
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
