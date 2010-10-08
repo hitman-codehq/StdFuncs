@@ -247,15 +247,22 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		Utils::Info("Unable to register window class");
 	}
 
-	/* If anything went wrong, close the window */
+#endif /* ! __amigaos4__ */
 
-	if (RetVal != KErrNone)
+	/* If everything went well, add the window to the application so that messages can be routed appropriately */
+
+	if (RetVal == KErrNone)
+	{
+		m_poApplication->AddWindow(this);
+	}
+
+	/* Otherwise clean up whatever resources were allocated */
+
+	else
 	{
 		// TODO: CAW - Unregister on error
 		Close();
 	}
-
-#endif /* ! __amigaos4__ */
 
 	return(RetVal);
 }
@@ -283,12 +290,9 @@ void CWindow::Close()
 
 #endif /* ! __amigaos4__ */
 
-	/* And remove the window from the application's list of windows, if it has been added */
+	/* And remove the window from the application's list of windows */
 
-	if (m_poApplication)
-	{
-		m_poApplication->RemoveWindow(this);
-	}
+	m_poApplication->RemoveWindow(this);
 }
 
 /* Written: Saturday 29-May-2010 1:07 pm*/

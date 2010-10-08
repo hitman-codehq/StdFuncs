@@ -32,7 +32,7 @@ public:
 
 public:
 
-	CDialog(CWindow *a_poParentWindow)
+	CDialog(RApplication *a_poApplication, CWindow *a_poParentWindow) : CWindow(a_poApplication)
 	{
 		m_poParentWindow = a_poParentWindow;
 	}

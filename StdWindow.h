@@ -48,6 +48,11 @@ public:
 
 public:
 
+	CWindow(RApplication *a_poApplication)
+	{
+		m_poApplication  = a_poApplication;
+	}
+
 	~CWindow();
 
 	TInt Open(const char *a_pccTitle, const char *a_pccPubScreenName);
@@ -66,11 +71,6 @@ public:
 		return(m_iInnerHeight);
 	}
 
-	void SetApplication(RApplication *a_poApplication)
-	{
-		m_poApplication = a_poApplication;
-	}
-
 #ifdef __amigaos4__
 
 	ULONG GetSignal();
@@ -86,6 +86,10 @@ public:
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
+
+protected:
+
+	CWindow() { }
 };
 
 #endif /* ! STDWINDOW_H */

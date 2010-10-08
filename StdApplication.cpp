@@ -415,10 +415,6 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 #endif /* __amigaos4__ */
 
-	/* Let the window know that it is now attached to an application */
-
-	a_poWindow->SetApplication(this);
-
 	/* Schedule a redraw to ensure the newly added window is refreshed */
 
 	a_poWindow->DrawNow();
@@ -476,9 +472,6 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 
 #endif /*  __amigaos4__ */
 
-	/* And finally, let the window know that it is no longer attached to an application */
-
-	a_poWindow->SetApplication(NULL);
 }
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
