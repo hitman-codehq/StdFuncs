@@ -304,7 +304,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 										if ((m_pcProjectFileName = new char[strlen(Path) + 1]) != NULL)
 										{
 											strcpy(m_pcProjectFileName, Path);
-											IDOS->Printf("%s\n", Path);
+											IDOS->Printf("%s\n", Path); // TODO: CAW
 										}
 										else
 										{
