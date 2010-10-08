@@ -1,7 +1,7 @@
 
 AR = @ar
 CC = @g++
-CFLAGS = -c -Wall -Wextra -Wwrite-strings
+CFLAGS = -c -fno-strict-aliasing -Wall -Wextra -Wwrite-strings
 
 ifdef DEBUG
 	OBJ = Debug

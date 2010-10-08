@@ -21,6 +21,8 @@ int RClipboard::Open(CWindow *a_poWindow)
 
 #ifdef __amigaos4__
 
+	(void) a_poWindow;
+
 	RetVal = KErrNone;
 
 #else /* ! __amigaos4__ */
