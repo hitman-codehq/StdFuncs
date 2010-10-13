@@ -249,11 +249,11 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 #endif /* ! __amigaos4__ */
 
-	/* If everything went well, add the window to the application so that messages can be routed appropriately */
+	/* If everything went well, perform general postamble window opening work */
 
 	if (RetVal == KErrNone)
 	{
-		m_poApplication->AddWindow(this);
+		CompleteOpen();
 	}
 
 	/* Otherwise clean up whatever resources were allocated */
@@ -290,9 +290,34 @@ void CWindow::Close()
 
 #endif /* ! __amigaos4__ */
 
-	/* And remove the window from the application's list of windows */
+	/* And remove the window from the application's list of windows, but only */
+	/* if it was added */
 
-	m_poApplication->RemoveWindow(this);
+	if (m_bOpen)
+	{
+		m_poApplication->RemoveWindow(this);
+		m_bOpen = EFalse;
+	}
+}
+
+/* Written: Wednesday 13-Oct-2010 7:01 am*/
+
+void CWindow::CompleteOpen()
+{
+	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must be already open");
+
+#ifdef __amigaos4__
+
+	/* Get the window's signal so that we can wait until an event occurs */
+
+	IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
+
+#endif /* __amigaos4__ */
+
+	/* Add this dialog to the application so that messages can be routed appropriately */
+
+	m_poApplication->AddWindow(this);
+	m_bOpen = ETrue;
 }
 
 /* Written: Saturday 29-May-2010 1:07 pm*/

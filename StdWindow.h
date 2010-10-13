@@ -24,6 +24,7 @@ class CWindow
 private:
 
 	CWindow			*m_poNext;			/* Ptr to next window in list */
+	TBool			m_bOpen;			/* ETrue if window is open */
 
 protected:
 
@@ -90,6 +91,8 @@ public:
 protected:
 
 	CWindow() { }
+
+	void CompleteOpen();
 };
 
 #endif /* ! STDWINDOW_H */
