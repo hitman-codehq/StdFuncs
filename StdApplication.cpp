@@ -166,9 +166,8 @@ int RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	bool KeyHandled;
 	int Index, NumChars;
-	TBool KeyDown;
+	TBool KeyDown, KeyHandled;
 	ULONG Result, Signal;
 	UWORD Code;
 	struct InputEvent *InputEvent;
@@ -243,7 +242,7 @@ int RApplication::Main()
 						/* we will handle cooking the keys ourselves.  Assume to start with that the */
 						/* cooked key will not be handled */
 
-						KeyHandled = false;
+						KeyHandled = EFalse;
 
 						/* Get a ptr to the InputEvent from Reaction */
 
@@ -261,7 +260,7 @@ int RApplication::Main()
 									if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
 									{
 										Window->OfferKeyEvent(KeyBuffer[0], ETrue);
-										KeyHandled = true;
+										KeyHandled = ETrue;
 									}
 								}
 							}
