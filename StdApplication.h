@@ -30,7 +30,7 @@ class RApplication
 {
 private:
 
-	CWindow			*m_poWindow;		/* Ptr to window used by the application */
+	CWindow			*m_poWindows;		/* Ptr to window used by the application */
 
 #ifdef __amigaos4__
 

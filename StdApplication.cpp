@@ -44,7 +44,7 @@ RApplication::RApplication()
 
 #endif /* ! __amigaos4__ */
 
-	m_poWindow = NULL;
+	m_poWindows = NULL;
 	m_pcoMenuItems = NULL;
 }
 
@@ -174,13 +174,13 @@ int RApplication::Main()
 	struct MenuItem *MenuItem;
 	CWindow *Window;
 
-	ASSERTM(m_poWindow, "RApplication::Main() => Application must have at least one window");
+	ASSERTM(m_poWindows, "RApplication::Main() => Application must have at least one window");
 
 	do
 	{
 		Signal = IExec->Wait(m_ulWindowSignals);
 
-		Window = m_poWindow;
+		Window = m_poWindows;
 
 		while (Window)
 		{
@@ -323,7 +323,7 @@ int RApplication::Main()
 
 		if (m_bMenuStripSet)
 		{
-			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
 		}
 
 		IGadTools->FreeMenus(m_poMenus);
@@ -344,7 +344,7 @@ int RApplication::Main()
 	{
 		/* Try to translate the message;  Windows will handle m_poAccelerators being NULL */
 
-		if (TranslateAccelerator(m_poWindow->m_poWindow, m_poAccelerators, &Msg) == 0)
+		if (TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg) == 0)
 		{
 			/* No accelerator found so do the standard message translation and despatch */
 
@@ -375,16 +375,16 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 	/* If the window list is empty then make this window the first in the list */
 
-	if (!(m_poWindow))
+	if (!(m_poWindows))
 	{
-		m_poWindow = a_poWindow;
+		m_poWindows = a_poWindow;
 	}
 
 	/* Otherwise iterate through the window list and append this window to the end of it */
 
 	else
 	{
-		Window = m_poWindow;
+		Window = m_poWindows;
 		ASSERTM((Window != a_poWindow), "RApplication::AddWindow() => Window already on window list");
 
 		while (Window->m_poNext)
@@ -431,7 +431,7 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 	/* keep track of the window before the one to be removed as well, as this is a single */
 	/* linked list of windows only */
 
-	Window = m_poWindow;
+	Window = m_poWindows;
 	PrevWindow = NULL;
 
 	while ((Window) && (Window != a_poWindow))
@@ -451,7 +451,7 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 	}
 	else
 	{
-		m_poWindow = a_poWindow->m_poNext;
+		m_poWindows = a_poWindow->m_poNext;
 	}
 
 	/* And clear the window's m_poNext ptr in case it is re-added to the window list later */
@@ -465,7 +465,7 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 	/* window has already been closed by the time this function is called and so is thus inaccessible */
 
 	m_ulWindowSignals = 0;
-	Window = m_poWindow;
+	Window = m_poWindows;
 
 	while (Window)
 	{
