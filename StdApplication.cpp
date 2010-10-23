@@ -454,6 +454,10 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 		m_poWindow = a_poWindow->m_poNext;
 	}
 
+	/* And clear the window's m_poNext ptr in case it is re-added to the window list later */
+
+	a_poWindow->m_poNext = NULL;
+
 #ifdef __amigaos4__
 
 	/* Recalculate the set of window signals that the application will wait on.	 We do it like this */
