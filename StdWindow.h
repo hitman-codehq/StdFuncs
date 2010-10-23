@@ -24,10 +24,10 @@ class CWindow
 private:
 
 	CWindow			*m_poNext;			/* Ptr to next window in list */
-	TBool			m_bOpen;			/* ETrue if window is open */
 
 protected:
 
+	TBool			m_bOpen;			/* ETrue if window is open */
 	TInt			m_iInnerWidth;		/* Width of window, minus left and right borders */
 	TInt			m_iInnerHeight;		/* Height of window, minus top and bottom borders */
 	RApplication	*m_poApplication;	/* Ptr to application that owns this window */
@@ -59,6 +59,8 @@ public:
 	TInt Open(const char *a_pccTitle, const char *a_pccPubScreenName);
 
 	void Close();
+
+	void Activate();
 
 	void DrawNow();
 

@@ -124,6 +124,26 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 
 #endif /* ! __amigaos4__ */
 
+/* Written: Wednesday 13-Oct-2010 7:29 am */
+
+void CWindow::Activate()
+{
+	ASSERTM(m_poWindow, "CWindow::Activate() => Window must be already open");
+
+#ifdef __amigaos4__
+
+	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
+	//IIntuition->SetAttrs(m_poWindowObj, WA_Activate, TRUE, TAG_DONE);
+	IIntuition->ActivateWindow(m_poWindow); // TODO: CAW Should be able to use WA_Activate
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Implement for win32
+
+#endif /* ! __amigaos4__ */
+
+}
+
 /* Written: Monday 08-Feb-2010 7:13 am */
 
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
