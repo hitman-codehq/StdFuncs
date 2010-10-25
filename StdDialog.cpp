@@ -2,6 +2,17 @@
 #include "StdFuncs.h"
 #include "StdDialog.h"
 
+#ifdef __amigaos4__
+
+#define ALL_REACTION_CLASSES
+#define ALL_REACTION_MACROS
+
+#include <proto/intuition.h>
+#include <reaction/reaction.h>
+#include <string.h>
+
+#endif /* __amigaos4__ */
+
 #ifdef WIN32
 
 /* Written: Saturday 21-Aug-2010 12:21 pm */
@@ -85,6 +96,25 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 #endif /* WIN32 */
 
+/* Written: Sunday 24-Oct-2010 2:17 pm */
+
+void CDialog::Close()
+{
+	/* Call the superclass close to actually close the dialog */
+
+	CWindow::Close();
+
+#ifdef __amigaos4__
+
+	/* And free the gadget ID -> APTR mappings */
+
+	delete [] m_poGadgetMappings;
+	m_poGadgetMappings = NULL;
+
+#endif /* __amigaos4__ */
+
+}
+
 /* Written: Tuesday 24-Aug-2010 7:07 am */
 /* @param	a_iGadgetID	ID of the gadget to be enabled or disabled */
 /*			a_bEnabled	ETrue to enable the gadget, else EFalse to disable it */
@@ -117,21 +147,82 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 }
 
+#ifdef __amigaos4__
+
+/* Written: Sunday 24-Sep-2010 1:45 pm */
+/* @param	a_iGadgetID	ID of the gadget to be found */
+/* @returns	Ptr to the BOOPSI gadget if successful, else NULL if not found */
+/* Amiga OS only function that will scan the requester's list of BOOPSI gadgets for */
+/* one that matches a specified ID */
+
+APTR CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
+{
+	TInt Index;
+	APTR RetVal;
+
+	/* Iterate through the list of gadget mappings and find the BOOPSI ptr that matches */
+	/* the gadget ID */
+
+	RetVal = NULL;
+
+	for (Index = 0; Index < m_iNumGadgetMappings; ++Index)
+	{
+		if (m_poGadgetMappings[Index].m_iID == a_iGadgetID)
+		{
+			RetVal = m_poGadgetMappings[Index].m_poGadget;
+
+			break;
+		}
+	}
+
+	return(RetVal);
+}
+
+#endif /* __amigaos4__ */
+
 /* Written: Saturday 27-Aug-2010 10:12 am */
+/* @param	a_iGadgetID	ID of the gadget whose value to obtain */
+/* @returns	The value contained by the integer string gadget */
+/* Queries the integer string gadget represented by the specified gadget ID and */
+/* returns its value.  No error checking is done as to whether the gadget in */
+/* question is actually an integer string gadget, however the function will assert */
+/* if it fails to get the gadget's value */
 
 TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 {
 
 #ifdef __amigaos4__
 
-	(void) a_iGadgetID;
-	// TODO: CAW - Implement
+	TInt RetVal;
+	APTR Gadget;
 
-	return(0);
+	/* Assume failure and use a default value */
+
+	RetVal = 0;
+
+	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
+	/* its length */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+
+#ifdef _DEBUG
+
+		ASSERTM((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
+
+#else /* ! _DEBUG */
+
+		IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal);
+
+#endif /* ! _DEBUG */
+
+	}
+
+	return(RetVal);
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Add an appropriate assert here + check parameters above
+	// TODO: CAW - Add an appropriate assert here
 	return(GetDlgItemInt(m_poWindow, a_iGadgetID, NULL, FALSE));
 
 #endif /* ! __amigaos4__ */
@@ -141,11 +232,13 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 /* Written: Saturday 21-Aug-2010 1:08 pm */
 /* @param	a_iGadgetID	ID of the gadget for which to obtain the text */
 /*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
-/* @returns	Length of the text if successful, else KErrNoMemory */
+/* @returns	Length of the text if successful */
+/*			KErrNotFound if the gadget with the specified ID was not found */
+/*			KErrNoMemory if out of memory */
 /* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
 /* and length.  Optionally, this function can obtain just the length.  This function gets the */
 /* text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so */
-/* the text is only valid until the next call to this function. */
+/* the text is only valid until the next call to this function */
 
 TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
@@ -153,10 +246,26 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #ifdef __amigaos4__
 
-	(void) a_iGadgetID;
-	// TODO: CAW - Implement
+	const char *Text;
+	APTR Gadget;
 
-	Length = 1;
+	/* Assume failure */
+
+	RetVal = KErrNotFound;
+
+	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
+	/* its length */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
+		{
+			RetVal = KErrNone;
+			Length = (strlen(Text) + 1);
+		}
+	}
+
+	if (RetVal == KErrNone)
 
 #else /* ! __amigaos4__ */
 
@@ -166,66 +275,122 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #endif /* ! __amigaos4__ */
 
-	/* If the user wants the contents of get gadget as well then obtain them */
-
-	if (a_bGetText)
 	{
-		/* Assume failure */
+		/* If the user wants the contents of get gadget as well then obtain them */
 
-		RetVal = KErrNoMemory;
-
-		/* If the currently allocated buffer is too small then delete it */
-
-		if (m_iTextBufferLength < Length)
+		if (a_bGetText)
 		{
-			delete [] m_pcTextBuffer;
-			m_pcTextBuffer = NULL;
-			m_iTextBufferLength = 0;
-		}
+			/* Assume failure */
 
-		/* And allocate a buffer large enough */
+			RetVal = KErrNoMemory;
 
-		if (!(m_pcTextBuffer))
-		{
-			m_pcTextBuffer = new char[Length];
-		}
+			/* If the currently allocated buffer is too small then delete it */
 
-		/* If the buffer was allocated successfully the get the contents of the text gadget into it */
-
-		if (m_pcTextBuffer)
-		{
-			m_iTextBufferLength = Length;
-
-#ifdef WIN32
-
-			if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
-
-#endif /* WIN32 */
-
+			if (m_iTextBufferLength < Length)
 			{
-				RetVal = Length;
+				delete [] m_pcTextBuffer;
+				m_pcTextBuffer = NULL;
+				m_iTextBufferLength = 0;
+			}
+
+			/* And allocate a buffer large enough */
+
+			if (!(m_pcTextBuffer))
+			{
+				m_pcTextBuffer = new char[Length];
+			}
+
+			/* If the buffer was allocated successfully the get the contents of the text gadget into it */
+
+			if (m_pcTextBuffer)
+			{
+				m_iTextBufferLength = Length;
+
+#ifdef __amigaos4__
+
+				/* For Amiga OS we already have a ptr to the text so just make a copy of it */
+
+				strcpy(m_pcTextBuffer, Text);
+
+#else /* ! __amigaos4__ */
+
+				/* For Win32 we still have to obtain the text itself */
+
+				// TODO: CAW - Make the Win32 version return KErrNotFound
+				if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
+
+#endif /* ! __amigaos4__ */
+
+				{
+					RetVal = Length;
+				}
 			}
 		}
-	}
 
-	/* Otherwise just return the length of the gadget's text */
+		/* Otherwise just return the length of the gadget's text */
 
-	else
-	{
-		RetVal = Length;
+		else
+		{
+			RetVal = Length;
+		}
 	}
 
 	return(RetVal);
 }
+
+/* Written: Sunday 24-Oct-2010 5:21 pm */
+
+void CDialog::SetGadgetFocus(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
+	/* its length */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+
+#ifdef _DEBUG
+
+		// TODO: CAW - Why are two calls required and why doesn't this work if the text gadget is empty?
+		ASSERTM((IIntuition->ActivateGadget((struct Gadget *) Gadget, m_poWindow, NULL) != FALSE), "CDialog::SetGadgetFocus() => Unable to activate gadget");
+
+#else /* ! _DEBUG */
+
+		IIntuition->ActivateGadget((struct Gadget *) Gadget, m_poWindow, NULL);
+
+#endif /* ! _DEBUG */
+
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+	}
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Implement
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Sunday 24-Oct-2010 1:00 pm */
 
 void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 {
 
 #ifdef __amigaos4__
 
-	(void) a_iGadgetID;
-	(void) a_pccText;
-	// TODO: CAW - Implement
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
+	/* its length */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -253,9 +418,14 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
+	APTR Gadget;
 
-	(void) a_iGadgetID;
+	/* Find a ptr to the BOOPSI gadget and if found then set the state of the checkbox gadget */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -277,10 +447,23 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
-	(void) a_iGadgetID;
+	TBool RetVal;
+	ULONG Checked;
+	APTR Gadget;
 
-	return(EFalse);
+	/* Find a ptr to the BOOPSI gadget and if found then get the state of the checkbox gadget */
+
+	RetVal = 0;
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		if (IIntuition->GetAttr(GA_Selected, Gadget, &Checked) > 0)
+		{
+			RetVal = Checked;
+		}
+	}
+
+	return(RetVal);
 
 #else /* ! __amigaos4__ */
 
@@ -288,6 +471,17 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 #endif /* ! __amigaos4__ */
 
+}
+
+/* Written: Sunday 24-Oct-2010 5:30 pm */
+
+void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
+{
+	// TODO: CAW - Comment + is this safe?
+	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
+	{
+		Close();
+	}
 }
 
 /* Written: Saturday 21-Aug-2010 12:16 pm */
