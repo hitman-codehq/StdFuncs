@@ -19,7 +19,7 @@
 
 static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
-	int HiWord, LoWord, Result, RetVal, Width, Height, WindowWidth, WindowHeight;
+	int HiWord, LoWord, RetVal, Width, Height, WindowWidth, WindowHeight;
 	RECT Size;
 
 	CDialog *Dialog;
@@ -82,9 +82,9 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 			/* Otherwise it's a normal command so just let the client handle the it */
 
-			else if ((Result = Dialog->HandleCommand(LoWord)) > 0)
+			else
 			{
-				EndDialog(a_poWindow, Result);
+				Dialog->HandleCommand(LoWord);
 			}
 
 			RetVal = 1;

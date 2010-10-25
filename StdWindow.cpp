@@ -323,9 +323,10 @@ void CWindow::Close()
 
 void CWindow::CompleteOpen()
 {
-	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must be already open");
 
 #ifdef __amigaos4__
+
+	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must be already open");
 
 	/* Get the window's signal so that we can wait until an event occurs */
 
