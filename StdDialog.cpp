@@ -126,9 +126,14 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	(void) a_iGadgetID;
-	(void) a_bEnable;
-	// TODO: CAW - Implement
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget and if found then enable or disable it */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
+	}
 
 #else /* ! __amigaos4__ */
 
