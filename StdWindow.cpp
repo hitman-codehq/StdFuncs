@@ -133,8 +133,7 @@ void CWindow::Activate()
 #ifdef __amigaos4__
 
 	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
-	//IIntuition->SetAttrs(m_poWindowObj, WA_Activate, TRUE, TAG_DONE);
-	IIntuition->ActivateWindow(m_poWindow); // TODO: CAW Should be able to use WA_Activate
+	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, sizeof(BOOL));
 
 #else /* ! __amigaos4__ */
 
