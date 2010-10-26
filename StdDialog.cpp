@@ -96,6 +96,35 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 #endif /* WIN32 */
 
+/* Written: Saturday 21-Aug-2010 12:16 pm */
+/* @param	a_iResourceID	ID of the dialog to be opened */
+/* @returns A dialog specific value returned when the user selected ok; or */
+/*			IDCANCEL if the dialog was closed with cancel or the escape key; or */
+/*			KErrGeneral if the dialog could not be opened */
+
+TInt CDialog::Open(TInt a_iResourceID)
+{
+	TInt RetVal;
+
+#ifdef __amigaos4__
+
+	(void) a_iResourceID;
+
+#else /* ! __amigaos4__ */
+
+	/* Open the dialog specified by the ID passed in */
+
+	if ((RetVal = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), NULL, DialogProc, (LPARAM) this)) < 0)
+
+#endif /* ! __amigaos4__ */
+
+	{
+		RetVal = KErrGeneral;
+	}
+
+	return(RetVal);
+}
+
 /* Written: Sunday 24-Oct-2010 2:17 pm */
 
 void CDialog::Close()
@@ -112,6 +141,33 @@ void CDialog::Close()
 	m_poGadgetMappings = NULL;
 
 #endif /* __amigaos4__ */
+
+}
+
+/* Written: Saturday 27-Aug-2010 10:25 am */
+/* @param	a_iGadgetID	ID of the gadget to be checked */
+/* Enables the checkmark on a checkbox gadget.  It is assumed that the gadget represented by */
+/* the ID passed in is a valid checkbox gadget and no error checking is done to confirm this */
+
+void CDialog::CheckGadget(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget and if found then set the state of the checkbox gadget */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+	}
+
+#else /* ! __amigaos4__ */
+
+	CheckDlgButton(m_poWindow, a_iGadgetID, BST_CHECKED);
+
+#endif /* ! __amigaos4__ */
 
 }
 
@@ -343,6 +399,55 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	return(RetVal);
 }
 
+/* Written: Saturday 27-Aug-2010 10:28 am */
+/* @param	a_iGadgetID	ID of the gadget for which to obtain checked status */
+/* @returns ETrue if the gadget is checked, else EFalse */
+/* Examines the checkbox gadget respresented by the ID passed in to see if it is checked. */
+/* It is assumed that this gadget is a valid checkbox gadget and no error checking is done */
+/* to confirm this */
+
+TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+	TBool RetVal;
+	ULONG Checked;
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget and if found then get the state of the checkbox gadget */
+
+	RetVal = 0;
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		if (IIntuition->GetAttr(GA_Selected, Gadget, &Checked) > 0)
+		{
+			RetVal = Checked;
+		}
+	}
+
+	return(RetVal);
+
+#else /* ! __amigaos4__ */
+
+	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Sunday 24-Oct-2010 5:30 pm */
+
+void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
+{
+	// TODO: CAW - Comment + is this safe?
+	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
+	{
+		Close();
+	}
+}
+
 /* Written: Sunday 24-Oct-2010 5:21 pm */
 
 void CDialog::SetGadgetFocus(TInt a_iGadgetID)
@@ -411,109 +516,4 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #endif /* ! __amigaos4__ */
 
-}
-
-/* Written: Saturday 27-Aug-2010 10:25 am */
-/* @param	a_iGadgetID	ID of the gadget to be checked */
-/* Enables the checkmark on a checkbox gadget.  It is assumed that the gadget represented by */
-/* the ID passed in is a valid checkbox gadget and no error checking is done to confirm this */
-
-void CDialog::CheckGadget(TInt a_iGadgetID)
-{
-
-#ifdef __amigaos4__
-
-	APTR Gadget;
-
-	/* Find a ptr to the BOOPSI gadget and if found then set the state of the checkbox gadget */
-
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
-	{
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
-	}
-
-#else /* ! __amigaos4__ */
-
-	CheckDlgButton(m_poWindow, a_iGadgetID, BST_CHECKED);
-
-#endif /* ! __amigaos4__ */
-
-}
-
-/* Written: Saturday 27-Aug-2010 10:28 am */
-/* @param	a_iGadgetID	ID of the gadget for which to obtain checked status */
-/* @returns ETrue if the gadget is checked, else EFalse */
-/* Examines the checkbox gadget respresented by the ID passed in to see if it is checked. */
-/* It is assumed that this gadget is a valid checkbox gadget and no error checking is done */
-/* to confirm this */
-
-TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
-{
-
-#ifdef __amigaos4__
-
-	TBool RetVal;
-	ULONG Checked;
-	APTR Gadget;
-
-	/* Find a ptr to the BOOPSI gadget and if found then get the state of the checkbox gadget */
-
-	RetVal = 0;
-
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
-	{
-		if (IIntuition->GetAttr(GA_Selected, Gadget, &Checked) > 0)
-		{
-			RetVal = Checked;
-		}
-	}
-
-	return(RetVal);
-
-#else /* ! __amigaos4__ */
-
-	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
-
-#endif /* ! __amigaos4__ */
-
-}
-
-/* Written: Sunday 24-Oct-2010 5:30 pm */
-
-void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
-{
-	// TODO: CAW - Comment + is this safe?
-	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
-	{
-		Close();
-	}
-}
-
-/* Written: Saturday 21-Aug-2010 12:16 pm */
-/* @param	a_iResourceID	ID of the dialog to be opened */
-/* @returns A dialog specific value returned when the user selected ok; or */
-/*			IDCANCEL if the dialog was closed with cancel or the escape key; or */
-/*			KErrGeneral if the dialog could not be opened */
-
-TInt CDialog::Open(TInt a_iResourceID)
-{
-	TInt RetVal;
-
-#ifdef __amigaos4__
-
-	(void) a_iResourceID;
-
-#else /* ! __amigaos4__ */
-
-	/* Open the dialog specified by the ID passed in */
-
-	if ((RetVal = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), NULL, DialogProc, (LPARAM) this)) < 0)
-
-#endif /* ! __amigaos4__ */
-
-	{
-		RetVal = KErrGeneral;
-	}
-
-	return(RetVal);
 }
