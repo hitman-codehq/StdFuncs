@@ -23,6 +23,7 @@ class CWindow
 
 private:
 
+	TBool			m_bFillBackground;	/* ETrue to fill background when drawing */
 	CWindow			*m_poNext;			/* Ptr to next window in list */
 
 protected:
@@ -51,6 +52,7 @@ public:
 
 	CWindow(RApplication *a_poApplication)
 	{
+		m_bFillBackground = ETrue;
 		m_poApplication  = a_poApplication;
 	}
 
@@ -63,6 +65,11 @@ public:
 	void Activate();
 
 	void DrawNow();
+
+	void EnableFillBackground(TBool a_bFillBackground)
+	{
+		m_bFillBackground = a_bFillBackground;
+	}
 
 	TInt InnerWidth()
 	{

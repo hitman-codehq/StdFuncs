@@ -67,6 +67,10 @@ public:
 		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
 	{
 		m_poParentWindow = a_poParentWindow;
+
+		/* Dialogs don't have their backgrounds filled */
+
+		EnableFillBackground(EFalse);
 	}
 
 	~CDialog()

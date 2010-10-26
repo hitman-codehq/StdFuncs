@@ -349,11 +349,15 @@ void CWindow::DrawNow()
 
 	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
 	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
-	/* the rect to draw */
+	/* the rect to draw.  We only fill the background if required to as client code can disable */
+	/* this functionality */
 
-	IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
-		(m_poWindow->Width - m_poWindow->BorderRight - 1), (m_poWindow->Height - m_poWindow->BorderBottom - 1),
-		LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+	if (m_bFillBackground)
+	{
+		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
+			(m_poWindow->Width - m_poWindow->BorderRight - 1), (m_poWindow->Height - m_poWindow->BorderBottom - 1),
+			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+	}
 
 	/* And call the derived rendering function to perform a redraw immediately */
 
@@ -365,6 +369,7 @@ void CWindow::DrawNow()
 	/* background colour first.  If this fails then there isn't much we can do besides ignore */
 	/* the error */
 
+	// TODO: CAW - Ensure that m_bFillBackground is taken into account
 	InvalidateRect(m_poWindow, NULL, TRUE);
 
 #endif /* ! __amigaos4__ */
