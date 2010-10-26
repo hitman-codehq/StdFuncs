@@ -127,7 +127,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 /* Written: Sunday 24-Oct-2010 2:17 pm */
 
-void CDialog::Close()
+void CDialog::Close(TInt a_iGadgetID)
 {
 	/* Call the superclass close to actually close the dialog */
 
@@ -142,6 +142,12 @@ void CDialog::Close()
 
 #endif /* __amigaos4__ */
 
+	/* And notify the observer, if there is one, that the dialog has been closed */
+
+	if (m_poDialogObserver)
+	{
+		m_poDialogObserver->DialogClosed(this, a_iGadgetID);
+	}
 }
 
 /* Written: Saturday 27-Aug-2010 10:25 am */
@@ -444,7 +450,7 @@ void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
 	// TODO: CAW - Comment + is this safe?
 	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
 	{
-		Close();
+		Close(IDCANCEL);
 	}
 }
 

@@ -4,6 +4,10 @@
 
 #include "StdWindow.h"
 
+/* Forward declaration to avoid circular dependency */
+
+class CDialog;
+
 /* Event types that can be sent to CDialog::HandleEvent() */
 
 enum TStdEventType
@@ -23,10 +27,23 @@ struct SGadgetMapping
 
 #endif /* __amigaos4__ */
 
+/* Mixin class for notifying client code that a dialog event has occurred */
+
+class MDialogObserver
+{
+public:
+
+	virtual void DialogClosed(CDialog *a_poDialog, TInt a_iGadgetID) = 0;
+};
+
 /* This is the base class for all platform specific dialog boxes */
 
 class CDialog : public CWindow
 {
+private:
+
+	MDialogObserver			*m_poDialogObserver;	/* Ptr to dialog's observer to notify of events */
+
 protected:
 
 	char					*m_pcTextBuffer;		/* Scratch buffer containing last obtained text */
@@ -46,7 +63,8 @@ public:
 
 public:
 
-	CDialog(RApplication *a_poApplication, CWindow *a_poParentWindow) : CWindow(a_poApplication)
+	CDialog(RApplication *a_poApplication, CWindow *a_poParentWindow, MDialogObserver *a_poDialogObserver = NULL)
+		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
 	{
 		m_poParentWindow = a_poParentWindow;
 	}
@@ -77,7 +95,7 @@ protected:
 
 	virtual TInt Open(TInt a_ResourceID);
 
-	void Close();
+	void Close(TInt a_iGadgetID);
 
 	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);
 
