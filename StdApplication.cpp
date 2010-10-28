@@ -41,6 +41,7 @@ RApplication::RApplication()
 #else /* ! __amigaos4__ */
 
 	m_poAccelerators = NULL;
+	m_poCurrentDialog = NULL;
 
 #endif /* ! __amigaos4__ */
 
@@ -336,20 +337,30 @@ int RApplication::Main()
 	/* Try to load the default accelerator table.  If this is not found then this is not an error; */
 	/* just continue without accelerators */
 
+	// TODO: CAW - Hard coded.  What about elsewhere?
 	m_poAccelerators = LoadAccelerators(GetModuleHandle(NULL), MAKEINTRESOURCE(103));
 
 	/* Standard Windows message loop with accelerator handling */
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
-		/* Try to translate the message;  Windows will handle m_poAccelerators being NULL */
+		/* Try to translate the accelerator;  Windows will handle m_poAccelerators being NULL */
 
-		if (TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg) == 0)
+		if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg)))
 		{
-			/* No accelerator found so do the standard message translation and despatch */
+			/* If a modeless dialog is currently active then try to handle any keyboard messages */
+			/* bound for it using the world's stupidest API.  All messages have to be passed to */
+			/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
+			/* dialog's! */
 
-			TranslateMessage(&Msg);
-			DispatchMessage(&Msg);
+			if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+			{
+				/* No accelerator or dialog message was found so do the standard message */
+				/* translation and despatch processing */
+
+				TranslateMessage(&Msg);
+				DispatchMessage(&Msg);
+			}
 		}
 	}
 
@@ -476,6 +487,17 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 #endif /*  __amigaos4__ */
 
 }
+
+/* Written: Wednesday 27-Oct-2010 8:21 am */
+
+#ifdef WIN32
+
+void RApplication::SetCurrentDialog(HWND a_poDialog)
+{
+	m_poCurrentDialog = a_poDialog;
+}
+
+#endif /* WIN32 */
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
 

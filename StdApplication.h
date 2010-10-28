@@ -42,6 +42,7 @@ private:
 #else /* !__amigaos4__ */
 
 	HACCEL			m_poAccelerators;	/* Ptr to application's accelerator table, if any */
+	HWND			m_poCurrentDialog;	/* Ptr to window handle of currently active dialog, if any */
 
 #endif /* ! __amigaos4__ */
 
@@ -62,6 +63,12 @@ public:
 	void AddWindow(CWindow *a_poWindow);
 
 	void RemoveWindow(CWindow *a_poWindow);
+
+#ifdef WIN32
+
+	void SetCurrentDialog(HWND a_poDialog);
+
+#endif /* WIN32 */
 
 	void Exit();
 };

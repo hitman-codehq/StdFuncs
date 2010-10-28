@@ -64,6 +64,11 @@ public:
 
 	void Activate();
 
+	RApplication *Application()
+	{
+		return(m_poApplication);
+	}
+
 	void DrawNow();
 
 	void EnableFillBackground(TBool a_bFillBackground)

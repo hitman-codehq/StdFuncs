@@ -53,12 +53,6 @@ protected:
 
 public:
 
-#ifdef WIN32
-
-	HWND					m_poWindow;				/* Ptr to underlying Windows window for dialog */
-
-#endif /* WIN32 */
-	
 	CWindow					*m_poParentWindow;		/* Ptr to window in which dialog is opened */
 
 public:

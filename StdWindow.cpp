@@ -41,7 +41,6 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 	RetVal = 0;
 
 	/* Get the ptr to the C++ class associated with this window from the window word */
-	/* and call the CWindow::HandleCommand() function */
 
 	Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
 
@@ -49,6 +48,11 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 	{
 		case WM_DESTROY :
 		{
+			/* When the WM_DESTROY message is received, the Windows window has already been */
+			/* destroyed so set its handle to NULL so that we do not try to destroy it again */
+			/* in CWindow's destructor */
+
+			Window->m_poWindow = NULL;
 			PostQuitMessage(0);
 
 			break;
@@ -56,6 +60,8 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 
 		case WM_COMMAND :
 		{
+			/* Call the CWindow::HandleCommand() function so the client can process the message */
+
 			Window->HandleCommand(LOWORD(a_oWParam));
 
 			break;
@@ -137,7 +143,16 @@ void CWindow::Activate()
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Implement for win32
+#ifdef _DEBUG
+
+	// TODO: CAW - Need a function to do this + what about checking for Amiga OS version above?
+	ASSERTM((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
+
+#else /* ! _DEBUG */
+
+	SetActiveWindow(m_poWindow);
+
+#endif /* ! _DEBUG */
 
 #endif /* ! __amigaos4__ */
 
@@ -303,7 +318,17 @@ void CWindow::Close()
 
 	if (m_poWindow)
 	{
-		CloseWindow(m_poWindow);
+
+#ifdef _DEBUG
+
+		ASSERTM((DestroyWindow(m_poWindow) != 0), "CWindow::Close() => Unable to destroy window");
+
+#else /* ! _DEBUG */
+
+		DestroyWindow(m_poWindow);
+
+#endif /* ! _DEBUG */
+
 		m_poWindow = NULL;
 	}
 

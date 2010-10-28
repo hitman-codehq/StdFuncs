@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "StdApplication.h"
 #include "StdDialog.h"
 
 #ifdef __amigaos4__
@@ -28,6 +29,10 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 	RetVal = 0;
 
+	/* Get the ptr to the C++ class associated with this window from the window word */
+
+	Dialog = (CDialog *) GetWindowLong(a_poWindow, GWL_USERDATA);
+
 	switch (a_uiMessage)
 	{
 		case WM_INITDIALOG :
@@ -54,6 +59,16 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 			Dialog->InitDialog();
 
 			RetVal = 1;
+		}
+
+		case WM_ACTIVATE :
+		{
+			/* A dialog has been either activated or deactivated so notify the application of */
+			/* this so that it can handle dialog bound messages with IsDialogMessage() */
+
+			Dialog->Application()->SetCurrentDialog((a_oWParam) ? a_poWindow : NULL);
+
+			break;
 		}
 
 		case WM_COMMAND :
@@ -98,28 +113,47 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 /* Written: Saturday 21-Aug-2010 12:16 pm */
 /* @param	a_iResourceID	ID of the dialog to be opened */
-/* @returns A dialog specific value returned when the user selected ok; or */
-/*			IDCANCEL if the dialog was closed with cancel or the escape key; or */
+/* @returns KErrNone if the dialog was opened successfully; or */
 /*			KErrGeneral if the dialog could not be opened */
 
 TInt CDialog::Open(TInt a_iResourceID)
 {
 	TInt RetVal;
 
+	/* If the dialog is already open then just bring it to the front and activate it */
+
+	if (m_bOpen)
+	{
+		RetVal = KErrNone;
+
+		Activate();
+	}
+	else
+	{
+
 #ifdef __amigaos4__
 
-	(void) a_iResourceID;
+		(void) a_iResourceID;
 
 #else /* ! __amigaos4__ */
 
-	/* Open the dialog specified by the ID passed in */
+		/* Open the dialog specified by the ID passed in */
 
-	if ((RetVal = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), NULL, DialogProc, (LPARAM) this)) < 0)
+		if ((m_poWindow = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), m_poParentWindow->m_poWindow, DialogProc, (LPARAM) this)) != NULL)
+		{
+			RetVal = KErrNone;
+
+			/* And perform general postamble window opening work */
+
+			CompleteOpen();
+		}
+		else
 
 #endif /* ! __amigaos4__ */
 
-	{
-		RetVal = KErrGeneral;
+		{
+			RetVal = KErrGeneral;
+		}
 	}
 
 	return(RetVal);
