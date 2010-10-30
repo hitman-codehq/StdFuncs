@@ -528,7 +528,15 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Implement
+#ifdef _DEBUG
+
+	ASSERTM((SetFocus(GetDlgItem(m_poWindow, a_iGadgetID)) != NULL), "CDialog::SetGadgetFocus() => Unable to activate control");
+
+#else /* ! _DEBUG */
+
+	SetFocus(GetDlgItem(m_poWindow, a_iGadgetID));
+
+#endif /* ! _DEBUG */
 
 #endif /* ! __amigaos4__ */
 
