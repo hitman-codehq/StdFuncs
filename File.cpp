@@ -111,7 +111,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 		FileMode |= GENERIC_WRITE;
 	}
 
-	if ((m_oHandle = CreateFile(a_pccName, FileMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_oHandle = CreateFile(a_pccName, FileMode, (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
