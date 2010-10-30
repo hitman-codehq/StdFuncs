@@ -704,6 +704,13 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 {
 	char Message[512];
 
+	CWindow *RootWindow;
+
+	/* See if a root window has been set by the application and if so, open the message box on */
+	/* that window.  Otherwise just open it on the desktop or Workbench */
+
+	RootWindow = CWindow::GetRootWindow();
+
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
 #ifdef __amigaos4__
@@ -718,7 +725,7 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 	EasyStruct.es_GadgetFormat = "Ok";
 
 	// TODO: CAW - This is a strange function. Look into it and others + BuildSysRequest()
-	Requester = IIntuition->BuildEasyRequest(NULL, &EasyStruct, 0, TAG_DONE);
+	Requester = IIntuition->BuildEasyRequest((RootWindow) ? RootWindow->m_poWindow : NULL, &EasyStruct, 0, TAG_DONE);
 
 	if (Requester)
 	{
@@ -733,12 +740,6 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 
 #else /* ! __amigaos4__ */
 
-	CWindow *RootWindow;
-
-	/* See if a root window has been set by the application and if so, open the message box on */
-	/* that window.  Otherwise just open it on the desktop */
-
-	RootWindow = CWindow::GetRootWindow();
 	::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, MB_OK);
 
 #endif /* ! __amigaos4__ */
