@@ -25,6 +25,7 @@ private:
 
 	TBool			m_bFillBackground;	/* ETrue to fill background when drawing */
 	CWindow			*m_poNext;			/* Ptr to next window in list */
+	static CWindow	*m_poRootWindow;	/* Ptr to root window on which all other windows open */
 
 protected:
 
@@ -90,9 +91,20 @@ public:
 
 	ULONG GetSignal();
 
+	// TODO: CAW - Why is this needed when the Window ptr is public?
 	struct Window *GetWindow();
 
 #endif /* __amigaos4__ */
+
+	void MakeRootWindow()
+	{
+		m_poRootWindow = this;
+	}
+
+	static CWindow *GetRootWindow()
+	{
+		return(m_poRootWindow);
+	}
 
 	/* Functions can be implemented by client software */
 

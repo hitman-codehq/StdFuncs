@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "StdWindow.h"
 
 #ifdef __amigaos4__
 
@@ -732,7 +733,13 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 
 #else /* ! __amigaos4__ */
 
-	::MessageBox(NULL, Message, a_pccTitle, MB_OK);
+	CWindow *RootWindow;
+
+	/* See if a root window has been set by the application and if so, open the message box on */
+	/* that window.  Otherwise just open it on the desktop */
+
+	RootWindow = CWindow::GetRootWindow();
+	::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, MB_OK);
 
 #endif /* ! __amigaos4__ */
 

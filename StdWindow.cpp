@@ -28,6 +28,8 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 14
 
+CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windows open */
+
 /* Written: Saturday 08-May-2010 4:43 pm */
 
 static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
