@@ -91,9 +91,6 @@ public:
 
 	ULONG GetSignal();
 
-	// TODO: CAW - Why is this needed when the Window ptr is public?
-	struct Window *GetWindow();
-
 #endif /* __amigaos4__ */
 
 	void MakeRootWindow()
