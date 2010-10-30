@@ -28,7 +28,11 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 14
 
+#endif /* ! __amigaos4__ */
+
 CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windows open */
+
+#ifndef __amigaos4__
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
