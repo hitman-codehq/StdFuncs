@@ -53,15 +53,9 @@ protected:
 
 public:
 
-	CWindow					*m_poParentWindow;		/* Ptr to window in which dialog is opened */
-
-public:
-
-	CDialog(RApplication *a_poApplication, CWindow *a_poParentWindow, MDialogObserver *a_poDialogObserver = NULL)
+	CDialog(RApplication *a_poApplication, MDialogObserver *a_poDialogObserver = NULL)
 		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
 	{
-		m_poParentWindow = a_poParentWindow;
-
 		/* Dialogs don't have their backgrounds filled */
 
 		EnableFillBackground(EFalse);
@@ -89,8 +83,6 @@ public:
 
 protected:
 
-	CDialog() { }
-
 	virtual TInt Open(TInt a_ResourceID);
 
 	void Close(TInt a_iGadgetID);
@@ -114,6 +106,10 @@ protected:
 	void SetGadgetFocus(TInt a_iGadgetID);
 
 	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
+
+private:
+
+	CDialog() { }
 };
 
 #endif /* ! STDDIALOG_H */

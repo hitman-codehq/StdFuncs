@@ -137,9 +137,18 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 #else /* ! __amigaos4__ */
 
+		CWindow *RootWindow;
+		HWND Window;
+
+		/* See if a root window has been set by the application and if so, open the dialog on that */
+		/* window.  Otherwise just open it on the desktop */
+
+		RootWindow = CWindow::GetRootWindow();
+		Window = (RootWindow) ? RootWindow->m_poWindow : NULL;
+
 		/* Open the dialog specified by the ID passed in */
 
-		if ((m_poWindow = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), m_poParentWindow->m_poWindow, DialogProc, (LPARAM) this)) != NULL)
+		if ((m_poWindow = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(a_iResourceID), Window, DialogProc, (LPARAM) this)) != NULL)
 		{
 			RetVal = KErrNone;
 
