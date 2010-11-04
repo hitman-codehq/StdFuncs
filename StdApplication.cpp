@@ -344,19 +344,19 @@ int RApplication::Main()
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
-		/* Try to translate the accelerator;  Windows will handle m_poAccelerators being NULL */
+		/* If a modeless dialog is currently active then try to handle any keyboard messages */
+		/* bound for it using the world's stupidest API.  All messages have to be passed to */
+		/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
+		/* dialog's! */
 
-		if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg)))
+		if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
 		{
-			/* If a modeless dialog is currently active then try to handle any keyboard messages */
-			/* bound for it using the world's stupidest API.  All messages have to be passed to */
-			/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
-			/* dialog's! */
+			/* No accelerator or dialog message was found so try to translate the accelerator; */
+			/* Windows will handle m_poAccelerators being NULL */
 
-			if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+			if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg)))
 			{
-				/* No accelerator or dialog message was found so do the standard message */
-				/* translation and despatch processing */
+				/* Otherwise just perform the standard translation and despatch processing */
 
 				TranslateMessage(&Msg);
 				DispatchMessage(&Msg);
