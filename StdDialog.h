@@ -85,6 +85,11 @@ protected:
 
 	virtual TInt Open(TInt a_ResourceID);
 
+	virtual void Close()
+	{
+		CWindow::Close();
+	}
+
 	void Close(TInt a_iGadgetID);
 
 	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);

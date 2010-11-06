@@ -61,7 +61,7 @@ public:
 
 	TInt Open(const char *a_pccTitle, const char *a_pccPubScreenName);
 
-	void Close();
+	virtual void Close();
 
 	void Activate();
 
