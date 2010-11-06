@@ -907,7 +907,7 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry
 }
 
 /* Written: Sunday 01-Aug-2010 1:20 pm */
-/* @param a_pcString Ptr to the string to be trimmed of white space */
+/* @param	a_pcString Ptr to the string to be trimmed of white space */
 /* Trims white space from the start and end of a string, modifying the string that was passed in */
 
 void Utils::TrimString(char *a_pcString)

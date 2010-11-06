@@ -50,8 +50,8 @@ RApplication::RApplication()
 }
 
 /* Written: Wednesday 30-Jun-2010 6:53 am */
-/* @param a_pcoMenuItems Ptr to array of menu items to be created.  Must be persisted for the lifetime */
-/*                       of the RApplication class that uses them */
+/* @param 	a_pcoMenuItems Ptr to array of menu items to be created.  Must be persisted for the lifetime */
+/*			of the RApplication class that uses them */
 
 TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 {
