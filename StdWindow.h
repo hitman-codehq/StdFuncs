@@ -103,6 +103,12 @@ public:
 		return(m_poRootWindow);
 	}
 
+#ifdef __amigaos4__
+
+	static struct Screen *GetRootWindowScreen();
+
+#endif /* __amigaos4__ */
+
 	/* Functions can be implemented by client software */
 
 	virtual void Draw() { }

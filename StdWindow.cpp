@@ -409,6 +409,22 @@ void CWindow::DrawNow()
 
 #ifdef __amigaos4__
 
+/* Written: Saturday 06-Nov-2010 8:27 am */
+
+struct Screen *CWindow::GetRootWindowScreen()
+{
+	struct Window *Window;
+
+	/* Get a ptr to the root window's underlying Amiga OS window, taking into account that there */
+	/* may not be a root window */
+
+	Window = (m_poRootWindow) ? m_poRootWindow->m_poWindow : NULL;
+
+	/* If there was a root window then return that window's Screen */
+
+	return((Window) ? Window->WScreen : NULL);
+}
+
 /* Written: Monday 08-Feb-2010 7:33 am */
 
 ULONG CWindow::GetSignal()
