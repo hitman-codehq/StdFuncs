@@ -59,6 +59,21 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 			Dialog->InitDialog();
 
 			RetVal = 1;
+
+			break;
+		}
+
+		case WM_DESTROY :
+		{
+			/* When the WM_DESTROY message is received, the Windows window has already been */
+			/* destroyed so set its handle to NULL so that we do not try to destroy it again */
+			/* in CWindow's destructor */
+
+			Dialog->m_poWindow = NULL;
+
+			RetVal = 1;
+
+			break;
 		}
 
 		case WM_ACTIVATE :
