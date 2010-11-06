@@ -26,11 +26,20 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 #ifdef __amigaos4__
 
 	TInt RetVal;
+	CWindow *RootWindow;
 	APTR Requester;
+	struct Screen *Screen;
+
+	/* See if a root window has been set by the application and if so, open the dialog on that */
+	/* window.  Otherwise just open it on the desktop */
+
+	// TODO: CAW - This is tedious - make a GetRootWindowWindow() or similar function
+	RootWindow = CWindow::GetRootWindow();
+	Screen = (RootWindow) ? CWindow::GetRootWindow()->m_poWindow->WScreen : NULL;
 
 	/* Allocate an ASL file requester */
 
-	if ((Requester = IAsl->AllocAslRequestTags(ASL_FileRequest, TAG_DONE)) != NULL)
+	if ((Requester = IAsl->AllocAslRequestTags(ASL_FileRequest, ASLFR_Screen, Screen, TAG_DONE)) != NULL)
 	{
 		/* And display it on the screen */
 
