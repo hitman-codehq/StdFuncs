@@ -1,6 +1,7 @@
 
 #include "StdFuncs.h"
 #include "StdFileRequester.h"
+#include "StdWindow.h"
 
 #ifdef __amigaos4__
 
@@ -69,6 +70,7 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 #else /* ! __amigaos4__ */
 
 	TInt RetVal;
+	CWindow *RootWindow;
 	OPENFILENAME OpenFileName;
 
 	/* Initialise the OPENFILENAME structure to display the last filename we used, if any */
@@ -77,6 +79,12 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 	OpenFileName.lStructSize = sizeof(OpenFileName);
 	OpenFileName.lpstrFile = m_acFileName;
 	OpenFileName.nMaxFile = MAX_FILEREQUESTER_PATH;
+
+	/* See if a root window has been set by the application and if so, open the dialog on that */
+	/* window.  Otherwise just open it on the desktop */
+
+	RootWindow = CWindow::GetRootWindow();
+	OpenFileName.hwndOwner = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
 	/* Query the user for the filename to which to save */
 
