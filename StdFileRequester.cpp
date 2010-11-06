@@ -11,7 +11,7 @@
 #endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 2:48 pm */
-/* @param a_bOpen ETrue to prompt for a file to open, else EFalse for a file to save */
+/* @param	a_bOpen ETrue to prompt for a file to open, else EFalse for a file to save */
 /* @returns KErrNone if a filename was requested successfully */
 /*          KErrCancel if the user clicked cancel without selecting a file */
 /*          KErrNoMemory if there wasn't enough memory to allocate the requester */
