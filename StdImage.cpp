@@ -118,7 +118,7 @@ void RStdImage::Close()
 
 	if (m_poBitmap)
 	{
-		DeleteObject(m_poBitmap);
+		DEBUGCHECK(DeleteObject(m_poBitmap), "RStdImage::Close() => Unable to delete bitmap object");
 		m_poBitmap = NULL;
 	}
 
