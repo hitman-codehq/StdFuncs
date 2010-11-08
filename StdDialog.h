@@ -63,14 +63,7 @@ public:
 
 	~CDialog()
 	{
-		delete [] m_pcTextBuffer;
-
-#ifdef __amigaos4__
-
-		delete [] m_poGadgetMappings;
-
-#endif /* __amigaos4__ */
-
+		Close();
 	}
 
 	/* Functions can be implemented by client software */

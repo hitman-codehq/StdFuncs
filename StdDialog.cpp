@@ -191,6 +191,11 @@ void CDialog::Close(TInt a_iGadgetID)
 
 	CWindow::Close();
 
+	/* Free the temporary text buffer used, if allocated */
+
+	delete [] m_pcTextBuffer;
+	m_pcTextBuffer = NULL;
+
 #ifdef __amigaos4__
 
 	/* And free the gadget ID -> APTR mappings */
