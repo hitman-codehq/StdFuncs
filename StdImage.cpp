@@ -87,7 +87,9 @@ TInt RStdImage::Open(const char *a_pccFileName)
 
 #else /* ! __amigaos4__ */
 
-	return(KErrNotSupported);
+	m_poBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), a_pccFileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+	return((m_poBitmap) ? KErrNone : KErrNotFound);
 
 #endif /* ! __amigaos4__ */
 
@@ -106,9 +108,21 @@ void RStdImage::Close()
 	if (m_poBitMapObj)
 	{
 		IDataTypes->DisposeDTObject(m_poBitMapObj);
+		m_poBitMapObj = NULL;
+		m_poBitMap = NULL;
 	}
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	/* If any bitmap object has been created, destroy it */
+
+	if (m_poBitmap)
+	{
+		DeleteObject(m_poBitmap);
+		m_poBitmap = NULL;
+	}
+
+#endif /* ! __amigaos4__ */
 
 }
 
