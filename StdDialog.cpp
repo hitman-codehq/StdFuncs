@@ -134,6 +134,15 @@ CDialog::~CDialog()
 
 	Close();
 
+#ifdef __amigaos4__
+
+	/* And free the gadget ID -> APTR mappings */
+
+	delete [] m_poGadgetMappings;
+	m_poGadgetMappings = NULL;
+
+#endif /* __amigaos4__ */
+
 	/* And free the temporary text buffer used, if allocated */
 
 	delete [] m_pcTextBuffer;
