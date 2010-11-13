@@ -51,6 +51,12 @@ protected:
 	struct SGadgetMapping	*m_poGadgetMappings;	/* Array of gadget ID -> APTR mappings */
 	TInt					m_iNumGadgetMappings;	/* # of entries in m_poGadgetMappings */
 
+#ifdef __amigaos4__
+
+	Object					*m_poRootGadget;		/* Ptr to root layout gadget */
+
+#endif /* __amigaos4__ */
+
 public:
 
 	CDialog(RApplication *a_poApplication, MDialogObserver *a_poDialogObserver = NULL)

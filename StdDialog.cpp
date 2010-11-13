@@ -526,24 +526,15 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	APTR Gadget;
 
+	ASSERTM((m_poRootGadget != NULL), "CDialog::SetGadgetFocus() => Root layout gadget not initialised");
+
 	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
 	/* its length */
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-
-#ifdef _DEBUG
-
-		// TODO: CAW - Why are two calls required and why doesn't this work if the text gadget is empty?
-		ASSERTM((IIntuition->ActivateGadget((struct Gadget *) Gadget, m_poWindow, NULL) != FALSE), "CDialog::SetGadgetFocus() => Unable to activate gadget");
-
-#else /* ! _DEBUG */
-
-		IIntuition->ActivateGadget((struct Gadget *) Gadget, m_poWindow, NULL);
-
-#endif /* ! _DEBUG */
-
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+		DEBUGCHECK(ILayout->ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32) Gadget),
+			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
 	}
 
 #else /* ! __amigaos4__ */
