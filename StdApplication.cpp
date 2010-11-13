@@ -21,10 +21,11 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c }, { STD_KEY_DOWN, 0x4d },
 	{ STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e }, { STD_KEY_HOME, 0x70 },
 	{ STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 }, { STD_KEY_PGDN, 0x49 },
-	{ STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 }, { STD_KEY_ESC, 0x45 }
+	{ STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 }, { STD_KEY_ESC, 0x45 },
+	{ STD_KEY_F3, 0x52 }
 };
 
-#define NUM_KEYMAPPINGS 15
+#define NUM_KEYMAPPINGS 16
 
 #endif /* __amigaos4__ */
 
