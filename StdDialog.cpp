@@ -126,6 +126,20 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 #endif /* WIN32 */
 
+/* Written: Saturday 13-Nov-2010 8:26 am */
+
+CDialog::~CDialog()
+{
+	/* Ensure that the dialog's window is closed */
+
+	Close();
+
+	/* And free the temporary text buffer used, if allocated */
+
+	delete [] m_pcTextBuffer;
+	m_pcTextBuffer = NULL;
+}
+
 /* Written: Saturday 21-Aug-2010 12:16 pm */
 /* @param	a_iResourceID	ID of the dialog to be opened */
 /* @returns KErrNone if the dialog was opened successfully; or */
@@ -190,11 +204,6 @@ void CDialog::Close(TInt a_iGadgetID)
 	/* Call the superclass close to actually close the dialog */
 
 	CWindow::Close();
-
-	/* Free the temporary text buffer used, if allocated */
-
-	delete [] m_pcTextBuffer;
-	m_pcTextBuffer = NULL;
 
 #ifdef __amigaos4__
 

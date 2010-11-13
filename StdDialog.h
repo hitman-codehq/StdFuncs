@@ -67,10 +67,7 @@ public:
 		EnableFillBackground(EFalse);
 	}
 
-	~CDialog()
-	{
-		Close();
-	}
+	~CDialog();
 
 	/* Functions can be implemented by client software */
 
