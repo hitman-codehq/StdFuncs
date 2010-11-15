@@ -81,10 +81,7 @@ protected:
 
 	virtual TInt Open(TInt a_ResourceID);
 
-	virtual void Close()
-	{
-		CWindow::Close();
-	}
+	virtual void Close();
 
 	void Close(TInt a_iGadgetID);
 

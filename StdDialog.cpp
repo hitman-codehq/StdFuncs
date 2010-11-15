@@ -134,15 +134,6 @@ CDialog::~CDialog()
 
 	Close();
 
-#ifdef __amigaos4__
-
-	/* And free the gadget ID -> APTR mappings */
-
-	delete [] m_poGadgetMappings;
-	m_poGadgetMappings = NULL;
-
-#endif /* __amigaos4__ */
-
 	/* And free the temporary text buffer used, if allocated */
 
 	delete [] m_pcTextBuffer;
@@ -210,6 +201,22 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 void CDialog::Close(TInt a_iGadgetID)
 {
+	/* Call the standard close routine to actually close the dialog box */
+
+	Close();
+
+	/* And notify the observer, if there is one, that the dialog has been closed */
+
+	if (m_poDialogObserver)
+	{
+		m_poDialogObserver->DialogClosed(this, a_iGadgetID);
+	}
+}
+
+/* Written: Monday 15-Nov-2010 7:0 am */
+
+void CDialog::Close()
+{
 	/* Call the superclass close to actually close the dialog */
 
 	CWindow::Close();
@@ -223,12 +230,6 @@ void CDialog::Close(TInt a_iGadgetID)
 
 #endif /* __amigaos4__ */
 
-	/* And notify the observer, if there is one, that the dialog has been closed */
-
-	if (m_poDialogObserver)
-	{
-		m_poDialogObserver->DialogClosed(this, a_iGadgetID);
-	}
 }
 
 /* Written: Saturday 27-Aug-2010 10:25 am */
