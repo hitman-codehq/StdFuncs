@@ -22,6 +22,7 @@ RFont::RFont(CWindow *a_poWindow)
 #endif /* ! __amigaos4__ */
 
 	m_iHighlight = EFalse;
+	m_iWidth = m_iHeight = 0;
 	m_poWindow = a_poWindow;
 }
 
@@ -66,12 +67,13 @@ TInt RFont::Open()
 		Utils::Info("RFont::Open() => Unable to open requested font, using default");
 	}
 
-	/* Determine the height of the font from the device context */
+	/* Determine the width & height of the font from the device context */
 
 	if (GetTextMetrics(m_poWindow->m_poDC, &TextMetric))
 	{
 		RetVal = KErrNone;
 
+		m_iWidth = TextMetric.tmAveCharWidth;
 		m_iHeight = TextMetric.tmHeight;
 	}
 	else
@@ -210,13 +212,6 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 
 #endif /* ! __amigaos4__ */
 
-}
-
-/* Written: Sunday 31-May-2010 2:36 pm */
-
-TInt RFont::Height()
-{
-	return(m_iHeight);
 }
 
 /* Written: Saturday 21-Aug-2010 8:27 pm */
