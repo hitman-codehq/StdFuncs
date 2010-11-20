@@ -47,6 +47,7 @@ TInt RFont::Open()
 	/* Determine the baseline & height of the font from the window */
 
 	m_iBaseline = m_poWindow->m_poWindow->IFont->tf_Baseline;
+	m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
 	m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
 
 #else /*  ! __amigaos4__ */
