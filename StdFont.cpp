@@ -15,7 +15,11 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
-#ifndef __amigaos4__
+#ifdef __amigaos4__
+
+	m_iBaseline = 0;
+
+#else /* ! __amigaos4__ */
 
 	m_poFont = m_poOldFont = NULL;
 
