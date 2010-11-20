@@ -32,6 +32,8 @@ protected:
 	TBool			m_bOpen;			/* ETrue if window is open */
 	TInt			m_iInnerWidth;		/* Width of window, minus left and right borders */
 	TInt			m_iInnerHeight;		/* Height of window, minus top and bottom borders */
+	TInt			m_iFontHeight;		/* Height of a character in the current font, in pixels */
+	TInt			m_iFontWidth;		/* Width of a character in the current font, in pixels */
 	RApplication	*m_poApplication;	/* Ptr to application that owns this window */
 
 public:
@@ -114,6 +116,8 @@ public:
 	virtual void Draw() { }
 
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
+
+	virtual void HandlePointerEvent(TInt /*a_iX*/, TInt /*a_iY*/) { }
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 

@@ -109,6 +109,15 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 			break;
 		}
 
+		case WM_LBUTTONDOWN :
+		{
+			/* Extract the mouse's X and Y positions and send them to the client window */
+
+			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam));
+
+			break;
+		}
+
 		case WM_PAINT :
 		{
 			/* Prepare the device context for painting and call the CWindow::Draw() routine. */
