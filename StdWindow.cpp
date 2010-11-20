@@ -197,7 +197,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 	EndWindow;
 
 	if (m_poWindowObj)

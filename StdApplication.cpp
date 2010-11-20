@@ -238,6 +238,21 @@ int RApplication::Main()
 						break;
 					}
 
+					case WMHI_MOUSEBUTTONS :
+					{
+						/* If this event was a mouse down event then get the position of the mouse, convert */
+						/* it to client area relative dimensions and call the windows' HandlePointerEvent() */
+						/* function */
+
+						if (Code == SELECTDOWN)
+						{
+							Window->HandlePointerEvent((Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft),
+								(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop));
+						}
+
+						break;
+					}
+
 					case WMHI_RAWKEY :
 					{
 						/* Mixing IDCMP_RAWKEY and IDCMP_VANILLAKEY doesn't really work on Amiga OS so */
