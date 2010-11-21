@@ -11,6 +11,7 @@
 /* Forward declaration to reduce the # of includes required */
 
 class RApplication;
+class CStdGadget;
 
 /* This is the base class for all platform specific windows and dialog boxes */
 
@@ -23,31 +24,38 @@ class CWindow
 
 private:
 
-	TBool			m_bFillBackground;	/* ETrue to fill background when drawing */
-	CWindow			*m_poNext;			/* Ptr to next window in list */
-	static CWindow	*m_poRootWindow;	/* Ptr to root window on which all other windows open */
+	TBool				m_bFillBackground;	/* ETrue to fill background when drawing */
+	CWindow				*m_poNext;			/* Ptr to next window in list */
+	StdList<CStdGadget>	m_oGadgets;			/* List of gadgets manually added to the window */
+	static CWindow		*m_poRootWindow;	/* Ptr to root window on which all other windows open */
+
+#ifdef __amigaos4__
+
+	struct Hook			m_oIDCMPHook;		/* IDCMP hook for watching gadgets such as sliders */
+
+#endif /* __amigaos4__ */
 
 protected:
 
-	TBool			m_bOpen;			/* ETrue if window is open */
-	TInt			m_iInnerWidth;		/* Width of window, minus left and right borders */
-	TInt			m_iInnerHeight;		/* Height of window, minus top and bottom borders */
-	TInt			m_iFontHeight;		/* Height of a character in the current font, in pixels */
-	TInt			m_iFontWidth;		/* Width of a character in the current font, in pixels */
-	RApplication	*m_poApplication;	/* Ptr to application that owns this window */
+	TBool				m_bOpen;			/* ETrue if window is open */
+	TInt				m_iInnerWidth;		/* Width of window, minus left and right borders */
+	TInt				m_iInnerHeight;		/* Height of window, minus top and bottom borders */
+	TInt				m_iFontHeight;		/* Height of a character in the current font, in pixels */
+	TInt				m_iFontWidth;		/* Width of a character in the current font, in pixels */
+	RApplication		*m_poApplication;	/* Ptr to application that owns this window */
 
 public:
 
 #ifdef __amigaos4__
 
-	Object			*m_poWindowObj;	/* Ptr to underlying Reaction window */
-	struct Window	*m_poWindow;	/* Ptr to underlying Intuition window */
+	Object				*m_poWindowObj;		/* Ptr to underlying Reaction window */
+	struct Window		*m_poWindow;		/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
 
-	HWND			m_poWindow;		/* Ptr to underlying Windows window */
-	HDC				m_poDC;			/* Device context and paint structure into which to */
-	PAINTSTRUCT		m_oPaintStruct;	/* render;  valid only during calls to CWindow::Draw() */
+	HWND				m_poWindow;			/* Ptr to underlying Windows window */
+	HDC					m_poDC;				/* Device context and paint structure into which to */
+	PAINTSTRUCT			m_oPaintStruct;		/* render;  valid only during calls to CWindow::Draw() */
 
 #endif /* ! __amigaos4__ */
 
@@ -66,6 +74,8 @@ public:
 	virtual void Close();
 
 	void Activate();
+
+	void Attach(CStdGadget *a_poGagdet);
 
 	RApplication *Application()
 	{

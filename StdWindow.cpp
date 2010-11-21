@@ -1,6 +1,7 @@
 
 #include "StdFuncs.h"
 #include "StdApplication.h"
+#include "StdGadgets.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos4__
@@ -32,7 +33,22 @@ static const SKeyMapping g_aoKeyMap[] =
 
 CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windows open */
 
-#ifndef __amigaos4__
+#ifdef __amigaos4__
+
+/* Written: Saturday 20-Nov-2010 11:05 am */
+
+static void IDCMPFunction(struct Hook *a_poHook, Object * /* a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
+{
+	CWindow *Window;
+
+	if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
+	{
+		Window = (CWindow *) a_poHook->h_Data;
+		Window->HandleCommand(27);
+	}
+}
+
+#else /* ! __amigaos4__ */
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
@@ -173,6 +189,21 @@ void CWindow::Activate()
 
 }
 
+/* Written: Sunday 21-Nov-2010 8:11 am */
+
+void CWindow::Attach(CStdGadget *a_poGadget)
+{
+	ASSERTM((a_poGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
+	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
+
+	// TODO: CAW - HACK!
+	m_iInnerWidth -= 20;
+
+	IIntuition->AddGList(m_poWindow, (struct Gadget *) a_poGadget->m_poGadget, -1, -1, NULL);
+	IIntuition->RefreshGList((struct Gadget *) a_poGadget->m_poGadget, m_poWindow, NULL, -1);
+	m_oGadgets.AddTail(a_poGadget);
+}
+
 /* Written: Monday 08-Feb-2010 7:13 am */
 
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
@@ -189,6 +220,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 	RetVal = KErrGeneral;
 
+	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
+	/* provided by Reaction, such as the movement of proportional gadgets */
+
+	m_oIDCMPHook.h_Entry = (ULONG (*)()) IDCMPFunction;
+	m_oIDCMPHook.h_Data = this;
+
 	/* Create a Reaction Window and open it on the requested screen at the maximum size of */
 	/* the screen.  If no screen name is specified, fall back to the Workbench */
 
@@ -197,7 +234,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, IDCMP_IDCMPUPDATE,
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 	EndWindow;
 
 	if (m_poWindowObj)
@@ -320,6 +358,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 void CWindow::Close()
 {
+	CStdGadget *Gadget;
 
 #ifdef __amigaos4__
 
@@ -348,6 +387,14 @@ void CWindow::Close()
 	}
 
 #endif /* ! __amigaos4__ */
+
+	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
+
+	while ((Gadget = m_oGadgets.RemHead()) != NULL)
+	{
+		IDOS->Printf("Deleting gadget\n");
+		delete Gadget;
+	}
 
 	/* And remove the window from the application's list of windows, but only */
 	/* if it was added */
@@ -395,7 +442,7 @@ void CWindow::DrawNow()
 	if (m_bFillBackground)
 	{
 		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
-			(m_poWindow->Width - m_poWindow->BorderRight - 1), (m_poWindow->Height - m_poWindow->BorderBottom - 1),
+			(m_poWindow->BorderLeft + m_iInnerWidth - 1), (m_poWindow->BorderTop + m_iInnerHeight - 1),
 			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 	}
 
