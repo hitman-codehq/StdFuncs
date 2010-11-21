@@ -11,6 +11,7 @@
 /* Forward declaration to reduce the # of includes required */
 
 class CWindow;
+class MStdGadgetSliderObserver;
 
 /* The abstract base class used for all gadgets */
 
@@ -23,6 +24,7 @@ class CStdGadget
 
 protected:
 
+	TInt					m_iGadgetID;		/* Unique ID of the gadget */
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 
 #ifdef __amigaos4__
@@ -34,15 +36,40 @@ protected:
 public:
 
 	StdListNode<CStdGadget>	m_oStdListNode;     /* Standard list node */
+
+	TInt GadgetID()
+	{
+		return(m_iGadgetID);
+	}
+
+	virtual void Updated() { }
 };
 
-/* A class representing a scroller or proportional gadget */
+/* A class representing a slider or proportional gadget */
 
 class CStdGadgetSlider : public CStdGadget
 {
+private:
+
+	MStdGadgetSliderObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
+
 public:
 
-	TInt Create(CWindow *a_poParentWindow);
+	TInt Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
+
+	/* From CStdGadget */
+
+	void Updated();
+};
+
+/* Mixin class for the slider or proportional gadget to be able to notify its client */
+/* when it has been updated */
+
+class MStdGadgetSliderObserver
+{
+public:
+
+	virtual void SliderUpdated(CStdGadgetSlider *a_poGadget, TInt a_iValue) = 0;
 };
 
 #endif /* ! STDGADGETS_H */

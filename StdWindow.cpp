@@ -10,6 +10,7 @@
 #define ALL_REACTION_MACROS
 
 #include <proto/intuition.h>
+#include <proto/utility.h>
 #include <reaction/reaction.h>
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
@@ -37,14 +38,43 @@ CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windo
 
 /* Written: Saturday 20-Nov-2010 11:05 am */
 
-static void IDCMPFunction(struct Hook *a_poHook, Object * /* a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
+void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
 {
+	struct TagItem *TagItem;
+	CStdGadget *Gadget;
 	CWindow *Window;
+
+	/* If this is a message from a BOOPSI object saying that it has been updated, find the object and */
+	/* map it onto its matching gadget and call the gadget's Updated() function */
 
 	if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
 	{
-		Window = (CWindow *) a_poHook->h_Data;
-		Window->HandleCommand(27);
+		/* Get the gadget's unique ID */
+
+		if ((TagItem = IUtility->FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
+		{
+			Window = (CWindow *) a_poHook->h_Data;
+
+			/* Iterate through the window's list of gadgets and search for the one matching the */
+			/* BOOPSI gadget's ID */
+
+			if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+			{
+				do
+				{
+					if (TagItem->ti_Data == (ULONG) Gadget->GadgetID())
+					{
+						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
+						/* client of the update */
+
+						Gadget->Updated();
+
+						break;
+					}
+				}
+				while ((Gadget = Window->m_oGadgets.GetSucc(Gadget)) != NULL);
+			}
+		}
 	}
 }
 
@@ -392,7 +422,6 @@ void CWindow::Close()
 
 	while ((Gadget = m_oGadgets.RemHead()) != NULL)
 	{
-		IDOS->Printf("Deleting gadget\n");
 		delete Gadget;
 	}
 
