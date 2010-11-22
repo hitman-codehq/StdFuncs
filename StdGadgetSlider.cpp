@@ -26,6 +26,8 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	m_poClient = a_poClient;
 	m_iGadgetID = a_iGadgetID;
 
+#ifdef __amigaos4__
+
 	/* Create the underlying BOOPSI gadget */
 
 #if 0
@@ -51,6 +53,33 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 		Utils::Info("CStdGadgetSlider::Create() => Unable to create BOOPSI proportional gadget");
 	}
 
+#else /* ! __amigaos4__ */
+
+	SCROLLINFO ScrollInfo;
+
+	/* Create the underlying Windows control */ // TODO: CAW - Use SM_CXVSCROLL rather than 20 + try using keyboard + page size (lines per page)
+
+	m_poGadget = CreateWindow("SCROLLBAR", NULL, (SBS_VERT | WS_CHILD | WS_VISIBLE),
+		(m_poParentWindow->InnerWidth() - 20), 0, 20, m_poParentWindow->InnerHeight(), m_poParentWindow->m_poWindow,
+		NULL, NULL, NULL);
+
+	if (m_poGadget)
+	{
+		ScrollInfo.cbSize = sizeof(ScrollInfo);
+		ScrollInfo.fMask = SIF_RANGE;
+		ScrollInfo.nMin = 1;
+		ScrollInfo.nMax = 419; // TODO: CAW
+
+		SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
+		a_poParentWindow->Attach(this);
+	}
+	else
+	{
+		Utils::Info("CStdGadgetSlider::Create() => Unable to create scroll bar");
+	}
+
+#endif /* ! __amigaos4__ */
+
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
 }
 
@@ -58,6 +87,9 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 void CStdGadgetSlider::Updated()
 {
+
+#ifdef __amigaos4__
+
 	ULONG Result;
 
 	/* If there is a client interested in getting updates, determine the current value of the */
@@ -68,5 +100,33 @@ void CStdGadgetSlider::Updated()
 		IIntuition->GetAttr(PGA_Top, m_poGadget, &Result);
 		m_poClient->SliderUpdated(this, Result);
 	}
-}
 
+#else /* ! __amigaos4__ */
+
+	SCROLLINFO ScrollInfo;
+
+	if (m_poClient)
+	{
+		// TODO: CAW - Assert on m_poGadget
+		//IIntuition->GetAttr(PGA_Top, m_poGadget, &Result);
+		ScrollInfo.cbSize = sizeof(ScrollInfo);
+		ScrollInfo.fMask = SIF_TRACKPOS;
+
+		if (GetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo))
+		{
+			ScrollInfo.fMask = SIF_POS;
+			ScrollInfo.nPos = ScrollInfo.nTrackPos;
+			SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, FALSE);
+
+			Utils::Info("*** nTrackPos = %d", ScrollInfo.nTrackPos);
+			m_poClient->SliderUpdated(this, ScrollInfo.nTrackPos);
+		}
+		else
+		{
+			Utils::Info("CStdGadgetSlider::Updated() => Unable to get scrollbar position");
+		}
+	}
+
+#endif /* ! __amigaos4__ */
+
+}

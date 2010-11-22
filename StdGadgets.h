@@ -31,7 +31,11 @@ protected:
 
 	Object					*m_poGadget;		/* Ptr to underlying BOOPSI gadget */
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	HWND					m_poGadget;			/* Ptr to the underlying Windows control */
+
+#endif /* ! __amigaos4__ */
 
 public:
 

@@ -89,8 +89,6 @@ public:
 		m_bFillBackground = a_bFillBackground;
 	}
 
-	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
-
 	TInt InnerWidth()
 	{
 		return(m_iInnerWidth);
@@ -102,6 +100,8 @@ public:
 	}
 
 #ifdef __amigaos4__
+
+	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
 
 	ULONG GetSignal();
 

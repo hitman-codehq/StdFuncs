@@ -129,6 +129,10 @@ SOURCE=.\StdFont.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdGadgetSlider.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdImage.cpp
 # End Source File
 # Begin Source File
@@ -206,6 +210,10 @@ SOURCE=.\StdFont.h
 # Begin Source File
 
 SOURCE=.\StdFuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdGadgets.h
 # End Source File
 # Begin Source File
 

@@ -178,6 +178,22 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 			break;
 		}
 
+		// TODO: CAW - This can only scroll 65535 lines - See GetScrollInfo() in order to circumvent this
+		case WM_VSCROLL :
+		{
+			if (LOWORD(a_oWParam) == SB_THUMBTRACK)
+			{
+				CStdGadget *Gadget; // TODO: CAW
+
+				if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+				{
+					Gadget->Updated();
+				}
+			}
+
+			break;
+		}
+
 		default :
 		{
 			RetVal = DefWindowProc(a_poWindow, a_uiMessage, a_oWParam, a_oLParam);
@@ -229,8 +245,13 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 	// TODO: CAW - HACK!
 	m_iInnerWidth -= 20;
 
+#ifdef __amigaos4__
+
 	IIntuition->AddGList(m_poWindow, (struct Gadget *) a_poGadget->m_poGadget, -1, -1, NULL);
 	IIntuition->RefreshGList((struct Gadget *) a_poGadget->m_poGadget, m_poWindow, NULL, -1);
+
+#endif /* __amigaos4__ */
+
 	m_oGadgets.AddTail(a_poGadget);
 }
 
