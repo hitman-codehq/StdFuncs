@@ -42,21 +42,9 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 		PGA_Total, 419, PGA_Visible, 20, PGA_NewLook, TRUE, ICA_TARGET, ICTARGET_IDCMP, TAG_DONE);
 #endif
 
-	/* And attach it to the parent window */
-
-	if (m_poGadget)
-	{
-		a_poParentWindow->Attach(this);
-	}
-	else
-	{
-		Utils::Info("CStdGadgetSlider::Create() => Unable to create BOOPSI proportional gadget");
-	}
-
 #else /* ! __amigaos4__ */
 
 	TInt Width;
-	SCROLLINFO ScrollInfo;
 
 	/* Find out the standard width of a scrollbar control */
 
@@ -68,17 +56,10 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 		(m_poParentWindow->InnerWidth() - Width), 0, Width, m_poParentWindow->InnerHeight(),
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
+#endif /* ! __amigaos4__ */
+
 	if (m_poGadget)
 	{
-		/* Initialise other slider attributes such as the scrolling range */
-
-		ScrollInfo.cbSize = sizeof(ScrollInfo);
-		ScrollInfo.fMask = (SIF_PAGE | SIF_RANGE);
-		ScrollInfo.nPage = 20;
-		ScrollInfo.nMin = 0;
-		ScrollInfo.nMax = 419; // TODO: CAW
-		SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
-
 		/* And attach it to the parent window */
 
 		a_poParentWindow->Attach(this);
@@ -87,8 +68,6 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	{
 		Utils::Info("CStdGadgetSlider::Create() => Unable to create scrollbar");
 	}
-
-#endif /* ! __amigaos4__ */
 
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
 }
@@ -179,4 +158,25 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 #endif /* ! __amigaos4__ */
 
+}
+
+/* Written: Tuesday 23-Nov-2010 7:56 am */
+/* @param	a_iPageSize	The number of lines per page;  that is, the number of lines scrolled up or */
+/*						down when the page up and page down section of the slider is clicked */
+/*			a_iMaxRange	The maximum number of lines that can be displayed */
+/* Sets the range of the slider so that when it moves up and down it matches the top and bottom of the */
+/* data being displayed on screen. */
+
+void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
+{
+	SCROLLINFO ScrollInfo;
+
+	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetRange() => Slider gadget has not been created");
+
+	ScrollInfo.cbSize = sizeof(ScrollInfo);
+	ScrollInfo.fMask = (SIF_PAGE | SIF_RANGE);
+	ScrollInfo.nPage = a_iPageSize;
+	ScrollInfo.nMin = 0;
+	ScrollInfo.nMax = a_iMaxRange;
+	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 }

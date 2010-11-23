@@ -61,6 +61,8 @@ public:
 
 	TInt Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
+	void SetRange(TInt a_iPageSize, TInt a_iMaxRange);
+
 	/* From CStdGadget */
 
 	void Updated(ULONG a_ulData);
