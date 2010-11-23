@@ -191,9 +191,9 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					if (a_oLParam == (LPARAM) Gadget->m_poGadget)
 					{
 						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
-						/* client of the update */
+						/* client of the update, letting it know what type of update this is */
 
-						Gadget->Updated();
+						Gadget->Updated(LOWORD(a_oWParam));
 
 						break;
 					}

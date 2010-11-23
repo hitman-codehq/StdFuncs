@@ -46,7 +46,7 @@ public:
 		return(m_iGadgetID);
 	}
 
-	virtual void Updated() { }
+	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
 };
 
 /* A class representing a slider or proportional gadget */
@@ -63,7 +63,7 @@ public:
 
 	/* From CStdGadget */
 
-	void Updated();
+	void Updated(ULONG a_ulData);
 };
 
 /* Mixin class for the slider or proportional gadget to be able to notify its client */

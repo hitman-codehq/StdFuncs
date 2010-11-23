@@ -55,27 +55,37 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 #else /* ! __amigaos4__ */
 
+	TInt Width;
 	SCROLLINFO ScrollInfo;
 
-	/* Create the underlying Windows control */ // TODO: CAW - Use SM_CXVSCROLL rather than 20 + try using keyboard + page size (lines per page)
+	/* Find out the standard width of a scrollbar control */
+
+	Width = GetSystemMetrics(SM_CXVSCROLL);
+
+	/* Create the underlying Windows control */
 
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, (SBS_VERT | WS_CHILD | WS_VISIBLE),
-		(m_poParentWindow->InnerWidth() - 20), 0, 20, m_poParentWindow->InnerHeight(), m_poParentWindow->m_poWindow,
-		NULL, NULL, NULL);
+		(m_poParentWindow->InnerWidth() - Width), 0, Width, m_poParentWindow->InnerHeight(),
+		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 	if (m_poGadget)
 	{
-		ScrollInfo.cbSize = sizeof(ScrollInfo);
-		ScrollInfo.fMask = SIF_RANGE;
-		ScrollInfo.nMin = 1;
-		ScrollInfo.nMax = 419; // TODO: CAW
+		/* Initialise other slider attributes such as the scrolling range */
 
+		ScrollInfo.cbSize = sizeof(ScrollInfo);
+		ScrollInfo.fMask = (SIF_PAGE | SIF_RANGE);
+		ScrollInfo.nPage = 20;
+		ScrollInfo.nMin = 0;
+		ScrollInfo.nMax = 419; // TODO: CAW
 		SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
+
+		/* And attach it to the parent window */
+
 		a_poParentWindow->Attach(this);
 	}
 	else
 	{
-		Utils::Info("CStdGadgetSlider::Create() => Unable to create scroll bar");
+		Utils::Info("CStdGadgetSlider::Create() => Unable to create scrollbar");
 	}
 
 #endif /* ! __amigaos4__ */
@@ -84,9 +94,13 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 }
 
 /* Written: Sunday 21-Nov-2010 11:01 am */
+/* @param	a_ulData	For Amiga OS this is not used.  For Win32 it is the type of update */
+/*						this is, such as SB_THUMBTRACK etc. */
+/* Determines the current position of the slider gadget and notifies client code about it */
 
-void CStdGadgetSlider::Updated()
+void CStdGadgetSlider::Updated(ULONG a_ulData)
 {
+	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::Updated() => Slider gadget has not been created");
 
 #ifdef __amigaos4__
 
@@ -103,27 +117,63 @@ void CStdGadgetSlider::Updated()
 
 #else /* ! __amigaos4__ */
 
+	TInt Position;
 	SCROLLINFO ScrollInfo;
+
+	/* If there is a client interested in getting updates, determine the current value of the */
+	/* scrollbar and let the client know it */
 
 	if (m_poClient)
 	{
-		// TODO: CAW - Assert on m_poGadget
-		//IIntuition->GetAttr(PGA_Top, m_poGadget, &Result);
+		/* Determine information about the movement of the scroll box in the scrollbar */
+
+		Position = -1;
 		ScrollInfo.cbSize = sizeof(ScrollInfo);
-		ScrollInfo.fMask = SIF_TRACKPOS;
+		ScrollInfo.fMask = (SIF_PAGE | SIF_POS | SIF_TRACKPOS);
 
 		if (GetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo))
 		{
 			ScrollInfo.fMask = SIF_POS;
-			ScrollInfo.nPos = ScrollInfo.nTrackPos;
-			SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, FALSE);
 
-			Utils::Info("*** nTrackPos = %d", ScrollInfo.nTrackPos);
-			m_poClient->SliderUpdated(this, ScrollInfo.nTrackPos);
+			/* If this is a tracking update then we need to get the current tracking position */
+
+			if (a_ulData == SB_THUMBTRACK)
+			{
+				/* Now make the tracking position of the scroll box the true position */
+
+				ScrollInfo.nPos = Position = ScrollInfo.nTrackPos;
+			}
+
+			/* For lines up and down, adjust the position by one line as appropriate */
+
+			else if (a_ulData == SB_LINEUP)
+			{
+				ScrollInfo.nPos = Position = (ScrollInfo.nPos - 1);
+			}
+			else if (a_ulData == SB_LINEDOWN)
+			{
+				ScrollInfo.nPos = Position = (ScrollInfo.nPos + 1);
+			}
+
+			/* For pages up and down, adjust the position by one page as appropriate */
+
+			else if (a_ulData == SB_PAGEUP)
+			{
+				ScrollInfo.nPos = Position = (ScrollInfo.nPos - ScrollInfo.nPage);
+			}
+			else if (a_ulData == SB_PAGEDOWN)
+			{
+				ScrollInfo.nPos = Position = (ScrollInfo.nPos + ScrollInfo.nPage);
+			}
 		}
-		else
+
+		/* If we obtained the scroll box position successfully, update the client with */
+		/* the new position */
+
+		if (Position != -1)
 		{
-			Utils::Info("CStdGadgetSlider::Updated() => Unable to get scrollbar position");
+			SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, FALSE);
+			m_poClient->SliderUpdated(this, Position);
 		}
 	}
 
