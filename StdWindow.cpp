@@ -82,10 +82,11 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
-static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
+LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	int Index;
 	LRESULT RetVal;
+	CStdGadget *Gadget;
 	CWindow *Window;
 
 	/* Return 0 by default for processed messages */
@@ -178,17 +179,26 @@ static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 			break;
 		}
 
-		// TODO: CAW - This can only scroll 65535 lines - See GetScrollInfo() in order to circumvent this
 		case WM_VSCROLL :
 		{
-			if (LOWORD(a_oWParam) == SB_THUMBTRACK)
-			{
-				CStdGadget *Gadget; // TODO: CAW
+			/* Iterate through the window's list of gadgets and search for the one matching the */
+			/* HWND of the slider just moved */
 
-				if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+			if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+			{
+				do
 				{
-					Gadget->Updated();
+					if (a_oLParam == (LPARAM) Gadget->m_poGadget)
+					{
+						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
+						/* client of the update */
+
+						Gadget->Updated();
+
+						break;
+					}
 				}
+				while ((Gadget = Window->m_oGadgets.GetSucc(Gadget)) != NULL);
 			}
 
 			break;

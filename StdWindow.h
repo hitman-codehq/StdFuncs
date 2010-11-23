@@ -105,7 +105,11 @@ public:
 
 	ULONG GetSignal();
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam);
+
+#endif /* ! __amigaos4__ */
 
 	void MakeRootWindow()
 	{
