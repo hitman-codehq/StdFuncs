@@ -176,7 +176,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ScrollInfo.cbSize = sizeof(ScrollInfo);
 	ScrollInfo.fMask = (SIF_PAGE | SIF_RANGE);
 	ScrollInfo.nPage = a_iPageSize;
-	ScrollInfo.nMin = 0;
+	ScrollInfo.nMin = 1;
 	ScrollInfo.nMax = a_iMaxRange;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 }
