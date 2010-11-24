@@ -75,7 +75,7 @@ class MStdGadgetSliderObserver
 {
 public:
 
-	virtual void SliderUpdated(CStdGadgetSlider *a_poGadget, TInt a_iValue) = 0;
+	virtual void SliderUpdated(CStdGadgetSlider *a_poGadget, TInt a_iPosition) = 0;
 };
 
 #endif /* ! STDGADGETS_H */
