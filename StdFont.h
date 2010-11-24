@@ -16,6 +16,7 @@ private:
 
 #else /* ! __amigaos4__ */
 
+	HDC			m_poDC;			/* Ptr to temporary DC, if required */
 	HFONT		m_poFont;		/* Win32 font with which to render */
 	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
 	COLORREF	m_oBackground;	/* Background colour and text colours at the */

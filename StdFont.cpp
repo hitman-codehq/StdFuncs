@@ -21,6 +21,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 #else /* ! __amigaos4__ */
 
+	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
 #endif /* ! __amigaos4__ */
@@ -55,41 +56,53 @@ TInt RFont::Open()
 	int Height;
 	TEXTMETRIC TextMetric;
 
-	ASSERTM(m_poWindow->m_poDC, "RFont::Open() => Function should only be called from CWindow::Draw");
+	/* Assume failure */
 
-	/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
-	/* that uses that size */
+	RetVal = KErrGeneral;
 
-	Height = -MulDiv(10, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
+	/* If no DC is specified for the window, create a temporary one for use by the class */
 
-	if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-		CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
+	if (m_poWindow->m_poDC == NULL)
 	{
-		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
+		m_poDC = m_poWindow->m_poDC = GetDC(m_poWindow->m_poWindow);
+	}
+
+	if (m_poWindow->m_poDC)
+	{
+		/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
+		/* that uses that size */
+
+		Height = -MulDiv(10, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
+
+		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
+		{
+			DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
+		}
+		else
+		{
+			Utils::Info("RFont::Open() => Unable to open requested font, using default");
+		}
+
+		/* Determine the width & height of the font from the device context */
+
+		if (GetTextMetrics(m_poWindow->m_poDC, &TextMetric))
+		{
+			RetVal = KErrNone;
+
+			m_iWidth = TextMetric.tmAveCharWidth;
+			m_iHeight = TextMetric.tmHeight;
+		}
+
+		/* Save the background and text colours for l8r use */
+
+		m_oBackground = GetBkColor(m_poWindow->m_poDC);
+		m_oText = GetTextColor(m_poWindow->m_poDC);
 	}
 	else
 	{
-		Utils::Info("RFont::Open() => Unable to open requested font, using default");
+		Utils::Info("RFont::Open() => Unable to create temporary DC");
 	}
-
-	/* Determine the width & height of the font from the device context */
-
-	if (GetTextMetrics(m_poWindow->m_poDC, &TextMetric))
-	{
-		RetVal = KErrNone;
-
-		m_iWidth = TextMetric.tmAveCharWidth;
-		m_iHeight = TextMetric.tmHeight;
-	}
-	else
-	{
-		RetVal = KErrGeneral;
-	}
-
-	/* Save the background and text colours for l8r use */
-
-	m_oBackground = GetBkColor(m_poWindow->m_poDC);
-	m_oText = GetTextColor(m_poWindow->m_poDC);
 
 #endif /*  ! __amigaos4__ */
 
@@ -117,6 +130,12 @@ void RFont::Close()
 	{
 		DEBUGCHECK(DeleteObject(m_poFont), "RFont::Close() => Unable to delete font object");
 		m_poFont = NULL;
+	}
+
+	if (m_poDC)
+	{
+		ReleaseDC(m_poWindow->m_poWindow, m_poDC);
+		m_poDC = m_poWindow->m_poDC = NULL;
 	}
 
 #endif /* ! __amigaos4__ */
