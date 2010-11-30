@@ -160,6 +160,27 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 }
 
+/* Written: Tuesday 30-Nov-2010 7:38 am */
+/* @param	The position, between 1 and (MaxRange - PageSize), to which to set the slider */
+/* Manually sets the position of the slider.  The caller must be careful to take into account */
+/* that the range is correctly calculated.  PageSize will have been previously set with a call */
+/* to SetRange() and this represents the number of lines that can be displayed on screen at once. */
+/* Therefore, the highest number that can be passed to this function as a_iPosition is the */
+/* number that will represent the line number of the top line of the screen, that is to say, */
+/* (MaxRange - PageSize) */
+
+void CStdGadgetSlider::SetPosition(TInt a_iPosition)
+{
+	SCROLLINFO ScrollInfo;
+
+	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetPosition() => Slider gadget has not been created");
+
+	ScrollInfo.cbSize = sizeof(ScrollInfo);
+	ScrollInfo.fMask = SIF_POS;
+	ScrollInfo.nPos = a_iPosition;
+	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE); // TODO: CAW - Look into refreshing display
+}
+
 /* Written: Tuesday 23-Nov-2010 7:56 am */
 /* @param	a_iPageSize	The number of lines per page;  that is, the number of lines scrolled up or */
 /*						down when the page up and page down section of the slider is clicked */
