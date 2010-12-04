@@ -84,6 +84,8 @@ public:
 
 	void DrawNow();
 
+	void DrawNow(TInt a_iTop, TInt a_iBottom);
+
 	void EnableFillBackground(TBool a_bFillBackground)
 	{
 		m_bFillBackground = a_bFillBackground;

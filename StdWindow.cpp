@@ -544,6 +544,43 @@ void CWindow::DrawNow()
 
 }
 
+/* Written: Saturday 30-Nov-2010 9:15 pm */
+/* @param	a_iTop		Offset from top of client area from which to invalidate */
+/*			a_iBottom	Bottom most part of client area to which to invalidate */
+/* Invalidates a vertical band of the client area and instigates a redraw of that area. */
+/* The bottom of the area, represented by a_iBottom, is considered exclusive, so the area */
+/* redrawn is between a_iTop and (a_iBottom - 1) */
+
+void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
+{
+
+#ifdef __amigaos4__
+
+#else /* ! __amigaos4__ */
+
+	RECT Rect;
+
+	/* Get the dimensions of the client area and adjust it to only represent the vertical */
+	/* band that we wish to redraw */
+
+	if (GetClientRect(m_poWindow, &Rect))
+	{
+		Rect.bottom = (Rect.top + a_iBottom);
+		Rect.top += a_iTop;
+
+		/* And invalidate the vertical band */
+
+		InvalidateRect(m_poWindow, &Rect, TRUE);
+	}
+	else
+	{
+		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
+	}
+
+#endif /* ! __amigaos4__ */
+
+}
+
 #ifdef __amigaos4__
 
 /* Written: Saturday 06-Nov-2010 8:27 am */
