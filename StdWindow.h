@@ -135,6 +135,8 @@ public:
 
 	virtual void HandlePointerEvent(TInt /*a_iX*/, TInt /*a_iY*/) { }
 
+	virtual void HandleWheelEvent(TInt /*a_iDelta*/) { }
+
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
 
 protected:

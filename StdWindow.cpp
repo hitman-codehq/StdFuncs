@@ -165,6 +165,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_MOUSEWHEEL :
+		{
+			/* Extract the 16 bit amount the wheel has been scrolled and ensure that it is signed */
+
+			Window->HandleWheelEvent((short) HIWORD(a_oWParam));
+
+			break;
+		}
+
 		case WM_PAINT :
 		{
 			/* Prepare the device context for painting and call the CWindow::Draw() routine. */

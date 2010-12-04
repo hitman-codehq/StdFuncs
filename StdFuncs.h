@@ -9,6 +9,10 @@
 
 #else /* ! __amigaos4__ */
 
+/* Enable newer functionality such as mouse wheel handling */
+
+#define _WIN32_WINNT 0x0400
+
 #include <windows.h>
 #include <signal.h>
 
