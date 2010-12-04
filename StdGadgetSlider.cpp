@@ -85,13 +85,15 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 	ULONG Result;
 
+	(void) a_ulData;
+
 	/* If there is a client interested in getting updates, determine the current value of the */
 	/* proportional gadget and let the client know it */
 
 	if (m_poClient)
 	{
 		IIntuition->GetAttr(PGA_Top, m_poGadget, &Result);
-		m_poClient->SliderUpdated(this, Result);
+		m_poClient->SliderUpdated(this, (Result + 1));
 	}
 
 #else /* ! __amigaos4__ */
@@ -171,14 +173,25 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 {
-	SCROLLINFO ScrollInfo;
-
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetPosition() => Slider gadget has not been created");
+	ASSERTM((a_iPosition >= 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
+
+#ifdef __amigaos4__
+
+	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		PGA_Top, (a_iPosition - 1), TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+	SCROLLINFO ScrollInfo;
 
 	ScrollInfo.cbSize = sizeof(ScrollInfo);
 	ScrollInfo.fMask = SIF_POS;
 	ScrollInfo.nPos = a_iPosition;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE); // TODO: CAW - Look into refreshing display
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Tuesday 23-Nov-2010 7:56 am */
@@ -190,9 +203,17 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 {
-	SCROLLINFO ScrollInfo;
-
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetRange() => Slider gadget has not been created");
+	ASSERTM((a_iPageSize <= a_iMaxRange), "CStdGadgetSlider::SetRange() => a_iPageSize is too large");
+
+#ifdef __amigaos4__
+
+	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		PGA_Visible, a_iPageSize, PGA_Total, a_iMaxRange, TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+	SCROLLINFO ScrollInfo;
 
 	ScrollInfo.cbSize = sizeof(ScrollInfo);
 	ScrollInfo.fMask = (SIF_PAGE | SIF_RANGE);
@@ -200,4 +221,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ScrollInfo.nMin = 1;
 	ScrollInfo.nMax = a_iMaxRange;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
+
+#endif /* ! __amigaos4__ */
+
 }
