@@ -40,21 +40,33 @@ CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windo
 
 void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
 {
+	struct IntuiWheelData *IntuiWheelData;
 	struct TagItem *TagItem;
 	CStdGadget *Gadget;
 	CWindow *Window;
 
+	/* Get a ptr to the Window associated with the hook */
+
+	Window = (CWindow *) a_poHook->h_Data;
+
+	/* If this is a mouse wheel event then convert the delta to a Windows style reading */
+	/* (+/- 120 per notch) and notify the window */
+
+	if (a_poIntuiMessage->Class == IDCMP_EXTENDEDMOUSE)
+	{
+		IntuiWheelData = (struct IntuiWheelData *) a_poIntuiMessage->IAddress;
+		Window->HandleWheelEvent(-IntuiWheelData->WheelY * 120);
+	}
+
 	/* If this is a message from a BOOPSI object saying that it has been updated, find the object and */
 	/* map it onto its matching gadget and call the gadget's Updated() function */
 
-	if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
+	else if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
 	{
 		/* Get the gadget's unique ID */
 
 		if ((TagItem = IUtility->FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
-			Window = (CWindow *) a_poHook->h_Data;
-
 			/* Iterate through the window's list of gadgets and search for the one matching the */
 			/* BOOPSI gadget's ID */
 
@@ -304,8 +316,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
-		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, IDCMP_IDCMPUPDATE,
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 	EndWindow;
 
 	if (m_poWindowObj)
