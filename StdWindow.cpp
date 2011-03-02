@@ -251,16 +251,8 @@ void CWindow::Activate()
 
 #else /* ! __amigaos4__ */
 
-#ifdef _DEBUG
-
 	// TODO: CAW - Need a function to do this + what about checking for Amiga OS version above?
-	ASSERTM((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
-
-#else /* ! _DEBUG */
-
-	SetActiveWindow(m_poWindow);
-
-#endif /* ! _DEBUG */
+	DEBUGCHECK((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
 
 #endif /* ! __amigaos4__ */
 
@@ -454,17 +446,7 @@ void CWindow::Close()
 
 	if (m_poWindow)
 	{
-
-#ifdef _DEBUG
-
-		ASSERTM((DestroyWindow(m_poWindow) != 0), "CWindow::Close() => Unable to destroy window");
-
-#else /* ! _DEBUG */
-
-		DestroyWindow(m_poWindow);
-
-#endif /* ! _DEBUG */
-
+		DEBUGCHECK((DestroyWindow(m_poWindow) != 0), "CWindow::Close() => Unable to destroy window");
 		m_poWindow = NULL;
 	}
 

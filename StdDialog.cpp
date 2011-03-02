@@ -354,17 +354,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-
-#ifdef _DEBUG
-
-		ASSERTM((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
-
-#else /* ! _DEBUG */
-
-		IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal);
-
-#endif /* ! _DEBUG */
-
+		DEBUGCHECK((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
 
 	return(RetVal);
@@ -558,15 +548,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 #else /* ! __amigaos4__ */
 
-#ifdef _DEBUG
-
-	ASSERTM((SetFocus(GetDlgItem(m_poWindow, a_iGadgetID)) != NULL), "CDialog::SetGadgetFocus() => Unable to activate control");
-
-#else /* ! _DEBUG */
-
-	SetFocus(GetDlgItem(m_poWindow, a_iGadgetID));
-
-#endif /* ! _DEBUG */
+	DEBUGCHECK((SetFocus(GetDlgItem(m_poWindow, a_iGadgetID)) != NULL), "CDialog::SetGadgetFocus() => Unable to activate control");
 
 #endif /* ! __amigaos4__ */
 
@@ -591,15 +573,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #else /* ! __amigaos4__ */
 
-#ifdef _DEBUG
-
-	ASSERTM((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
-
-#else /* ! _DEBUG */
-
-	SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText);
-
-#endif /* ! _DEBUG */
+	DEBUGCHECK((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
 
 #endif /* ! __amigaos4__ */
 
