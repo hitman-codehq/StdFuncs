@@ -134,6 +134,11 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_CHAR :
 		{
+			/* Windows clears bits 5 & 6 if the ctrl key is pressed so set them again so that the */
+			/* keypress does not get filtered out */
+
+			a_oWParam |= 0x60;
+
 			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
 			if ((a_oWParam >= ' ') && (a_oWParam <= '~'))
