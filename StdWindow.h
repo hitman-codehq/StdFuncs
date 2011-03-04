@@ -33,7 +33,11 @@ private:
 
 	struct Hook			m_oIDCMPHook;		/* IDCMP hook for watching gadgets such as sliders */
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	static TBool		m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
+
+#endif /* ! __amigaos4__ */
 
 protected:
 

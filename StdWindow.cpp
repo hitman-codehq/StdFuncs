@@ -30,6 +30,8 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 15
 
+TBool CWindow::m_bCtrlPressed;
+
 #endif /* ! __amigaos4__ */
 
 CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windows open */
@@ -111,6 +113,23 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 	switch (a_uiMessage)
 	{
+		case WM_ACTIVATE :
+		{
+			/* If window focus is changing then reset the state of the ctrl key, as we don't */
+			/* get the WM_KEYUP event if the window is not active.  Also let client software */
+			/* know about this */
+
+			if (m_bCtrlPressed)
+			{
+				// TODO: CAW - Should really use an Active() function
+				Window->OfferKeyEvent(STD_KEY_CONTROL, EFalse);
+			}
+
+			m_bCtrlPressed = EFalse;
+
+			break;
+		}
+
 		case WM_DESTROY :
 		{
 			/* When the WM_DESTROY message is received, the Windows window has already been */
@@ -134,10 +153,12 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_CHAR :
 		{
-			/* Windows clears bits 5 & 6 if the ctrl key is pressed so set them again so that the */
-			/* keypress does not get filtered out */
+			/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
 
-			a_oWParam |= 0x60;
+			if (m_bCtrlPressed)
+			{
+				a_oWParam |= 0x60;
+			}
 
 			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
@@ -168,6 +189,18 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			if (Index < NUM_KEYMAPPINGS)
 			{
 				Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
+			}
+
+			/* This is pretty horrible.  Because Windows mixes its WM_KEY#? and WM_CHAR events, we */
+			/* can get duplicate keys that need to get filtered out in order to provide a consistent */
+			/* pattern to calling CWindow::OfferKeyEvent() .  Also, when ctrl is pressed the ASCII */
+			/* characters sent to WM_CHAR messages are different so again we need to adjust these */
+			/* back to standard ASCII so keeping track of the state of the ctrl key is the only way */
+			/* to achieve this */
+
+			if (a_oWParam == VK_CONTROL)
+			{
+				m_bCtrlPressed = (a_uiMessage == WM_KEYDOWN) ? ETrue : EFalse;
 			}
 
 			break;
