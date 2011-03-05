@@ -58,12 +58,13 @@ typedef int TBool;
 
 #endif /* ! __amigaos4__ */
 
-/* Useful Win32 constants for OK and cancel buttons */
+/* Useful Win32 constants for OK and cancel buttons and maximum path */
 
 #ifndef WIN32
 
 #define IDOK 1
 #define IDCANCEL 2
+#define MAX_PATH 260
 
 #endif /* WIN32 */
 

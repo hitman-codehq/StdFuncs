@@ -13,26 +13,14 @@
 
 // TODO: CAW - Add Utils::Info() calls all though here and RFile (check others) but only in debug mode?  Consistency!
 
-static const char *EmptyString = "";
-
 /* Written: Saturday 03-Nov-2007 7:27 pm */
 
 TEntry::TEntry()
 {
-	iName = EmptyString;
+	iName[0] = '\0';
 	iIsDir = iIsLink = EFalse;
 	iSize = 0;
 	iAttributes = 0;
-}
-
-/* Written: Firday 10-Jul-2009 6:42 am */
-
-TEntry::~TEntry()
-{
-	if (iName != EmptyString)
-	{
-		delete [] (char *) iName;
-	}
 }
 
 /* Written: Saturday 03-Nov-2007 8:07 pm */
@@ -107,30 +95,20 @@ TEntryArray::~TEntryArray()
 
 TEntry *TEntryArray::Append(const char *a_pccName)
 {
-	char *Name;
 	TEntry *Entry;
 
-	/* Allocate a new TEntry node and some memory to hold the name of the file it represents */
+	/* Allocate a new TEntry node */
 
 	if ((Entry = new TEntry) != NULL)
 	{
-		if ((Name = new char[strlen(a_pccName) + 1]) != NULL)
-		{
-			/* Copy the name of the file */
+		/* Copy the name of the file */
 
-			strcpy(Name, a_pccName);
-			Entry->iName = Name;
+		strcpy(Entry->iName, a_pccName);
 
-			/* And append the node to the list */
+		/* And append the node to the list */
 
-			++iCount;
-			iEntries.AddTail(Entry);
-		}
-		else
-		{
-			delete Entry;
-			Entry = NULL;
-		}
+		++iCount;
+		iEntries.AddTail(Entry);
 	}
 
 	return(Entry);
@@ -212,7 +190,6 @@ RDir::RDir()
 
 #endif /* __amigaos4__ */
 
-	iSingleEntry.iName = NULL;
 	iSingleEntryOk = EFalse;
 }
 
@@ -443,10 +420,6 @@ void RDir::Close()
 	}
 
 #endif /* ! __amigaos4__ */
-
-	// TODO: CAW
-	delete [] (char *) iSingleEntry.iName;
-	iSingleEntry.iName = NULL;
 
 	iSingleEntryOk = EFalse;
 }

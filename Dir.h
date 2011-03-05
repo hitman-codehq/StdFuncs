@@ -13,7 +13,7 @@ class TEntry
 public:
 
 	StdListNode<TEntry>	m_oStdListNode;		/* Standard list node */
-	const char			*iName;				/* Ptr to the name of the file */
+	char				iName[MAX_PATH];	/* Name of the file */
 	TBool				iIsDir;				/* ETrue if entry is a directory */
 	TBool				iIsLink;			/* ETrue if entry is a link */
 	TUint				iSize;				/* File size in bytes */
@@ -33,7 +33,8 @@ public:
 
 	TEntry();
 
-	~TEntry();
+	// TODO: CAW - Why is this required for BUBYFU to compile?
+	~TEntry() { }
 
 	TBool IsDir() const;
 

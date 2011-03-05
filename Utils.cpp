@@ -333,7 +333,6 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
-	char *Name;
 	TInt RetVal;
 
 #ifdef __amigaos4__
@@ -394,6 +393,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
 		{
+			RetVal = KErrNone;
+
 			/* Convert the Win32 SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
 
 			TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
@@ -404,19 +405,9 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 			a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
 				DateTime, FindData.ftLastWriteTime);
 
-			/* Allocate a buffer for the filename and copy the filename into it */
+			/* Copy the filename into the TEntry structure */
 
-			if ((Name = new char[strlen(FindData.cFileName) + 1]) != NULL)
-			{
-				RetVal = KErrNone;
-
-				strcpy(Name, FindData.cFileName);
-				a_poEntry->iName = Name;
-			}
-			else
-			{
-				Utils::Info("Out of memory");
-			}
+			strcpy(a_poEntry->iName, FindData.cFileName);
 		}
 		else
 		{
