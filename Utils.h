@@ -65,6 +65,8 @@ public:
 
 	static void MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs);
 
+	static void NormalisePath(char *a_pcPath);
+
 	static TBool ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData);
 
 	static TInt SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry);

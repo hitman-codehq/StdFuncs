@@ -691,6 +691,28 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 	return(RetVal);
 }
 
+/* Written: Wednesday 09-Mar-2011 6:27 am */
+/* @param	a_pcPath Ptr to qualified path to be normalised */
+/* Iterates through all the characters of a qualified path and converts any instances of the '\' */
+/* directory separator charater to '/' to make parsing easier */
+
+void Utils::NormalisePath(char *a_pcPath)
+{
+	TInt Index, Length;
+
+	/* Iterate through all the characters of the path and pass any instances of '\' to '/' */
+
+	Length = strlen(a_pcPath);
+
+	for (Index = 0; Index < Length; ++Index)
+	{
+		if (a_pcPath[Index] == '\\')
+		{
+			a_pcPath[Index] = '/';
+		}
+	}
+}
+
 void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs)
 {
 	char Message[512];
