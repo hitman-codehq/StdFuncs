@@ -162,7 +162,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
-			if ((a_oWParam >= ' ') && (a_oWParam <= '~'))
+			if ((a_oWParam >= 32) && (a_oWParam <= 254) && (a_oWParam != 127))
 			{
 				Window->OfferKeyEvent(a_oWParam, ETrue);
 			}

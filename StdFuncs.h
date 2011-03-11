@@ -70,22 +70,22 @@ typedef int TBool;
 
 /* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
 
-#define STD_KEY_SHIFT 128
-#define STD_KEY_CONTROL 129
-#define STD_KEY_BACKSPACE 130
-#define STD_KEY_ENTER 131
-#define STD_KEY_UP 132
-#define STD_KEY_DOWN 133
-#define STD_KEY_LEFT 134
-#define STD_KEY_RIGHT 135
-#define STD_KEY_HOME 136
-#define STD_KEY_END 137
-#define STD_KEY_PGUP 138
-#define STD_KEY_PGDN 139
-#define STD_KEY_DELETE 140
-#define STD_KEY_TAB 141
-#define STD_KEY_ESC 142
-#define STD_KEY_F3 143
+#define STD_KEY_SHIFT 256
+#define STD_KEY_CONTROL 257
+#define STD_KEY_BACKSPACE 258
+#define STD_KEY_ENTER 259
+#define STD_KEY_UP 260
+#define STD_KEY_DOWN 261
+#define STD_KEY_LEFT 262
+#define STD_KEY_RIGHT 263
+#define STD_KEY_HOME 264
+#define STD_KEY_END 265
+#define STD_KEY_PGUP 266
+#define STD_KEY_PGDN 267
+#define STD_KEY_DELETE 268
+#define STD_KEY_TAB 269
+#define STD_KEY_ESC 270
+#define STD_KEY_F3 280
 
 /* Structure used for mapping standard keycodes onto native keycodes */
 
