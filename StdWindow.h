@@ -135,7 +135,7 @@ public:
 
 	/* Functions can be implemented by client software */
 
-	virtual void Draw() { }
+	virtual void Draw(TInt /*a_iTop*/, TInt /*a_iBottom*/) { }
 
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 
