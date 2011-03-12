@@ -303,8 +303,10 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 	ASSERTM((a_poGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
-	// TODO: CAW - HACK!
-	m_iInnerWidth -= 20;
+	/* This is - ahem - a little hacky as it assumes that the gadget being attached is a vertical */
+	/* slider!  We'll sort out doing this properly when the time comes */
+
+	m_iInnerWidth -= a_poGadget->Width();
 
 #ifdef __amigaos4__
 
@@ -553,12 +555,17 @@ void CWindow::DrawNow()
 
 #else /* ! __amigaos4__ */
 
-	/* Invalidate the client rect and redraw it, automatically filling the background with the */
-	/* background colour first.  If this fails then there isn't much we can do besides ignore */
-	/* the error */
+	RECT Rect;
 
-	// TODO: CAW - Ensure that m_bFillBackground is taken into account
-	InvalidateRect(m_poWindow, NULL, TRUE);
+	/* Invalidate the client rect and redraw it, automatically filling the background with the */
+	/* background colour if requested.  We adjust the size of the area to be cleared and drawn */
+	/* to take into account any attached gadgets */
+
+	if (GetClientRect(m_poWindow, &Rect))
+	{
+		Rect.right = m_iInnerWidth;
+		InvalidateRect(m_poWindow, &Rect, m_bFillBackground);
+	}
 
 #endif /* ! __amigaos4__ */
 
@@ -581,16 +588,18 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 	RECT Rect;
 
 	/* Get the dimensions of the client area and adjust it to only represent the vertical */
-	/* band that we wish to redraw */
+	/* band that we wish to redraw, also adjusting the size of the area to be cleared and */
+	/* drawn to take into account any attached gadgets */
 
 	if (GetClientRect(m_poWindow, &Rect))
 	{
 		Rect.bottom = (Rect.top + a_iBottom);
 		Rect.top += a_iTop;
+		Rect.right = m_iInnerWidth;
 
 		/* And invalidate the vertical band */
 
-		InvalidateRect(m_poWindow, &Rect, TRUE);
+		InvalidateRect(m_poWindow, &Rect, m_bFillBackground);
 	}
 	else
 	{

@@ -25,6 +25,8 @@ class CStdGadget
 protected:
 
 	TInt					m_iGadgetID;		/* Unique ID of the gadget */
+	TInt					m_iWidth;			/* Width of the gadget in pixels */
+	TInt					m_iHeight;			/* Height of the gadget in pixels */
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 
 #ifdef __amigaos4__
@@ -39,11 +41,26 @@ protected:
 
 public:
 
+	CStdGadget()
+	{
+		m_iWidth = m_iHeight = 0;
+	}
+
 	StdListNode<CStdGadget>	m_oStdListNode;     /* Standard list node */
 
 	TInt GadgetID()
 	{
 		return(m_iGadgetID);
+	}
+
+	TInt Width()
+	{
+		return(m_iWidth);
+	}
+
+	TInt Height()
+	{
+		return(m_iHeight);
 	}
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }

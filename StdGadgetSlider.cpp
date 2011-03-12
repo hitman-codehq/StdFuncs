@@ -44,16 +44,14 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 #else /* ! __amigaos4__ */
 
-	TInt Width;
-
 	/* Find out the standard width of a scrollbar control */
 
-	Width = GetSystemMetrics(SM_CXVSCROLL);
+	m_iWidth = GetSystemMetrics(SM_CXVSCROLL);
 
 	/* Create the underlying Windows control */
 
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, (SBS_VERT | WS_CHILD | WS_VISIBLE),
-		(m_poParentWindow->InnerWidth() - Width), 0, Width, m_poParentWindow->InnerHeight(),
+		(m_poParentWindow->InnerWidth() - m_iWidth), 0, m_iWidth, m_poParentWindow->InnerHeight(),
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 #endif /* ! __amigaos4__ */
