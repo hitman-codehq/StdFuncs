@@ -104,7 +104,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	if (g_bUsingGUI)
 	{
-		MessageBox("Assertion Failure", a_pccMessage, Args);
+		MessageBox("Assertion Failure", a_pccMessage, EMBTOk, Args);
 	}
 	else
 	{
@@ -212,7 +212,7 @@ void Utils::Error(const char *a_pccMessage, ...)
 
 	if (g_bUsingGUI)
 	{
-		MessageBox("Error", a_pccMessage, Args);
+		MessageBox("Error", a_pccMessage, EMBTOk, Args);
 	}
 	else
 	{
@@ -713,9 +713,21 @@ void Utils::NormalisePath(char *a_pcPath)
 	}
 }
 
-void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs)
+/* Written: Saturday 12-Mar-2011 11:00 am */
+/* @param	a_pccTitle			Ptr to the title to be displayed in the mesage box */
+/* @param	a_pccMessage		Ptr to the message to be displayed.  This can contain printf() style %d */
+/*								specifiers that will be processed and matched with arguments pass in in the */
+/*								a_oArgs varargs list */
+/* @param	a_eMessageBoxType	Type of message box to displays, as specified by the TMessageBoxType enumeration */
+/* @return	IDOK, IDCANCEL, IDYES or IDNO if successful, or 0 if the message box could not be opened */
+/* Opens a message box to prompt the user with a question or simply to display information.  Different types */
+/* of message boxes may be opened, which contain combinations of Ok, Cancel, Yes and No buttons according to */
+/* the a_eMessageBoxType passed in */
+
+TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs)
 {
 	char Message[512];
+	TInt RetVal;
 
 	CWindow *RootWindow;
 
@@ -753,10 +765,50 @@ void Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list
 
 #else /* ! __amigaos4__ */
 
-	::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, MB_OK);
+	UINT Type;
+
+	/* Determine the type of Win32 message box to display, based on the type passed in */
+
+	if (a_eMessageBoxType == EMBTOk)
+	{
+		Type = MB_OK;
+	}
+	else if (a_eMessageBoxType == EMBTOkCancel)
+	{
+		Type = MB_OKCANCEL;
+	}
+	else if (a_eMessageBoxType == EMBTYesNo)
+	{
+		Type = MB_YESNO;
+	}
+	else
+	{
+		Type = MB_YESNOCANCEL;
+	}
+
+	/* Display the message box and return the standard Win32 return code */
+
+	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 
 #endif /* ! __amigaos4__ */
 
+	return(RetVal);
+}
+
+/* Written: Saturday 12-Mar-2011 6:25 pm */
+
+TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, ...)
+{
+	TBool RetVal;
+	va_list Args;
+
+	va_start(Args, a_eMessageBoxType);
+
+	RetVal = MessageBox(a_pccTitle, a_pccMessage, a_eMessageBoxType, Args);
+
+	va_end(Args);
+
+	return(RetVal);
 }
 
 #ifdef __amigaos4__

@@ -17,6 +17,13 @@
 
 class TEntry;
 
+/* Types of message boxes that can be opened with Utils::MessageBox() */
+
+enum TMessageBoxType
+{
+	EMBTOk, EMBTOkCancel, EMBTYesNo, EMBTYesNoCancel
+};
+
 /* Export some globals for use elsewhere */
 
 extern TBool g_bUsingGUI;	/* ETrue if running a GUI based program */
@@ -63,7 +70,9 @@ public:
 
 	static TInt LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer);
 
-	static void MessageBox(const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs);
+	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs);
+
+	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, ...);
 
 	static void NormalisePath(char *a_pcPath);
 

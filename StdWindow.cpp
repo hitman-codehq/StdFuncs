@@ -130,6 +130,13 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_CLOSE :
+		{
+			return(0);
+
+			break;
+		}
+
 		case WM_DESTROY :
 		{
 			/* When the WM_DESTROY message is received, the Windows window has already been */
