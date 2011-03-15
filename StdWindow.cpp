@@ -132,7 +132,9 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_CLOSE :
 		{
-			return(0);
+			/* Allow the client window itself to handle the close */
+
+			Window->HandleCommand(IDCANCEL);
 
 			break;
 		}
