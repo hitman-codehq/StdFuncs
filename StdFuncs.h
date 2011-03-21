@@ -64,6 +64,8 @@ typedef int TBool;
 
 #define IDOK 1
 #define IDCANCEL 2
+#define IDYES 6
+#define IDNO 7
 #define MAX_PATH 260
 
 #endif /* WIN32 */
