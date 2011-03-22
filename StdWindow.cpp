@@ -560,7 +560,7 @@ void CWindow::DrawNow()
 
 	/* And call the derived rendering function to perform a redraw immediately */
 
-	Draw();
+	Draw(0, (m_poWindow->BorderTop + m_iInnerHeight - 1)); // TODO: CAW
 
 #else /* ! __amigaos4__ */
 
@@ -591,6 +591,29 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 {
 
 #ifdef __amigaos4__
+
+	if (m_bFillBackground)
+	{
+		int Bottom, Top; // TODO: CAW
+
+		Top = (m_poWindow->BorderTop + a_iTop);
+		Bottom = (m_poWindow->BorderTop + a_iBottom);
+		//Utils::Info("a_iTop = %ld", a_iTop);
+		//Utils::Info("a_iBottom = %ld", a_iBottom);
+
+		if (Bottom > (m_poWindow->BorderTop + m_iInnerHeight - 1))
+		{
+			Bottom = (m_poWindow->BorderTop + m_iInnerHeight - 1);
+		}
+
+		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
+			(m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
+			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+	}
+
+	/* And call the derived rendering function to perform a redraw immediately */
+
+	Draw(0, (m_poWindow->BorderTop + m_iInnerHeight - 1)); // TODO: CAW
 
 #else /* ! __amigaos4__ */
 

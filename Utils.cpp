@@ -359,12 +359,9 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
 			ExamineData->Protection, DateTime, ExamineData->Date);
 
-		// TODO: CAW - Error checking + this is a bit dodgy that the client has to free the string
-		if ((Name = new char[strlen(ExamineData->Name) + 1]) != NULL)
-		{
-			strcpy(Name, ExamineData->Name);
-			a_poEntry->iName = Name;
-		}
+		/* Copy the filename into the TEntry structure */
+
+		strcpy(a_poEntry->iName, ExamineData->Name);
 
 		IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 	}
@@ -727,7 +724,7 @@ void Utils::NormalisePath(char *a_pcPath)
 TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs)
 {
 	char Message[512];
-	TInt RetVal;
+	TInt Result, RetVal;
 
 	CWindow *RootWindow;
 
@@ -741,21 +738,71 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 #ifdef __amigaos4__
 
 	struct EasyStruct EasyStruct;
-	struct Window *Requester;
+
+	struct TagItem Tags[] = { { ESA_Underscore, '_' }, { TAG_DONE, 0 } };
+
+	/* Assume failure */
+
+	RetVal = IDCANCEL;
+
+	/* Build an EasyStruct for displaying the requester */
 
 	EasyStruct.es_StructSize = sizeof(struct EasyStruct);
-	EasyStruct.es_Flags = 0;
+	EasyStruct.es_Flags = ESF_TAGGED;
 	EasyStruct.es_Title = (char *) a_pccTitle;
 	EasyStruct.es_TextFormat = Message;
-	EasyStruct.es_GadgetFormat = "Ok";
+	EasyStruct.es_TagList = Tags;
 
-	// TODO: CAW - This is a strange function. Look into it and others + BuildSysRequest()
-	Requester = IIntuition->BuildEasyRequest((RootWindow) ? RootWindow->m_poWindow : NULL, &EasyStruct, 0, TAG_DONE);
+	/* Determine the type of requester to display, based on the type passed in */
 
-	if (Requester)
+	if (a_eMessageBoxType == EMBTOk)
 	{
-		IExec->Wait((1 << Requester->UserPort->mp_SigBit));
-		IIntuition->FreeSysRequest(Requester);
+		EasyStruct.es_GadgetFormat = "_Ok";
+	}
+	else if (a_eMessageBoxType == EMBTOkCancel)
+	{
+		EasyStruct.es_GadgetFormat = "_Ok|_Cancel";
+	}
+	else if (a_eMessageBoxType == EMBTYesNo)
+	{
+		EasyStruct.es_GadgetFormat = "_Yes|_No";
+	}
+	else
+	{
+		EasyStruct.es_GadgetFormat = "_Yes|_No|_Cancel";
+	}
+
+	/* Display the requester */
+
+	Result = IIntuition->EasyRequest((RootWindow) ? RootWindow->m_poWindow : NULL, &EasyStruct, NULL);
+
+	/* And convert the result to one of the standard return values */
+
+	if (Result >= 0)
+	{
+		if (a_eMessageBoxType == EMBTOk)
+		{
+			RetVal = IDOK;
+		}
+		else if (a_eMessageBoxType == EMBTOkCancel)
+		{
+			RetVal = (Result == 0) ? IDCANCEL : IDOK;
+		}
+		else if (a_eMessageBoxType == EMBTYesNo)
+		{
+			RetVal = (Result == 0) ? IDNO : IDYES;
+		}
+		else
+		{
+			if (Result == 0)
+			{
+				RetVal = IDCANCEL;
+			}
+			else
+			{
+				RetVal = (Result == 1) ? IDYES : IDNO;
+			}
+		}
 	}
 	else
 	{
