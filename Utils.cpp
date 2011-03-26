@@ -724,7 +724,7 @@ void Utils::NormalisePath(char *a_pcPath)
 TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs)
 {
 	char Message[512];
-	TInt Result, RetVal;
+	TInt RetVal;
 
 	CWindow *RootWindow;
 
@@ -737,6 +737,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 #ifdef __amigaos4__
 
+	TInt Result;
 	struct EasyStruct EasyStruct;
 
 	struct TagItem Tags[] = { { ESA_Underscore, '_' }, { TAG_DONE, 0 } };
