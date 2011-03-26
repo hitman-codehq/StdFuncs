@@ -311,17 +311,21 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 	ASSERTM((a_poGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
+#ifdef __amigaos4__
+
+	/* Add the new BOOPSI gadget to the window's root layout */
+
+	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
+	{
+		ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
+	}
+
+#endif /* __amigaos4__ */
+
 	/* This is - ahem - a little hacky as it assumes that the gadget being attached is a vertical */
 	/* slider!  We'll sort out doing this properly when the time comes */
 
 	m_iInnerWidth -= a_poGadget->Width();
-
-#ifdef __amigaos4__
-
-	IIntuition->AddGList(m_poWindow, (struct Gadget *) a_poGadget->m_poGadget, -1, -1, NULL);
-	IIntuition->RefreshGList((struct Gadget *) a_poGadget->m_poGadget, m_poWindow, NULL, -1);
-
-#endif /* __amigaos4__ */
 
 	m_oGadgets.AddTail(a_poGadget);
 }
@@ -358,6 +362,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+
+		WINDOW_ParentGroup, m_poRootGadget = (Object *) VGroupObject,
+			/* This is an empty group into which can be placed BOOPSI objects */
+
+			LAYOUT_HorizAlignment, LALIGN_RIGHT,
+		EndGroup,
 	EndWindow;
 
 	if (m_poWindowObj)

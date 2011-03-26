@@ -32,6 +32,7 @@ private:
 #ifdef __amigaos4__
 
 	struct Hook			m_oIDCMPHook;		/* IDCMP hook for watching gadgets such as sliders */
+	Object				*m_poRootGadget;	/* layout.gadget containing the window's gadgets */
 
 #else /* ! __amigaos4__ */
 

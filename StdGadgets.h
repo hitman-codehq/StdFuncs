@@ -53,7 +53,7 @@ public:
 		return(m_iGadgetID);
 	}
 
-	TInt Width()
+	virtual TInt Width()
 	{
 		return(m_iWidth);
 	}
@@ -85,6 +85,8 @@ public:
 	/* From CStdGadget */
 
 	void Updated(ULONG a_ulData);
+
+	TInt Width();
 };
 
 /* Mixin class for the slider or proportional gadget to be able to notify its client */

@@ -30,19 +30,8 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 	/* Create the underlying BOOPSI gadget */
 
-	m_iWidth = 20;
-
-#if 0
-	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", /*GA_Left, (ScreenWidth - m_poWindow->BorderRight - 20),*/
-		GA_ID, a_iGadgetID, /*GA_Top, m_poWindow->BorderTop, GA_Width, 20, GA_Height, (ScreenHeight - m_poWindow->BorderTop - m_poWindow->BorderBottom),*/
-		SCROLLER_Top, 0, SCROLLER_Total, 419, SCROLLER_Visible, 20, GA_RelVerify, TRUE, SCROLLER_Orientation, SORIENT_VERT, TAG_DONE);
-
-#else
-	// TODO: CAW - Check InnerWidth/Height() + no GA_RelVerify
-	m_poGadget = (Object *) IIntuition->NewObject(NULL, "propgclass", GA_Left, (a_poParentWindow->m_poWindow->BorderLeft + a_poParentWindow->InnerWidth() - 20),
-		GA_ID, a_iGadgetID, GA_Top, a_poParentWindow->m_poWindow->BorderTop, GA_Width, 20, GA_Height, a_poParentWindow->InnerHeight(),
-		PGA_Total, 419, PGA_Visible, 20, PGA_NewLook, TRUE, ICA_TARGET, ICTARGET_IDCMP, TAG_DONE);
-#endif
+	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, a_iGadgetID,
+		GA_Height, a_poParentWindow->InnerHeight(), ICA_TARGET, ICTARGET_IDCMP, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
@@ -92,7 +81,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 	if (m_poClient)
 	{
-		IIntuition->GetAttr(PGA_Top, m_poGadget, &Result);
+		IIntuition->GetAttr(SCROLLER_Top, m_poGadget, &Result);
 		m_poClient->SliderUpdated(this, (Result + 1));
 	}
 
@@ -179,7 +168,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 #ifdef __amigaos4__
 
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		PGA_Top, (a_iPosition - 1), TAG_DONE);
+		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
@@ -209,7 +198,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 #ifdef __amigaos4__
 
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		PGA_Visible, a_iPageSize, PGA_Total, a_iMaxRange, TAG_DONE);
+		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
@@ -225,3 +214,21 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 #endif /* ! __amigaos4__ */
 
 }
+
+/* Written: Saturday 26-Mar-2011 12:46 pm, CodeHQ-by-Thames */
+
+TInt CStdGadgetSlider::Width()
+{
+
+#ifdef __amigaos4__
+
+	/* Query the scroller for its width, which is set dynamically */
+
+	IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
+	m_iWidth += 6; // TODO: CAW - How to get this programmatically?
+
+#endif /* __amigaos4__ */
+
+	return(m_iWidth);
+}
+
