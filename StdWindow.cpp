@@ -294,11 +294,10 @@ void CWindow::Activate()
 #ifdef __amigaos4__
 
 	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
-	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, sizeof(BOOL));
+	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Need a function to do this + what about checking for Amiga OS version above?
 	DEBUGCHECK((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
 
 #endif /* ! __amigaos4__ */
@@ -543,41 +542,9 @@ void CWindow::CompleteOpen()
 
 void CWindow::DrawNow()
 {
+	/* Just determine the dimensions of the window and pass the call on */
 
-#ifdef __amigaos4__
-
-	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
-	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
-	/* the rect to draw.  We only fill the background if required to as client code can disable */
-	/* this functionality */
-
-	if (m_bFillBackground)
-	{
-		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, m_poWindow->BorderTop,
-			(m_poWindow->BorderLeft + m_iInnerWidth - 1), (m_poWindow->BorderTop + m_iInnerHeight - 1),
-			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
-	}
-
-	/* And call the derived rendering function to perform a redraw immediately */
-
-	Draw(0, (m_poWindow->BorderTop + m_iInnerHeight - 1)); // TODO: CAW
-
-#else /* ! __amigaos4__ */
-
-	RECT Rect;
-
-	/* Invalidate the client rect and redraw it, automatically filling the background with the */
-	/* background colour if requested.  We adjust the size of the area to be cleared and drawn */
-	/* to take into account any attached gadgets */
-
-	if (GetClientRect(m_poWindow, &Rect))
-	{
-		Rect.right = m_iInnerWidth;
-		InvalidateRect(m_poWindow, &Rect, m_bFillBackground);
-	}
-
-#endif /* ! __amigaos4__ */
-
+	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight));
 }
 
 /* Written: Saturday 30-Nov-2010 9:15 pm */
@@ -589,22 +556,33 @@ void CWindow::DrawNow()
 
 void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 {
+	ASSERTM((a_iTop >= 0), "CWindow::DrawNow() => Y offset to draw from must not be negative");
+	ASSERTM((a_iBottom >= 0), "CWindow::DrawNow() => Y offset to draw to must not be negative");
+	ASSERTM((a_iTop <= a_iBottom), "CWindow::DrawNow() => Y offset start must be less than Y offset stop");
 
 #ifdef __amigaos4__
 
+	int Bottom, Top;
+
+	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
+	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
+	/* the rect to draw.  We only fill the background if required to as client code can disable */
+	/* this functionality */
+
 	if (m_bFillBackground)
 	{
-		int Bottom, Top; // TODO: CAW
-
 		Top = (m_poWindow->BorderTop + a_iTop);
 		Bottom = (m_poWindow->BorderTop + a_iBottom);
-		//Utils::Info("a_iTop = %ld", a_iTop);
-		//Utils::Info("a_iBottom = %ld", a_iBottom);
+
+		/* If the bottom line is off the bottom of the client area then clip it to the bottom line */
+		/* of the client area */
 
 		if (Bottom > (m_poWindow->BorderTop + m_iInnerHeight - 1))
 		{
 			Bottom = (m_poWindow->BorderTop + m_iInnerHeight - 1);
 		}
+
+		/* Now fill in the background before drawing */
 
 		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
 			(m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
@@ -613,7 +591,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 
 	/* And call the derived rendering function to perform a redraw immediately */
 
-	Draw(0, (m_poWindow->BorderTop + m_iInnerHeight - 1)); // TODO: CAW
+	Draw(a_iTop, a_iBottom);
 
 #else /* ! __amigaos4__ */
 
