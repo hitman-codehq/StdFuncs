@@ -27,6 +27,8 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 16
 
+TBool RApplication::m_bCtrlPressed;
+
 #endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
@@ -214,6 +216,16 @@ int RApplication::Main()
 						break;
 					}
 
+					case WMHI_INACTIVE :
+					{
+						/* If window focus is changing then notify the client window */
+
+						// TODO: CAW - Should really use an Active() function
+						Window->OfferKeyEvent(STD_KEY_CONTROL, EFalse);
+
+						break;
+					}
+
 					case WMHI_MENUPICK :
 					{
 						/* Scan through the messages, processing each one.  There may be multiple */
@@ -274,6 +286,15 @@ int RApplication::Main()
 							{
 								if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 								{
+									/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
+
+									if (m_bCtrlPressed)
+									{
+										KeyBuffer[0] |= 0x60;
+									}
+
+									/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+
 									if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
 									{
 										Window->OfferKeyEvent(KeyBuffer[0], ETrue);
@@ -287,6 +308,7 @@ int RApplication::Main()
 
 							if (!(KeyHandled))
 							{
+								KeyDown = (!(Code & IECODE_UP_PREFIX));
 								Code = (Code & ~IECODE_UP_PREFIX);
 
 								/* Scan through the key mappings and find the one that has just been pressed */
@@ -305,6 +327,16 @@ int RApplication::Main()
 								if (Index < NUM_KEYMAPPINGS)
 								{
 									Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
+
+									/* Link on Windows, when ctrl is pressed the ASCII characters sent to */
+									/* WMHI_RAWKEY messages are different so we need to adjust these back */
+									/* to standard ASCII so keeping track of the state of the ctrl key is */
+									/* the only way to achieve this */
+
+									if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
+									{
+										m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
+									}
 								}
 							}
 						}
