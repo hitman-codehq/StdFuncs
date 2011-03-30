@@ -15,15 +15,14 @@
 #include <string.h>
 #include "File.h"
 
+#define PRINTF printf
+
 #ifdef __amigaos4__
 
-// TODO: CAW - Sort out whether to use Amiga OS or CRT
-#define PRINTF IDOS->Printf
 #define VSNPRINTF vsnprintf
 
 #else /* ! __amigaos4__ */
 
-#define PRINTF printf
 #define VSNPRINTF _vsnprintf
 
 static const char *g_apccMonths[] =
@@ -807,8 +806,8 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	}
 	else
 	{
-		IDOS->Printf(a_pccTitle);
-		IDOS->Printf(": %s\n", Message);
+		PRINTF(a_pccTitle);
+		PRINTF(": %s\n", Message);
 	}
 
 #else /* ! __amigaos4__ */
