@@ -58,6 +58,8 @@ public:
 
 	RApplication();
 
+	~RApplication();
+
 	TInt Open(const struct SStdMenuItem *a_pcoMenuItems);
 
 	int Main();
