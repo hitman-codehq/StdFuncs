@@ -554,7 +554,29 @@ void CWindow::DrawNow()
 {
 	/* Just determine the dimensions of the window and pass the call on */
 
+#ifdef __amigaos4__
+
 	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight));
+
+#else /* ! __amigaos4__ */
+
+	RECT Rect;
+
+	/* Get the dimensions of the client area and adjust it to only represent the vertical */
+	/* band that we wish to redraw, also adjusting the size of the area to be cleared and */
+	/* drawn to take into account any attached gadgets */
+
+	if (GetClientRect(m_poWindow, &Rect))
+	{
+		DrawNow(0, Rect.bottom);
+	}
+	else
+	{
+		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
+	}
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Saturday 30-Nov-2010 9:15 pm */
