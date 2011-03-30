@@ -173,7 +173,7 @@ void TEntryArray::Purge()
 
 void TEntryArray::Remove(const TEntry *a_poEntry)
 {
-	iEntries.Remove((TEntry *) a_poEntry); // TODO: CAW - Cast
+	iEntries.Remove((TEntry *) a_poEntry);
 	--iCount;
 }
 

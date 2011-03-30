@@ -33,9 +33,6 @@ public:
 
 	TEntry();
 
-	// TODO: CAW - Why is this required for BUBYFU to compile?
-	~TEntry() { }
-
 	TBool IsDir() const;
 
 	TBool IsLink() const;
