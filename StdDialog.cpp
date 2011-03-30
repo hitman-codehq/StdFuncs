@@ -339,10 +339,10 @@ APTR CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
 
 TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 {
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
-	TInt RetVal;
 	APTR Gadget;
 
 	/* Assume failure and use a default value */
@@ -357,15 +357,24 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 		DEBUGCHECK((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
 
-	return(RetVal);
-
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Add an appropriate assert here
-	return(GetDlgItemInt(m_poWindow, a_iGadgetID, NULL, FALSE));
+#ifdef _DEBUG
+
+	BOOL Ok;
+
+	RetVal = GetDlgItemInt(m_poWindow, a_iGadgetID, &Ok, FALSE);
+	ASSERTM((Ok != FALSE), "CDialog::GetGadgetInt() => Unable to obtain gadget value");
+
+#else /* ! _DEBUG */
+
+	RetVal = GetDlgItemInt(m_poWindow, a_iGadgetID, NULL, FALSE);
+
+#endif /* ! _DEBUG */
 
 #endif /* ! __amigaos4__ */
 
+	return(RetVal);
 }
 
 /* Written: Saturday 21-Aug-2010 1:08 pm */
@@ -519,7 +528,9 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
 {
-	// TODO: CAW - Comment + is this safe?
+	/* If the key is the escape key being pressed down then simulate an IDCANCEL event so that */
+	/* clients can close the dialog if desired */
+
 	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
 	{
 		Close(IDCANCEL);
