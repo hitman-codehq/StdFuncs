@@ -52,31 +52,6 @@ RApplication::RApplication()
 	m_pcoMenuItems = NULL;
 }
 
-/* Written: Tuesday 29-Jun-2010 7:59 pm, London Hackspace */
-
-RApplication::~RApplication()
-{
-
-#ifdef __amigaos4__
-
-	/* If the menus have been created then destroy them */
-
-	if (m_poMenus)
-	{
-		/* Remove the menus from the main window, if they were added */
-
-		if (m_bMenuStripSet)
-		{
-			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
-		}
-
-		IGadTools->FreeMenus(m_poMenus);
-	}
-
-#endif /* __amigaos4__ */
-
-}
-
 /* Written: Wednesday 30-Jun-2010 6:53 am */
 /* @param 	a_pcoMenuItems Ptr to array of menu items to be created.  Must be persisted for the lifetime */
 /*			of the RApplication class that uses them */
@@ -432,6 +407,35 @@ int RApplication::Main()
 #endif /* ! __amigaos4__ */
 
 	return(KErrNone);
+}
+
+/* Written: Tuesday 29-Jun-2010 7:59 pm, London Hackspace */
+
+void RApplication::Close()
+{
+
+#ifdef __amigaos4__
+
+	/* If the menus have been created then destroy them */
+
+	if (m_poMenus)
+	{
+		/* Remove the menus from the main window, if they were added */
+
+		if (m_bMenuStripSet)
+		{
+			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
+		}
+
+		IGadTools->FreeMenus(m_poMenus);
+	}
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Do the same thing for Win32 here
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Monday 08-Feb-2010 7:25 am */
