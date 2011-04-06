@@ -213,6 +213,20 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				m_bCtrlPressed = (a_uiMessage == WM_KEYDOWN) ? ETrue : EFalse;
 			}
 
+			/* This is even more horrible.  When the ALT GR key is pressed, rather than using a special */
+			/* key, Windows sends through a VK_CONTROL WM_KEYDOWN event, followed by WM_MENU (otherwise */
+			/* known as ALT) WM_KEYDOWN and WM_KEYUP events, with NO following VK_CONTROL WM_KEYUP event! */
+			/* So we need to put some special magic in here to handle this nonsense or we will think that */
+			/* the ctrl key is pressed when it isn't */
+
+			else if (a_oWParam == VK_MENU)
+			{
+				if ((a_uiMessage == WM_KEYUP) && (m_bCtrlPressed))
+				{
+					m_bCtrlPressed = EFalse;
+				}
+			}
+
 			break;
 		}
 
