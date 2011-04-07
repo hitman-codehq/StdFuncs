@@ -49,9 +49,10 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 
 			RetVal = KErrNone;
 
-			/* Save the name of the file for l8r use */
+			/* Save the fully qualified name of the file for l8r use */
 
-			strcpy(m_acFileName, ((struct FileRequester *) Requester)->fr_File);
+			strcpy(m_acFileName, ((struct FileRequester *) Requester)->fr_Drawer);
+			strcat(m_acFileName, ((struct FileRequester *) Requester)->fr_File);
 		}
 
 		/* Either the user hit "Cancel" or the requester could not be displayed, so check to see */
