@@ -295,7 +295,7 @@ int RApplication::Main()
 
 									/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
-									if ((KeyBuffer[0] >= ' ') && (KeyBuffer[0] <= '~'))
+									if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254) && (KeyBuffer[0] != 127))
 									{
 										Window->OfferKeyEvent(KeyBuffer[0], ETrue);
 										KeyHandled = ETrue;
