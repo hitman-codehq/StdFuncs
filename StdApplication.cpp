@@ -277,65 +277,63 @@ int RApplication::Main()
 
 						if (IIntuition->GetAttr(WINDOW_InputEvent, Window->m_poWindowObj, (ULONG *) &InputEvent) > 0)
 						{
-							/* If this is a key down event then cook the key and if the resulting key is a */
-							/* printable ASCII key then send it to the client code and we're done */
-
 							KeyDown = (!(Code & IECODE_UP_PREFIX));
+							Code = (Code & ~IECODE_UP_PREFIX);
 
-							if (KeyDown)
+							/* Scan through the key mappings and find the one that has just been pressed */
+
+							for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
 							{
-								if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+								if (g_aoKeyMap[Index].m_iNativeKey == Code)
 								{
-									/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
-
-									if (m_bCtrlPressed)
-									{
-										KeyBuffer[0] |= 0x60;
-									}
-
-									/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
-
-									if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254) && (KeyBuffer[0] != 127))
-									{
-										Window->OfferKeyEvent(KeyBuffer[0], ETrue);
-										KeyHandled = ETrue;
-									}
+									break;
 								}
 							}
 
-							/* If the key wasn't handled then it is probably a non printable ASCII key so */
-							/* map it onto the standard keycode and send it to the client code */
+							/* If it was a known key then convert it to the standard value and pass it to the */
+							/* CWindow::OfferKeyEvent() function */
 
-							if (!(KeyHandled))
+							if (Index < NUM_KEYMAPPINGS)
+							{
+								Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
+
+								/* Link on Windows, when ctrl is pressed the ASCII characters sent to */
+								/* WMHI_RAWKEY messages are different so we need to adjust these back */
+								/* to standard ASCII so keeping track of the state of the ctrl key is */
+								/* the only way to achieve this */
+
+								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
+								{
+									m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
+								}
+							}
+
+							/* The raw key was not handled so if this is a key down event then cook the key */
+							/* and if the resulting key is a printable ASCII key then send it to the client */
+							/* code and we're done */
+
+							else
 							{
 								KeyDown = (!(Code & IECODE_UP_PREFIX));
-								Code = (Code & ~IECODE_UP_PREFIX);
 
-								/* Scan through the key mappings and find the one that has just been pressed */
-
-								for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+								if (KeyDown)
 								{
-									if (g_aoKeyMap[Index].m_iNativeKey == Code)
+									if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 									{
-										break;
-									}
-								}
+										/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
 
-								/* If it was a known key then convert it to the standard value and pass it to the */
-								/* CWindow::OfferKeyEvent() function */
+										if (m_bCtrlPressed)
+										{
+											KeyBuffer[0] |= 0x60;
+										}
 
-								if (Index < NUM_KEYMAPPINGS)
-								{
-									Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
+										/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
-									/* Link on Windows, when ctrl is pressed the ASCII characters sent to */
-									/* WMHI_RAWKEY messages are different so we need to adjust these back */
-									/* to standard ASCII so keeping track of the state of the ctrl key is */
-									/* the only way to achieve this */
-
-									if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
-									{
-										m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
+										if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254))
+										{
+											Window->OfferKeyEvent(KeyBuffer[0], ETrue);
+											KeyHandled = ETrue;
+										}
 									}
 								}
 							}
