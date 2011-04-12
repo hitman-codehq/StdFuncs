@@ -204,7 +204,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 /* Written: Sunday 09-May-2010 6:57 pm */
 
-void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
+void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 {
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 
@@ -232,7 +232,8 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY)
 
 #else /* ! __amigaos4__ */
 
-	TextOut(m_poWindow->m_poDC, 0, (a_iY * m_iHeight), a_pcText, a_iLength);
+	// TODO: CAW - Don't use 8 and implement for Amiga OS
+	TextOut(m_poWindow->m_poDC, a_iX * 8, (a_iY * m_iHeight), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
 

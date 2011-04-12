@@ -39,7 +39,7 @@ public:
 
 	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
 
-	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iY);
+	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY);
 
 	TInt Width()
 	{
