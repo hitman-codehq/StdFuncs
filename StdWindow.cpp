@@ -234,7 +234,25 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		{
 			/* Extract the mouse's X and Y positions and send them to the client window */
 
-			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam));
+			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam), EStdMouseDown);
+
+			break;
+		}
+
+		case WM_LBUTTONUP :
+		{
+			/* Extract the mouse's X and Y positions and send them to the client window */
+
+			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam), EStdMouseUp);
+
+			break;
+		}
+
+		case WM_MOUSEMOVE :
+		{
+			/* Extract the mouse's X and Y positions and send them to the client window */
+
+			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam), EStdMouseMove);
 
 			break;
 		}

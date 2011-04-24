@@ -13,6 +13,15 @@
 class RApplication;
 class CStdGadget;
 
+/* Mouse events that can be reported to the client */
+
+enum TStdMouseEvent
+{
+	EStdMouseDown,	/* Mouse button pressed */
+	EStdMouseMove,	/* Mouse moved */
+	EStdMouseUp,	/* Mouse button released */
+};
+
 /* This is the base class for all platform specific windows and dialog boxes */
 
 class CWindow
@@ -140,7 +149,7 @@ public:
 
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 
-	virtual void HandlePointerEvent(TInt /*a_iX*/, TInt /*a_iY*/) { }
+	virtual void HandlePointerEvent(TInt /*a_iX*/, TInt /*a_iY*/, TStdMouseEvent /*a_eMouseEvent*/) { }
 
 	virtual void HandleWheelEvent(TInt /*a_iDelta*/) { }
 
