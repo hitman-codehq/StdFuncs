@@ -75,7 +75,7 @@ public:
 
 	virtual void InitDialog() { }
 
-	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/);
+	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/);
 
 protected:
 

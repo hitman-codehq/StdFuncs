@@ -153,7 +153,7 @@ public:
 
 	virtual void HandleWheelEvent(TInt /*a_iDelta*/) { }
 
-	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_iKeyDown*/) { }
+	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
 
 protected:
 

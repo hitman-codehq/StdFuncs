@@ -526,12 +526,12 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 /* Written: Sunday 24-Oct-2010 5:30 pm */
 
-void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_iKeyDown)
+void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 {
 	/* If the key is the escape key being pressed down then simulate an IDCANCEL event so that */
 	/* clients can close the dialog if desired */
 
-	if ((a_iKey == STD_KEY_ESC) && (a_iKeyDown))
+	if ((a_iKey == STD_KEY_ESC) && (a_bKeyDown))
 	{
 		Close(IDCANCEL);
 	}
