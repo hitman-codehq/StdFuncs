@@ -248,6 +248,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_LBUTTONDBLCLK :
+		{
+			/* Extract the mouse's X and Y positions and send them to the client window */
+
+			Window->HandlePointerEvent(LOWORD(a_oLParam), HIWORD(a_oLParam), EStdMouseDoubleClick);
+
+			break;
+		}
+
 		case WM_MOUSEMOVE :
 		{
 			/* Extract the mouse's X and Y positions and send them to the client window */
@@ -449,7 +458,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 	/* Populate a WNDCLASS structure in preparation for registering the window class */
 
 	Instance = GetModuleHandle(NULL);
-	WndClass.style = 0;
+	WndClass.style = CS_DBLCLKS;
 	WndClass.lpfnWndProc = WindowProc;
 	WndClass.cbClsExtra = 10;
 	WndClass.cbWndExtra = 20;

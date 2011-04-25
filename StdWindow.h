@@ -17,9 +17,10 @@ class CStdGadget;
 
 enum TStdMouseEvent
 {
-	EStdMouseDown,	/* Mouse button pressed */
-	EStdMouseMove,	/* Mouse moved */
-	EStdMouseUp,	/* Mouse button released */
+	EStdMouseDown,			/* Mouse button pressed */
+	EStdMouseUp,			/* Mouse button released */
+	EStdMouseMove,			/* Mouse moved */
+	EStdMouseDoubleClick	/* Mouse button double clicked */
 };
 
 /* This is the base class for all platform specific windows and dialog boxes */
