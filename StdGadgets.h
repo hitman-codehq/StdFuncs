@@ -89,6 +89,25 @@ public:
 	TInt Width();
 };
 
+/* A class representing a status bar gadget */
+
+class CStdGadgetStatusBar : public CStdGadget
+{
+	TInt		m_iNumParts;					/* # of parts within the gadget */
+
+private:
+
+	CStdGadgetStatusBar() { }
+
+public:
+
+	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+
+	TInt Create(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+
+	void SetText(TInt a_iPart, const char *a_pccText);
+};
+
 /* Mixin class for the slider or proportional gadget to be able to notify its client */
 /* when it has been updated */
 
