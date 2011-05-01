@@ -14,11 +14,35 @@
 
 #endif /* __amigaos4__ */
 
+/* Written: Sunday 01-May-2011 7:41 am */
+/* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
+/*			a_poClient			Ptr to the client to be notified when the slider's value changes */
+/*			a_iGadgetID			Unique identifier of the slider gadget */
+/* @return	Ptr to the newly created slider gadget if successful, else NULL */
+/* Creates an intance of the slider gadget and attaches it to the parent window specified. */
+
+CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+{
+	CStdGadgetSlider *RetVal;
+
+	if ((RetVal = new CStdGadgetSlider) != NULL)
+	{
+		if (RetVal->Create(a_poParentWindow, a_poClient, a_iGadgetID) != KErrNone)
+		{
+			delete RetVal;
+			RetVal = NULL;
+		}
+	}
+
+	return(RetVal);
+}
+
 /* Written: Sunday 21-Nov-2010 8:08 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_poClient			Ptr to the client to be notified when the slider's value changes */
 /*			a_iGadgetID			Unique identifier of the slider gadget */
-/* Creates an intance of the slider gadget and attaches it to the parent window specified. */
+/* @return	KErrNone if successful, else KErrNoMemory */
+/* Initialises an intance of the slider gadget and attaches it to the parent window specified. */
 
 TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 {

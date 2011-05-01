@@ -9,7 +9,7 @@
 
 #endif /* ! __amigaos4__ */
 
-/* Written: Sunday 01-Apr-2011 7:10 am */
+/* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_iNumParts			Number of parts to be created */
 /*			a_piPartsOffsets	Ptr to array of offsets of right sides of parts */

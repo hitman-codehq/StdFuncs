@@ -74,7 +74,13 @@ private:
 
 	MStdGadgetSliderObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 
+private:
+
+	CStdGadgetSlider() { }
+
 public:
+
+	static CStdGadgetSlider *New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
 	TInt Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
@@ -93,6 +99,8 @@ public:
 
 class CStdGadgetStatusBar : public CStdGadget
 {
+private:
+
 	TInt		m_iNumParts;					/* # of parts within the gadget */
 
 private:
