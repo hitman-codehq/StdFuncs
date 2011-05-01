@@ -142,7 +142,7 @@ CDialog::~CDialog()
 
 /* Written: Saturday 21-Aug-2010 12:16 pm */
 /* @param	a_iResourceID	ID of the dialog to be opened */
-/* @returns KErrNone if the dialog was opened successfully; or */
+/* @return	KErrNone if the dialog was opened successfully; or */
 /*			KErrGeneral if the dialog could not be opened */
 
 TInt CDialog::Open(TInt a_iResourceID)
@@ -300,7 +300,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 /* Written: Sunday 24-Sep-2010 1:45 pm */
 /* @param	a_iGadgetID	ID of the gadget to be found */
-/* @returns	Ptr to the BOOPSI gadget if successful, else NULL if not found */
+/* @return	Ptr to the BOOPSI gadget if successful, else NULL if not found */
 /* Amiga OS only function that will scan the requester's list of BOOPSI gadgets for */
 /* one that matches a specified ID */
 
@@ -331,7 +331,7 @@ APTR CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
 
 /* Written: Saturday 27-Aug-2010 10:12 am */
 /* @param	a_iGadgetID	ID of the gadget whose value to obtain */
-/* @returns	The value contained by the integer string gadget */
+/* @return	The value contained by the integer string gadget */
 /* Queries the integer string gadget represented by the specified gadget ID and */
 /* returns its value.  No error checking is done as to whether the gadget in */
 /* question is actually an integer string gadget, however the function will assert */
@@ -380,7 +380,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 /* Written: Saturday 21-Aug-2010 1:08 pm */
 /* @param	a_iGadgetID	ID of the gadget for which to obtain the text */
 /*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
-/* @returns	Length of the text if successful */
+/* @return	Length of the text if successful */
 /*			KErrNotFound if the gadget with the specified ID was not found */
 /*			KErrNoMemory if out of memory */
 /* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
@@ -488,7 +488,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 /* Written: Saturday 27-Aug-2010 10:28 am */
 /* @param	a_iGadgetID	ID of the gadget for which to obtain checked status */
-/* @returns ETrue if the gadget is checked, else EFalse */
+/* @return	ETrue if the gadget is checked, else EFalse */
 /* Examines the checkbox gadget respresented by the ID passed in to see if it is checked. */
 /* It is assumed that this gadget is a valid checkbox gadget and no error checking is done */
 /* to confirm this */

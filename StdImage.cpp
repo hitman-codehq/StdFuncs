@@ -12,7 +12,7 @@
 
 /* Written: Saturday 06-Nov-2010 8:19 am */
 /* @param	a_pccFileName The name of the image file to be opened */
-/* @returns	KErrNone the image was loaded successfully; or */
+/* @return	KErrNone the image was loaded successfully; or */
 /*			KErrNotFound if the image could not be found */
 /*			KErrNoMemory if not enough memory is available */
 /* Loads an image into memory using the underlying operating system's image */
