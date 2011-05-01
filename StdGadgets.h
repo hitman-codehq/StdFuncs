@@ -13,6 +13,15 @@
 class CWindow;
 class MStdGadgetSliderObserver;
 
+/* Types of gadgets that can be created */
+
+enum TStdGadgetType
+{
+	EStdGadgetVerticalSlider,	/* Vertical scroller */
+	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
+	EStdGadgetStatusBar			/* Status bar */
+};
+
 /* The abstract base class used for all gadgets */
 
 class CStdGadget
@@ -28,6 +37,7 @@ protected:
 	TInt					m_iWidth;			/* Width of the gadget in pixels */
 	TInt					m_iHeight;			/* Height of the gadget in pixels */
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
+	enum TStdGadgetType		m_iGadgetType;		/* Type of gadget */
 
 #ifdef __amigaos4__
 
@@ -53,6 +63,11 @@ public:
 		return(m_iGadgetID);
 	}
 
+	enum TStdGadgetType GadgetType()
+	{
+		return(m_iGadgetType);
+	}
+
 	virtual TInt Width()
 	{
 		return(m_iWidth);
@@ -76,7 +91,10 @@ private:
 
 private:
 
-	CStdGadgetSlider() { }
+	CStdGadgetSlider()
+	{
+		m_iGadgetType = EStdGadgetVerticalSlider;
+	}
 
 public:
 
@@ -105,7 +123,10 @@ private:
 
 private:
 
-	CStdGadgetStatusBar() { }
+	CStdGadgetStatusBar()
+	{
+		m_iGadgetType = EStdGadgetStatusBar;
+	}
 
 public:
 

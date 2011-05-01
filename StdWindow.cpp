@@ -364,10 +364,18 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 
 #endif /* __amigaos4__ */
 
-	/* This is - ahem - a little hacky as it assumes that the gadget being attached is a vertical */
-	/* slider!  We'll sort out doing this properly when the time comes */
+	/* This is - ahem - a little hacky as it assumes that the gadget being attached is of a certain */
+	/* type!  We'll sort out doing this properly when the time comes */
 
-	m_iInnerWidth -= a_poGadget->Width();
+	if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
+	{
+		m_iInnerWidth -= a_poGadget->Width();
+	}
+
+	if (a_poGadget->GadgetType() == EStdGadgetStatusBar)
+	{
+		m_iInnerHeight -= a_poGadget->Height();
+	}
 
 	m_oGadgets.AddTail(a_poGadget);
 }
