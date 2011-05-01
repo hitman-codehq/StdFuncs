@@ -59,6 +59,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 #else /* ! __amigaos4__ */
 
 	INITCOMMONCONTROLSEX InitCommonControls;
+	RECT Rect;
 
 	/* Register the status bar window control class so that we can use it */
 
@@ -78,9 +79,21 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 			if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
 			{
-				RetVal = KErrNone;
-
 				m_iNumParts = a_iNumParts;
+
+				/* Determine the dimensions of the gadget and save them for l8r */
+
+				if (GetClientRect(m_poGadget, &Rect))
+				{
+					RetVal = KErrNone;
+
+					m_iWidth = (Rect.right - Rect.left);
+					m_iHeight = (Rect.bottom - Rect.top);
+				}
+				else
+				{
+					Utils::Info("CStdGadgetStatusBar::Create() => Unable to determine size of status bar");
+				}
 			}
 			else
 			{
