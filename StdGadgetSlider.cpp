@@ -17,15 +17,16 @@
 /* Written: Sunday 01-May-2011 7:41 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_poClient			Ptr to the client to be notified when the slider's value changes */
+/*			a_bVertical			ETrue if this is a vertical slider, else EFalse */
 /*			a_iGadgetID			Unique identifier of the slider gadget */
 /* @return	Ptr to the newly created slider gadget if successful, else NULL */
 /* Creates an intance of the slider gadget and attaches it to the parent window specified. */
 
-CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID)
 {
 	CStdGadgetSlider *RetVal;
 
-	if ((RetVal = new CStdGadgetSlider) != NULL)
+	if ((RetVal = new CStdGadgetSlider(a_bVertical)) != NULL)
 	{
 		if (RetVal->Create(a_poParentWindow, a_poClient, a_iGadgetID) != KErrNone)
 		{
@@ -59,15 +60,32 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 #else /* ! __amigaos4__ */
 
-	/* Find out the standard width of a scrollbar control */
+	TInt X, Y;
+	DWORD Style;
 
-	m_iWidth = GetSystemMetrics(SM_CXVSCROLL);
-	m_iHeight = m_poParentWindow->InnerHeight();
+	/* Decide whether to create a vertical or horizontal scroller and setup its dimensions accordingly */
 
-	/* Create the underlying Windows control */
+	Style = (WS_CHILD | WS_VISIBLE);
 
-	m_poGadget = CreateWindow("SCROLLBAR", NULL, (SBS_VERT | WS_CHILD | WS_VISIBLE),
-		(m_poParentWindow->InnerWidth() - m_iWidth), 0, m_iWidth, m_iHeight,
+	if (m_iGadgetType == EStdGadgetVerticalSlider)
+	{
+		Style |= SBS_VERT;
+		m_iWidth = GetSystemMetrics(SM_CXVSCROLL);
+		m_iHeight = m_poParentWindow->InnerHeight();
+		X = (m_poParentWindow->InnerWidth() - m_iWidth);
+		Y = 0;
+	}
+	else
+	{
+		m_iWidth = m_poParentWindow->InnerWidth();
+		m_iHeight = GetSystemMetrics(SM_CYHSCROLL);
+		X = 0;
+		Y = (m_poParentWindow->InnerHeight() - m_iHeight);
+	}
+
+	/* Now create the underlying Windows control */
+
+	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, X, Y, m_iWidth, m_iHeight,
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 #endif /* ! __amigaos4__ */
@@ -256,4 +274,3 @@ TInt CStdGadgetSlider::Width()
 
 	return(m_iWidth);
 }
-

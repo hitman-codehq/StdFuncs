@@ -91,14 +91,14 @@ private:
 
 private:
 
-	CStdGadgetSlider()
+	CStdGadgetSlider(TBool a_bVertical)
 	{
-		m_iGadgetType = EStdGadgetVerticalSlider;
+		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalSlider : EStdGadgetHorizontalSlider;
 	}
 
 public:
 
-	static CStdGadgetSlider *New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
+	static CStdGadgetSlider *New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
 
 	TInt Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
