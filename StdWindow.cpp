@@ -289,6 +289,13 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_SIZE :
+		{
+			Window->InternalResize(LOWORD(a_oLParam), HIWORD(a_oLParam));
+
+			break;
+		}
+
 		case WM_VSCROLL :
 		{
 			/* Iterate through the window's list of gadgets and search for the one matching the */
@@ -378,6 +385,68 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 	}
 
 	m_oGadgets.AddTail(a_poGadget);
+}
+
+/* Written: Sunday 01-May-2011 10:48 am */
+/* @param	a_iInnerWidth	New width of client area */
+/*			a_iInnerHeight	New height of client area */
+/* This function is called whenever the size of the window changes and will reposition any auto-position */
+/* gadgets and will notify the derived window class that the size has changed. */
+
+void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
+{
+	CStdGadget *Gadget;
+
+	/* Save the new width & height for l8r */
+
+	m_iInnerWidth = a_iInnerWidth;
+	m_iInnerHeight = a_iInnerHeight;
+
+	/* Iterate through the gadgets and reposition them to reflect the new window size, also */
+	/* adjusting the size of the client area of the window to reflect the space taken up by them */
+
+	Gadget = m_oGadgets.GetHead();
+
+	while (Gadget)
+	{
+		/* For Windows the status bar needs a special message to be sent to it to let it know that */
+		/* the window's size has changed (even though the documentation indicates that this is not */
+		/* necessary) */
+
+		if (Gadget->GadgetType() == EStdGadgetStatusBar)
+		{
+			m_iInnerHeight -= Gadget->Height();
+
+#ifndef __amigaos4__
+
+			SendMessage(Gadget->m_poGadget, WM_SIZE, 0, 0);
+
+#endif /* ! __amigaos4__ */
+
+		}
+
+		/* Vertical sliders always go on the right (for now) and are the hight of the client area */
+
+		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
+		{
+			m_iInnerWidth -= Gadget->Width();
+			MoveWindow(Gadget->m_poGadget, m_iInnerWidth, 0, Gadget->Width(), m_iInnerHeight, TRUE);
+		}
+
+		/* Horizontal sliders always go on the bottom (for now) and are the width of the client area */
+
+		if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
+		{
+			m_iInnerHeight -= Gadget->Height();
+			MoveWindow(Gadget->m_poGadget, 0, m_iInnerHeight, m_iInnerWidth, Gadget->Height(), TRUE);
+		}
+
+		Gadget = m_oGadgets.GetSucc(Gadget);
+	}
+
+	/* Now let the derived window class know that the window's size has changed */
+
+	Resize();
 }
 
 /* Written: Monday 08-Feb-2010 7:13 am */
@@ -497,6 +566,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 				/* Indicate success */
 
 				RetVal = KErrNone;
+
+				/* And save the size of the client area */
 
 				m_iInnerWidth = (Rect.right - Rect.left);
 				m_iInnerHeight = (Rect.bottom - Rect.top);

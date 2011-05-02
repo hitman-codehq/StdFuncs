@@ -156,11 +156,17 @@ public:
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
 
+	virtual void Resize() { }
+
 protected:
 
 	CWindow() { }
 
 	void CompleteOpen();
+
+private:
+
+	void InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight);
 };
 
 #endif /* ! STDWINDOW_H */
