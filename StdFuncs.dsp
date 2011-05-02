@@ -133,6 +133,10 @@ SOURCE=.\StdGadgetSlider.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdGadgetStatusBar.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdImage.cpp
 # End Source File
 # Begin Source File
