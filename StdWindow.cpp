@@ -296,6 +296,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_HSCROLL :
 		case WM_VSCROLL :
 		{
 			/* Iterate through the window's list of gadgets and search for the one matching the */
