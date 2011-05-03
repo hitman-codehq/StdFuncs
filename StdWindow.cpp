@@ -451,6 +451,19 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 		Gadget = m_oGadgets.GetSucc(Gadget);
 	}
 
+	/* Don't let the client area get negative in size or it will require too much fiddling around */
+	/* in the client program.  Just pretend it's 0 x 0 at the smallest */
+
+	if (m_iInnerWidth < 0)
+	{
+		m_iInnerWidth = 0;
+	}
+
+	if (m_iInnerHeight < 0)
+	{
+		m_iInnerHeight = 0;
+	}
+
 	/* Now let the derived window class know that the window's size has changed */
 
 	Resize(OldInnerWidth, OldInnerHeight);
