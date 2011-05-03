@@ -396,7 +396,13 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 
 void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 {
+	TInt OldInnerWidth, OldInnerHeight;
 	CStdGadget *Gadget;
+
+	/* Save the old width & height for l8r */
+
+	OldInnerWidth = m_iInnerWidth;
+	OldInnerHeight = m_iInnerHeight;
 
 	/* Save the new width & height for l8r */
 
@@ -447,7 +453,7 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 
 	/* Now let the derived window class know that the window's size has changed */
 
-	Resize();
+	Resize(OldInnerWidth, OldInnerHeight);
 }
 
 /* Written: Monday 08-Feb-2010 7:13 am */

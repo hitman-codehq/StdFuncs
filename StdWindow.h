@@ -156,7 +156,7 @@ public:
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
 
-	virtual void Resize() { }
+	virtual void Resize(TInt /*a_iOldInnerWidth*/, TInt /*a_iOldInnerHeight*/) { }
 
 protected:
 
