@@ -172,11 +172,22 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 			else if (a_ulData == SB_PAGEUP)
 			{
-				ScrollInfo.nPos = Position = (ScrollInfo.nPos - ScrollInfo.nPage);
+				ScrollInfo.nPos = (ScrollInfo.nPos - ScrollInfo.nPage);
+
+				/* Ensure that the scroller doesn't jump to the left of its minimum position */
+
+				Position = (ScrollInfo.nPos >= 1) ? ScrollInfo.nPos : 1;
 			}
 			else if (a_ulData == SB_PAGEDOWN)
 			{
 				ScrollInfo.nPos = Position = (ScrollInfo.nPos + ScrollInfo.nPage);
+
+				/* Ensure that the scroller doesn't jump to the right of its maximum position */
+
+				if ((Position + m_iPageSize) > m_iMaxRange)
+				{
+					Position = (m_iMaxRange - m_iPageSize + 1);
+				}
 			}
 		}
 
@@ -185,7 +196,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 		if (Position != -1)
 		{
-			SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, FALSE);
+			SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 			m_poClient->SliderUpdated(this, Position);
 		}
 	}
@@ -237,6 +248,11 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 {
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetRange() => Slider gadget has not been created");
 	ASSERTM((a_iPageSize <= a_iMaxRange), "CStdGadgetSlider::SetRange() => a_iPageSize is too large");
+
+	/* Save the maximum position of the scroller and its page size for l8r use */
+
+	m_iMaxRange = a_iMaxRange;
+	m_iPageSize = a_iPageSize;
 
 #ifdef __amigaos4__
 

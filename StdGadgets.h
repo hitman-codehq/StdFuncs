@@ -87,6 +87,8 @@ class CStdGadgetSlider : public CStdGadget
 {
 private:
 
+	TInt		m_iMaxRange;					/* Maximum X/Y position of the slider */
+	TInt		m_iPageSize;					/* Number of characters/lines/pixels per page */
 	MStdGadgetSliderObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 
 private:
