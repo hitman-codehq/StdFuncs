@@ -380,7 +380,7 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 		m_iInnerWidth -= a_poGadget->Width();
 	}
 
-	if (a_poGadget->GadgetType() == EStdGadgetStatusBar)
+	if ((a_poGadget->GadgetType() == EStdGadgetHorizontalSlider) || (a_poGadget->GadgetType() == EStdGadgetStatusBar))
 	{
 		m_iInnerHeight -= a_poGadget->Height();
 	}
