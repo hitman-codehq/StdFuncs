@@ -570,36 +570,46 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 	if (RegisterClass(&WndClass))
 	{
-		if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-			CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, Instance, 0)) != NULL)
+		/* Determine the size of the desktop window so that we can open the window taking up */
+		/* the entire size of the screen */
+
+		if (GetClientRect(GetDesktopWindow(), &Rect))
 		{
-			/* Save a ptr to the window handle for use in the WindowProc() routine */
-
-			SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
-
-			/* And display the window on the screen, maximised */
-
-			ShowWindow(m_poWindow, SW_MAXIMIZE);
-
-			if (GetClientRect(m_poWindow, &Rect))
+			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
+				Rect.right, Rect.bottom, 0, 0, Instance, 0)) != NULL)
 			{
-				/* Indicate success */
+				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
-				RetVal = KErrNone;
+				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
 
-				/* And save the size of the client area */
+				/* And display the window on the screen, maximised */
 
-				m_iInnerWidth = (Rect.right - Rect.left);
-				m_iInnerHeight = (Rect.bottom - Rect.top);
+				ShowWindow(m_poWindow, SW_MAXIMIZE);
+
+				if (GetClientRect(m_poWindow, &Rect))
+				{
+					/* Indicate success */
+
+					RetVal = KErrNone;
+
+					/* And save the size of the client area */
+
+					m_iInnerWidth = (Rect.right - Rect.left);
+					m_iInnerHeight = (Rect.bottom - Rect.top);
+				}
+				else
+				{
+					Utils::Info("Unable to obtain window client dimensions");
+				}
 			}
 			else
 			{
-				Utils::Info("Unable to obtain window client dimensions");
+				Utils::Info("Unable to open window");
 			}
 		}
 		else
 		{
-			Utils::Info("Unable to open window");
+			Utils::Info("Unable to determine size of desktop");
 		}
 	}
 	else
