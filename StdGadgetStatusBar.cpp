@@ -55,6 +55,8 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 #ifdef __amigaos4__
 
 	// TODO: CAW - Implement for Amiga OS
+	// TODO: CAW - If this fails then Brunel crashes!
+	RetVal = KErrNone;
 
 #else /* ! __amigaos4__ */
 

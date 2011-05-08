@@ -259,7 +259,7 @@ int RApplication::Main()
 						if (Code == SELECTDOWN)
 						{
 							Window->HandlePointerEvent((Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft),
-								(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop));
+								(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop), EStdMouseDown);
 						}
 
 						break;
@@ -422,10 +422,13 @@ void RApplication::Close()
 
 		if (m_bMenuStripSet)
 		{
+			IDOS->Printf("Clearing menu\n");
 			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
 		}
 
+		IDOS->Printf("Freeing menu\n");
 		IGadTools->FreeMenus(m_poMenus);
+		IDOS->Printf("Freeing menu done\n");
 	}
 
 #else /* ! __amigaos4__ */
@@ -479,6 +482,7 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	{
 		if (IIntuition->SetMenuStrip(a_poWindow->m_poWindow, m_poMenus))
 		{
+			IDOS->Printf("Set menu strip\n");
 			m_bMenuStripSet = ETrue;
 		}
 	}

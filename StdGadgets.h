@@ -73,7 +73,7 @@ public:
 		return(m_iWidth);
 	}
 
-	TInt Height()
+	virtual TInt Height()
 	{
 		return(m_iHeight);
 	}
@@ -113,6 +113,8 @@ public:
 	void Updated(ULONG a_ulData);
 
 	TInt Width();
+
+	TInt Height();
 };
 
 /* A class representing a status bar gadget */
