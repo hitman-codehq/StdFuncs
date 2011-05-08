@@ -217,7 +217,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
 	/* routine prints at the baseline position, not the top of the font */
 
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, m_poWindow->m_poWindow->BorderLeft,
+	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * m_iWidth)),
 		(m_poWindow->m_poWindow->BorderTop + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* Calculate the maximum number of characters that can fit in the client area of the window, */
@@ -232,7 +232,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Don't use 8 and implement for Amiga OS
+	// TODO: CAW - Don't use 8
 	TextOut(m_poWindow->m_poDC, a_iX * 8, (a_iY * m_iHeight), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
