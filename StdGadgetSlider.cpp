@@ -72,8 +72,7 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	/* Create the underlying BOOPSI gadget */
 
 	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, a_iGadgetID,
-		GA_Height, a_poParentWindow->InnerHeight(), ICA_TARGET, ICTARGET_IDCMP,
-		SCROLLER_Orientation, Orientation, SizeTag, Size, TAG_DONE);
+		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, SizeTag, Size, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
