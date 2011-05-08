@@ -53,10 +53,27 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 
 #ifdef __amigaos4__
 
+	TInt Orientation, SizeTag, Size;
+
+	/* Decide whether to create a vertical or horizontal scroller and setup its dimensions accordingly */
+
+	if (m_iGadgetType == EStdGadgetVerticalSlider)
+	{
+		Orientation = SORIENT_VERT;
+		SizeTag = GA_Height;
+	}
+	else
+	{
+		Orientation = SORIENT_HORIZ;
+		SizeTag = GA_Width;
+		Size = m_poParentWindow->InnerWidth();
+	}
+
 	/* Create the underlying BOOPSI gadget */
 
 	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, a_iGadgetID,
-		GA_Height, a_poParentWindow->InnerHeight(), ICA_TARGET, ICTARGET_IDCMP, TAG_DONE);
+		GA_Height, a_poParentWindow->InnerHeight(), ICA_TARGET, ICTARGET_IDCMP,
+		SCROLLER_Orientation, Orientation, SizeTag, Size, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
@@ -283,10 +300,31 @@ TInt CStdGadgetSlider::Width()
 
 	/* Query the scroller for its width, which is set dynamically */
 
+	// TODO: CAW - How to get this programmatically, here and for Height()?
+	//             Also, this cannot be called until the gadget is on screen or
+	//             it will return incorrect results
 	IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
-	m_iWidth += 6; // TODO: CAW - How to get this programmatically?
+	m_iWidth += 6;
 
 #endif /* __amigaos4__ */
 
 	return(m_iWidth);
 }
+
+/* Written: Sunday 08-May-2011 8:52 am, CodeHQ-by-Thames */
+
+TInt CStdGadgetSlider::Height()
+{
+
+#ifdef __amigaos4__
+
+	/* Query the scroller for its height, which is set dynamically */
+
+	IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+	m_iHeight += 6; // TODO: CAW - How to get this programmatically?
+
+#endif /* __amigaos4__ */
+
+	return(m_iHeight);
+}
+
