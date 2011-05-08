@@ -422,13 +422,10 @@ void RApplication::Close()
 
 		if (m_bMenuStripSet)
 		{
-			IDOS->Printf("Clearing menu\n");
 			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
 		}
 
-		IDOS->Printf("Freeing menu\n");
 		IGadTools->FreeMenus(m_poMenus);
-		IDOS->Printf("Freeing menu done\n");
 	}
 
 #else /* ! __amigaos4__ */
@@ -482,7 +479,6 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	{
 		if (IIntuition->SetMenuStrip(a_poWindow->m_poWindow, m_poMenus))
 		{
-			IDOS->Printf("Set menu strip\n");
 			m_bMenuStripSet = ETrue;
 		}
 	}
