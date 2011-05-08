@@ -437,7 +437,13 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
 			m_iInnerWidth -= Gadget->Width();
+
+#ifndef __amigaos4__
+
 			MoveWindow(Gadget->m_poGadget, m_iInnerWidth, 0, Gadget->Width(), m_iInnerHeight, TRUE);
+
+#endif /* !__amigaos4__ */
+
 		}
 
 		/* Horizontal sliders always go on the bottom (for now) and are the width of the client area */
@@ -445,7 +451,13 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 		if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
 		{
 			m_iInnerHeight -= Gadget->Height();
+
+#ifndef __amigaos4__
+
 			MoveWindow(Gadget->m_poGadget, 0, m_iInnerHeight, m_iInnerWidth, Gadget->Height(), TRUE);
+
+#endif /* !__amigaos4__ */
+
 		}
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
