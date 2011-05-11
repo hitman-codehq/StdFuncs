@@ -56,6 +56,8 @@ public:
 		m_iWidth = m_iHeight = 0;
 	}
 
+	virtual ~CStdGadget() { }
+
 	StdListNode<CStdGadget>	m_oStdListNode;     /* Standard list node */
 
 	TInt GadgetID()
@@ -68,15 +70,9 @@ public:
 		return(m_iGadgetType);
 	}
 
-	virtual TInt Width()
-	{
-		return(m_iWidth);
-	}
+	virtual TInt Width();
 
-	virtual TInt Height()
-	{
-		return(m_iHeight);
-	}
+	virtual TInt Height();
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
 };
@@ -125,6 +121,12 @@ private:
 
 	TInt		m_iNumParts;					/* # of parts within the gadget */
 
+#ifdef __amigaos4__
+
+	Object		**m_poPartsGadgets;				/* Ptr to an array of ptrs to parts labels */
+
+#endif /*__amigaos4__ */
+
 private:
 
 	CStdGadgetStatusBar()
@@ -133,6 +135,8 @@ private:
 	}
 
 public:
+
+	~CStdGadgetStatusBar();
 
 	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 

@@ -297,8 +297,6 @@ TInt CStdGadgetSlider::Width()
 
 #ifdef __amigaos4__
 
-	/* Query the scroller for its width, which is set dynamically */
-
 	// TODO: CAW - How to get this programmatically, here and for Height()?
 	//             Also, this cannot be called until the gadget is on screen or
 	//             it will return incorrect results
@@ -320,7 +318,6 @@ TInt CStdGadgetSlider::Height()
 	/* Query the scroller for its height, which is set dynamically */
 
 	IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
-	m_iHeight += 6; // TODO: CAW - How to get this programmatically?
 
 #endif /* __amigaos4__ */
 
