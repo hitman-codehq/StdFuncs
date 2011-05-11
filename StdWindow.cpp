@@ -510,9 +510,9 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
 		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
-		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE,
+		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 
 		WINDOW_ParentGroup, m_poRootGadget = (Object *) VGroupObject,
 			/* This is an empty group into which can be placed BOOPSI objects */
