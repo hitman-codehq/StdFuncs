@@ -13,7 +13,7 @@
 
 #endif /* __amigaos4__ */
 
-/* Written: Saturday 26-Mar-2011 12:46 pm, CodeHQ-by-Thames */
+/* Written: Wednesday 11-May-2011 07:00 am, CodeHQ-by-Thames */
 
 TInt CStdGadget::Width()
 {
