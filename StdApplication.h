@@ -40,6 +40,10 @@ private:
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
 	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
 	TBool			m_bMenuStripSet;	/* ETrue if menus have been added to the main window */
+	TInt			m_iLastX;			/* X and Y positions of the mouse the last time the */
+	TInt			m_iLastY;			/* LMB was clicked or released */
+	ULONG			m_ulMainSeconds;	/* Tick count in seconds and microseconds of when */
+	ULONG			m_ulMainMicros;		/* the LMB was last clicked */
 
 #else /* !__amigaos4__ */
 

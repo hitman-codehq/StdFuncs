@@ -40,6 +40,8 @@ RApplication::RApplication()
 
 	m_bDone = m_bMenuStripSet = EFalse;
 	m_poMenus = NULL;
+	m_ulMainSeconds = m_ulMainMicros = 0;
+	m_iLastX = m_iLastY = 0;
 
 #else /* ! __amigaos4__ */
 
@@ -170,13 +172,14 @@ int RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	int Index, NumChars;
-	TBool KeyDown, KeyHandled;
-	ULONG Result, Signal;
+	int Index, NumChars, X, Y;
+	TBool DoubleClicked, KeyDown, KeyHandled;
+	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
 	struct InputEvent *InputEvent;
 	struct MenuItem *MenuItem;
 	CWindow *Window;
+	TStdMouseEvent MouseEvent;
 
 	ASSERTM(m_poWindows, "RApplication::Main() => Application must have at least one window");
 
@@ -252,15 +255,76 @@ int RApplication::Main()
 
 					case WMHI_MOUSEBUTTONS :
 					{
-						/* If this event was a mouse down event then get the position of the mouse, convert */
+						/* If this event was a mouse button event then get the position of the mouse, convert */
 						/* it to client area relative dimensions and call the windows' HandlePointerEvent() */
-						/* function */
+						/* function.  Start by determining the event type and mouse position in the window */
+
+						DoubleClicked = EFalse;
+						X = (Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft);
+						Y = (Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop);
+
+						/* See if this is a double click.  If it is then we need to send the */
+						/* EStdMouseDoubleClick message to the client window and not do anything else */
 
 						if (Code == SELECTDOWN)
 						{
-							Window->HandlePointerEvent((Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft),
-								(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop), EStdMouseDown);
+							IIntuition->CurrentTime(&SecondSeconds, &SecondMicros);
+
+							/* Only handle this as a double click if the second click is at the same */
+							/* X and Y position as the first */
+
+							if ((X == m_iLastX) && (Y == m_iLastY))
+							{
+								/* Double click? */
+
+								if (IIntuition->DoubleClick(m_ulMainSeconds, m_ulMainMicros, SecondSeconds, SecondMicros))
+								{
+									/* Yep!  Signal this and reset the double click time to avoid a third */
+									/* click getting treated as a double click */
+
+									DoubleClicked = ETrue;
+									m_ulMainSeconds = m_ulMainMicros = 0;
+
+									/* And send the appropriate message to the client window */
+
+									Window->HandlePointerEvent(X, Y, EStdMouseDoubleClick);
+								}
+							}
+
+							/* If not a double click, save the time amd mouse position for checking next time */
+
+							if (!(DoubleClicked))
+							{
+								m_ulMainSeconds = SecondSeconds;
+								m_ulMainMicros = SecondMicros;
+								m_iLastX = X;
+								m_iLastY = Y;
+							}
 						}
+
+						/* If a double click wasn't handled then send the appropriate message to the */
+						/* client window */
+
+						if (((Code == SELECTDOWN) && (!(DoubleClicked))) || (Code == SELECTUP))
+						{
+							/* Send the message */
+
+							MouseEvent = (Code == SELECTDOWN) ? EStdMouseDown : EStdMouseUp;
+							Window->HandlePointerEvent(X, Y, MouseEvent);
+
+							/* And save the mouse position for next time */
+
+							m_iLastX = X;
+							m_iLastY = Y;
+						}
+
+						break;
+					}
+
+					case WMHI_MOUSEMOVE :
+					{
+						Window->HandlePointerEvent((Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft),
+							(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop), EStdMouseMove);
 
 						break;
 					}
