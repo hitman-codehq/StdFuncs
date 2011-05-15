@@ -8,7 +8,6 @@
 #define ALL_REACTION_MACROS
 
 #include <proto/intuition.h>
-#include <intuition/icclass.h>
 #include <reaction/reaction.h>
 
 #endif /* __amigaos4__ */
