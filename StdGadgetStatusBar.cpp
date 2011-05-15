@@ -3,11 +3,27 @@
 #include "StdGadgets.h"
 #include "StdWindow.h"
 
-#ifndef __amigaos4__
+#ifdef __amigaos4__
+
+#define ALL_REACTION_CLASSES
+#define ALL_REACTION_MACROS
+
+#include <proto/intuition.h>
+//#include <intuition/icclass.h>
+#include <reaction/reaction.h>
+
+#else /* ! __amigaos4__ */
 
 #include <commctrl.h>
 
 #endif /* ! __amigaos4__ */
+
+/* Written: Monday 02-May-2011 7:21 am, CodeHQ-by-Thames */
+
+CStdGadgetStatusBar::~CStdGadgetStatusBar()
+{
+	delete [] m_poPartsGadgets;
+}
 
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
@@ -54,9 +70,83 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement for Amiga OS
-	// TODO: CAW - If this fails then Brunel crashes!
-	RetVal = KErrNone;
+	TInt Index;
+	struct TagItem TagItem[] = { { CHILD_WeightedWidth, 0 }, { TAG_DONE, 0 } };
+
+	/* Create a horizontal layout group into which can be placed the parts labels */
+
+	if ((m_poGadget = (Object *) HGroupObject, LAYOUT_FixedVert, FALSE, LAYOUT_DeferLayout, TRUE, EndGroup) != NULL)
+	{
+		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
+		/* to access them l8r on, and create a part label for each slot in the array */
+
+		if ((m_poPartsGadgets = new Object *[a_iNumParts]) != NULL)
+		{
+			/* Create a string gadget for each part requested by the user */
+
+			for (Index = 0; Index < a_iNumParts; ++Index)
+			{
+				m_poPartsGadgets[Index] = (Object *) StringObject, GA_ReadOnly, TRUE, StringEnd;
+
+				if (m_poPartsGadgets[Index])
+				{
+					/* Add the string gadget to the horizontal layout group, with the desired weighting */
+
+					TagItem[0].ti_Data = a_piPartsOffsets[Index];
+					IIntuition->IDoMethod(m_poGadget, LM_ADDCHILD, NULL, m_poPartsGadgets[Index], TagItem);
+				}
+				else
+				{
+					Utils::Info("CStdGadgetStatusBar::Create() => Unable to create status bar label gadget");
+
+					break;
+				}
+			}
+
+			/* If all parts labels were created ok then indicate success */
+
+			if (Index == a_iNumParts)
+			{
+				RetVal = KErrNone;
+				m_iNumParts = a_iNumParts;
+			}
+
+			/* Otherwise destroy whatever labels were created */
+
+			else
+			{
+				while (--Index >= 0)
+				{
+					IIntuition->DisposeObject(m_poPartsGadgets[Index]);
+				}
+			}
+		}
+		else
+		{
+			Utils::Info("CStdGadgetStatusBar::Create() => Out of memory");
+		}
+	}
+	else
+	{
+		Utils::Info("CStdGadgetStatusBar::Create() => Unable to create status bar group gadget");
+	}
+
+	/* If anything went wrong then clean up whatever was successfully allocated */
+
+	if (RetVal != KErrNone)
+	{
+		if (m_poGadget)
+		{
+			IIntuition->DisposeObject(m_poGadget);
+			m_poGadget = NULL;
+		}
+
+		if (m_poPartsGadgets)
+		{
+			delete [] m_poPartsGadgets;
+			m_poPartsGadgets = NULL;
+		}
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -131,15 +221,18 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 {
+	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::SetText() => Part # is out of range");
 
 #ifdef __amigaos4__
 
-#else /* ! __amigaos4__ */
+	IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+		NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 
-	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::SetText() => Part # is out of range");
+#else /* ! __amigaos4__ */
 
 	DEBUGCHECK((SendMessage(m_poGadget, SB_SETTEXT, a_iPart, (LPARAM) a_pccText) != FALSE), "CStdGadgetStatusBar::SetText() => Unable to set status bar text");
 
 #endif /* ! __amigaos4__ */
 
 }
+
