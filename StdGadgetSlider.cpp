@@ -318,6 +318,7 @@ TInt CStdGadgetSlider::Height()
 	/* Query the scroller for its height, which is set dynamically */
 
 	IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+	m_iHeight += 6;
 
 #endif /* __amigaos4__ */
 
