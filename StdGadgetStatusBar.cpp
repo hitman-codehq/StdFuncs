@@ -9,7 +9,6 @@
 #define ALL_REACTION_MACROS
 
 #include <proto/intuition.h>
-//#include <intuition/icclass.h>
 #include <reaction/reaction.h>
 
 #else /* ! __amigaos4__ */
@@ -22,7 +21,13 @@
 
 CStdGadgetStatusBar::~CStdGadgetStatusBar()
 {
+
+#ifdef __amigaos4__
+
 	delete [] m_poPartsGadgets;
+
+#endif /* __amigaos4__ */
+
 }
 
 /* Written: Sunday 01-May-2011 7:10 am */
