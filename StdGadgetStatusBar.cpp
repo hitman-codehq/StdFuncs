@@ -68,7 +68,7 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_
 
 TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
-	TInt RetVal;
+	TInt Index, RetVal;
 
 	m_poParentWindow = a_poParentWindow;
 	m_iGadgetID = a_iGadgetID;
@@ -79,7 +79,6 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 #ifdef __amigaos4__
 
-	TInt Index;
 	struct TagItem TagItem[] = { { CHILD_WeightedWidth, 0 }, { TAG_DONE, 0 } };
 
 	/* Create a horizontal layout group into which can be placed the parts labels */
@@ -159,7 +158,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 #else /* ! __amigaos4__ */
 
-	int Index, Offset, ParentWidth;
+	TInt Offset, ParentWidth;
 	INITCOMMONCONTROLSEX InitCommonControls;
 	RECT Rect;
 
