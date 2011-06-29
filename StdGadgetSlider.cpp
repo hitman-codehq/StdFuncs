@@ -61,6 +61,7 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	{
 		Orientation = SORIENT_VERT;
 		SizeTag = GA_Height;
+		Size = m_poParentWindow->InnerHeight();
 	}
 	else
 	{
