@@ -33,10 +33,12 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_iNumParts			Number of parts to be created */
-/*			a_piPartsOffsets	Ptr to array of offsets of right sides of parts */
+/*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
 /*			a_iGadgetID			Unique identifier of the status bar gadget */
 /* @return	Ptr to the newly created status bar if successful, else NULL */
 /* Creates an intance of the status bar gadget and attaches it to the parent window specified. */
+/* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
+/* longer valid on return */
 
 CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
@@ -57,10 +59,12 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_
 /* Written: Friday 29-Apr-2011 3:45 pm */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_iNumParts			Number of parts to be created */
-/*			a_piPartsOffsets	Ptr to array of offsets of right sides of parts */
+/*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
 /*			a_iGadgetID			Unique identifier of the status bar gadget */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Initialises an intance of the status bar gadget and attaches it to the parent window specified. */
+/* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
+/* longer valid on return */
 
 TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
@@ -155,6 +159,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 #else /* ! __amigaos4__ */
 
+	int Index, Offset, ParentWidth;
 	INITCOMMONCONTROLSEX InitCommonControls;
 	RECT Rect;
 
@@ -172,6 +177,18 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 		if (m_poGadget)
 		{
+			/* Convert the parts offsets from percentages to pixel widths as required by the underlying */
+			/* Windows control */
+
+			Offset = 0;
+			ParentWidth = a_poParentWindow->InnerWidth();
+
+			for (Index = 0; Index < a_iNumParts; ++Index)
+			{
+				a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
+				Offset += a_piPartsOffsets[Index];
+			}
+
 			/* And subdivide it into the requested number of parts */
 
 			if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
