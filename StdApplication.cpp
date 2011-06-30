@@ -484,7 +484,7 @@ void RApplication::Close()
 	{
 		/* Remove the menus from the main window, if they were added */
 
-		if (m_bMenuStripSet)
+		if ((m_bMenuStripSet) && (m_poWindows))
 		{
 			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
 		}
