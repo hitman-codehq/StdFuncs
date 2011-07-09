@@ -27,7 +27,7 @@ RFont::RFont(CWindow *a_poWindow)
 #endif /* ! __amigaos4__ */
 
 	m_iHighlight = EFalse;
-	m_iWidth = m_iHeight = 0;
+	m_iYOffset = m_iWidth = m_iHeight = 0;
 	m_poWindow = a_poWindow;
 }
 
@@ -191,7 +191,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	{
 		/* And draw the cursor! */
 
-		TextOut(m_poWindow->m_poDC, Size.cx, (a_iY * m_iHeight), Cursor, 1);
+		TextOut(m_poWindow->m_poDC, Size.cx, (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
 	}
 
 #endif /* ! __amigaos4__ */
@@ -233,7 +233,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - Don't use 8
-	TextOut(m_poWindow->m_poDC, a_iX * 8, (a_iY * m_iHeight), a_pcText, a_iLength);
+	TextOut(m_poWindow->m_poDC, a_iX * 8, (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
 
@@ -276,4 +276,17 @@ void RFont::SetHighlight(TBool a_iHighlight)
 	/* And save the highlight state for l8r use */
 
 	m_iHighlight = a_iHighlight;
+}
+
+/* Written: Friday 08-Jul-2010 7:42 am, CodeHQ-by-Thames */
+/* @param	a_iYOffset	Offset from the top of the window in pixels */
+/* This function sets the offset from the top of the window at which text is output */
+/* by the RFont class.  This means that when clients call the text drawing functions */
+/* and pass in a Y position at which to print, that position is calculated from the */
+/* Y offset passed in here, rather than the top of the window.  This allows the */
+/* client to treat areas of the window as a sub-windows. */
+
+void RFont::SetYOffset(TInt a_iYOffset)
+{
+	m_iYOffset = a_iYOffset;
 }

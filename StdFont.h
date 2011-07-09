@@ -27,6 +27,7 @@ private:
 	TBool		m_iHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;		/* Height of a character in pixels */
+	TInt		m_iYOffset;		/* Offset from top of window at which to print */
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
 public:
@@ -52,6 +53,8 @@ public:
 	}
 
 	void SetHighlight(TBool a_iHighlight);
+
+	void SetYOffset(TInt a_iYOffset);
 };
 
 #endif /* ! STDFONT_H */
