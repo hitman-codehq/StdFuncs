@@ -55,8 +55,6 @@ protected:
 	TBool				m_bOpen;			/* ETrue if window is open */
 	TInt				m_iInnerWidth;		/* Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;		/* Height of window, minus top and bottom borders */
-	TInt				m_iFontHeight;		/* Height of a character in the current font, in pixels */
-	TInt				m_iFontWidth;		/* Width of a character in the current font, in pixels */
 	RApplication		*m_poApplication;	/* Ptr to application that owns this window */
 
 public:
@@ -133,6 +131,7 @@ public:
 		m_poRootWindow = this;
 	}
 
+	// TODO: CAW - Naming - Use Get or not?
 	static CWindow *GetRootWindow()
 	{
 		return(m_poRootWindow);
