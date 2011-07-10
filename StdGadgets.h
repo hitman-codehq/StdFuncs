@@ -70,6 +70,10 @@ public:
 		return(m_iGadgetType);
 	}
 
+	void SetGadgetPosition(TInt a_iX, TInt a_iY);
+
+	void SetGadgetSize(TInt a_iWidth, TInt a_iHeight);
+
 	virtual TInt Width();
 
 	virtual TInt Height();

@@ -47,3 +47,53 @@ TInt CStdGadget::Height()
 	return(m_iHeight);
 }
 
+/* Written: Tuesday 06-Jul-2011 6:58 am, CodeHQ-by-Thames */
+/* @param	a_iX	X position to which to move gadget */
+/*			a_iY	Y position to which to move gadget */
+/* Sets the gadget to the X and Y positions specified, relative to the top left */
+/* of the window's client area */
+
+void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement this
+
+#else /* ! __amigaos4__ */
+
+	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetPosition() => Unable to set gadget position");
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Tuesday 06-Jul-2011 7:07 am, CodeHQ-by-Thames */
+/* @param	a_iWidth	Width of the gadget in pixels */
+/*			a_iHeight	Height of the gadget in pixels */
+/* Sets the width and height of the gadget in pixels */
+
+void CStdGadget::SetGadgetSize(TInt a_iWidth, TInt a_iHeight)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement this
+
+#else /* ! __amigaos4__ */
+
+	if (a_iWidth == -1)
+	{
+		a_iWidth = m_iWidth;
+	}
+
+	if (a_iHeight == -1)
+	{
+		a_iHeight = m_iHeight;
+	}
+
+	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetSize() => Unable to set gadget size");
+
+#endif /* ! __amigaos4__ */
+
+}
