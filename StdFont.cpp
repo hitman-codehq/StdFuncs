@@ -173,7 +173,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	Width = m_poWindow->m_poWindow->IFont->tf_XSize;
 
 	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * Width)),
-		(m_poWindow->m_poWindow->BorderTop + (a_iY * m_iHeight) + m_iBaseline));
+		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* And draw the cursor! */
 
@@ -218,7 +218,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* routine prints at the baseline position, not the top of the font */
 
 	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * m_iWidth)),
-		(m_poWindow->m_poWindow->BorderTop + (a_iY * m_iHeight) + m_iBaseline));
+		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* Calculate the maximum number of characters that can fit in the client area of the window, */
 	/* as text is not automatically clipped by the Amiga OS text drawing routine */
