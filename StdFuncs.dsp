@@ -129,6 +129,10 @@ SOURCE=.\StdFont.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdGadgetLayout.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdGadgets.cpp
 # End Source File
 # Begin Source File

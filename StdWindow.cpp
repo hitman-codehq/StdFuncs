@@ -102,6 +102,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	int Index;
 	LRESULT RetVal;
 	CStdGadget *Gadget;
+	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
 
 	/* Return 0 by default for processed messages */
@@ -299,14 +300,14 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		case WM_HSCROLL :
 		case WM_VSCROLL :
 		{
-			/* Iterate through the window's list of gadgets and search for the one matching the */
-			/* HWND of the slider just moved */
+			/* Iterate through the window's list of layout gadgets and search each one to see */
+			/* if it contains a gadget that represents the Win32 slider that was just moved */
 
-			if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+			if ((LayoutGadget = Window->m_oGadgets.GetHead()) != NULL)
 			{
 				do
 				{
-					if (a_oLParam == (LPARAM) Gadget->m_poGadget)
+					if ((Gadget = LayoutGadget->FindNativeGadget((void *) a_oLParam)) != NULL)
 					{
 						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
 						/* client of the update, letting it know what type of update this is */
@@ -316,7 +317,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 						break;
 					}
 				}
-				while ((Gadget = Window->m_oGadgets.GetSucc(Gadget)) != NULL);
+				while ((LayoutGadget = Window->m_oGadgets.GetSucc(LayoutGadget)) != NULL);
 			}
 
 			break;
@@ -354,25 +355,87 @@ void CWindow::Activate()
 
 }
 
-/* Written: Sunday 21-Nov-2010 8:11 am */
+/* Written: Monday 11-Jul-2011 6:16 am */
 
-void CWindow::Attach(CStdGadget *a_poGadget)
+void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 {
-	ASSERTM((a_poGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
+	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
+
+	m_oGadgets.AddTail(a_poLayoutGadget);
 
 #ifdef __amigaos4__
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
-	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
+	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
 	{
 		ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
 	}
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
 
-	m_oGadgets.AddTail(a_poGadget);
+	// TODO: CAW - This is potentially slow
+	TInt Count, Height, Y;
+	CStdGadgetLayout *LayoutGadget;
+
+	// TODO: CAW - Make a list Count() function?
+	Count = Y = 0;
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		++Count;
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
+
+	Height = (m_iInnerHeight / Count); // TODO: CAW - What about remainder for last layout gadget?
+
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		LayoutGadget->m_iY = Y;
+		LayoutGadget->m_iHeight = Height;
+
+		Y += Height;
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
+
+	// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		LayoutGadget->RethinkLayout();
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
+
+void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
+{
+
+#ifdef __amigaos4__
+
+	a_iX += m_poWindow->BorderLeft;
+	a_iY += m_poWindow->BorderTop;
+
+	IIntuition->ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
+		LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - Implement this + comment this function
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Sunday 01-May-2011 10:48 am */
@@ -384,7 +447,7 @@ void CWindow::Attach(CStdGadget *a_poGadget)
 void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 {
 	TInt OldInnerWidth, OldInnerHeight;
-	CStdGadget *Gadget;
+	//CStdGadget *Gadget; // TODO: CAW - Rename if keeping this function but is the function even used now?
 
 	/* Save the old width & height for l8r */
 
@@ -399,6 +462,7 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 	/* Iterate through the gadgets and reposition them to reflect the new window size, also */
 	/* adjusting the size of the client area of the window to reflect the space taken up by them */
 
+#if 0
 	Gadget = m_oGadgets.GetHead();
 
 	while (Gadget)
@@ -449,6 +513,7 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
 	}
+#endif
 
 	/* Don't let the client area get negative in size or it will require too much fiddling around */
 	/* in the client program.  Just pretend it's 0 x 0 at the smallest */
@@ -501,9 +566,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 
+		// TODO: CAW - Use WINDOW_Layout for clarity?
 		WINDOW_ParentGroup, m_poRootGadget = (Object *) VGroupObject,
+			LAYOUT_SpaceOuter, FALSE, // TODO: CAW - Proper commenting
 			/* This is an empty group into which can be placed BOOPSI objects */
 
+			// TODO: CAW - Not needed
 			LAYOUT_HorizAlignment, LALIGN_RIGHT,
 		EndGroup,
 	EndWindow;
@@ -751,7 +819,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 	/* the rect to draw.  We only fill the background if required to as client code can disable */
 	/* this functionality */
 
-	if (m_bFillBackground)
+	//if (m_bFillBackground)
 	{
 		Top = (m_poWindow->BorderTop + a_iTop);
 		Bottom = (m_poWindow->BorderTop + a_iBottom);
@@ -766,9 +834,9 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 
 		/* Now fill in the background before drawing */
 
-		IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
-			(m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
-			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+		//IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
+		//	  (m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
+		//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 	}
 
 	/* And call the derived rendering function to perform a redraw immediately */
@@ -831,6 +899,7 @@ ULONG CWindow::GetSignal()
 
 /* Written: Monday 08-Feb-2010 7:19 am */
 
+// TODO: CAW - Move
 CWindow::~CWindow()
 {
 	Close();

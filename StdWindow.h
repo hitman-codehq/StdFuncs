@@ -2,6 +2,8 @@
 #ifndef STDWINDOW_H
 #define STDWINDOW_H
 
+#include "StdGadgets.h"
+
 #ifdef __amigaos4__
 
 #include <intuition/classes.h>
@@ -11,7 +13,6 @@
 /* Forward declaration to reduce the # of includes required */
 
 class RApplication;
-class CStdGadget;
 
 /* Mouse events that can be reported to the client */
 
@@ -27,17 +28,18 @@ enum TStdMouseEvent
 
 class CWindow
 {
-	/* RApplication class needs to be able to access this class's internals in order to */
-	/* link windows into its window list */
+	/* RApplication and CStdGadgetLayout classes need to be able to access this class's internals */
+	/* in order to link windows into the window list and manage the gadgets' positions etc. */
 
+	friend class CStdGadgetLayout;
 	friend class RApplication;
 
 private:
 
-	TBool				m_bFillBackground;	/* ETrue to fill background when drawing */
-	CWindow				*m_poNext;			/* Ptr to next window in list */
-	StdList<CStdGadget>	m_oGadgets;			/* List of gadgets manually added to the window */
-	static CWindow		*m_poRootWindow;	/* Ptr to root window on which all other windows open */
+	TBool						m_bFillBackground;	/* ETrue to fill background when drawing */
+	CWindow						*m_poNext;			/* Ptr to next window in list */
+	StdList<CStdGadgetLayout>	m_oGadgets;			/* List of layout gadgets manually added to the window */
+	static CWindow				*m_poRootWindow;	/* Ptr to root window on which all other windows open */
 
 #ifdef __amigaos4__
 
@@ -88,12 +90,14 @@ public:
 
 	void Activate();
 
-	void Attach(CStdGadget *a_poGagdet);
+	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 
 	RApplication *Application()
 	{
 		return(m_poApplication);
 	}
+
+	void ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth);
 
 	void DrawNow();
 

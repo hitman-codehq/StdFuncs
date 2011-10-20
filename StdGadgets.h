@@ -10,6 +10,7 @@
 
 /* Forward declaration to reduce the # of includes required */
 
+class CStdGadgetLayout;
 class CWindow;
 class MStdGadgetSliderObserver;
 
@@ -17,6 +18,7 @@ class MStdGadgetSliderObserver;
 
 enum TStdGadgetType
 {
+	EStdGadgetLayout,			/* Dynamic Layout gadget */
 	EStdGadgetVerticalSlider,	/* Vertical scroller */
 	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
 	EStdGadgetStatusBar			/* Status bar */
@@ -26,16 +28,19 @@ enum TStdGadgetType
 
 class CStdGadget
 {
-	/* CWindow class needs to be able to access this class's internals in order to */
-	/* link windows into its gadget list */
+	/* CStdGadgetLayout classe needs to be able to access this class's internals in order to */
+	/* manage the gadgets' positions etc. */
 
-	friend class CWindow;
+	friend class CStdGadgetLayout;
 
 protected:
 
 	TInt					m_iGadgetID;		/* Unique ID of the gadget */
+	TInt					m_iX;				/* X and Y positions of the gadget, relative */
+	TInt					m_iY;				/* to the top left hand corner of the client area */
 	TInt					m_iWidth;			/* Width of the gadget in pixels */
 	TInt					m_iHeight;			/* Height of the gadget in pixels */
+	CStdGadgetLayout		*m_poParentLayout;	// TODO: CAW
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 	enum TStdGadgetType		m_iGadgetType;		/* Type of gadget */
 
@@ -49,12 +54,13 @@ protected:
 
 #endif /* ! __amigaos4__ */
 
-public:
+private:
 
-	CStdGadget()
-	{
-		m_iWidth = m_iHeight = 0;
-	}
+	void SetGadgetPosition(TInt a_iX, TInt a_iY);
+
+	void SetGadgetSize(TInt a_iWidth, TInt a_iHeight);
+
+public:
 
 	virtual ~CStdGadget() { }
 
@@ -70,15 +76,68 @@ public:
 		return(m_iGadgetType);
 	}
 
-	void SetGadgetPosition(TInt a_iX, TInt a_iY);
+	virtual TInt X();
 
-	void SetGadgetSize(TInt a_iWidth, TInt a_iHeight);
+	virtual TInt Y();
 
 	virtual TInt Width();
 
 	virtual TInt Height();
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
+};
+
+/* A special gadget that can automatically layout other gadgets inside itself */
+
+class CStdGadgetLayout : public CStdGadget
+{
+	/* CWindow classe needs to be able to access this class's internals in order to map */
+	/* native events onto standard cross platform events */
+
+	friend class CWindow;
+
+private:
+
+	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
+public: // TODO: CAW - Amiga
+	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
+
+public: // TODO: CAW
+
+#ifdef __amigaos__
+
+	//Object				  *m_poGadget;		  /* Ptr to underlying BOOPSI gadget */
+
+#endif /* __amigaos__ */
+
+	// TODO: CAW - I really don't like this but I'm fucked by templates
+	StdListNode<CStdGadgetLayout>	m_oStdListNode;     /* Standard list node */
+
+private:
+
+	CStdGadgetLayout(CWindow *a_poParentWindow) : CStdGadget()
+	{
+		m_poParentWindow = a_poParentWindow;
+		m_iGadgetType = EStdGadgetLayout;
+	}
+
+	CStdGadget *FindNativeGadget(void *a_pvGadget);
+
+public:
+
+	static CStdGadgetLayout *New(CWindow *a_poParentWindow);
+
+	~CStdGadgetLayout();
+
+	TInt Construct();
+
+	void Attach(CStdGadget *a_poGagdet);
+
+	void RethinkLayout();
+
+	/* From CStdGadget */
+
+	virtual TInt Y();
 };
 
 /* A class representing a slider or proportional gadget */
@@ -100,9 +159,9 @@ private:
 
 public:
 
-	static CStdGadgetSlider *New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
+	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
 
-	TInt Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
+	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
 	void SetPosition(TInt a_iPosition);
 
@@ -112,6 +171,7 @@ public:
 
 	void Updated(ULONG a_ulData);
 
+	// TODO: CAW - Amiga - Ensure these are valid
 	TInt Width();
 
 	TInt Height();
@@ -142,9 +202,9 @@ public:
 
 	~CStdGadgetStatusBar();
 
-	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 
-	TInt Create(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 
 	void SetText(TInt a_iPart, const char *a_pccText);
 };
@@ -160,4 +220,3 @@ public:
 };
 
 #endif /* ! STDGADGETS_H */
-

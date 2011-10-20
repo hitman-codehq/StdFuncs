@@ -16,19 +16,20 @@
 
 /* Written: Sunday 01-May-2011 7:41 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
+/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
 /*			a_poClient			Ptr to the client to be notified when the slider's value changes */
 /*			a_bVertical			ETrue if this is a vertical slider, else EFalse */
 /*			a_iGadgetID			Unique identifier of the slider gadget */
 /* @return	Ptr to the newly created slider gadget if successful, else NULL */
 /* Creates an intance of the slider gadget and attaches it to the parent window specified. */
 
-CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID)
+CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID)
 {
 	CStdGadgetSlider *RetVal;
 
 	if ((RetVal = new CStdGadgetSlider(a_bVertical)) != NULL)
 	{
-		if (RetVal->Create(a_poParentWindow, a_poClient, a_iGadgetID) != KErrNone)
+		if (RetVal->Create(a_poParentWindow, a_poParentLayout, a_poClient, a_iGadgetID) != KErrNone)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -40,20 +41,22 @@ CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, MStdGadgetSli
 
 /* Written: Sunday 21-Nov-2010 8:08 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
+/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
 /*			a_poClient			Ptr to the client to be notified when the slider's value changes */
 /*			a_iGadgetID			Unique identifier of the slider gadget */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Initialises an intance of the slider gadget and attaches it to the parent window specified. */
 
-TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 {
 	m_poParentWindow = a_poParentWindow;
+	m_poParentLayout = a_poParentLayout;
 	m_poClient = a_poClient;
 	m_iGadgetID = a_iGadgetID;
 
 #ifdef __amigaos4__
 
-	TInt Orientation, SizeTag, Size;
+	TInt Orientation, SizeTag;
 
 	/* Decide whether to create a vertical or horizontal scroller and setup its dimensions accordingly */
 
@@ -61,23 +64,20 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	{
 		Orientation = SORIENT_VERT;
 		SizeTag = GA_Height;
-		Size = m_poParentWindow->InnerHeight();
 	}
 	else
 	{
 		Orientation = SORIENT_HORIZ;
 		SizeTag = GA_Width;
-		Size = m_poParentWindow->InnerWidth();
 	}
 
 	/* Create the underlying BOOPSI gadget */
 
 	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, a_iGadgetID,
-		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, SizeTag, Size, TAG_DONE);
+		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
-	TInt X, Y;
 	DWORD Style;
 
 	/* Decide whether to create a vertical or horizontal scroller and setup its dimensions accordingly */
@@ -88,21 +88,19 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	{
 		Style |= SBS_VERT;
 		m_iWidth = GetSystemMetrics(SM_CXVSCROLL);
-		m_iHeight = m_poParentWindow->InnerHeight();
-		X = (m_poParentWindow->InnerWidth() - m_iWidth);
-		Y = 0;
+		m_iHeight = m_poParentLayout->Height();
+		m_iX = (m_poParentLayout->Width() - m_iWidth);
 	}
 	else
 	{
-		m_iWidth = m_poParentWindow->InnerWidth();
+		m_iWidth = m_poParentLayout->Width();
 		m_iHeight = GetSystemMetrics(SM_CYHSCROLL);
-		X = 0;
-		Y = (m_poParentWindow->InnerHeight() - m_iHeight);
+		m_iY = (m_poParentLayout->Height() - m_iHeight);
 	}
 
 	/* Now create the underlying Windows control */
 
-	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, X, Y, m_iWidth, m_iHeight,
+	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, m_iX, m_iY, m_iWidth, m_iHeight,
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 #endif /* ! __amigaos4__ */
@@ -111,7 +109,7 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, MStdGadgetSliderObserve
 	{
 		/* And attach it to the parent window */
 
-		a_poParentWindow->Attach(this);
+		a_poParentLayout->Attach(this);
 	}
 	else
 	{

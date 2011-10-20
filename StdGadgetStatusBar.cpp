@@ -32,6 +32,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
+/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
 /*			a_iNumParts			Number of parts to be created */
 /*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
 /*			a_iGadgetID			Unique identifier of the status bar gadget */
@@ -40,13 +41,13 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 /* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
 /* longer valid on return */
 
-CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
+CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
 	CStdGadgetStatusBar *RetVal;
 
 	if ((RetVal = new CStdGadgetStatusBar) != NULL)
 	{
-		if (RetVal->Create(a_poParentWindow, a_iNumParts, a_piPartsOffsets, a_iGadgetID) != KErrNone)
+		if (RetVal->Create(a_poParentWindow, a_poParentLayout, a_iNumParts, a_piPartsOffsets, a_iGadgetID) != KErrNone)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -58,6 +59,7 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_
 
 /* Written: Friday 29-Apr-2011 3:45 pm */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
+/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
 /*			a_iNumParts			Number of parts to be created */
 /*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
 /*			a_iGadgetID			Unique identifier of the status bar gadget */
@@ -66,11 +68,13 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, TInt a_
 /* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
 /* longer valid on return */
 
-TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
+// TODO: CAW - Should be Construct()!  Check others.  Should parameters be passed to constructor?
+TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
 	TInt Index, RetVal;
 
 	m_poParentWindow = a_poParentWindow;
+	m_poParentLayout = a_poParentLayout;
 	m_iGadgetID = a_iGadgetID;
 
 	/* Assume failure */
@@ -83,6 +87,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 	/* Create a horizontal layout group into which can be placed the parts labels */
 
+	// TODO: CAW - These tags are a bit bodgey
 	if ((m_poGadget = (Object *) HGroupObject, LAYOUT_FixedVert, FALSE, LAYOUT_DeferLayout, TRUE, EndGroup) != NULL)
 	{
 		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
@@ -225,11 +230,11 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, TInt a_iNumParts, TI
 
 #endif /* ! __amigaos4__ */
 
-	/* If the gadget was successfully created, attach it to the parent window */
+	/* If the gadget was successfully created, attach it to the parent layout */
 
 	if (RetVal == KErrNone)
 	{
-		a_poParentWindow->Attach(this);
+		a_poParentLayout->Attach(this);
 	}
 
 	return(RetVal);
@@ -256,4 +261,3 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 #endif /* ! __amigaos4__ */
 
 }
-
