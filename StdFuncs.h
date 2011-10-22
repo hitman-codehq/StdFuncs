@@ -88,6 +88,7 @@ typedef int TBool;
 #define STD_KEY_TAB 269
 #define STD_KEY_ESC 270
 #define STD_KEY_F3 280
+#define STD_KEY_F6 283
 #define STD_KEY_F12 289
 
 /* Structure used for mapping standard keycodes onto native keycodes */

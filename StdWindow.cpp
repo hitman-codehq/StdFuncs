@@ -26,10 +26,10 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_LEFT, VK_LEFT }, { STD_KEY_RIGHT, VK_RIGHT }, { STD_KEY_HOME, VK_HOME },
 	{ STD_KEY_END, VK_END }, { STD_KEY_PGUP, VK_PRIOR }, { STD_KEY_PGDN, VK_NEXT },
 	{ STD_KEY_DELETE, VK_DELETE }, { STD_KEY_TAB, VK_TAB }, { STD_KEY_F3, VK_F3 },
-	{ STD_KEY_F12, VK_F12 }
+	{ STD_KEY_F6, VK_F6 }, { STD_KEY_F12, VK_F12 }
 };
 
-#define NUM_KEYMAPPINGS 16
+#define NUM_KEYMAPPINGS 17
 
 TBool CWindow::m_bCtrlPressed;
 
