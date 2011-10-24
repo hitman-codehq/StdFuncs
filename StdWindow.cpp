@@ -285,6 +285,11 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			{
 				Window->Draw(Window->m_oPaintStruct.rcPaint.top, Window->m_oPaintStruct.rcPaint.bottom);
 				EndPaint(a_poWindow, &Window->m_oPaintStruct);
+
+				/* And indicate that there is no longer a valid DC allocated so that nobody */
+				/* tried to use it */
+
+				Window->m_poDC = NULL;
 			}
 
 			break;
