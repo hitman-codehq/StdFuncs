@@ -20,7 +20,7 @@
 /* Once obtained, a ptr to this filename can be obtained by calling RFileRequester::FileName(). */
 /* Note that the filename may be 0 bytes long if the user clicked ok without selecting a file */
 
-TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
+TInt RFileRequester::GetFileName(TBool a_bOpen)
 {
 
 #ifdef __amigaos4__
@@ -79,6 +79,7 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 
 #else /* ! __amigaos4__ */
 
+	BOOL GotFileName;
 	TInt RetVal;
 	CWindow *RootWindow;
 	OPENFILENAME OpenFileName;
@@ -98,16 +99,32 @@ TInt RFileRequester::GetFileName(TBool /*a_bOpen*/)
 
 	/* Query the user for the filename to which to save */
 
-	if (GetSaveFileName(&OpenFileName))
+	if (a_bOpen)
+	{
+		GotFileName = GetOpenFileName(&OpenFileName);
+	}
+	else
+	{
+		GotFileName = GetSaveFileName(&OpenFileName);
+	}
+
+	/* Determine whether the filename was successfully obtained, the dialog was closed by the user */
+	/* or if an error occurred */
+
+	if (GotFileName)
 	{
 		RetVal = KErrNone;
 	}
-
-	/* Determine if the dialog was closed by the user or if an error occurred */
-
 	else
 	{
 		RetVal = (CommDlgExtendedError() == 0) ? KErrCancel : KErrGeneral;
+	}
+
+	/* If an error occurred, output a trace warning */
+
+	if ((RetVal != KErrNone) && (RetVal != KErrCancel))
+	{
+		Utils::Info("RFileRequester::GetFileName() => Unable to obtain filename, error = %d", RetVal);
 	}
 
 	return(RetVal);
