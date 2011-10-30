@@ -106,17 +106,14 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	{
 		a_poGadget->SetGadgetPosition(-1, m_iY);
 		a_poGadget->SetGadgetSize(-1, m_iHeight);
-		m_iWidth -= a_poGadget->Width();
 	}
 	else if (a_poGadget->GadgetType() == EStdGadgetHorizontalSlider)
 	{
 		a_poGadget->SetGadgetPosition(-1, (m_iY + m_iHeight - a_poGadget->Height()));
-		m_iHeight -= a_poGadget->Height();
 	}
 	else if (a_poGadget->GadgetType() == EStdGadgetStatusBar)
 	{
 		a_poGadget->SetGadgetPosition(-1, (m_iY + m_iHeight - a_poGadget->Height()));
-		m_iHeight -= a_poGadget->Height();
 	}
 
 #endif /* ! __amigaos4__ */
@@ -165,28 +162,34 @@ void CStdGadgetLayout::RethinkLayout()
 
 #ifndef __amigaos4__
 
-	CStdGadget *Gadget;
+	// TODO: CAW - A VERY temporary solution
+	CStdGadget *Gadget, *StatusBarGadget;
 
 	Gadget = m_oGadgets.GetHead();
+	StatusBarGadget = NULL;
 
 	while (Gadget)
 	{
-		// TODO: CAW - A temporary solution
 		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
 			Gadget->SetGadgetPosition(-1, m_iY);
 			Gadget->SetGadgetSize(-1, m_iHeight);
-			m_iWidth -= Gadget->Width();
 		}
 		else if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
 		{
-			Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
-			m_iHeight -= Gadget->Height();
+			if (StatusBarGadget)
+			{
+				Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height() - StatusBarGadget->Height()));
+			}
+			else
+			{
+				Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
+			}
 		}
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{
+			StatusBarGadget = Gadget;
 			Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
-			m_iHeight -= Gadget->Height();
 		}
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
