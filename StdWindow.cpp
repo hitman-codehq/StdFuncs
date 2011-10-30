@@ -429,6 +429,9 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 
 #ifdef __amigaos4__
 
+	/* All window drawing operations are relative to the client area, so adjust the X and Y */
+	/* positions such that they point past the left and top borders */
+
 	a_iX += m_poWindow->BorderLeft;
 	a_iY += m_poWindow->BorderTop;
 
