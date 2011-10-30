@@ -22,10 +22,10 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e }, { STD_KEY_HOME, 0x70 },
 	{ STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 }, { STD_KEY_PGDN, 0x49 },
 	{ STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 }, { STD_KEY_ESC, 0x45 },
-	{ STD_KEY_F3, 0x52 }, { STD_KEY_F12, 0x6f }
+	{ STD_KEY_F3, 0x52 }, { STD_KEY_F6, 0x55 }, { STD_KEY_F12, 0x6f }
 };
 
-#define NUM_KEYMAPPINGS 17
+#define NUM_KEYMAPPINGS 18
 
 TBool RApplication::m_bCtrlPressed;
 
