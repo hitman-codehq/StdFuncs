@@ -75,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "T_Wildcard"=.\T_Wildcard\T_Wildcard.dsp - Package Owner=<4>
+Project: "T_Wildcard"=.\T_Wildcard.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
