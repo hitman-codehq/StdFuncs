@@ -2,12 +2,15 @@
 #include <StdFuncs.h>
 #include <Args.h>
 #include <Test.h>
+#include <string.h>
 
-/* Fake command lines used for testing, with parameters shuffled up to exercise RArgs class */
+// TODO: CAW - Test/A/M and empty args as well (what was the one that was crashing?)
 
-const char *g_pccArgV[] =
+/* Fake command line to test a full set of arguments */
+
+static const char *g_pccArgV[] =
 {
-	"T_Args", "SourceDir", "DestDir", "copy", "delete", "deletedirs", "nocase", "noerrors", "noprotect"
+	"T_Args", "Source Dir", "Dest Dir", "copy", "delete", "deletedirs", "nocase", "noerrors", "noprotect"
 };
 
 #define ARGV_COUNT 9
@@ -21,7 +24,7 @@ const char *g_pccMissingArgV[] =
 
 #define MISSING_ARGV_COUNT 2
 
-/* Strings for testing white space and " handling */
+/* Fake command lines for testing white space and " handling */
 
 const char *g_pccOneString = "\"Source Dir\" \"Dest Dir\" copy";
 const char *g_pccOneStringExtraWhite = " \"Source Dir\" \t \"Dest Dir\"  copy \t ";
@@ -32,6 +35,30 @@ const char *g_pccOneStringNoWhite = "\"Source Dir\"\"Dest Dir\"copy";
 /* Template for use in obtaining command line parameters */
 
 static const char g_accTemplate[] = "SOURCE/A,DEST/A,COPY/S,DELETE/S,DELETEDIRS/S,NOCASE/S,NOERRORS/S,NOPROTECT/S";
+
+/* Fake command line for testing multiple source filenames */
+
+static const char *g_pccMultiArgV[] =
+{
+	"T_Args", "First Dir", "Second Dir", "Third Dir"
+};
+
+#define MULTI_ARGV_COUNT 4
+
+/* Template for use in obtaining multiple source filenames */
+
+static const char g_accMultiSourceTemplate[] = "SOURCE/A/M,DEST/A";
+
+/* Template for use in obtaining multiple destination filenames */
+
+static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/A/M";
+
+/* Definitions of the number of arguments that can be passed in and their offsets in the */
+/* multiple source argument array */
+
+#define ARGS_MULTI_SOURCE 0
+#define ARGS_MULTI_DEST 1
+#define ARGS_MULTI_NUM_ARGS 2
 
 /* Definitions of the number of arguments that can be passed in and their offsets in the */
 /* argument array */
@@ -71,14 +98,21 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
-	test(Args.Valid() == ARGS_NUM_ARGS);
 
-	/* Ensure that the entries have been read as expected */
+	/* Ensure that the string arguments have been read as expected */
 
-	for (Index = 0; Index < (ARGV_COUNT - 1); ++Index)
+	for (Index = ARGS_SOURCE; Index <= ARGS_DEST; ++Index)
 	{
 		Test.Printf("Checking \"%s\" against \"%s\"\n", Args[Index], g_pccArgV[Index + 1]);
 		test(strcmp(Args[Index], g_pccArgV[Index + 1]) == 0);
+	}
+
+	/* Ensure that the boolean arguments have been read as expected */
+
+	for (Index = ARGS_COPY; Index < ARGS_NUM_ARGS; ++Index)
+	{
+		Test.Printf("Checking \"%s\"\n", g_pccArgV[Index + 1]);
+		test((unsigned int) Args[Index] == 0xffffffff);
 	}
 
 	Args.Close();
@@ -94,13 +128,12 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
-	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
-	/* Ensure that the entries have been read as expected */
+	/* Ensure that the arguments have been read as expected */
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	CHECK_ARG(Args[2], "copy");
+	test((unsigned int) Args[2] == 0xffffffff);
 
 	Args.Close();
 
@@ -112,13 +145,12 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
-	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
-	/* Ensure that the entries have been read as expected */
+	/* Ensure that the arguments have been read as expected */
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	CHECK_ARG(Args[2], "copy");
+	test((unsigned int) Args[2] == 0xffffffff);
 
 	Args.Close();
 
@@ -131,13 +163,12 @@ int main()
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
-	test(Args.Valid() == ONESTRING_ARGV_COUNT);
 
-	/* Ensure that the entries have been read as expected */
+	/* Ensure that the arguments have been read as expected */
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	CHECK_ARG(Args[2], "copy");
+	test((unsigned int) Args[2] == 0xffffffff);
 
 	Args.Close();
 
@@ -147,6 +178,48 @@ int main()
 
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
 	test(Result == KErrNotFound);
+
+	/* Parse command line parameters with multiple sources and one destination */
+
+	Test.Next("Parse command line parameters with multiple sources and one destination");
+
+	Result = Args.Open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	test(Result == KErrNone);
+	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
+
+	/* Ensure that the string arguments have been read as expected */
+
+	CHECK_ARG(Args[0], "First Dir");
+	CHECK_ARG(Args[1], "Third Dir");
+
+	/* Now check that the multi arguments have been read ok */
+
+	test(Args.CountMultiArguments() == 2);
+	CHECK_ARG(Args.MultiArgument(0), "First Dir");
+	CHECK_ARG(Args.MultiArgument(1), "Second Dir");
+
+	Args.Close();
+
+	/* Parse command line parameters with one source and multiple destinations */
+
+	Test.Next("Parse command line parameters with one source and multiple destinations");
+
+	Result = Args.Open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	test(Result == KErrNone);
+	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
+
+	/* Ensure that the string arguments have been read as expected */
+
+	CHECK_ARG(Args[0], "First Dir");
+	CHECK_ARG(Args[1], "Second Dir");
+
+	/* Now check that the multi arguments have been read ok */
+
+	test(Args.CountMultiArguments() == 2);
+	CHECK_ARG(Args.MultiArgument(0), "Second Dir");
+	CHECK_ARG(Args.MultiArgument(1), "Third Dir");
+
+	Args.Close();
 
 	delete [] OneString;
 	Test.End();
