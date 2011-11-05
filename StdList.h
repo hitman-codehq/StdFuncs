@@ -19,6 +19,7 @@ class StdList
 {
 	StdListNode<T>			m_oHead;		/* Dummy node representing head of the list */
 	StdListNode<T>			m_oTail;		/* Dummy node representing tail of the list */
+	TInt					m_iCount;		/* # of items in the list */
 
 public:
 
@@ -37,6 +38,13 @@ public:
 
 		m_oTail.m_poPrev->m_poNext = &a_poNode->m_oStdListNode;
 		m_oTail.m_poPrev = &a_poNode->m_oStdListNode;
+
+		++m_iCount;
+	}
+
+	TInt Count()
+	{
+		return(m_iCount);
 	}
 
 	T *GetHead() const
@@ -59,6 +67,7 @@ public:
 		return((a_poCurrent->m_oStdListNode.m_poNext != &m_oTail) ? a_poCurrent->m_oStdListNode.m_poNext->m_poThis : NULL);
 	}
 
+	// TODO: CAW - This will mess up the Count() function + write a test case
 	void MoveList(StdList<T> *a_poList)
 	{
 		m_oTail.m_poPrev->m_poNext = a_poList->m_oHead.m_poNext;
@@ -78,6 +87,8 @@ public:
 
 			m_oHead.m_poNext = m_oHead.m_poNext->m_poNext;
 			m_oHead.m_poNext->m_poPrev = &m_oHead;
+
+			--m_iCount;
 		}
 		else
 		{
@@ -102,6 +113,8 @@ public:
 
 		a_poNode->m_oStdListNode.m_poPrev->m_poNext = a_poNode->m_oStdListNode.m_poNext;
 		a_poNode->m_oStdListNode.m_poNext->m_poPrev = a_poNode->m_oStdListNode.m_poPrev;
+
+		--m_iCount;
 
 		return(RetVal);
 	}
