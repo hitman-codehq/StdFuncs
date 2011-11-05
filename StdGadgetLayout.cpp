@@ -22,6 +22,8 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow)
 	TInt Result;
 	CStdGadgetLayout *RetVal;
 
+	ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
+
 	if ((RetVal = new CStdGadgetLayout(a_poParentWindow)) != NULL)
 	{
 		if ((Result = RetVal->Construct()) != KErrNone)
@@ -81,6 +83,10 @@ CStdGadgetLayout::~CStdGadgetLayout()
 	{
 		delete Gadget;
 	}
+
+	/* Now remove the layout gadget from its parent window */
+
+	m_poParentWindow->Remove(this);
 }
 
 /* Written: Monday 11-Jul-2011 6:03 am */

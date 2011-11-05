@@ -147,6 +147,10 @@ public:
 
 #endif /* __amigaos4__ */
 
+	void Remove(CStdGadgetLayout *a_poLayoutGadget);
+
+	void RethinkLayout();
+
 	/* Functions can be implemented by client software */
 
 	virtual void Draw(TInt /*a_iTop*/, TInt /*a_iBottom*/) { }

@@ -368,58 +368,9 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
 	m_oGadgets.AddTail(a_poLayoutGadget);
-
-#ifdef __amigaos4__
-
-	/* Add the new BOOPSI gadget to the window's root layout */
-
-	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
-	{
-		ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
-	}
-
-#else /* ! __amigaos4__ */
-
-	// TODO: CAW - This is potentially slow
-	TInt Count, Height, Y;
-	CStdGadgetLayout *LayoutGadget;
-
-	// TODO: CAW - Make a list Count() function?
-	Count = Y = 0;
-	LayoutGadget = m_oGadgets.GetHead();
-
-	while (LayoutGadget)
-	{
-		++Count;
-		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
-	}
-
-	Height = (m_iInnerHeight / Count); // TODO: CAW - What about remainder for last layout gadget?
-
-	LayoutGadget = m_oGadgets.GetHead();
-
-	while (LayoutGadget)
-	{
-		LayoutGadget->m_iY = Y;
-		LayoutGadget->m_iHeight = Height;
-
-		Y += Height;
-		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
-	}
-
 	// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-
-	LayoutGadget = m_oGadgets.GetHead();
-
-	while (LayoutGadget)
-	{
-		LayoutGadget->RethinkLayout();
-		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
-	}
-
-#endif /* ! __amigaos4__ */
-
+	RethinkLayout();
 }
 
 /* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
@@ -907,8 +858,79 @@ ULONG CWindow::GetSignal()
 
 /* Written: Monday 08-Feb-2010 7:19 am */
 
-// TODO: CAW - Move
+// TODO: CAW - Move + others in this file
 CWindow::~CWindow()
 {
 	Close();
+}
+
+/* Written: Saturday 05-Nov-2011 9:03 am, CodeHQ Söflingen */
+
+void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
+{
+	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Remove() => No gadget to be removed passed in");
+
+	m_oGadgets.Remove(a_poLayoutGadget);
+	RethinkLayout();
+}
+
+/* Written: Saturday 05-Nov-2011 12:04 pm, CodeHQ Söflingen */
+
+void CWindow::RethinkLayout()
+{
+
+#ifdef __amigaos4__
+
+	/* Add the new BOOPSI gadget to the window's root layout */
+
+	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
+	{
+		ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
+	}
+
+#else /* ! __amigaos4__ */
+
+	// TODO: CAW - This is potentially slow
+	TInt Count, Height, Y;
+	CStdGadgetLayout *LayoutGadget;
+
+	// TODO: CAW - Make a list Count() function?
+	Count = Y = 0;
+	LayoutGadget = m_oGadgets.GetHead();
+
+	if (LayoutGadget)
+	{
+		while (LayoutGadget)
+		{
+			++Count;
+			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+		}
+
+		Height = (m_iInnerHeight / Count); // TODO: CAW - What about remainder for last layout gadget?
+
+		LayoutGadget = m_oGadgets.GetHead();
+
+		while (LayoutGadget)
+		{
+			LayoutGadget->m_iY = Y;
+			LayoutGadget->m_iHeight = Height;
+
+			Y += Height;
+			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+		}
+
+		// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+		//a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+
+		LayoutGadget = m_oGadgets.GetHead();
+
+		while (LayoutGadget)
+		{
+			LayoutGadget->RethinkLayout();
+			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+		}
+	}
+
+#endif /* ! __amigaos4__ */
+
 }
