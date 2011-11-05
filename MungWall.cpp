@@ -134,7 +134,7 @@ ULONG MungWall::CheckOverWrite(UBYTE *pubBuffer)
 		if (*(ULONG *) (pubBuffer + ulIndex) != 0xdeadbeef)
 		{
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 			if (pubBuffer[ulIndex + 0] != 0xde) ++ulNumOverWrites;
 			if (pubBuffer[ulIndex + 1] != 0xad) ++ulNumOverWrites;

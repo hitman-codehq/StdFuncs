@@ -104,11 +104,11 @@ public: // TODO: CAW - Amiga
 
 public: // TODO: CAW
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	//Object				  *m_poGadget;		  /* Ptr to underlying BOOPSI gadget */
 
-#endif /* __amigaos__ */
+#endif /* __amigaos4__ */
 
 	// TODO: CAW - I really don't like this but I'm fucked by templates
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;     /* Standard list node */
