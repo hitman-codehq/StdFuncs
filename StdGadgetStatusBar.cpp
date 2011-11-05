@@ -17,19 +17,6 @@
 
 #endif /* ! __amigaos4__ */
 
-/* Written: Monday 02-May-2011 7:21 am, CodeHQ-by-Thames */
-
-CStdGadgetStatusBar::~CStdGadgetStatusBar()
-{
-
-#ifdef __amigaos4__
-
-	delete [] m_poPartsGadgets;
-
-#endif /* __amigaos4__ */
-
-}
-
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
@@ -238,6 +225,26 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 	}
 
 	return(RetVal);
+}
+
+/* Written: Monday 02-May-2011 7:21 am, CodeHQ-by-Thames */
+
+CStdGadgetStatusBar::~CStdGadgetStatusBar()
+{
+
+#ifdef __amigaos4__
+
+	delete [] m_poPartsGadgets;
+
+#else /* ! __amigaos4__ */
+
+	if (m_poGadget)
+	{
+		CloseWindow(m_poGadget);
+	}
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Saturday 30-Apr-2011 8:51 am */

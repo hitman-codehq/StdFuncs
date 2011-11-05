@@ -119,6 +119,26 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poP
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
 }
 
+/* Written: Monday 05-Nov-2011 9:20 am, CodeHQ Söflingen */
+
+CStdGadgetSlider::~CStdGadgetSlider()
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+
+#else /* ! __amigaos4__ */
+
+	if (m_poGadget)
+	{
+		CloseWindow(m_poGadget);
+	}
+
+#endif /* ! __amigaos4__ */
+
+}
+
 /* Written: Sunday 21-Nov-2010 11:01 am */
 /* @param	a_ulData	For Amiga OS this is not used.  For Win32 it is the type of update */
 /*						this is, such as SB_THUMBTRACK etc. */

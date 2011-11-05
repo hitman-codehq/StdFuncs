@@ -163,6 +163,8 @@ public:
 
 	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
+	~CStdGadgetSlider();
+
 	void SetPosition(TInt a_iPosition);
 
 	void SetRange(TInt a_iPageSize, TInt a_iMaxRange);
