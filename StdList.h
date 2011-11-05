@@ -82,10 +82,23 @@ public:
 		return(RetVal);
 	}
 
-	void Remove(T *a_poNode)
+	T *Remove(T *a_poNode)
 	{
+		T *RetVal;
+
+		if (a_poNode->m_oStdListNode.m_poNext != &m_oTail)
+		{
+			RetVal = a_poNode->m_oStdListNode.m_poNext->m_poThis;
+		}
+		else
+		{
+			RetVal = NULL;
+		}
+
 		a_poNode->m_oStdListNode.m_poPrev->m_poNext = a_poNode->m_oStdListNode.m_poNext;
 		a_poNode->m_oStdListNode.m_poNext->m_poPrev = a_poNode->m_oStdListNode.m_poPrev;
+
+		return(RetVal);
 	}
 };
 
