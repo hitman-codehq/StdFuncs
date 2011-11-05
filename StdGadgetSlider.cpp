@@ -132,7 +132,7 @@ CStdGadgetSlider::~CStdGadgetSlider()
 
 	if (m_poGadget)
 	{
-		CloseWindow(m_poGadget);
+		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetSlider::~CStdGadgetSlider() => Cannot destroy native slider gadget");
 	}
 
 #endif /* ! __amigaos4__ */

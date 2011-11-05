@@ -240,7 +240,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 	if (m_poGadget)
 	{
-		CloseWindow(m_poGadget);
+		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetStatusBar::~CStdGadgetStatusBar() => Cannot destroy native status bar gadget");
 	}
 
 #endif /* ! __amigaos4__ */
