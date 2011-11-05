@@ -53,7 +53,7 @@ TInt CStdGadgetLayout::Construct()
 
 	RetVal = KErrNoMemory;
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
 	{
@@ -62,11 +62,11 @@ TInt CStdGadgetLayout::Construct()
 		RetVal = KErrNone;
 	}
 
-#else /* ! __amigaos__ */
+#else /* ! __amigaos4__ */
 
 	RetVal = KErrNone;
 
-#endif /* ! __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 	return(RetVal);
 }
