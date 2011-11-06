@@ -95,6 +95,8 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 {
 	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::Attach() => No gadget to be attached passed in");
 
+	m_oGadgets.AddTail(a_poGadget);
+
 #ifdef __amigaos4__
 
 	/* Add the new BOOPSI gadget to the layout */
@@ -107,24 +109,10 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - A temporary solution
-	if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
-	{
-		a_poGadget->SetGadgetPosition(-1, m_iY);
-		a_poGadget->SetGadgetSize(-1, m_iHeight);
-	}
-	else if (a_poGadget->GadgetType() == EStdGadgetHorizontalSlider)
-	{
-		a_poGadget->SetGadgetPosition(-1, (m_iY + m_iHeight - a_poGadget->Height()));
-	}
-	else if (a_poGadget->GadgetType() == EStdGadgetStatusBar)
-	{
-		a_poGadget->SetGadgetPosition(-1, (m_iY + m_iHeight - a_poGadget->Height()));
-	}
+	RethinkLayout();
 
 #endif /* ! __amigaos4__ */
 
-	m_oGadgets.AddTail(a_poGadget);
 }
 
 /* Written: Saturday 15-Oct-2011 2:46 pm, CodeHQ Söflingen */
@@ -169,17 +157,47 @@ void CStdGadgetLayout::RethinkLayout()
 #ifndef __amigaos4__
 
 	// TODO: CAW - A VERY temporary solution
-	CStdGadget *Gadget, *StatusBarGadget;
+	TInt Height;
+	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
 
 	Gadget = m_oGadgets.GetHead();
-	StatusBarGadget = NULL;
+	HorizontalSliderGadget = StatusBarGadget = NULL;
+
+	while (Gadget)
+	{
+		if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
+		{
+			HorizontalSliderGadget = Gadget;
+		}
+		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
+		{
+			StatusBarGadget = Gadget;
+		}
+
+		Gadget = m_oGadgets.GetSucc(Gadget);
+	}
+
+	Gadget = m_oGadgets.GetHead();
 
 	while (Gadget)
 	{
 		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
 			Gadget->SetGadgetPosition(-1, m_iY);
-			Gadget->SetGadgetSize(-1, m_iHeight);
+
+			Height = m_iHeight;
+
+			if (HorizontalSliderGadget)
+			{
+				Height -= HorizontalSliderGadget->Height();
+			}
+
+			if (StatusBarGadget)
+			{
+				Height -= StatusBarGadget->Height();
+			}
+
+			Gadget->SetGadgetSize(-1, Height);
 		}
 		else if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
 		{
@@ -194,7 +212,6 @@ void CStdGadgetLayout::RethinkLayout()
 		}
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{
-			StatusBarGadget = Gadget;
 			Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
 		}
 
