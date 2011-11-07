@@ -119,10 +119,13 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 /* @param	a_pvGadget	Ptr to the native gadget to be searched for */
 /* @return	A ptr to the standard gadget that contains the native gadget, */
 /*			if found, else NULL */
-/* This function search through the list of the layout's attached gadgets for */
+/* This function searches through the list of the layout's attached gadgets for */
 /* a particular native gadget (whether Win32 or Amiga OS).  It is an internal */
 /* function designed for use when mapping native events onto standard cross */
-/* platform events and should not be used by client code. */
+/* platform events and should not be used by client code.  Currently, due to */
+/* inconsistencies in Win32 & Amiga OS methods of representing gadgets, this */
+/* function searches for the native gadget ptr on Win32 and the gadget ID on */
+/* Amiga OS! */
 
 CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 {
@@ -137,7 +140,17 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 
 		while (RetVal)
 		{
+
+#ifdef __amigaos4__
+
+			if ((void *) RetVal->m_iGadgetID == a_pvGadget)
+
+#else /* ! __amigaos4__ */
+
 			if (RetVal->m_poGadget == a_pvGadget)
+
+#endif /* ! __amigaos4__ */
+
 			{
 				break;
 			}
