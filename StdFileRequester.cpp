@@ -8,10 +8,15 @@
 #include <proto/asl.h>
 #include <string.h>
 
+/* Strings for the file requester's title */
+
+static const char g_accOpenText[] = "Select file to open...";
+static const char g_accSaveText[] = "Select file to save as...";
+
 #endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 2:48 pm */
-/* @param	a_bOpen ETrue to prompt for a file to open, else EFalse for a file to save */
+/* @param	a_bSaveAs ETrue to prompt for a file to save, else EFalse for a file to open */
 /* @return	KErrNone if a filename was requested successfully */
 /*          KErrCancel if the user clicked cancel without selecting a file */
 /*          KErrNoMemory if there wasn't enough memory to allocate the requester */
@@ -20,7 +25,7 @@
 /* Once obtained, a ptr to this filename can be obtained by calling RFileRequester::FileName(). */
 /* Note that the filename may be 0 bytes long if the user clicked ok without selecting a file */
 
-TInt RFileRequester::GetFileName(TBool a_bOpen)
+TInt RFileRequester::GetFileName(TBool a_bSaveAs)
 {
 
 #ifdef __amigaos4__
@@ -37,9 +42,22 @@ TInt RFileRequester::GetFileName(TBool a_bOpen)
 	RootWindow = CWindow::GetRootWindow();
 	Screen = (RootWindow) ? CWindow::GetRootWindow()->m_poWindow->WScreen : NULL;
 
+	/* Taglist containing the tags for laying out the requester, and their default values. */
+	/* We define it here so that it can be dynamically initialised with the screen ptr */
+
+	struct TagItem Tags[] = { { ASLFR_Screen, (LONG) Screen }, { ASLFR_TitleText, (LONG) g_accOpenText },
+		{ ASLFR_DoSaveMode, a_bSaveAs }, { TAG_DONE, FALSE } };
+
+	/* Dynamically determine the requester title to use */
+
+	if (a_bSaveAs)
+	{
+		Tags[1].ti_Data = (LONG) g_accSaveText;
+	}
+
 	/* Allocate an ASL file requester */
 
-	if ((Requester = IAsl->AllocAslRequestTags(ASL_FileRequest, ASLFR_Screen, Screen, TAG_DONE)) != NULL)
+	if ((Requester = IAsl->AllocAslRequest(ASL_FileRequest, Tags)) != NULL)
 	{
 		/* And display it on the screen */
 
@@ -99,13 +117,13 @@ TInt RFileRequester::GetFileName(TBool a_bOpen)
 
 	/* Query the user for the filename to which to save */
 
-	if (a_bOpen)
+	if (a_bSaveAs)
 	{
-		GotFileName = GetOpenFileName(&OpenFileName);
+		GotFileName = GetSaveFileName(&OpenFileName);
 	}
 	else
 	{
-		GotFileName = GetSaveFileName(&OpenFileName);
+		GotFileName = GetOpenFileName(&OpenFileName);
 	}
 
 	/* Determine whether the filename was successfully obtained, the dialog was closed by the user */

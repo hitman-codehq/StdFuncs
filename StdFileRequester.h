@@ -18,7 +18,7 @@ public:
 		m_acFileName[0] = '\0';
 	}
 
-	TInt GetFileName(TBool a_bOpen);
+	TInt GetFileName(TBool a_bSaveAs);
 
 	const char *FileName()
 	{
