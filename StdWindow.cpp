@@ -46,6 +46,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 	struct IntuiWheelData *IntuiWheelData;
 	struct TagItem *TagItem;
 	CStdGadget *Gadget;
+	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
 
 	/* Get a ptr to the Window associated with the hook */
@@ -70,14 +71,14 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 		if ((TagItem = IUtility->FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
-			/* Iterate through the window's list of gadgets and search for the one matching the */
-			/* BOOPSI gadget's ID */
+			/* Iterate through the window's list of layout gadgets and search each one to see */
+			/* if it contains a gadget that represents the Reaction slider that was just moved */
 
-			if ((Gadget = Window->m_oGadgets.GetHead()) != NULL)
+			if ((LayoutGadget = Window->m_oGadgets.GetHead()) != NULL)
 			{
 				do
 				{
-					if (TagItem->ti_Data == (ULONG) Gadget->GadgetID())
+					if ((Gadget = LayoutGadget->FindNativeGadget((void *) TagItem->ti_Data)) != NULL)
 					{
 						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
 						/* client of the update */
@@ -87,7 +88,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 						break;
 					}
 				}
-				while ((Gadget = Window->m_oGadgets.GetSucc(Gadget)) != NULL);
+				while ((LayoutGadget = Window->m_oGadgets.GetSucc(LayoutGadget)) != NULL);
 			}
 		}
 	}
@@ -368,9 +369,24 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
 	m_oGadgets.AddTail(a_poLayoutGadget);
-	// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
-	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+
+#ifdef __amigaos4__
+
+	/* Add the new BOOPSI gadget to the window's root layout */
+
+	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
+	{
+		// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+		a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+		RethinkLayout();
+	}
+
+#else /* ! __amigaos4__ */
+
 	RethinkLayout();
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
@@ -881,12 +897,7 @@ void CWindow::RethinkLayout()
 
 #ifdef __amigaos4__
 
-	/* Add the new BOOPSI gadget to the window's root layout */
-
-	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
-	{
-		ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
-	}
+	ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
 
 #else /* ! __amigaos4__ */
 
