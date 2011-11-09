@@ -35,7 +35,10 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow)
 		}
 		else
 		{
-			// TODO: CAW - Move & ensure consistency with others
+			// TODO: CAW - Move & ensure consistency with others.  Note that object MUST be
+			//             attached in order for it to be destroyed when the layout is destroyed
+			//             due to Reaction ownership requirements.  If it is not attached then it
+			//             must be destroyed manually
 			a_poParentWindow->Attach(RetVal);
 		}
 	}
