@@ -116,40 +116,61 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 #endif /* _DEBUG */
 
 /* Written: Friday 04-Jun-2010 7:58 am */
+/* @param	a_pccBuffer	Ptr to buffer to parse for tokens */
+/* @return	The number of tokens found in the string */
+/* Parses a string to determine how many tokens it contains.  A token is either a single word */
+/* delimited by white space (spaces or tabs), or multiple words in a quoted string */
 
-// TODO: CAW - Oddly named function + doesn't take " into account
-TInt Utils::CountTokens(char *a_pcBuffer)
+TInt Utils::CountTokens(const char *a_pccBuffer)
 {
 	char Char;
-	TBool TokenStart;
+	TBool FoundDelimeter, TokenStart;
 	TInt Source, Dest, RetVal;
 
 	/* Iterate through the string passed in and determine how many tokens are present */
 
+	FoundDelimeter = EFalse;
 	TokenStart = ETrue;
 	Dest = RetVal = 0;
 
-	for (Source = 0; a_pcBuffer[Source]; ++Source)
+	for (Source = 0; a_pccBuffer[Source]; ++Source)
 	{
-		Char = a_pcBuffer[Source];
+		Char = a_pccBuffer[Source];
 
-		/* If the current character is a space then copy it only if the previous character was not */
-		/* also a space */
+		/* If the current character is a " then we have either found the start of a new token */
+		/* or the end of an old one */
 
-		if (Char == ' ')
+		if (Char == '"')
 		{
+			/* FoundDelimter indicates whether we have found the start of a new token or the end */
+			/* of an old one */
+
+			if (!(FoundDelimeter))
+			{
+				FoundDelimeter = ETrue;
+			}
+			else
+			{
+				FoundDelimeter = EFalse;
+			}
+
+			/* Either way we have found a new token */
+
 			TokenStart = ETrue;
-			a_pcBuffer[Dest++] = a_pcBuffer[Source];
 		}
 
-		/* The current character is not a space so just copy it */
+		/* If we have found white space then we have a new token, but only if the space is not inside */
+		/* a quoted string */
+
+		else if (((Char == ' ') || (Char == '\t')) && (!(FoundDelimeter)))
+		{
+			TokenStart = ETrue;
+		}
+
+		/* If this is the first character of a token then increment the token count */
 
 		else
 		{
-			a_pcBuffer[Dest++] = a_pcBuffer[Source];
-
-			/* If this is the first character of a token then increment the token count */
-
 			if (TokenStart)
 			{
 				++RetVal;

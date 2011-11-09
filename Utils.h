@@ -36,7 +36,7 @@ public:
 
 	static TBool AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLength);
 
-	static TInt CountTokens(char *a_pcBuffer);
+	static TInt CountTokens(const char *a_pcBuffer);
 
 	static TInt CreateDirectory(const char *a_pccDirectoryName);
 

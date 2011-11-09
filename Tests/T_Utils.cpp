@@ -70,6 +70,33 @@ int main()
 	test(String3[0] == 'h');
 	test(String3[strlen(String3) - 1] == 'd');
 
+	/* Test #3: Ensure that Utils::CountTokens() functions correctly */
+
+	Test.Next("Ensure that Utils::CountTokens() functions correctly");
+	test(Utils::CountTokens("") == 0);
+	test(Utils::CountTokens(" ") == 0);
+	test(Utils::CountTokens("One") == 1);
+	test(Utils::CountTokens("One Two") == 2);
+	test(Utils::CountTokens("One \"Two\"") == 2);
+	test(Utils::CountTokens("\"One\" \"Two\"") == 2);
+	test(Utils::CountTokens("\"One\" Two") == 2);
+	test(Utils::CountTokens("\"One\"\"Two\"") == 2);
+	test(Utils::CountTokens("\"One\"Two") == 2);
+	test(Utils::CountTokens("One\"Two\"") == 2);
+
+	/* A subset of the above tests but using tabs instead of spaces */
+
+	test(Utils::CountTokens("\t") == 0);
+	test(Utils::CountTokens("One\tTwo") == 2);
+	test(Utils::CountTokens("One\t\"Two\"") == 2);
+	test(Utils::CountTokens("\"One\"\t\"Two\"") == 2);
+	test(Utils::CountTokens("\"One\"\tTwo") == 2);
+
+	/* Some checks for handling extra whitespace */
+
+	test(Utils::CountTokens("\tOne\t\tTwo\t") == 2);
+	test(Utils::CountTokens(" One  Two ") == 2);
+
 	Test.End();
 
 	return(RETURN_OK);
