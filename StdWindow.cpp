@@ -383,6 +383,8 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 #else /* ! __amigaos4__ */
 
+	// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 	RethinkLayout();
 
 #endif /* ! __amigaos4__ */
