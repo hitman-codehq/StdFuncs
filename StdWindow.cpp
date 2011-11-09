@@ -886,7 +886,21 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 {
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Remove() => No gadget to be removed passed in");
 
+	/* Remove the layout gadget from this window's private list of layout gadgets */
+
 	m_oGadgets.Remove(a_poLayoutGadget);
+
+#ifdef __amigaos4__
+
+	/* Remove it from the Reaction layout */
+
+	DEBUGCHECK((IIntuition->IDoMethod(m_poRootGadget, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != NULL),
+		"CWindow::Remove() => Unable to remove layout gadget from window");
+
+#endif /* __amigaos4__ */
+
+	/* And rethink the layout to reflect the change */
+
 	RethinkLayout();
 }
 
