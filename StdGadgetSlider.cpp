@@ -94,7 +94,7 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poP
 	else
 	{
 		m_iWidth = m_poParentLayout->Width();
-		m_iHeight = GetSystemMetrics(SM_CYHSCROLL);
+		m_iHeight = m_iMinHeight = GetSystemMetrics(SM_CYHSCROLL);
 		m_iY = (m_poParentLayout->Height() - m_iHeight);
 	}
 

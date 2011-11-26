@@ -238,6 +238,13 @@ void CStdGadgetLayout::RethinkLayout()
 
 }
 
+/* Written: Wednesday 23-Nov-2011 6:26 am, CodeHQ Söflingen */
+
+void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
+{
+	m_iWeight = a_iWeight;
+}
+
 /* Written: Tuesday 18-Oct-2011 7:15 am, CodeHQ Söflingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
@@ -254,4 +261,31 @@ TInt CStdGadgetLayout::Y()
 #endif /* __amigaos4__ */
 
 	return(m_iY);
+}
+
+/* Written: Wednesday 23-Nov-2011 6:45 am, CodeHQ Söflingen */
+
+TInt CStdGadgetLayout::MinHeight()
+{
+	TInt RetVal;
+	CStdGadget *Gadget;
+
+	RetVal = 13; // TODO: CAW
+
+	/* Get a ptr to the first gadget in the list of the layout's attached gadgets */
+
+	if ((Gadget = m_oGadgets.GetHead()) != NULL)
+	{
+		/* If it was found then iterate through the list and count up the minimum size of */
+		/* all of the attached gadgets */
+
+		while (Gadget)
+		{
+			RetVal += Gadget->MinHeight();
+
+			Gadget = m_oGadgets.GetSucc(Gadget);
+		}
+	}
+
+	return(RetVal);
 }

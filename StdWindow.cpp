@@ -882,6 +882,77 @@ CWindow::~CWindow()
 	Close();
 }
 
+/* Written: Saturday 12-Nov-2011 7:17 am, CodeHQ Söflingen */
+/* @param	a_poLayoutGadget	Ptr to the layout gadget in the window to have */
+/*								its weight set */
+/* This function is used to make one layout gadget larger than all of the others */
+/* vertically.  It will iterate through all of the layout gadgets attached to the */
+/* window and set the one passed in to have the largest weighting and the others */
+/* to have the smallest. */
+// TODO: CAW - This function possibly needs to be made more generic + what about
+//             using LayoutGadget naming elsewhere?
+
+void CWindow::MaximiseLayoutGadget(CStdGadgetLayout *a_poLayoutGadget)
+{
+	CStdGadgetLayout *LayoutGadget;
+
+#ifdef __amigaos4__
+
+	struct lmModifyChild mc;
+	struct TagItem ti[] = { { CHILD_WeightedHeight, 0 }, { TAG_DONE, 0 } };
+
+	/* Iterate through the list of attached gadgets and set the weighting of */
+	/* all of them to 1, except for the one passed in, which we maximise to 99 */
+
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		/* Setup the lmModifyChild structure for this layout gadget */
+
+		mc.MethodID = LM_MODIFYCHILD;
+		mc.lm_Window = m_poWindow;
+		mc.lm_Object = (Object *) LayoutGadget->m_poGadget;
+		mc.lm_ObjectAttrs = ti;
+
+		/* Setup the size of the gadget depending on whether it was the one pased in */
+
+		ti[0].ti_Data = (LayoutGadget == a_poLayoutGadget) ? 99 : 1;
+
+		/* Resize the gadget */
+
+		IIntuition->IDoMethodA(m_poRootGadget, (Msg) &mc);
+
+		/* And find the next one */
+
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
+
+#else /* ! __amigaos4__ */
+
+	/* Iterate through the list of attached gadgets and set the weighting of */
+	/* all of them to 1, except for the one passed in, which we maximise to 99 */
+
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		/* Set the gadget's weight to maximum if it is the active one, else to minimal */
+
+		LayoutGadget->SetGadgetWeight((LayoutGadget == a_poLayoutGadget) ? 99 : 1);
+
+		/* And find the next one */
+
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
+
+#endif /* ! __amigaos4__ */
+
+	/* Rethink the layout of the window with the new gadget sizes */
+
+	RethinkLayout();
+}
+
 /* Written: Saturday 05-Nov-2011 9:03 am, CodeHQ Söflingen */
 
 void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
@@ -896,7 +967,7 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Remove it from the Reaction layout */
 
-	DEBUGCHECK((IIntuition->IDoMethod(m_poRootGadget, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != NULL),
+	DEBUGCHECK((IIntuition->IDoMethod(m_poRootGadget, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
 		"CWindow::Remove() => Unable to remove layout gadget from window");
 
 #endif /* __amigaos4__ */
@@ -918,17 +989,28 @@ void CWindow::RethinkLayout()
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - This is potentially slow
-	TInt Count, Height, Y;
+	TInt Count, InnerHeight, Height, MinHeight, Y;
 	CStdGadgetLayout *LayoutGadget;
 
 	// TODO: CAW - Make a list Count() function?
 	Count = Y = 0;
+	InnerHeight = m_iInnerHeight;
 	LayoutGadget = m_oGadgets.GetHead();
 
 	if (LayoutGadget)
 	{
 		while (LayoutGadget)
 		{
+			if (LayoutGadget->Weight() == 1)
+			{
+				LayoutGadget->m_iHeight = LayoutGadget->MinHeight(); // TODO: CAW - Directly accessing
+				InnerHeight -= LayoutGadget->MinHeight(); // TODO: CAW - Slow?
+			}
+			else
+			{
+				LayoutGadget->m_iHeight = -1; // TODO: CAW - Directly accessing
+			}
+
 			++Count;
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
@@ -940,9 +1022,22 @@ void CWindow::RethinkLayout()
 		while (LayoutGadget)
 		{
 			LayoutGadget->m_iY = Y;
-			LayoutGadget->m_iHeight = Height;
 
-			Y += Height;
+			if (LayoutGadget->Weight() == 1)
+			{
+				Y += LayoutGadget->MinHeight();
+			}
+			else if (LayoutGadget->Weight() == 50)
+			{
+				LayoutGadget->m_iHeight = Height;
+				Y += Height;
+			}
+			else
+			{
+				LayoutGadget->m_iHeight = InnerHeight;
+				Y += InnerHeight;
+			}
+
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
 

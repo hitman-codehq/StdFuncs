@@ -147,6 +147,8 @@ public:
 
 #endif /* __amigaos4__ */
 
+	void MaximiseLayoutGadget(CStdGadgetLayout *a_poLayoutGadget);
+
 	void Remove(CStdGadgetLayout *a_poLayoutGadget);
 
 	void RethinkLayout();

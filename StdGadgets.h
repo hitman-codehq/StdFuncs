@@ -40,6 +40,7 @@ protected:
 	TInt					m_iY;				/* to the top left hand corner of the client area */
 	TInt					m_iWidth;			/* Width of the gadget in pixels */
 	TInt					m_iHeight;			/* Height of the gadget in pixels */
+	TInt					m_iMinHeight;		/* Minimum height of the gadget in pixels */
 	CStdGadgetLayout		*m_poParentLayout;	// TODO: CAW
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 	enum TStdGadgetType		m_iGadgetType;		/* Type of gadget */
@@ -84,6 +85,8 @@ public:
 
 	virtual TInt Height();
 
+	virtual TInt MinHeight();
+
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
 };
 
@@ -98,6 +101,7 @@ class CStdGadgetLayout : public CStdGadget
 
 private:
 
+	TInt					m_iWeight;			/* Weight of the layout gadget */
 	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
 public: // TODO: CAW - Amiga
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
@@ -117,6 +121,7 @@ private:
 
 	CStdGadgetLayout(CWindow *a_poParentWindow) : CStdGadget()
 	{
+		m_iWeight = 50;
 		m_poParentWindow = a_poParentWindow;
 		m_iGadgetType = EStdGadgetLayout;
 	}
@@ -135,9 +140,18 @@ public:
 
 	void RethinkLayout();
 
+	void SetGadgetWeight(TInt a_iWeight);
+
+	TInt Weight()
+	{
+		return(m_iWeight);
+	}
+
 	/* From CStdGadget */
 
 	virtual TInt Y();
+
+	virtual TInt MinHeight();
 };
 
 /* A class representing a slider or proportional gadget */

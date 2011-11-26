@@ -76,6 +76,13 @@ TInt CStdGadget::Height()
 	return(m_iHeight);
 }
 
+/* Written: Wednesday 23-Nov-2011 6:37 am, CodeHQ Söflingen */
+
+TInt CStdGadget::MinHeight()
+{
+	return(m_iMinHeight);
+}
+
 /* Written: Tuesday 06-Jul-2011 6:58 am, CodeHQ-by-Thames */
 /* @param	a_iX	X position to which to move gadget */
 /*			a_iY	Y position to which to move gadget */

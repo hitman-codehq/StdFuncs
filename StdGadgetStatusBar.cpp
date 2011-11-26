@@ -193,7 +193,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 					RetVal = KErrNone;
 
 					m_iWidth = (Rect.right - Rect.left);
-					m_iHeight = (Rect.bottom - Rect.top);
+					m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
 				}
 				else
 				{
