@@ -97,7 +97,19 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 	{
 		for (Index = 0; Index < NumMenuItems; ++Index)
 		{
-			NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
+			/* Checkable menus are handled slightly differently */
+
+			if (a_pcoMenuItems[Index].m_eType == EStdMenuCheck)
+			{
+				NewMenus[Index].nm_Type = EStdMenuItem;
+				NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
+			}
+			else
+			{
+				NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
+				NewMenus[Index].nm_Flags = 0;
+			}
+
 			NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
 			NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
 			NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;

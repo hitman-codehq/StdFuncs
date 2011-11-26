@@ -13,7 +13,8 @@ enum TStdMenuItemType
 {
 	EStdMenuEnd,
 	EStdMenuTitle,						/* A menu */
-	EStdMenuItem						/* An item on a menu */
+	EStdMenuItem,						/* An item on a menu */
+	EStdMenuCheck						/* A checked menu item */
 };
 
 /* Structure defining a single menu item to be dynamically created */
