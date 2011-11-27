@@ -685,7 +685,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 void CWindow::Close()
 {
-	CStdGadget *Gadget;
+	CStdGadget *LayoutGadget;
 
 #ifdef __amigaos4__
 
@@ -707,9 +707,9 @@ void CWindow::Close()
 
 	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
 
-	while ((Gadget = m_oGadgets.RemHead()) != NULL)
+	while ((LayoutGadget = m_oGadgets.RemHead()) != NULL)
 	{
-		delete Gadget;
+		delete LayoutGadget;
 	}
 
 	/* And remove the window from the application's list of windows, but only */
