@@ -101,7 +101,7 @@ public:
 
 	void DrawNow();
 
-	void DrawNow(TInt a_iTop, TInt a_iBottom);
+	void DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth = -1);
 
 	void EnableFillBackground(TBool a_bFillBackground)
 	{

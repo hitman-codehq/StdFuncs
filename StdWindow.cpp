@@ -777,11 +777,14 @@ void CWindow::DrawNow()
 /* Written: Saturday 30-Nov-2010 9:15 pm */
 /* @param	a_iTop		Offset from top of client area from which to invalidate */
 /*			a_iBottom	Bottom most part of client area to which to invalidate */
+/*			a_iWidth	Width of client area to invalidate.  If -1 then the entire width */
+/*						is invalidated.  This is useful if you don't want to redraw the */
+/*						entire width of the client area for some reason */
 /* Invalidates a vertical band of the client area and instigates a redraw of that area. */
 /* The bottom of the area, represented by a_iBottom, is considered exclusive, so the area */
 /* redrawn is between a_iTop and (a_iBottom - 1) */
 
-void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
+void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 {
 	ASSERTM((a_iTop >= 0), "CWindow::DrawNow() => Y offset to draw from must not be negative");
 	ASSERTM((a_iBottom >= 0), "CWindow::DrawNow() => Y offset to draw to must not be negative");
@@ -832,7 +835,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 	{
 		Rect.bottom = (Rect.top + a_iBottom);
 		Rect.top += a_iTop;
-		Rect.right = m_iInnerWidth;
+		Rect.right = (a_iWidth != -1) ? a_iWidth : m_iInnerWidth;
 
 		/* And invalidate the vertical band */
 
