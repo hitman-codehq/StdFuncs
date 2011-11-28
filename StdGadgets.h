@@ -103,18 +103,9 @@ private:
 
 	TInt					m_iWeight;			/* Weight of the layout gadget */
 	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
-public: // TODO: CAW - Amiga
-	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 
-public: // TODO: CAW
+public: // TODO: CAW - I really don't like this but I'm fucked by templates.  What about public nonsense?
 
-#ifdef __amigaos4__
-
-	//Object				  *m_poGadget;		  /* Ptr to underlying BOOPSI gadget */
-
-#endif /* __amigaos4__ */
-
-	// TODO: CAW - I really don't like this but I'm fucked by templates
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;     /* Standard list node */
 
 private:

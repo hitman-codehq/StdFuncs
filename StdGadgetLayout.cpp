@@ -242,7 +242,35 @@ void CStdGadgetLayout::RethinkLayout()
 
 void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
 {
+	/* Save the gadget's new weight */
+
 	m_iWeight = a_iWeight;
+
+#ifdef __amigaos4__
+
+	/* For Amiga OS we also need to notify the layout gadget itself so that it */
+	/* will resize itself */
+
+	struct lmModifyChild mc;
+	struct TagItem ti[] = { { CHILD_WeightedHeight, 0 }, { TAG_DONE, 0 } };
+
+	/* Setup the lmModifyChild structure for this layout gadget */
+
+	mc.MethodID = LM_MODIFYCHILD;
+	mc.lm_Window = m_poParentWindow->m_poWindow;
+	mc.lm_Object = m_poGadget;
+	mc.lm_ObjectAttrs = ti;
+
+	/* Setup the weight of the gadget */
+
+	ti[0].ti_Data = a_iWeight;
+
+	/* And resize the gadget */
+
+	IIntuition->IDoMethodA(m_poParentWindow->m_poRootGadget, (Msg) &mc);
+
+#endif /* __amigaos4__ */
+
 }
 
 /* Written: Tuesday 18-Oct-2011 7:15 am, CodeHQ Söflingen */
