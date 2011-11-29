@@ -436,62 +436,6 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 	m_iInnerWidth = a_iInnerWidth;
 	m_iInnerHeight = a_iInnerHeight;
 
-	/* Iterate through the gadgets and reposition them to reflect the new window size, also */
-	/* adjusting the size of the client area of the window to reflect the space taken up by them */
-
-#if 0
-	Gadget = m_oGadgets.GetHead();
-
-	while (Gadget)
-	{
-		/* For Windows the status bar needs a special message to be sent to it to let it know that */
-		/* the window's size has changed (even though the documentation indicates that this is not */
-		/* necessary) */
-
-		if (Gadget->GadgetType() == EStdGadgetStatusBar)
-		{
-			m_iInnerHeight -= Gadget->Height();
-
-#ifndef __amigaos4__
-
-			SendMessage(Gadget->m_poGadget, WM_SIZE, 0, 0);
-
-#endif /* ! __amigaos4__ */
-
-		}
-
-		/* Vertical sliders always go on the right (for now) and are the hight of the client area */
-
-		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
-		{
-			m_iInnerWidth -= Gadget->Width();
-
-#ifndef __amigaos4__
-
-			MoveWindow(Gadget->m_poGadget, m_iInnerWidth, 0, Gadget->Width(), m_iInnerHeight, TRUE);
-
-#endif /* !__amigaos4__ */
-
-		}
-
-		/* Horizontal sliders always go on the bottom (for now) and are the width of the client area */
-
-		if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
-		{
-			m_iInnerHeight -= Gadget->Height();
-
-#ifndef __amigaos4__
-
-			MoveWindow(Gadget->m_poGadget, 0, m_iInnerHeight, m_iInnerWidth, Gadget->Height(), TRUE);
-
-#endif /* !__amigaos4__ */
-
-		}
-
-		Gadget = m_oGadgets.GetSucc(Gadget);
-	}
-#endif
-
 	/* Don't let the client area get negative in size or it will require too much fiddling around */
 	/* in the client program.  Just pretend it's 0 x 0 at the smallest */
 
