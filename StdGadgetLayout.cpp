@@ -173,7 +173,7 @@ void CStdGadgetLayout::RethinkLayout()
 #ifndef __amigaos4__
 
 	// TODO: CAW - A VERY temporary solution
-	TInt Height;
+	TInt Height, InnerWidth;
 	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
 
 	Gadget = m_oGadgets.GetHead();
@@ -194,12 +194,13 @@ void CStdGadgetLayout::RethinkLayout()
 	}
 
 	Gadget = m_oGadgets.GetHead();
+	InnerWidth = m_poParentWindow->InnerWidth();
 
 	while (Gadget)
 	{
 		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
-			Gadget->SetGadgetPosition(-1, m_iY);
+			Gadget->SetGadgetPosition((InnerWidth - Gadget->Width()), m_iY);
 
 			Height = m_iHeight;
 
@@ -225,6 +226,8 @@ void CStdGadgetLayout::RethinkLayout()
 			{
 				Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
 			}
+
+			Gadget->SetGadgetSize(InnerWidth, -1);
 		}
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{

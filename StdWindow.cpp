@@ -898,6 +898,8 @@ void CWindow::RethinkLayout()
 		while (LayoutGadget)
 		{
 			LayoutGadget->m_iY = Y;
+			// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?  What about height?
+			LayoutGadget->m_iWidth = m_iInnerWidth;
 
 			if (LayoutGadget->Weight() == 1)
 			{
@@ -916,9 +918,6 @@ void CWindow::RethinkLayout()
 
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
-
-		// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
-		//a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 
 		LayoutGadget = m_oGadgets.GetHead();
 
