@@ -27,7 +27,8 @@ RFont::RFont(CWindow *a_poWindow)
 #endif /* ! __amigaos4__ */
 
 	m_iHighlight = EFalse;
-	m_iYOffset = m_iWidth = m_iHeight = 0;
+	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version ignores this
+	m_iWidth = m_iHeight = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 }
 
@@ -224,7 +225,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* as text is not automatically clipped by the Amiga OS text drawing routine */
 
 	NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
-		m_poWindow->InnerWidth(), m_poWindow->InnerHeight());
+		m_iClipWidth, m_poWindow->InnerHeight());
 
 	/* And draw as much of the text passed in as will fit in the client area */
 
@@ -276,6 +277,14 @@ void RFont::SetHighlight(TBool a_iHighlight)
 	/* And save the highlight state for l8r use */
 
 	m_iHighlight = a_iHighlight;
+}
+
+/* Written: Wednesday 30-Nov-2011 5:49 am, Söflingen */
+// TODO: CAW
+
+void RFont::SetClipWidth(TInt a_iClipWidth)
+{
+	m_iClipWidth = a_iClipWidth;
 }
 
 /* Written: Friday 08-Jul-2010 7:42 am, CodeHQ-by-Thames */
