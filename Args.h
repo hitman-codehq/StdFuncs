@@ -25,9 +25,11 @@ public:
 
 	TInt Count();
 
-	const char *ProjectFileName();
+	TInt CountMultiArguments();
 
-	TInt Valid();
+	const char *MultiArgument(TInt a_iIndex);
+
+	const char *ProjectFileName();
 
 	const char *operator[](TInt a_iIndex);
 
@@ -37,16 +39,21 @@ private:
 
 	TInt ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType);
 
+	void FindMagicMultiOption(const char *a_pccTemplate, TInt a_iNumOptions);
+
 	TInt ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
 private:
 
 	char			*m_pcCommandLine;		/* Buffer for emulating CLI command line when running from Workbench */
 	char			*m_pcProjectFileName;	/* Name of project icon that was started with the program, if any */
+	TInt			m_iMagicOption;			/* Index of magic option, if any */
 	TInt			m_iNumArgs;				/* # of entries in the iArgs array */
 	LONG			*m_plArgs;				/* Array of LONGs into which to place ptrs to arguments */
 	struct RDArgs	*m_poRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading arguments */
 	struct RDArgs	*m_poTTRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading tooltypes */
+	struct RDArgs	*m_poInputRDArgs;		// TODO: CAW
+	char			*m_pcBuffer;			 // TODO: CAW - Position & name
 };
 
 #endif /* ! ARGS_H */

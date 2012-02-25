@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-#endif /* ! __amiga_os4 */
+#endif /* ! __amigaos4__ */
 
 #include <string.h>
 #include "Args.h"
@@ -20,10 +20,11 @@
 
 RArgs::RArgs()
 {
-	m_pcCommandLine = m_pcProjectFileName = NULL;
+	m_pcBuffer = m_pcCommandLine = m_pcProjectFileName = NULL;
+	m_iMagicOption = -1;
 	m_iNumArgs = 0;
 	m_plArgs = NULL;
-	m_poRDArgs = m_poTTRDArgs = NULL;
+	m_poRDArgs = m_poTTRDArgs = m_poInputRDArgs = NULL;
 }
 
 /* Written: Sunday 04-Nov-2007 11:51 am */
@@ -32,15 +33,21 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 {
 	TInt RetVal;
 
-	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
+	/* Save the # of arguments for l8r */
 
-	if ((m_plArgs = new LONG[a_iNumOptions]) != NULL)
+	m_iNumArgs = a_iNumOptions;
+
+	/* Allocate an array of LONGs into which ptrs to arguments can be placed. */
+	/* We allocate an extra entry for the name of the executable, which will */
+	/* go into m_plArgs[0] */
+
+	if ((m_plArgs = new LONG[m_iNumArgs]) != NULL)
 	{
-		memset(m_plArgs, 0, (sizeof(LONG) * a_iNumOptions));
+		memset(m_plArgs, 0, (sizeof(LONG) * m_iNumArgs));
 
-		/* Save the # of arguments for l8r */
+		/* Determine which if the option (if any) is the magic multi option */
 
-		m_iNumArgs = a_iNumOptions;
+		FindMagicMultiOption(a_pccTemplate, a_iNumOptions);
 
 		/* Now read the arguments, according to the argument template */
 
@@ -51,15 +58,62 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		/* For Amiga OS we can let dos.library do the hard work for us */
 
-		if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, NULL)) != NULL)
+		m_poInputRDArgs	= (struct RDArgs *) IDOS->AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
+
+		if (m_poInputRDArgs)
+		{
+			int Index = 0; // TODO: CAW
+			int Size = 2;
+
+			for (Index = 1; Index < a_iArgC; ++Index)
+			{
+				Size += (strlen(a_pccArgV[Index]) + 3); // TODO: CAW - Comments here & above
+			}
+
+			if ((m_pcBuffer = new char[Size]) != NULL)
+			{
+				m_pcBuffer[0] = '\0';
+
+				for (Index = 1; Index < a_iArgC; ++Index)
+				{
+					if (strstr(a_pccArgV[Index], " ") > 0) // TODO: CAW - Bodgey
+						strcat(m_pcBuffer, "\"");
+
+					strcat(m_pcBuffer, a_pccArgV[Index]);
+
+					if (strstr(a_pccArgV[Index], " ") > 0) // TODO: CAW - Bodgey
+						strcat(m_pcBuffer, "\"");
+
+					if ((Index + 1) < a_iArgC)
+						strcat(m_pcBuffer, " ");
+				}
+
+				strcat(m_pcBuffer, "\n");
+
+				m_poInputRDArgs->RDA_Source.CS_Buffer = m_pcBuffer;
+				m_poInputRDArgs->RDA_Source.CS_Length = Size;
+
+		// TODO: CAW
+		if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, m_poInputRDArgs)) != NULL)
 		{
 			RetVal = KErrNone;
 		}
 		else
 		{
-			RetVal = KErrNoMemory;
+			// TODO: CAW - What about other errors such as ERROR_TOO_MANY_ARGS?
+			if (IDOS->IoErr() == ERROR_REQUIRED_ARG_MISSING)
+			{
+				RetVal = KErrNotFound;
+			}
+			else
+			{
+				// TODO: CAW - What about handling ERROR_TOO_MANY_ARGS?
+				RetVal = KErrNoMemory;
+			}
 
 			Utils::Info("RArgs::Open() => Unable to read command line arguments");
+		}
+			}
 		}
 
 #else /* ! __amigaos4__ */
@@ -121,19 +175,29 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 }
 
 /* Written: Friday 04-Jun-2010 8:36 am  */
+/* @param	a_pcArguments	Ptr to a string containing a list of arguments passed in */
+/*							from the command line.  Note that this is a Win32 style list */
+/*							as passed into WinMain() and thus the first argument is NOT */
+/*							the filename */
 
+// TODO: CAW - Call ReadArgs() directly from within here
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
 {
 	const char **ArgV;
 	TInt ArgC, RetVal;
 
-	/* Extract the arguments from the string into an ArgV style ptr array */
+	/* Extract the arguments from the string into an ArgV style ptr array.  This */
+	/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
+	/* adds an extra (unused) entry for the filename as the first argument.  This */
+	/* is required so that when we call Open() it will ignore this first argument, */
+	/* for compatibility with argument lists passed into main(), which also have */
+	/* the filename in argv[0]! */
 
 	if ((ArgV = ExtractArguments(a_pcArguments, &ArgC)) != NULL)
 	{
 		/* And pass that array into the standard RArgs::Open() to extract the arguments */
 
-		ArgV[0] = "Test"; // TODO: CAW - How to obtain this?
+		//ArgV[0] = "Test"; // TODO: CAW - How to obtain this?  When we fix this, it will break BUBYFU and maybe others
 		RetVal = Open(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
 		delete [] ArgV;
 	}
@@ -149,6 +213,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 
 /* Written: Saturday 10-Jan-2009 3:12 pm */
 
+// TODO: CAW - Comment out for Win32?
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
 {
 	TInt RetVal;
@@ -304,11 +369,10 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 										if ((m_pcProjectFileName = new char[strlen(Path) + 1]) != NULL)
 										{
 											strcpy(m_pcProjectFileName, Path);
-											IDOS->Printf("%s\n", Path); // TODO: CAW
 										}
 										else
 										{
-											Utils::Info("RDArgs::Read() => Out of memory");
+											Utils::Info("RDArgs::Open() => Out of memory");
 										}
 									}
 								}
@@ -323,12 +387,12 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 					}
 					else
 					{
-						Utils::Info("RDArgs::Read() => Unable to allocate DOS RDArgs structure");
+						Utils::Info("RDArgs::Open() => Unable to allocate DOS RDArgs structure");
 					}
 				}
 				else
 				{
-					Utils::Info("RDArgs::Read() => Out of memory");
+					Utils::Info("RDArgs::Open() => Out of memory");
 				}
 			}
 
@@ -404,6 +468,15 @@ void RArgs::Close()
 		m_poRDArgs = NULL;
 	}
 
+	if (m_poInputRDArgs)
+	{
+		IDOS->FreeDosObject(DOS_RDARGS, m_poInputRDArgs);
+		m_poInputRDArgs = NULL;
+	}
+
+	delete m_pcBuffer;
+	m_pcBuffer = NULL;
+
 #endif /* __amigaos4__ */
 
 	/* Ensure that everything is back to the exact state it was in before Open() was called */
@@ -416,6 +489,36 @@ void RArgs::Close()
 TInt RArgs::Count()
 {
 	return(m_iNumArgs);
+}
+
+/* Written: Saturday 29-Oct-2011 8:05 am, CodeHQ Söflingen */
+
+TInt RArgs::CountMultiArguments()
+{
+	TInt RetVal;
+	const char **MultiArguments;
+
+	/* Assume no multi arguments were passed in */
+
+	RetVal = 0;
+
+	/* Check to see if any multi arguments were actually passed requested */
+
+	if (m_iMagicOption != -1)
+	{
+		/* Iterate through the multi argument ptrs and count how many are valid */
+
+		if ((MultiArguments = (const char **) m_plArgs[m_iMagicOption]) != NULL)
+		{
+			while (*MultiArguments)
+			{
+				++RetVal;
+				*MultiArguments++;
+			}
+		}
+	}
+
+	return(RetVal);
 }
 
 /* Written: Sunday 03-05-2010 9:38 am */
@@ -462,15 +565,15 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 	}
 	else
 	{
-		Utils::Info("RDArgs::ExtractTokens() => Out of memory");
+		Utils::Info("RDArgs::ExtractArguments() => Out of memory");
 	}
 
 	return(RetVal);
 }
 
-#ifndef __amigaos4__
-
 /* Written: Thursday 16-Jul-2009 6:37 am */
+/* @param	a_ppcOption	Ptr to a ptr into which to place the name of the option extracted. */
+/*						May be NULL if you are only interested in the option's type */
 
 TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType)
 {
@@ -480,8 +583,12 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 	/* Assume the option wasn't extracted successfully */
 
 	RetVal = KErrNotFound;
-	*a_ppcOption = NULL;
 	*a_pcType = '\0';
+
+	if (a_ppcOption)
+	{
+		*a_ppcOption = NULL;
+	}
 
 	/* Iterate through the template, starting at the offset passed in, and look for the type separator for */
 	/* the current option and the ',' that separates this option from the next one */
@@ -531,31 +638,83 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 
 	if (StartOffset < EndOffset)
 	{
-		if ((*a_ppcOption = Option = new char[(EndOffset - StartOffset) + 1]) != NULL)
+		/* Indicate success */
+
+		RetVal = KErrNone;
+
+		/* Only return the option if the calling code has passed in a ptr into which to place this option */
+
+		if (a_ppcOption)
 		{
-			/* Indicate success */
-
-			RetVal = KErrNone;
-
-			/* And copy the found option into the allocated buffer */
-
-			for (Offset = 0; StartOffset < EndOffset; ++StartOffset)
+			if ((*a_ppcOption = Option = new char[(EndOffset - StartOffset) + 1]) != NULL)
 			{
-				Option[Offset++] = a_pccTemplate[StartOffset];
-			}
+				/* Indicate success */
 
-			Option[Offset] = '\0';
-		}
-		else
-		{
-			RetVal = KErrNoMemory;
+				RetVal = KErrNone;
+
+				/* And copy the found option into the allocated buffer */
+
+				for (Offset = 0; StartOffset < EndOffset; ++StartOffset)
+				{
+					Option[Offset++] = a_pccTemplate[StartOffset];
+				}
+
+				Option[Offset] = '\0';
+			}
+			else
+			{
+				RetVal = KErrNoMemory;
+			}
 		}
 	}
 
 	return(RetVal);
 }
 
-#endif /* ! __amigaos4__ */
+/* Written: Saturday 29-Oct-2011 7:28 am, CodeHQ Söflingen */
+
+void RArgs::FindMagicMultiOption(const char *a_pccTemplate, TInt a_iNumOptions)
+{
+	char Type;
+	TInt Index, Offset, RetVal; // TODO: CAW
+
+	Offset = 0;
+
+	for (Index = 0; Index < a_iNumOptions; ++Index)
+	{
+		if ((RetVal = ExtractOption(a_pccTemplate, &Offset, NULL, &Type)) == KErrNone)
+		{
+			if (Type == 'M')
+			{
+				m_iMagicOption = Index;
+
+				break;
+			}
+		}
+	}
+}
+
+/* Written: Saturday 29-Oct-2011 7:54 am */
+
+const char *RArgs::MultiArgument(TInt a_iIndex)
+{
+	const char *RetVal;
+	const char **MultiArguments;
+
+	RetVal = NULL;
+
+	if (m_iMagicOption != -1)
+	{
+		MultiArguments = (const char **) m_plArgs[m_iMagicOption];
+
+		if (MultiArguments)
+		{
+			RetVal = MultiArguments[a_iIndex];
+		}
+	}
+
+	return(RetVal);
+}
 
 /* Written: Tuesday 13-Jan-2009 7:19 am */
 
@@ -577,7 +736,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 	RetVal = KErrNone;
 
-	/* Allocate a buffer large enouth to hold the arguments passed in from the command line.  This */
+	/* Allocate a buffer large enough to hold the arguments passed in from the command line.  This */
 	/* is used to keep track of which arguments have been found already so that /A options can be */
 	/* automatically filled in after scanning the other options */
 
@@ -644,7 +803,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 							{
 								/* Found an unused argument so copy this into the args array so that it represents */
 								/* the current A option when queried by client code.  Set the temporary copy to NULL */
-								/* so taht it is not reused again for the next A option */
+								/* so that it is not reused again for the next A option */
 
 								m_plArgs[Index] = (LONG) ArgV[Arg];
 								ArgV[Arg] = NULL;
@@ -663,6 +822,46 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 							delete [] OptionName;
 
 							break;
+						}
+					}
+
+					// TODO: CAW - Ensure that this matches the quirky behaviour of the Amiga version as described
+					//			   in the autodocs
+					// TODO: CAW - This is pretty horrible as in the case of DEST/A/M, OptionName will be DEST/A
+					//             and it's undescribed why DEST doesn't get handled by the above
+
+					else if (Type == 'M')
+					{
+						/* Now scan through the arguments passed in looking for an unused one */
+
+						for (Arg = 1; Arg < a_iArgC; ++Arg)
+						{
+							/* Only use the argument if it is not an empty string ("") */
+
+							if ((ArgV[Arg]) && (strlen(ArgV[Arg]) > 0))
+							{
+								if (!(m_plArgs[m_iMagicOption]))
+								{
+									m_plArgs[m_iMagicOption] = (LONG) new char *[10]; // TODO: CAW
+									char **Ptr = (char **) m_plArgs[m_iMagicOption];
+									*Ptr = NULL;
+								}
+
+								if (m_plArgs[m_iMagicOption])
+								{
+									char **Ptr = (char **) m_plArgs[m_iMagicOption];
+
+									while (*Ptr)
+									{
+										*Ptr++;
+									}
+
+									*Ptr = ArgV[Arg];
+									*(Ptr + 1) = NULL;
+
+									ArgV[Arg] = NULL;
+								}
+							}
 						}
 					}
 
@@ -689,34 +888,30 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 #endif /* ! __amigaos4__ */
 
-/* Written: Sunday 04-Nov-2007 12:17 pm */
-
-TInt RArgs::Valid()
-{
-	TInt Index, RetVal;
-
-	/* Assume no arguments were passed in */
-
-	RetVal = 0;
-
-	/* Iterate through the argument ptrs and count how many are valid */
-
-	for (Index = 0; Index < m_iNumArgs; ++Index)
-	{
-		if (m_plArgs[Index])
-		{
-			++RetVal;
-		}
-	}
-
-	return(RetVal);
-}
-
 /* Written: Sunday 04-Nov-2007 11:57 am */
 
 const char *RArgs::operator[](TInt a_iIndex)
 {
+	const char *RetVal;
+	const char **MultiArguments;
+
 	ASSERTM(((a_iIndex >= 0) && (a_iIndex < m_iNumArgs)), "RArgs::operator[]() => a_iIndex is out of range");
 
-	return((const char *) m_plArgs[a_iIndex]);
+	if (a_iIndex == m_iMagicOption)
+	{
+		if ((MultiArguments = (const char **) m_plArgs[a_iIndex]) != NULL)
+		{
+			RetVal = *(const char **) m_plArgs[a_iIndex];
+		}
+		else
+		{
+			RetVal = NULL;
+		}
+	}
+	else
+	{
+		RetVal = (const char *) m_plArgs[a_iIndex];
+	}
+
+	return(RetVal);
 }
