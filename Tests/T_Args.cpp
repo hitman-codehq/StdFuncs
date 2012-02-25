@@ -112,7 +112,7 @@ int main()
 	for (Index = ARGS_COPY; Index < ARGS_NUM_ARGS; ++Index)
 	{
 		Test.Printf("Checking \"%s\"\n", g_pccArgV[Index + 1]);
-		test((unsigned int) Args[Index] == 0xffffffff);
+		test(Args[Index] != 0);
 	}
 
 	Args.Close();
@@ -133,7 +133,7 @@ int main()
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	test((unsigned int) Args[2] == 0xffffffff);
+	test(Args[2] != 0);
 
 	Args.Close();
 
@@ -150,7 +150,7 @@ int main()
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	test((unsigned int) Args[2] == 0xffffffff);
+	test(Args[2] != 0);
 
 	Args.Close();
 
@@ -168,7 +168,7 @@ int main()
 
 	CHECK_ARG(Args[0], "Source Dir");
 	CHECK_ARG(Args[1], "Dest Dir");
-	test((unsigned int) Args[2] == 0xffffffff);
+	test(Args[2] != 0);
 
 	Args.Close();
 
@@ -206,7 +206,7 @@ int main()
 
 	Result = Args.Open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);
-	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
+	test(Args.Count() == ARGS_MULTI_NUM_ARGS); // TODO: CAW - This doesn't make much sense any more + how does it fit in with Valid()?
 
 	/* Ensure that the string arguments have been read as expected */
 
