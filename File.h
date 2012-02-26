@@ -20,11 +20,15 @@ class RFile
 
 	BPTR	m_oHandle;		/* Handle to the open file or 0 if closed */
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	int		m_oHandle;		/* Handle to the open file or 0 if closed */
+
+#else /* ! __linux__ */
 
 	HANDLE	m_oHandle;		/* Handle to the open file or 0 if closed */
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 public:
 

@@ -7,7 +7,21 @@
 #include <proto/exec.h>
 #include <proto/dos.h>
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+#define TRUE 1
+#define FALSE 0
+
+typedef void * APTR;
+typedef int BOOL;
+typedef long LONG;
+typedef unsigned char UBYTE;
+typedef unsigned long ULONG;
+
+// TODO: CAW - Have to think about what to do about this
+#define stricmp strcasecmp
+
+#else /* ! __linux__ */
 
 /* Enable newer functionality such as mouse wheel handling */
 
@@ -19,7 +33,7 @@
 typedef void * APTR;
 typedef unsigned char UBYTE;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 #include "MungWall.h"
 

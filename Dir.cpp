@@ -6,7 +6,11 @@
 #include <proto/exec.h>
 #include <proto/utility.h>
 
-#endif /* __amigaos4__ */
+#elif defined(__linux__)
+
+#include <errno.h>
+
+#endif /* __linux__ */
 
 #include <string.h>
 #include "Dir.h"
@@ -46,11 +50,15 @@ TBool TEntry::IsHidden() const
 
 	return(EFalse); // TODO: CAW + use a similar check to below above?
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	return(EFalse); // TODO: CAW + use a similar check to below above?
+
+#else /* ! __linux__ */
 
 	return(iAttributes & FILE_ATTRIBUTE_HIDDEN);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -61,12 +69,17 @@ TBool TEntry::IsHidden() const
 void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
 	const struct DateStamp &a_roPlatformDate)
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
+	const int &a_roPlatformDate)
+
+#else /* ! __linux__ */
 
 void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
 	const FILETIME &a_roPlatformDate)
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 {
 	iIsDir = a_bIsDir;
@@ -188,7 +201,11 @@ RDir::RDir()
 	iPattern = NULL;
 	iContext = NULL;
 
-#endif /* __amigaos4__ */
+#elif defined(__linux__)
+
+	iDir = NULL;
+
+#endif /* __linux__ */
 
 	iSingleEntryOk = EFalse;
 }
@@ -240,7 +257,8 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	/* Allocate a buffer for the path passed in and save it for l8r use */
 
-	// TODO: CAW - Make like Windows version, here and in Read()
+	// TODO: CAW - Make like Windows version, here and in Read().  When done make all checks for iSingleEntryOk
+	//             into one for all platforms
 	if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
 	{
 		strcpy(iPath, a_pccPattern);
@@ -304,7 +322,11 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+
+#else /* ! __linux__ */
 
 	char Path[10240]; // TODO: CAW
 	WIN32_FIND_DATA FindData;
@@ -377,7 +399,7 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* If anything went wrong, clean up whatever was allocated */
 
@@ -411,7 +433,11 @@ void RDir::Close()
 		iContext = NULL;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+
+#else /* ! __linux__ */
 
 	if (iHandle)
 	{
@@ -419,7 +445,7 @@ void RDir::Close()
 		iHandle = NULL;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	iSingleEntryOk = EFalse;
 }
@@ -430,6 +456,11 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 {
 	TInt RetVal;
 
+	/* Assume success */
+
+	RetVal = KErrNone;
+	a_roEntries = &iEntries;
+
 #ifdef __amigaos4__
 
 	char *LinkName;
@@ -439,14 +470,10 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	struct ExamineData *ExamineData;
 	struct TEntry *Entry, LinkEntry;
 
-	/* Assume success */
-
-	Error = EFalse;
-	RetVal = KErrNone;
-	a_roEntries = &iEntries;
-
 	/* Iterate through the scanned entries and prepare a TEntry instance to contain */
 	/* the appropriate information about each entry */
+
+	Error = EFalse;
 
 	if (iContext) // TODO: CAW - Test without this + perform full failure testing
 	{
@@ -560,17 +587,18 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 		}
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	RetVal = KErrNotFound;
+
+#else /* ! __linux__ */
 
 	WIN32_FIND_DATA FindData;
 
-	/* Assume success */
-
-	RetVal = KErrNone;
-	a_roEntries = &iEntries;
-
 	if (!(iSingleEntryOk))
 	{
+		// TODO: CAW - How to tell if this has failed or run out of files?
 		while (FindNextFile(iHandle, &FindData))
 		{
 			if ((strcmp(FindData.cFileName, ".")) && (strcmp(FindData.cFileName, "..")))
@@ -605,7 +633,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }

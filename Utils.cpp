@@ -1,6 +1,9 @@
 
 #include "StdFuncs.h"
+// TODO: CAW - Temporary
+#ifndef __linux__
 #include "StdWindow.h"
+#endif
 
 #ifdef __amigaos4__
 
@@ -9,7 +12,12 @@
 #include <proto/utility.h>
 #include <workbench/startup.h>
 
-#endif /* __amigaos4__ */
+#elif defined(__linux__)
+
+#include <sys/stat.h>
+#include <time.h>
+
+#endif /* __linux__ */
 
 #include <stdio.h>
 #include <string.h>
@@ -17,13 +25,17 @@
 
 #define PRINTF printf
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(__linux__)
 
 #define VSNPRINTF vsnprintf
 
-#else /* ! __amigaos4__ */
+#else /* ! defined(__amigaos4__) || defined(__linux__) */
 
 #define VSNPRINTF _vsnprintf
+
+#endif /* ! defined(__amigaos4__) || defined(__linux__) */
+
+#ifndef __amigaos4__
 
 static const char *g_apccMonths[] =
 {
@@ -203,7 +215,12 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 		RetVal = (IDOS->IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
 
 	if (::CreateDirectory(a_pccDirectoryName, NULL))
 	{
@@ -214,7 +231,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 		RetVal = (GetLastError() == ERROR_ALREADY_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -392,7 +409,12 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
 
 	HANDLE Handle;
 	SYSTEMTIME SystemTime;
@@ -438,7 +460,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -460,7 +482,14 @@ void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
 		IIntuition->UnlockPubScreen(NULL, Screen);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	if (0)
+	{
+	}
+
+#else /* ! __linux__ */
 
 	RECT Rect;
 
@@ -470,7 +499,7 @@ void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
 		*a_piHeight = (Rect.bottom - Rect.top);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	else
 	{
@@ -550,7 +579,11 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 		Utils::Info("Utils::GetShellHeight() => Unable to put console into RAW mode");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+
+#else /* ! __linux__ */
 
 	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
 	HANDLE StdOut;
@@ -580,7 +613,7 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 		Utils::Info("Utils::GetShellHeight() => Unable get handle to console");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -600,12 +633,17 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 	IExec->DebugPrintF("%s\n", Message);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Don't use this
+	printf("%s\n", Message);
+
+#else /* ! __linux__ */
 
 	OutputDebugString(Message);
 	OutputDebugString("\n");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	va_end(Args);
 }
@@ -642,7 +680,9 @@ TBool Utils::IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory)
 
 #endif
 
-// TODO: CAW - This is going to break AMC + standardise on errors
+// TODO: CAW - This is going to break AMC + standardise on errors + this pulls in a reference to File.cpp!
+// TODO: CAW - __linux__ #ifdef is temporary
+#ifndef __linux__
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 {
 	unsigned char *Buffer;
@@ -707,6 +747,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 	return(RetVal);
 }
+#endif
 
 /* Written: Wednesday 09-Mar-2011 6:27 am */
 /* @param	a_pcPath Ptr to qualified path to be normalised */
@@ -745,6 +786,15 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 {
 	char Message[512];
 	TInt RetVal;
+
+// TODO: CAW - Temporary for linux port
+#ifdef __linux__
+
+	PRINTF(a_pccTitle);
+	PRINTF(": %s\n", Message);
+	RetVal = KErrNone;
+
+#else
 
 	CWindow *RootWindow;
 
@@ -859,6 +909,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 
 #endif /* ! __amigaos4__ */
+#endif
 
 	return(RetVal);
 }
@@ -956,7 +1007,12 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 	RetVal = KErrNone;
 	IDOS->SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
 
 	HANDLE Handle;
 
@@ -976,7 +1032,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 		CloseHandle(Handle);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -993,7 +1049,12 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 	RetVal = KErrNone;
 	IDOS->SetProtection(a_pccFileName, a_uiAttributes);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement this
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
 
 	if (SetFileAttributes(a_pccFileName, a_uiAttributes))
 	{
@@ -1004,7 +1065,7 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 		RetVal = (GetLastError() == ERROR_FILE_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }

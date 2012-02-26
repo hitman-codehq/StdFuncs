@@ -445,6 +445,14 @@ void RArgs::Close()
 	delete [] m_pcProjectFileName;
 	m_pcProjectFileName = NULL;
 
+	/* Delete the array used for the magic multi args */
+
+	if (m_iMagicOption != -1)
+	{
+		delete [] (char **) (m_plArgs[m_iMagicOption]); // TODO: CAW - Bodgey bodgey bodgey
+		m_iMagicOption = -1;
+	}
+
 	/* And the array used for ptrs to arguments */
 
 	delete [] m_plArgs;

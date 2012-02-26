@@ -5,6 +5,12 @@
 #include "StdList.h"
 #include "Time.h"
 
+#ifdef __linux__
+
+#include <dirent.h>
+
+#endif /* __linux__ */
+
 /* An instance of this class represents a directory or file name and its associated */
 /* attributes, such as name etc.  It is filled in by the RDir class */
 
@@ -25,11 +31,15 @@ public:
 	// TODO: CAW - I don't like this, nor the Set() function below
 	struct DateStamp	iPlatformDate;		/* Date and time in Amiga specific format */
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	int					iPlatformDate;		/* Date and time in Linux specific format */
+
+#else /* ! __linux__ */
 
 	FILETIME			iPlatformDate;		/* Date and time in Windows specific format */
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	TEntry();
 
@@ -44,12 +54,17 @@ public:
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
 		const struct DateStamp &a_roAmigaDate);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
+		const int &a_roLinuxDate);
+
+#else /* ! __linux__ */
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
 		const FILETIME &a_roWindowsDate);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 };
 
@@ -108,11 +123,15 @@ private:
 	char			*iPattern;		/* Pattern to be used for MatchPatternNoCase() */
 	APTR			iContext;		/* Context used for scanning directory */
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	DIR				*iDir;
+
+#else /* ! __linux__ */
 
 	HANDLE			iHandle;		/* Handle used for scanning directory */
 
-#endif /* __amigaos4__ */
+#endif /* ! __linux__ */
 
 	TEntry			iSingleEntry;	/* If a single entry is being examined, Open() will populate this */
 	TBool			iSingleEntryOk;	/* ETrue if the contents of iSingleEntry are valid, else EFalse */
