@@ -1,9 +1,11 @@
 
 #include "StdFuncs.h"
-// TODO: CAW - Temporary
+
 #ifndef __linux__
+
 #include "StdWindow.h"
-#endif
+
+#endif /* ! __linux__ */
 
 #ifdef __amigaos4__
 
@@ -411,8 +413,42 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
-	RetVal = KErrGeneral;
+	struct stat Stat;
+	struct tm *Tm;
+
+	/* Assume failure */
+
+	RetVal = KErrNotFound;
+
+	/* Obtain information about the file and convert its last modification time to the local time */
+
+	if (stat(a_pccFileName, &Stat) == 0)
+	{
+		if ((Tm = localtime(&Stat.st_mtime)) != NULL)
+		{
+			RetVal = KErrNone;
+
+			/* Convert the Linux time information to a TDateTime that the TEntry can use internally */
+
+			TDateTime DateTime((Tm->tm_year + 1900), (TMonth) (Tm->tm_mon - 1), Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
+
+			/* Fill in the file's properties in the TEntry structure */
+
+			a_poEntry->Set(S_ISDIR(Stat.st_mode), 0, Stat.st_size, Stat.st_mode, DateTime, Stat.st_mtime);
+
+			/* Copy the filename into the TEntry structure */
+
+			strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+		}
+		else
+		{
+			Info("GetFileInfo() => Unable to convert timestamp to local time");
+		}
+	}
+	else
+	{
+		Info("GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
+	}
 
 #else /* ! __linux__ */
 
@@ -582,6 +618,8 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 #elif defined(__linux__)
 
 	// TODO: CAW - Implement this
+	RetVal = ETrue;
+	*a_piHeight = 50;
 
 #else /* ! __linux__ */
 
@@ -787,14 +825,13 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	char Message[512];
 	TInt RetVal;
 
-// TODO: CAW - Temporary for linux port
-#ifdef __linux__
+	/* Format the message for use no matter how it is displayed */
 
-	PRINTF(a_pccTitle);
-	PRINTF(": %s\n", Message);
-	RetVal = KErrNone;
+	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-#else
+	/* Linux does not at the moment support the GUI version of this library */
+
+#ifndef __linux__
 
 	CWindow *RootWindow;
 
@@ -803,7 +840,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RootWindow = CWindow::GetRootWindow();
 
-	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
+#endif /* ! __linux__ */
 
 #ifdef __amigaos4__
 
@@ -877,11 +914,19 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	}
 	else
 	{
-		PRINTF(a_pccTitle);
-		PRINTF(": %s\n", Message);
+		PRINTF("%s: %s\n", a_pccTitle, Message);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	(void) a_eMessageBoxType;
+
+	/* No GUI support in the Linux version yet so just print the message */
+
+	PRINTF("%s: %s\n", a_pccTitle, Message);
+	RetVal = IDCANCEL;
+
+#else /* ! __linux__ */
 
 	UINT Type;
 
@@ -908,8 +953,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 
-#endif /* ! __amigaos4__ */
-#endif
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
