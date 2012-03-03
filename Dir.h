@@ -33,7 +33,7 @@ public:
 
 #elif defined(__linux__)
 
-	int					iPlatformDate;		/* Date and time in Linux specific format */
+	time_t				iPlatformDate;		/* Date and time in Linux specific format */
 
 #else /* ! __linux__ */
 
@@ -57,7 +57,7 @@ public:
 #elif defined(__linux__)
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const int &a_roLinuxDate);
+		const time_t &a_roLinuxDate);
 
 #else /* ! __linux__ */
 
@@ -125,6 +125,7 @@ private:
 
 #elif defined(__linux__)
 
+	char			*iPath;			/* Path to directory being scanned, minus wildcard */
 	DIR				*iDir;
 
 #else /* ! __linux__ */

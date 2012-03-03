@@ -72,7 +72,7 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttr
 #elif defined(__linux__)
 
 void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
-	const int &a_roPlatformDate)
+	const time_t &a_roPlatformDate)
 
 #else /* ! __linux__ */
 
@@ -203,6 +203,7 @@ RDir::RDir()
 
 #elif defined(__linux__)
 
+	iPath = NULL;
 	iDir = NULL;
 
 #endif /* __linux__ */
@@ -211,7 +212,21 @@ RDir::RDir()
 }
 
 /* Written: Saturday 03-Nov-2007 4:43 pm */
+/* @param	a_pccPattern	OS specific path and wildcard to scan */
+/* @return	KErrNone if directory was opened successfully */
+/*			KErrPathNotFound if the directory or file could not be opened for scanning */
+/*			KErrNoMemory if not enough memory to open the directory or file */
+/* This function prepares to scan a file or directory.  The a_pccPattern parameter can */
+/* refer to either a directory name, a single filename, a wildcard pattern or a combination */
+/* thereof.  Examples are: */
+/* */
+/* "" */
+/* "SomeDir" */
+/* "SomeFile" */
+/* "*.txt" */
+/* "SomeDir/SomeFile" */
 
+// TODO: CAW - For all versions, this should only open the directory, not scan it
 TInt RDir::Open(const char *a_pccPattern)
 {
 	TInt RetVal;
@@ -224,7 +239,6 @@ TInt RDir::Open(const char *a_pccPattern)
 	/* Get information about the file or directory being passed in. If it is a file or a link */
 	/* then save the information for l8r and don't continue */
 
-	// TODO: CAW
 	if (Utils::GetFileInfo(a_pccPattern, &iSingleEntry) == KErrNone)
 	{
 		if (!(iSingleEntry.IsDir()))
@@ -290,7 +304,7 @@ TInt RDir::Open(const char *a_pccPattern)
 				}
 				else
 				{
-					RetVal = KErrGeneral; // TODO: CAW
+					RetVal = KErrGeneral; // TODO: CAW + all errors need to be checked here and documentation updated
 				}
 			}
 
@@ -324,7 +338,38 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
+	TInt FileNameOffset;
+
+	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+
+	if (!(iSingleEntryOk))
+	{
+		/* Allocate a buffer to hold the path part of the directory and save the path into */
+		/* it by chopping off the filepart of the path passed in (which will be a wildcard). */
+
+		if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
+		{
+			strcpy(iPath, a_pccPattern);
+			FileNameOffset = (Utils::FilePart(iPath) - iPath);
+			iPath[FileNameOffset] = '\0';
+
+			/* Open the directory for scanning.  We don't do any actual scanning here - that will */
+			/* be done in Read() */
+
+			if ((iDir = opendir(a_pccPattern)) != NULL)
+			{
+				RetVal = KErrNone;
+			}
+			else
+			{
+				RetVal = KErrPathNotFound;
+			}
+		}
+		else
+		{
+			RetVal = KErrNoMemory;
+		}
+	}
 
 #else /* ! __linux__ */
 
@@ -419,10 +464,14 @@ void RDir::Close()
 
 	iEntries.Purge();
 
-#ifdef __amigaos4__
+#ifndef WIN32
 
 	delete [] iPath;
 	iPath = NULL;
+
+#endif /* ! WIN32 */
+
+#ifdef __amigaos4__
 
 	delete [] iPattern;
 	iPattern = NULL;
@@ -435,7 +484,11 @@ void RDir::Close()
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
+	if (iDir)
+	{
+		closedir(iDir);
+		iDir = NULL;
+	}
 
 #else /* ! __linux__ */
 
@@ -589,8 +642,64 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
-	RetVal = KErrNotFound;
+	char *QualifiedName;
+	TInt BaseLength, Length;
+	struct dirent *DirEnt;
+	struct TEntry *Entry, FileInfo;
+
+	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+
+	if (!(iSingleEntryOk))
+	{
+		QualifiedName = NULL;
+		BaseLength = (strlen(iPath) + 1 + 1);
+
+		/* Scan through the directory and fill the iEntries array with filenames */
+
+		while ((DirEnt = readdir(iDir)) != NULL)
+		{
+			/* Append the entry to the entry list, but only if it doesn't represent the current or */
+			/* parent directory */
+
+			if ((strcmp(DirEnt->d_name, ".")) && (strcmp(DirEnt->d_name, "..")))
+			{
+				if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
+				{
+					/* UNIX only returns the filename itself when scanning the directory so get all of */
+					/* the other details for the directory entry */
+
+					// TODO: CAW - Use a function for this and change the Amiga version to match it.  Amiga
+					//             version uses IDOS->AddPart()?
+					Length = (BaseLength + strlen(DirEnt->d_name));
+
+					if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
+					{
+						strcpy(QualifiedName, iPath);
+						Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
+						Utils::Info(QualifiedName);
+
+						RetVal = Utils::GetFileInfo(QualifiedName, Entry);
+					}
+				}
+				else
+				{
+					RetVal = KErrNoMemory;
+
+					break;
+				}
+			}
+		}
+
+		Utils::FreeTempBuffer(QualifiedName);
+
+		/* If DirEnt is NULL then we reached the end of the readdir() scan.  Check to see if this */
+		/* happened because we had scanned all files or if it is because there was an error */
+
+		if ((!(DirEnt)) && (errno != 0))
+		{
+			RetVal = KErrNotFound;
+		}
+	}
 
 #else /* ! __linux__ */
 
