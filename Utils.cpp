@@ -656,6 +656,80 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 	return(RetVal);
 }
 
+/* Written: Tuesday 28-Feb-2012 8:43 am, CodeHQ Enhinger Tor */
+/* @param	a_pccBuffer	Ptr to the currently allocated buffer */
+/* @param	a_iSize		Size in bytes of the new buffer to be allocated */
+/* @return	A Ptr to the allocated buffer if successful, else NULL */
+/* This function is useful if you have a situation that calls for a temporary */
+/* buffer of an unknown and varying size (thus preventing the use of a satic */
+/* buffer) and do not want to dynamically allocate and delete the buffer every */
+/* time you use it.  If you use this function instead then the buffer will only */
+/* be reallocated if the new buffer is larger than the old one.  The first */
+/* time you call this function you should pass in NULL as the buffer ptr.  */
+/* For subsequent calls, pass in the buffer returned by the previous call. */
+/* When done, use Utils::FreeTempBuffer() to free the allocated buffer */
+
+void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
+{
+	char *RetVal;
+	TInt Size;
+
+	/* If the buffer has already been allocated then check to see if it is */
+	/* large enough to hold the newly requested size */
+
+	if (a_pccBuffer)
+	{
+		/* The size is stored in the long word just before the ptr that is */
+		/* returned to the user */
+
+		Size = *(TInt *) (a_pccBuffer - 4);
+
+		/* If the current buffer is large enough then reuse it */
+
+		if (Size >= a_iSize)
+		{
+			RetVal = a_pccBuffer;
+		}
+
+		/* Otherwise delete it and it will be reallocated */
+
+		else
+		{
+			delete [] (a_pccBuffer - 4);
+			a_pccBuffer = NULL;
+		}
+	}
+
+	/* If no buffer is allocated then allocate it now */
+
+	if (!(a_pccBuffer))
+	{
+		// TODO: CAW - How do we ensure this doesn't throw an exception here and for other operating systems?
+		RetVal = new char[a_iSize + 4];
+
+		/* Save the size of the buffer in the first long word of the buffer and return */
+		/* a ptr to just after that word to the user */
+
+		*(TInt *) RetVal = a_iSize;
+		RetVal += 4;
+	}
+
+	return((void *) RetVal);
+}
+
+/* Written: Tuesday 28-Feb-2012 9:00 am, CodeHQ Enhinger Tor */
+/* @param	a_pccBuffer	Ptr to the buffer to be freed */
+/* Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass */
+/* in NULL to this routine */
+
+void Utils::FreeTempBuffer(char *a_pccBuffer)
+{
+	if (a_pccBuffer)
+	{
+		delete [] (a_pccBuffer - 4);
+	}
+}
+
 #ifdef _DEBUG
 
 void Utils::Info(const char *a_pccMessage, ...)

@@ -54,6 +54,10 @@ public:
 
 	static TBool GetShellHeight(TInt *a_piHeight);
 
+	static void *GetTempBuffer(char *a_pccBuffer, TInt a_iSize);
+
+	static void FreeTempBuffer(char *a_pccBuffer);
+
 #ifdef _DEBUG
 
 	static void AssertionFailure(const char *a_pccMessage, ...);
