@@ -17,6 +17,8 @@
 
 #endif /* ! __amigaos4__ */
 
+#include <string.h>
+
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */

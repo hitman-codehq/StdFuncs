@@ -13,6 +13,8 @@
 
 #endif /* __amigaos4__ */
 
+#include <string.h>
+
 /* Written: Wednesday 21-Mar-2011 6:25 am, Hilton Košice */
 
 CStdGadget::~CStdGadget()
