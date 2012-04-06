@@ -674,6 +674,10 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 	char *RetVal;
 	TInt Size;
 
+	/* Assume failure */
+
+	RetVal = NULL;
+
 	/* If the buffer has already been allocated then check to see if it is */
 	/* large enough to hold the newly requested size */
 
