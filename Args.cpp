@@ -43,8 +43,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 	if ((m_plArgs = new LONG[m_iNumArgs]) != NULL)
 	{
-		memset(m_plArgs, 0, (sizeof(LONG) * m_iNumArgs));
-
 		/* Determine which if the option (if any) is the magic multi option */
 
 		FindMagicMultiOption(a_pccTemplate, a_iNumOptions);
@@ -445,6 +443,8 @@ void RArgs::Close()
 	delete [] m_pcProjectFileName;
 	m_pcProjectFileName = NULL;
 
+#ifndef __amigaos4__
+
 	/* Delete the array used for the magic multi args */
 
 	if (m_iMagicOption != -1)
@@ -452,6 +452,8 @@ void RArgs::Close()
 		delete [] (char **) (m_plArgs[m_iMagicOption]); // TODO: CAW - Bodgey bodgey bodgey
 		m_iMagicOption = -1;
 	}
+
+#endif /* ! __amigaos4__ */
 
 	/* And the array used for ptrs to arguments */
 
