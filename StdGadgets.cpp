@@ -13,6 +13,13 @@
 
 #endif /* __amigaos4__ */
 
+/* Written: Wednesday 21-Mar-2011 6:25 am, Hilton Košice */
+
+CStdGadget::~CStdGadget()
+{
+	delete [] m_iText;
+}
+
 /* Written: Tuesday 13-Jul-2011 06:40 am, CodeHQ-by-Thames */
 
 TInt CStdGadget::X()
@@ -81,6 +88,19 @@ TInt CStdGadget::Height()
 TInt CStdGadget::MinHeight()
 {
 	return(m_iMinHeight);
+}
+
+/* Written: Wednesday 21-Mar-2011 6:27 am, Hilton Košice */
+
+void CStdGadget::SaveText(const char *a_pccText)
+{
+	// TODO: CAW - Use function written for Linux for resizable buffer
+	delete [] m_iText;
+
+	if ((m_iText = new char[strlen(a_pccText) + 1]) != NULL)
+	{
+		strcpy(m_iText, a_pccText);
+	}
 }
 
 /* Written: Tuesday 06-Jul-2011 6:58 am, CodeHQ-by-Thames */

@@ -217,11 +217,23 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 
 #endif /* ! __amigaos4__ */
 
-	/* If the gadget was successfully created, attach it to the parent layout */
+	/* If the platform specific gadget was successfully created, finish the generic initialisation and */
+	/* attach it to the parent layout */
 
 	if (RetVal == KErrNone)
 	{
-		a_poParentLayout->Attach(this);
+		/* Allocate an array of ptrs to be used for storing the content of the parts */
+
+		if ((m_pccPartsText = new char *[a_iNumParts]) != NULL)
+		{
+			/* And attach the gadget */
+
+			a_poParentLayout->Attach(this);
+		}
+		else
+		{
+			Utils::Info("CStdGadgetStatusBar::Create() => Out of memory");
+		}
 	}
 
 	return(RetVal);
@@ -231,6 +243,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 
 CStdGadgetStatusBar::~CStdGadgetStatusBar()
 {
+	TInt Index;
 
 #ifdef __amigaos4__
 
@@ -245,6 +258,38 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 #endif /* ! __amigaos4__ */
 
+	/* Free the content of the parts, if allocated */
+
+	if (m_pccPartsText)
+	{
+		for (Index = 0; Index < m_iNumParts; ++Index)
+		{
+			delete [] m_pccPartsText[Index];
+		}
+
+		delete [] m_pccPartsText;
+	}
+}
+
+/* Written: Tuesday 20-Mar-2011 8:04 am, Hilton Košice */
+/* @param	a_iPart		Index of part of the status bar from which to obtain the text */
+/* @return	Ptr to the text from the status bar if it has been set, else an empty string */
+/* Gets the content of the specified subpart of the status bar.  The text is cached so this */
+/* is a very fast function to call. */
+
+const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
+{
+	const char *RetVal;
+
+	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::GetText() => Part # is out of range");
+	ASSERTM((m_pccPartsText != NULL), "CStdGadgetStatusBar::GetText() => Gadget not initialised");
+
+	/* Retrieve the text from our saved copy, rather than relying on the underlying */
+	/* operating system to give it to us */
+
+	RetVal = (m_pccPartsText[a_iPart]) ? m_pccPartsText[a_iPart] : "";
+
+	return(RetVal);
 }
 
 /* Written: Saturday 30-Apr-2011 8:51 am */
@@ -255,6 +300,18 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 {
 	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::SetText() => Part # is out of range");
+	ASSERTM((m_pccPartsText != NULL), "CStdGadgetStatusBar::SetText() => Gadget not initialised");
+
+	/* Save our own copy of the text so we don't have to depend on the underlying operating */
+	/* system if we want to retrieve it later */
+
+	// TODO: CAW - Use function written for Linux for resizable buffer
+	delete [] m_pccPartsText[a_iPart];
+
+	if ((m_pccPartsText[a_iPart] = new char[strlen(a_pccText) + 1]) != NULL)
+	{
+		strcpy(m_pccPartsText[a_iPart], a_pccText);
+	}
 
 #ifdef __amigaos4__
 

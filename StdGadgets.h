@@ -35,6 +35,7 @@ class CStdGadget
 
 protected:
 
+	char					*m_iText;			/* Ptr to gadget's text, if any */
 	TInt					m_iGadgetID;		/* Unique ID of the gadget */
 	TInt					m_iX;				/* X and Y positions of the gadget, relative */
 	TInt					m_iY;				/* to the top left hand corner of the client area */
@@ -63,7 +64,7 @@ private:
 
 public:
 
-	virtual ~CStdGadget() { }
+	virtual ~CStdGadget();
 
 	StdListNode<CStdGadget>	m_oStdListNode;     /* Standard list node */
 
@@ -86,6 +87,8 @@ public:
 	virtual TInt Height();
 
 	virtual TInt MinHeight();
+
+	void SaveText(const char *a_pccText);
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
 };
@@ -190,6 +193,7 @@ class CStdGadgetStatusBar : public CStdGadget
 {
 private:
 
+	char		**m_pccPartsText;				/* Ptr to an array of ptrs to text strings */
 	TInt		m_iNumParts;					/* # of parts within the gadget */
 
 #ifdef __amigaos4__
@@ -212,6 +216,8 @@ public:
 	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 
 	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+
+	const char *GetText(TInt a_iPart);
 
 	void SetText(TInt a_iPart, const char *a_pccText);
 };

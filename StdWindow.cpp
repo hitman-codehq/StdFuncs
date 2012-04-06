@@ -558,10 +558,11 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 	if (RegisterClass(&WndClass))
 	{
-		/* Determine the size of the desktop window so that we can open the window taking up */
-		/* the entire size of the screen */
+		/* Determine the size of the desktop window so that we can open the window taking up the */
+		/* entire size of the screen, but minus that used by the system taskbar.  This is why we */
+		/* use SystemParametersInfo() instead of GetClientRect() */
 
-		if (GetClientRect(GetDesktopWindow(), &Rect))
+		if (SystemParametersInfo(SPI_GETWORKAREA, 0, &Rect, 0))
 		{
 			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
 				Rect.right, Rect.bottom, 0, 0, Instance, 0)) != NULL)
