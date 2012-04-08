@@ -108,6 +108,8 @@ public:
 		m_bFillBackground = a_bFillBackground;
 	}
 
+	void EnableMenuItem(TInt a_iItemID, TBool a_bEnable);
+
 	TInt InnerWidth()
 	{
 		return(m_iInnerWidth);

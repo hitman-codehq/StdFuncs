@@ -795,6 +795,27 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 }
 
+/* Written: Sunday 08-Apr-2011 8:50 am, CodeHQ Ehinger Tor */
+/* @param	a_iItemID	ID of the menu item to be enabled or disabled */
+/* @param	a_bEnable	ETrue to enable the menu item, else EFalse to disable it */
+/* This function will enable or disable an item in the window's menu list */
+
+void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement this
+
+#else /* ! __amigaos4__ */
+
+	DEBUGCHECK((::EnableMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_ENABLED : MF_DISABLED) != -1),
+		"CWindow::EnableMenuItem() => Unable to set menu item state");
+
+#endif /* ! __amigaos4__ */
+
+}
+
 #ifdef __amigaos4__
 
 /* Written: Saturday 06-Nov-2010 8:27 am */
