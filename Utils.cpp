@@ -656,7 +656,7 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 	return(RetVal);
 }
 
-/* Written: Tuesday 28-Feb-2012 8:43 am, CodeHQ Enhinger Tor */
+/* Written: Tuesday 28-Feb-2012 8:43 am, CodeHQ Ehinger Tor */
 /* @param	a_pccBuffer	Ptr to the currently allocated buffer */
 /* @param	a_iSize		Size in bytes of the new buffer to be allocated */
 /* @return	A Ptr to the allocated buffer if successful, else NULL */
@@ -721,7 +721,7 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 	return((void *) RetVal);
 }
 
-/* Written: Tuesday 28-Feb-2012 9:00 am, CodeHQ Enhinger Tor */
+/* Written: Tuesday 28-Feb-2012 9:00 am, CodeHQ Ehinger Tor */
 /* @param	a_pccBuffer	Ptr to the buffer to be freed */
 /* Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass */
 /* in NULL to this routine */
