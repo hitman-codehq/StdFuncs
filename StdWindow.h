@@ -36,9 +36,9 @@ class CWindow
 
 private:
 
-	TBool						m_bFillBackground;	/* ETrue to fill background when drawing */
-	CWindow						*m_poNext;			/* Ptr to next window in list */
-	static CWindow				*m_poRootWindow;	/* Ptr to root window on which all other windows open */
+	TBool				m_bFillBackground;			/* ETrue to fill background when drawing */
+	CWindow				*m_poNext;					/* Ptr to next window in list */
+	static CWindow		*m_poRootWindow;			/* Ptr to root window on which all other windows open */
 
 #ifdef __amigaos4__
 
@@ -63,14 +63,14 @@ public:
 
 #ifdef __amigaos4__
 
-	Object				*m_poWindowObj;		/* Ptr to underlying Reaction window */
-	struct Window		*m_poWindow;		/* Ptr to underlying Intuition window */
+	Object				*m_poWindowObj;				/* Ptr to underlying Reaction window */
+	struct Window		*m_poWindow;				/* Ptr to underlying Intuition window */
 
 #else /* ! __amigaos4__ */
 
-	HWND				m_poWindow;			/* Ptr to underlying Windows window */
-	HDC					m_poDC;				/* Device context and paint structure into which to */
-	PAINTSTRUCT			m_oPaintStruct;		/* render;  valid only during calls to CWindow::Draw() */
+	HWND				m_poWindow;					/* Ptr to underlying Windows window */
+	HDC					m_poDC;						/* Device context and paint structure into which to */
+	PAINTSTRUCT			m_oPaintStruct;				/* render;  valid only during calls to CWindow::Draw() */
 
 #endif /* ! __amigaos4__ */
 
