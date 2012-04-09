@@ -9,6 +9,7 @@
 #define ALL_REACTION_CLASSES
 #define ALL_REACTION_MACROS
 
+#include <proto/gadtools.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>
 #include <reaction/reaction.h>
@@ -805,7 +806,42 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement this
+	TInt Index, NumMenuMappings;
+	struct SStdMenuMapping *MenuMappings;
+
+	/* If the window has any menu items, iterate through them and find the one */
+	/* with the ID passed in */
+
+	if ((MenuMappings = m_poApplication->MenuMappings()) != NULL)
+	{
+		NumMenuMappings = m_poApplication->NumMenuMappings();
+
+		for (Index = 0; Index < NumMenuMappings; ++Index)
+		{
+			if (MenuMappings->m_iID == a_iItemID)
+			{
+				break;
+			}
+
+			++MenuMappings;
+		}
+
+		ASSERTM((Index < NumMenuMappings), "CWindow::EnableMenuItem() => Menu item not found");
+
+		/* If we have found the requested menu item then enable or disable it as appropriate */
+
+		if (Index < NumMenuMappings)
+		{
+			if (a_bEnable)
+			{
+				IIntuition->OnMenu(m_poWindow, MenuMappings->m_ulFullMenuNum);
+			}
+			else
+			{
+				IIntuition->OffMenu(m_poWindow, MenuMappings->m_ulFullMenuNum);
+			}
+		}
+	}
 
 #else /* ! __amigaos4__ */
 

@@ -42,7 +42,8 @@ RApplication::RApplication()
 	m_bDone = m_bMenuStripSet = EFalse;
 	m_poMenus = NULL;
 	m_ulMainSeconds = m_ulMainMicros = 0;
-	m_iLastX = m_iLastY = 0;
+	m_iLastX = m_iLastY = m_iNumMenuMappings = 0;
+	m_poMenuMappings = NULL;
 
 #else /* ! __amigaos4__ */
 
@@ -64,7 +65,7 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 #ifdef __amigaos4__
 
-	TInt Index, NumMenuItems, RetVal;
+	TInt Index, Menu, Item, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
 	struct NewMenu *NewMenus;
 	struct Screen *Screen;
@@ -91,57 +92,85 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 	m_pcoMenuItems = a_pcoMenuItems;
 
-	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures and populate */
-	/* them with data taken from the generic SStdMenuItem structures passed in */
+	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures, and */
+	/* another large enough to hold all of the menu ID mappings, and populate them with */
+	/* data taken from the generic SStdMenuItem structures passed in */
 
-	if ((NewMenus = new NewMenu[NumMenuItems]) != NULL)
+	if ((m_poMenuMappings = new SStdMenuMapping[NumMenuItems]) != NULL)
 	{
-		for (Index = 0; Index < NumMenuItems; ++Index)
+		m_iNumMenuMappings = NumMenuItems;
+
+		if ((NewMenus = new NewMenu[NumMenuItems]) != NULL)
 		{
-			/* Checkable menus are handled slightly differently */
+			Menu = -1;
+			Item = 0;
 
-			if (a_pcoMenuItems[Index].m_eType == EStdMenuCheck)
+			for (Index = 0; Index < NumMenuItems; ++Index)
 			{
-				NewMenus[Index].nm_Type = EStdMenuItem;
-				NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
-			}
-			else
-			{
-				NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
-				NewMenus[Index].nm_Flags = 0;
-			}
+				/* Every time we find a menu title, increase the menu number and reset the */
+				/* item for that menu to zero.  This way we build up the mappings for */
+				/* each menu ID -> FULLMENUNUM required by Intuition for accessing menus */
 
-			NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
-			NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
-			NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
-		}
-
-		/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
-		/* the menus out */
-
-		if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
-		{
-			if ((VisualInfo = IGadTools->GetVisualInfo(Screen, TAG_DONE)) != NULL)
-			{
-				/* Create the menus and lay them out in preparation for display */
-
-				if ((m_poMenus = IGadTools->CreateMenus(NewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
+				if (a_pcoMenuItems[Index].m_eType == EStdMenuTitle)
 				{
-					if (IGadTools->LayoutMenus(m_poMenus, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE))
+					++Menu;
+					Item = -1;
+				}
+				else
+				{
+					++Item;
+				}
+
+				/* Now populate the NewMenu structure */
+
+				m_poMenuMappings[Index].m_iID = a_pcoMenuItems[Index].m_iCommand;
+				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
+
+				/* Checkable menus are handled slightly differently */
+
+				if (a_pcoMenuItems[Index].m_eType == EStdMenuCheck)
+				{
+					NewMenus[Index].nm_Type = EStdMenuItem;
+					NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
+				}
+				else
+				{
+					NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
+					NewMenus[Index].nm_Flags = 0;
+				}
+
+				NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
+				NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
+				NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
+			}
+
+			/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
+			/* the menus out */
+
+			if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
+			{
+				if ((VisualInfo = IGadTools->GetVisualInfo(Screen, TAG_DONE)) != NULL)
+				{
+					/* Create the menus and lay them out in preparation for display */
+
+					if ((m_poMenus = IGadTools->CreateMenus(NewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
 					{
-						RetVal = KErrNone;
+						if (IGadTools->LayoutMenus(m_poMenus, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE))
+						{
+							RetVal = KErrNone;
+						}
 					}
 				}
+
+				/* And unlock the default public screen */
+
+				IIntuition->UnlockPubScreen(NULL, Screen);
 			}
 
-			/* And unlock the default public screen */
+			/* The NewMenu structures are no longer required */
 
-			IIntuition->UnlockPubScreen(NULL, Screen);
+			delete [] NewMenus;
 		}
-
-		/* The NewMenu structures are no longer required */
-
-		delete [] NewMenus;
 	}
 
 	return(RetVal);
@@ -504,6 +533,12 @@ void RApplication::Close()
 
 		IGadTools->FreeMenus(m_poMenus);
 	}
+
+	/* And free the menu mapping structures */
+
+	delete [] m_poMenuMappings;
+	m_poMenuMappings = NULL;
+	m_iNumMenuMappings = 0;
 
 #else /* ! __amigaos4__ */
 

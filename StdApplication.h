@@ -17,6 +17,14 @@ enum TStdMenuItemType
 	EStdMenuCheck						/* A checked menu item */
 };
 
+/* Each instance of this structure represents an Amiga OS menu mapping */
+
+struct SStdMenuMapping
+{
+	TInt	m_iID;						/* Integer ID of the menu */
+	ULONG	m_ulFullMenuNum;			/* FULLMENUNUM of the menu, useable for OffMenu() etc */
+};
+
 /* Structure defining a single menu item to be dynamically created */
 
 struct SStdMenuItem
@@ -45,6 +53,8 @@ private:
 	TInt			m_iLastY;			/* LMB was clicked or released */
 	ULONG			m_ulMainSeconds;	/* Tick count in seconds and microseconds of when */
 	ULONG			m_ulMainMicros;		/* the LMB was last clicked */
+	struct SStdMenuMapping	*m_poMenuMappings;	/* Array of menu ID -> FULLMENUNUM mappings */
+	TInt					m_iNumMenuMappings;	/* # of entries in m_poMenuMappings */
 
 #else /* !__amigaos4__ */
 
@@ -72,6 +82,16 @@ public:
 	void AddWindow(CWindow *a_poWindow);
 
 	void RemoveWindow(CWindow *a_poWindow);
+
+	struct SStdMenuMapping *MenuMappings()
+	{
+		return(m_poMenuMappings);
+	}
+
+	TInt NumMenuMappings()
+	{
+		return(m_iNumMenuMappings);
+	}
 
 #ifdef WIN32
 
