@@ -83,6 +83,8 @@ public:
 
 	void RemoveWindow(CWindow *a_poWindow);
 
+#ifdef __amigaos4__
+
 	struct SStdMenuMapping *MenuMappings()
 	{
 		return(m_poMenuMappings);
@@ -93,11 +95,11 @@ public:
 		return(m_iNumMenuMappings);
 	}
 
-#ifdef WIN32
+#else /* ! __amigaos4__ */
 
 	void SetCurrentDialog(HWND a_poDialog);
 
-#endif /* WIN32 */
+#endif /* ! __amigaos4__ */
 
 	void Exit();
 };
