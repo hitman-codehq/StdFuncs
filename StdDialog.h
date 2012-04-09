@@ -19,7 +19,7 @@ enum TStdEventType
 
 /* Each instance of this structure represents an Amiga OS gadget mapping */
 
-struct SGadgetMapping
+struct SStdGadgetMapping
 {
 	APTR	m_poGadget;				/* Ptr to BOOPSI gadget */
 	TInt	m_iID;					/* Integer ID of the gadget */
@@ -48,7 +48,7 @@ protected:
 
 	char					*m_pcTextBuffer;		/* Scratch buffer containing last obtained text */
 	TInt					m_iTextBufferLength;	/* Length of scratch buffer */
-	struct SGadgetMapping	*m_poGadgetMappings;	/* Array of gadget ID -> APTR mappings */
+	struct SStdGadgetMapping *m_poGadgetMappings;	/* Array of gadget ID -> APTR mappings */
 	TInt					m_iNumGadgetMappings;	/* # of entries in m_poGadgetMappings */
 
 #ifdef __amigaos4__
