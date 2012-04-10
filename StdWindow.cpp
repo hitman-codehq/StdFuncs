@@ -852,6 +852,27 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
+/* Written: Tuesday 10-Apr-2012 7:07 am, CodeHQ Ehinger Tor */
+/* @param	a_iItemID	ID of the menu item to be checked or unchecked */
+/* @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it */
+/* This function will enable or disable the checkmark in a checkable menu item */
+
+void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
+{
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement this
+
+#else /* ! __amigaos4__ */
+
+	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
+		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
+
+#endif /* ! __amigaos4__ */
+
+}
+
 #ifdef __amigaos4__
 
 /* Written: Saturday 06-Nov-2010 8:27 am */

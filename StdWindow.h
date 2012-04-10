@@ -110,6 +110,8 @@ public:
 
 	void EnableMenuItem(TInt a_iItemID, TBool a_bEnable);
 
+	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
+
 	TInt InnerWidth()
 	{
 		return(m_iInnerWidth);
