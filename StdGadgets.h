@@ -12,6 +12,7 @@
 
 class CStdGadgetLayout;
 class CWindow;
+class MStdGadgetLayoutObserver;
 class MStdGadgetSliderObserver;
 
 /* Types of gadgets that can be created */
@@ -105,6 +106,7 @@ class CStdGadgetLayout : public CStdGadget
 private:
 
 	TInt					m_iWeight;			/* Weight of the layout gadget */
+	MStdGadgetLayoutObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
 
 public: // TODO: CAW - I really don't like this but I'm fucked by templates.  What about public nonsense?
@@ -113,10 +115,12 @@ public: // TODO: CAW - I really don't like this but I'm fucked by templates.  Wh
 
 private:
 
-	CStdGadgetLayout(CWindow *a_poParentWindow) : CStdGadget()
+	CStdGadgetLayout(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient = NULL) : CStdGadget()
 	{
-		m_iWeight = 50;
 		m_poParentWindow = a_poParentWindow;
+		m_poClient = a_poClient;
+
+		m_iWeight = 50;
 		m_iGadgetType = EStdGadgetLayout;
 	}
 
@@ -124,7 +128,7 @@ private:
 
 public:
 
-	static CStdGadgetLayout *New(CWindow *a_poParentWindow);
+	static CStdGadgetLayout *New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient);
 
 	~CStdGadgetLayout();
 
@@ -230,6 +234,15 @@ class MStdGadgetSliderObserver
 public:
 
 	virtual void SliderUpdated(CStdGadgetSlider *a_poGadget, TInt a_iPosition) = 0;
+};
+
+/* Mixin class for the layout gadget to be able to notify its client when it has been updated */
+
+class MStdGadgetLayoutObserver
+{
+public:
+
+	virtual void Resize() = 0;
 };
 
 #endif /* ! STDGADGETS_H */

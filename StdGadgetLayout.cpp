@@ -17,14 +17,14 @@
 /* Written: Monday 11-Jul-2011 5:44 am */
 // TODO: CAW - Parameters + comments all through here + ensure consistency with others
 
-CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow)
+CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient)
 {
 	TInt Result;
 	CStdGadgetLayout *RetVal;
 
 	ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
 
-	if ((RetVal = new CStdGadgetLayout(a_poParentWindow)) != NULL)
+	if ((RetVal = new CStdGadgetLayout(a_poParentWindow, a_poClient)) != NULL)
 	{
 		if ((Result = RetVal->Construct()) != KErrNone)
 		{
@@ -239,6 +239,12 @@ void CStdGadgetLayout::RethinkLayout()
 
 #endif /* ! __amigaos4__ */
 
+	/* If there is a client interested in getting updates, let it know that the layout gadget has been resized */
+
+	if (m_poClient)
+	{
+		m_poClient->Resize();
+	}
 }
 
 /* Written: Wednesday 23-Nov-2011 6:26 am, CodeHQ Söflingen */
