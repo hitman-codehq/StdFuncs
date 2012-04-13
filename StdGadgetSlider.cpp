@@ -65,7 +65,7 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Create the underlying BOOPSI gadget */
 
-	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, a_iGadgetID,
+	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
 		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
 #else /* ! __amigaos4__ */
