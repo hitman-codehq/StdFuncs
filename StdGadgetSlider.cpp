@@ -27,9 +27,9 @@ CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, CStdGadgetLay
 {
 	CStdGadgetSlider *RetVal;
 
-	if ((RetVal = new CStdGadgetSlider(a_bVertical)) != NULL)
+	if ((RetVal = new CStdGadgetSlider(a_bVertical, a_poParentWindow, a_poParentLayout, a_poClient, a_iGadgetID)) != NULL)
 	{
-		if (RetVal->Create(a_poParentWindow, a_poParentLayout, a_poClient, a_iGadgetID) != KErrNone)
+		if (RetVal->Construct() != KErrNone)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -40,19 +40,11 @@ CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, CStdGadgetLay
 }
 
 /* Written: Sunday 21-Nov-2010 8:08 am */
-/* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
-/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
-/*			a_poClient			Ptr to the client to be notified when the slider's value changes */
-/*			a_iGadgetID			Unique identifier of the slider gadget */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Initialises an intance of the slider gadget and attaches it to the parent window specified. */
 
-TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+TInt CStdGadgetSlider::Construct()
 {
-	m_poParentWindow = a_poParentWindow;
-	m_poParentLayout = a_poParentLayout;
-	m_poClient = a_poClient;
-	m_iGadgetID = a_iGadgetID;
 
 #ifdef __amigaos4__
 
@@ -109,11 +101,11 @@ TInt CStdGadgetSlider::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poP
 	{
 		/* And attach it to the parent window */
 
-		a_poParentLayout->Attach(this);
+		m_poParentLayout->Attach(this);
 	}
 	else
 	{
-		Utils::Info("CStdGadgetSlider::Create() => Unable to create scrollbar");
+		Utils::Info("CStdGadgetSlider::Construct() => Unable to create scrollbar");
 	}
 
 	return((m_poGadget) ? KErrNone : KErrNoMemory);

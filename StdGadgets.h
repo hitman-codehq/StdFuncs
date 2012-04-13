@@ -124,6 +124,8 @@ private:
 		m_iGadgetType = EStdGadgetLayout;
 	}
 
+	TInt Construct();
+
 	CStdGadget *FindNativeGadget(void *a_pvGadget);
 
 public:
@@ -131,8 +133,6 @@ public:
 	static CStdGadgetLayout *New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient);
 
 	~CStdGadgetLayout();
-
-	TInt Construct();
 
 	void Attach(CStdGadget *a_poGagdet);
 
@@ -164,16 +164,20 @@ private:
 
 private:
 
-	CStdGadgetSlider(TBool a_bVertical)
+	CStdGadgetSlider(TBool a_bVertical, CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 	{
 		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalSlider : EStdGadgetHorizontalSlider;
+		m_poParentWindow = a_poParentWindow;
+		m_poParentLayout = a_poParentLayout;
+		m_poClient = a_poClient;
+		m_iGadgetID = a_iGadgetID;
 	}
+
+	TInt Construct();
 
 public:
 
 	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
-
-	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
 	~CStdGadgetSlider();
 
@@ -208,18 +212,21 @@ private:
 
 private:
 
-	CStdGadgetStatusBar()
+	CStdGadgetStatusBar(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iGadgetID)
 	{
 		m_iGadgetType = EStdGadgetStatusBar;
+		m_poParentWindow = a_poParentWindow;
+		m_poParentLayout = a_poParentLayout;
+		m_iGadgetID = a_iGadgetID;
 	}
+
+	TInt Construct(TInt a_iNumParts, TInt *a_piPartsOffsets);
 
 public:
 
 	~CStdGadgetStatusBar();
 
 	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
-
-	TInt Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 
 	const char *GetText(TInt a_iPart);
 

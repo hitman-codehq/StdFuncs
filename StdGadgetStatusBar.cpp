@@ -34,9 +34,9 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGad
 {
 	CStdGadgetStatusBar *RetVal;
 
-	if ((RetVal = new CStdGadgetStatusBar) != NULL)
+	if ((RetVal = new CStdGadgetStatusBar(a_poParentWindow, a_poParentLayout, a_iGadgetID)) != NULL)
 	{
-		if (RetVal->Create(a_poParentWindow, a_poParentLayout, a_iNumParts, a_piPartsOffsets, a_iGadgetID) != KErrNone)
+		if (RetVal->Construct(a_iNumParts, a_piPartsOffsets) != KErrNone)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -47,24 +47,16 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGad
 }
 
 /* Written: Friday 29-Apr-2011 3:45 pm */
-/* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
-/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
-/*			a_iNumParts			Number of parts to be created */
+/* @param	a_iNumParts			Number of parts to be created */
 /*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
-/*			a_iGadgetID			Unique identifier of the status bar gadget */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Initialises an intance of the status bar gadget and attaches it to the parent window specified. */
 /* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
 /* longer valid on return */
 
-// TODO: CAW - Should be Construct()!  Check others.  Should parameters be passed to constructor?
-TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
+TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 {
 	TInt Index, RetVal;
-
-	m_poParentWindow = a_poParentWindow;
-	m_poParentLayout = a_poParentLayout;
-	m_iGadgetID = a_iGadgetID;
 
 	/* Assume failure */
 
@@ -99,7 +91,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 				}
 				else
 				{
-					Utils::Info("CStdGadgetStatusBar::Create() => Unable to create status bar label gadget");
+					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar label gadget");
 
 					break;
 				}
@@ -125,12 +117,12 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Create() => Out of memory");
+			Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
 		}
 	}
 	else
 	{
-		Utils::Info("CStdGadgetStatusBar::Create() => Unable to create status bar group gadget");
+		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar group gadget");
 	}
 
 	/* If anything went wrong then clean up whatever was successfully allocated */
@@ -166,7 +158,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 		/* Create the underlying Windows control */
 
 		m_poGadget = CreateWindowEx(0, STATUSCLASSNAME, NULL, (SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE),
-			0, 0, 0, 0, a_poParentWindow->m_poWindow, NULL, NULL, NULL);
+			0, 0, 0, 0, m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 		if (m_poGadget)
 		{
@@ -174,7 +166,7 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 			/* Windows control */
 
 			Offset = 0;
-			ParentWidth = a_poParentWindow->InnerWidth();
+			ParentWidth = m_poParentWindow->InnerWidth();
 
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
@@ -199,22 +191,22 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 				}
 				else
 				{
-					Utils::Info("CStdGadgetStatusBar::Create() => Unable to determine size of status bar");
+					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
 				}
 			}
 			else
 			{
-				Utils::Info("CStdGadgetStatusBar::Create() => Unable to subdivide status bar into parts");
+				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
 			}
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Create() => Unable to create status bar");
+			Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar");
 		}
 	}
 	else
 	{
-		Utils::Info("CStdGadgetStatusBar::Create() => Unable to initialise common controls library");
+		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to initialise common controls library");
 	}
 
 #endif /* ! __amigaos4__ */
@@ -230,11 +222,11 @@ TInt CStdGadgetStatusBar::Create(CWindow *a_poParentWindow, CStdGadgetLayout *a_
 		{
 			/* And attach the gadget */
 
-			a_poParentLayout->Attach(this);
+			m_poParentLayout->Attach(this);
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Create() => Out of memory");
+			Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
 		}
 	}
 
