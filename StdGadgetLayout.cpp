@@ -108,6 +108,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	{
 		// TODO: CAW
 		ILayout->RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		RethinkLayout();
 	}
 
 #else /* ! __amigaos4__ */

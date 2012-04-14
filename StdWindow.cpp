@@ -936,16 +936,28 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 
 void CWindow::RethinkLayout()
 {
+	CStdGadgetLayout *LayoutGadget;
 
 #ifdef __amigaos4__
 
+	/* Rethink the layout gadget sizes, starting from the root gadget that holds them */
+
 	ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
+
+	/* Now iterate through the framework's gadgets and let them know they have been resized */
+
+	LayoutGadget = m_oGadgets.GetHead();
+
+	while (LayoutGadget)
+	{
+		LayoutGadget->RethinkLayout();
+		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+	}
 
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - This is potentially slow
 	TInt Count, InnerHeight, Height, MinHeight, Y;
-	CStdGadgetLayout *LayoutGadget;
 
 	// TODO: CAW - Make a list Count() function?
 	Count = Y = 0;
