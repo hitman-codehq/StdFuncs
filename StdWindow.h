@@ -112,6 +112,8 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
+	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
+
 	TInt InnerWidth()
 	{
 		return(m_iInnerWidth);

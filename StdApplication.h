@@ -85,6 +85,11 @@ public:
 
 #ifdef __amigaos4__
 
+	struct Menu *Menus()
+	{
+		return(m_poMenus);
+	}
+
 	struct SStdMenuMapping *MenuMappings()
 	{
 		return(m_poMenuMappings);

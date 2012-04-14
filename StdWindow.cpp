@@ -806,41 +806,26 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	TInt Index, NumMenuMappings;
-	struct SStdMenuMapping *MenuMappings;
+	ULONG FullMenuNum;
 
-	/* If the window has any menu items, iterate through them and find the one */
-	/* with the ID passed in */
+	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
 
-	if ((MenuMappings = m_poApplication->MenuMappings()) != NULL)
+	if ((FullMenuNum = FindMenuMapping(m_poApplication->MenuMappings(), m_poApplication->NumMenuMappings(), a_iItemID)) != 0)
 	{
-		NumMenuMappings = m_poApplication->NumMenuMappings();
+		/* Enable or disable the menu item as appropriate */
 
-		for (Index = 0; Index < NumMenuMappings; ++Index)
+		if (a_bEnable)
 		{
-			if (MenuMappings->m_iID == a_iItemID)
-			{
-				break;
-			}
-
-			++MenuMappings;
+			IIntuition->OnMenu(m_poWindow, FullMenuNum);
 		}
-
-		ASSERTM((Index < NumMenuMappings), "CWindow::EnableMenuItem() => Menu item not found");
-
-		/* If we have found the requested menu item then enable or disable it as appropriate */
-
-		if (Index < NumMenuMappings)
+		else
 		{
-			if (a_bEnable)
-			{
-				IIntuition->OnMenu(m_poWindow, MenuMappings->m_ulFullMenuNum);
-			}
-			else
-			{
-				IIntuition->OffMenu(m_poWindow, MenuMappings->m_ulFullMenuNum);
-			}
+			IIntuition->OffMenu(m_poWindow, FullMenuNum);
 		}
+	}
+	else
+	{
+		Utils::Info("CWindow::EnableMenuItem() => Menu mapping not found");
 	}
 
 #else /* ! __amigaos4__ */
@@ -862,7 +847,41 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement this
+	ULONG FullMenuNum;
+	struct MenuItem *MenuItem;
+
+	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
+
+	if ((FullMenuNum = FindMenuMapping(m_poApplication->MenuMappings(), m_poApplication->NumMenuMappings(), a_iItemID)) != 0)
+	{
+		/* Now use the result to find the actual menu in the menu strip */
+
+		if ((MenuItem = IIntuition->ItemAddress(m_poApplication->Menus(), FullMenuNum)) != NULL)
+		{
+			/* Enable or disable the menu item's check mark as appropriate */
+
+			IIntuition->ClearMenuStrip(m_poWindow);
+
+			if (a_bEnable)
+			{
+				MenuItem->Flags |= CHECKED;
+			}
+			else
+			{
+				MenuItem->Flags &= ~CHECKED;
+			}
+
+			IIntuition->ResetMenuStrip(m_poWindow, m_poApplication->Menus());
+		}
+		else
+		{
+			Utils::Info("CWindow::CheckMenuItem() => Menu item not found");
+		}
+	}
+	else
+	{
+		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -874,6 +893,41 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 }
 
 #ifdef __amigaos4__
+
+/* Written: Saturday 14-Apr-2012 8:02 am, CodeHQ Ehinger Tor */
+/* @param	a_poMenuMappings	Ptr to array of menu mappings to search through */
+/*			a_poNumMenuMappings	Number of items in the menu mappings array */
+/*			a_iItemID			Item ID to be searched for */
+/* This function searches through an array of menu mappings, searching for an item of a */
+/* particular ID.  It is a helper function to allow accessing menu items in the Windows */
+/* manner of addressing them via the ID, rather than the Amiga OS style of using the */
+/* menu item's position */
+
+ULONG CWindow::FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID)
+{
+	TInt Index;
+	ULONG RetVal;
+
+	/* Assume failure */
+
+	RetVal = 0;
+
+	/* Iterate through the list of menu mappings and find the one we are looking for */
+
+	for (Index = 0; Index < a_iNumMenuMappings; ++Index)
+	{
+		if (a_poMenuMappings->m_iID == a_iItemID)
+		{
+			RetVal = a_poMenuMappings->m_ulFullMenuNum;
+
+			break;
+		}
+
+		++a_poMenuMappings;
+	}
+
+	return(RetVal);
+}
 
 /* Written: Saturday 06-Nov-2010 8:27 am */
 
