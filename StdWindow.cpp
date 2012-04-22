@@ -1011,7 +1011,7 @@ void CWindow::RethinkLayout()
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - This is potentially slow
-	TInt Count, InnerHeight, Height, MinHeight, Y;
+	TInt Count, InnerHeight, Height, Y;
 
 	// TODO: CAW - Make a list Count() function?
 	Count = Y = 0;
