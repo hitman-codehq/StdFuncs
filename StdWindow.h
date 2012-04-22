@@ -84,7 +84,7 @@ public:
 
 	~CWindow();
 
-	TInt Open(const char *a_pccTitle, const char *a_pccPubScreenName);
+	TInt Open(const char *a_pccTitle, const char *a_pccScreenName);
 
 	virtual void Close();
 

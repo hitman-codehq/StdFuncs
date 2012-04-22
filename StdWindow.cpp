@@ -457,7 +457,7 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 
 /* Written: Monday 08-Feb-2010 7:13 am */
 
-TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
+TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 {
 	TInt RetVal, ScreenWidth, ScreenHeight;
 
@@ -482,7 +482,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 
 	m_poWindowObj = (Object *) WindowObject,
 		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
-		WA_PubScreenName, a_pccPubScreenName, WA_PubScreenFallBack, TRUE,
+		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
@@ -535,7 +535,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccPubScreenName)
 	RECT Rect;
 	WNDCLASS WndClass;
 
-	(void) a_pccPubScreenName;
+	(void) a_pccScreenName;
 
 	/* Assume failure */
 
