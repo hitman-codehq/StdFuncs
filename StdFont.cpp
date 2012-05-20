@@ -207,6 +207,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 {
+	ASSERTM(a_pcText, "RFont::DrawText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 
 #ifdef __amigaos4__
