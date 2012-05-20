@@ -9,6 +9,11 @@
 
 #endif /* __amigaos4__ */
 
+/* Colours that can be printed by RFont::DrawColouredText() */
+
+static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(0, 128, 0), RGB(0, 0, 255), RGB(163, 21, 21) };
+#define NUM_COLOURS 4
+
 /* Written: Sunday 31-May-2010 1:41 pm */
 
 RFont::RFont(CWindow *a_poWindow)
@@ -240,8 +245,54 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Don't use 8
+	// TODO: CAW - Don't use 8, here and in DrawColouredText()
 	TextOut(m_poWindow->m_poDC, a_iX * 8, (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
+
+#endif /* ! __amigaos4__ */
+
+}
+
+/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport */
+/* @param	a_pcText	Ptr to string to be drawn to the screen */
+/*			a_iX		X position in the window at which to draw */
+/*			a_iY		Y position in the window at which to draw */
+/* Draws a string to the window the font is assigned to at the specified X and Y */
+/* positions.  Unline RFont::DrawText(), this text contains embedded codes that */
+/* specify the colour to use for each run of characters */
+
+void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
+{
+	TInt Colour, Length;
+
+	ASSERTM(a_pcText, "RFont::DrawColouredText() => Text ptr must not be NULL");
+	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+
+#else /* ! __amigaos4__ */
+
+	/* Iterate through the source text and display the runs of characters in the required colour */
+
+	while (*a_pcText)
+	{
+		/* Get the length of the run and the colour to display the run in */
+
+		Length = *a_pcText++;
+		Colour = *a_pcText++;
+		ASSERTM((Colour < 4), "RFont::DrawColouredText() => Colour index out of range");
+
+		/* Display the text in the required colour */
+
+		SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
+		TextOut(m_poWindow->m_poDC, a_iX * 8, (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
+
+		/* And prepare for the next run to be displayed */
+
+		a_iX += Length;
+		a_pcText += Length;
+	}
 
 #endif /* ! __amigaos4__ */
 
