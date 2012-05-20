@@ -204,6 +204,12 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
+/* @param	a_pcText	Ptr to string to be drawn to the screen */
+/*			a_iLength	Length of the string pointed to by a_pcText */
+/*			a_iX		X position in the window at which to draw */
+/*			a_iY		Y position in the window at which to draw */
+/* Draws a string to the window the font is assigned to at the specified X and Y */
+/* positions */
 
 void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 {
