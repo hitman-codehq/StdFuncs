@@ -119,17 +119,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	{
 		case WM_ACTIVATE :
 		{
-			/* If window focus is changing then reset the state of the ctrl key, as we don't */
-			/* get the WM_KEYUP event if the window is not active.  Also let client software */
-			/* know about this */
+			/* If window focus is changing then let the client know that the window is activating */
+			/* or deactivating */
 
-			if (m_bCtrlPressed)
-			{
-				// TODO: CAW - Should really use an Active() function
-				Window->OfferKeyEvent(STD_KEY_CONTROL, EFalse);
-			}
-
-			m_bCtrlPressed = EFalse;
+			Window->Activated(!(a_oWParam == WA_INACTIVE));
 
 			break;
 		}
@@ -217,7 +210,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			}
 
 			/* This is even more horrible.  When the ALT GR key is pressed, rather than using a special */
-			/* key, Windows sends through a VK_CONTROL WM_KEYDOWN event, followed by WM_MENU (otherwise */
+			/* key, Windows sends through a VK_CONTROL WM_KEYDOWN event, followed by WK_MENU (otherwise */
 			/* known as ALT) WM_KEYDOWN and WM_KEYUP events, with NO following VK_CONTROL WM_KEYUP event! */
 			/* So we need to put some special magic in here to handle this nonsense or we will think that */
 			/* the ctrl key is pressed when it isn't */

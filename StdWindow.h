@@ -45,14 +45,11 @@ private:
 	struct Hook			m_oIDCMPHook;				/* IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootGadget;			/* layout.gadget containing the window's gadgets */
 
-#else /* ! __amigaos4__ */
-
-	static TBool		m_bCtrlPressed;				/* ETrue if ctrl is currently pressed */
-
-#endif /* ! __amigaos4__ */
+#endif /* __amigaos4__ */
 
 protected:
 
+	static TBool		m_bCtrlPressed;				/* ETrue if ctrl is currently pressed */
 	TBool				m_bOpen;					/* ETrue if window is open */
 	TInt				m_iInnerWidth;				/* Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;				/* Height of window, minus top and bottom borders */
@@ -112,6 +109,11 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
+	TBool CtrlPressed()
+	{
+		return(m_bCtrlPressed);
+	}
+
 	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
 
 	TInt InnerWidth()
@@ -158,6 +160,8 @@ public:
 	void RethinkLayout();
 
 	/* Functions can be implemented by client software */
+
+	virtual void Activated(TBool /*a_bActivated*/) { }
 
 	virtual void Draw(TInt /*a_iTop*/, TInt /*a_iBottom*/) { }
 
