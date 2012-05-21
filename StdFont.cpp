@@ -252,13 +252,20 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 }
 
-/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport */
+/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport awaiting flight EK 052 to Dubai */
 /* @param	a_pcText	Ptr to string to be drawn to the screen */
 /*			a_iX		X position in the window at which to draw */
 /*			a_iY		Y position in the window at which to draw */
 /* Draws a string to the window the font is assigned to at the specified X and Y */
 /* positions.  Unline RFont::DrawText(), this text contains embedded codes that */
-/* specify the colour to use for each run of characters */
+/* specify the colour to use for each run of characters.  The encoded text is of the */
+/* following format: */
+/* */
+/* Length Colour Text[Length] 0 */
+/* */
+/* The Length byte specifies the length of the upcoming run of text.  It is 0 to terminate */
+/* the string.  The Colour byte specifies the colour in which to draw and following this are */
+/* Length bytes of the text itself.  After this, the sequence repeats or is terminated with 0 */
 
 void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 {
