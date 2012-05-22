@@ -118,6 +118,8 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 			}
 
 			RetVal = 1;
+
+			break;
 		}
 	}
 
