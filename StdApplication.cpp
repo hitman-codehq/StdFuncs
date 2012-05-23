@@ -245,6 +245,15 @@ int RApplication::Main()
 			{
 				switch (Result & WMHI_CLASSMASK)
 				{
+					case WMHI_ACTIVE :
+					{
+						/* Window focus is changing so let the client know */
+
+						Window->Activated(ETrue);
+
+						break;
+					}
+
 					case WMHI_CLOSEWINDOW :
 					{
 						Window->HandleCommand(IDCANCEL);
@@ -261,10 +270,9 @@ int RApplication::Main()
 
 					case WMHI_INACTIVE :
 					{
-						/* If window focus is changing then notify the client window */
+						/* Window focus is changing so let the client know */
 
-						// TODO: CAW - Should really use an Active() function
-						Window->OfferKeyEvent(STD_KEY_CONTROL, EFalse);
+						Window->Activated(EFalse);
 
 						break;
 					}
