@@ -32,11 +32,10 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 17
 
-TBool CWindow::m_bCtrlPressed;
-
 #endif /* ! __amigaos4__ */
 
-CWindow *CWindow::m_poRootWindow; /* Ptr to root window on which all other windows open */
+CWindow *CWindow::m_poRootWindow;	/* Ptr to root window on which all other windows open */
+TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
 #ifdef __amigaos4__
 

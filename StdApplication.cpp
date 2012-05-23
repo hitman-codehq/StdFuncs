@@ -28,8 +28,6 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 19
 
-TBool RApplication::m_bCtrlPressed;
-
 #endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
@@ -403,14 +401,14 @@ int RApplication::Main()
 							{
 								Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
 
-								/* Link on Windows, when ctrl is pressed the ASCII characters sent to */
+								/* Link on Windows, when ctrl is pressed, the ASCII characters sent to */
 								/* WMHI_RAWKEY messages are different so we need to adjust these back */
 								/* to standard ASCII so keeping track of the state of the ctrl key is */
 								/* the only way to achieve this */
 
 								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
 								{
-									m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
+									CWindow::m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
 								}
 							}
 
@@ -428,7 +426,7 @@ int RApplication::Main()
 									{
 										/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
 
-										if (m_bCtrlPressed)
+										if (CWindow::m_bCtrlPressed)
 										{
 											KeyBuffer[0] |= 0x60;
 										}

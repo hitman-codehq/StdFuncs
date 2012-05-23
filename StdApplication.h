@@ -43,8 +43,6 @@ private:
 
 #ifdef __amigaos4__
 
-	static TBool	m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
-
 	ULONG			m_ulWindowSignals;	/* Signals representing all currently open windows */
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
 	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
