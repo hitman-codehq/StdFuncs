@@ -118,7 +118,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	{
 		case WM_ACTIVATE :
 		{
-			/* If window focus is changing then let the client know that the window is activating */
+			/* Window focus is changing so let the client know that the window is activating */
 			/* or deactivating */
 
 			Window->Activated(!(a_oWParam == WA_INACTIVE));
