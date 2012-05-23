@@ -82,7 +82,11 @@ typedef int TBool;
 #define IDNO 7
 #define MAX_PATH 260
 
-#endif /* WIN32 */
+typedef unsigned long COLORREF;
+
+#define RGB(r, g, b) (r | (g << 8) | (g << 16))
+
+#endif /* ! WIN32 */
 
 /* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
 
