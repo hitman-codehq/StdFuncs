@@ -137,7 +137,18 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 					NewMenus[Index].nm_Flags = 0;
 				}
 
-				NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
+				/* Separators get a special label that causes Intuition to treat them as such */
+
+				if (a_pcoMenuItems[Index].m_eType == EStdMenuSeparator)
+				{
+					NewMenus[Index].nm_Type = EStdMenuItem;
+					NewMenus[Index].nm_Label = NM_BARLABEL;
+				}
+				else
+				{
+					NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
+				}
+
 				NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
 				NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
 			}

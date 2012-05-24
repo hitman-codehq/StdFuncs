@@ -14,7 +14,8 @@ enum TStdMenuItemType
 	EStdMenuEnd,
 	EStdMenuTitle,						/* A menu */
 	EStdMenuItem,						/* An item on a menu */
-	EStdMenuCheck						/* A checked menu item */
+	EStdMenuCheck,					    /* A checked menu item */
+	EStdMenuSeparator					/* A separator bar */
 };
 
 /* Each instance of this structure represents an Amiga OS menu mapping */
