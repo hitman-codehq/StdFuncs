@@ -290,32 +290,39 @@ const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
 /* @param	a_iPart		Index of part of the status bar to which to assign the text */
 /*			a_pccText	Text to assign to the status bar part */
 /* Sets the content of the specified subpart of the status bar to the text passed in. */
+/* If the old content is the same as the new content then nothing will be done, to */
+/* avoid flicker */
 
 void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 {
 	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::SetText() => Part # is out of range");
 	ASSERTM((m_pccPartsText != NULL), "CStdGadgetStatusBar::SetText() => Gadget not initialised");
 
-	/* Save our own copy of the text so we don't have to depend on the underlying operating */
-	/* system if we want to retrieve it later */
+	/* Don't do anything if the content hasn't changed */
 
-	// TODO: CAW - Use function written for Linux for resizable buffer
-	delete [] m_pccPartsText[a_iPart];
-
-	if ((m_pccPartsText[a_iPart] = new char[strlen(a_pccText) + 1]) != NULL)
+	if (strcmp(GetText(a_iPart), a_pccText) != 0)
 	{
-		strcpy(m_pccPartsText[a_iPart], a_pccText);
-	}
+		/* Save our own copy of the text so we don't have to depend on the underlying operating */
+		/* system if we want to retrieve it later */
+
+		// TODO: CAW - Use function written for Linux for resizable buffer
+		delete [] m_pccPartsText[a_iPart];
+
+		if ((m_pccPartsText[a_iPart] = new char[strlen(a_pccText) + 1]) != NULL)
+		{
+			strcpy(m_pccPartsText[a_iPart], a_pccText);
+		}
 
 #ifdef __amigaos4__
 
-	IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
-		NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 
 #else /* ! __amigaos4__ */
 
-	DEBUGCHECK((SendMessage(m_poGadget, SB_SETTEXT, a_iPart, (LPARAM) a_pccText) != FALSE), "CStdGadgetStatusBar::SetText() => Unable to set status bar text");
+		DEBUGCHECK((SendMessage(m_poGadget, SB_SETTEXT, a_iPart, (LPARAM) a_pccText) != FALSE), "CStdGadgetStatusBar::SetText() => Unable to set status bar text");
 
 #endif /* ! __amigaos4__ */
 
+	}
 }
