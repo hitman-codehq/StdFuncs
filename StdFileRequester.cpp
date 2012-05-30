@@ -171,10 +171,15 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 						OpenFileName.lpstrInitialDir = m_pcDirectoryName;
 					}
-				}
 
-				ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
-				strcpy(m_acFileName, a_pccFileName);
+					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					strcpy(m_acFileName, FileName);
+				}
+				else
+				{
+					ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					strcpy(m_acFileName, a_pccFileName);
+				}
 			}
 		}
 	}
