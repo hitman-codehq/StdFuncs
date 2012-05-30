@@ -84,7 +84,7 @@ typedef int TBool;
 
 typedef unsigned long COLORREF;
 
-#define RGB(r, g, b) (r | (g << 8) | (g << 16))
+#define RGB(r, g, b) (b | (g << 8) | (r << 16))
 
 #endif /* ! WIN32 */
 
