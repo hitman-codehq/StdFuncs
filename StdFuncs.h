@@ -86,6 +86,8 @@ typedef unsigned long COLORREF;
 
 #define RGB(r, g, b) (b | (g << 8) | (r << 16))
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+
 #endif /* ! WIN32 */
 
 /* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
