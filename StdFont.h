@@ -6,13 +6,16 @@
 
 class CWindow;
 
+#define NUM_FONT_COLOURS 4
+
 class RFont
 {
 private:
 
 #ifdef __amigaos4__
 
-	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
+	TInt		m_iBaseline;				/* Distance from the top of char to baseline */
+	LONG		m_alPens[NUM_FONT_COLOURS];	/* Array of pens found using IGraphics->ObtainBestPen() */
 
 #else /* ! __amigaos4__ */
 

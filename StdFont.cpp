@@ -9,10 +9,10 @@
 
 #endif /* __amigaos4__ */
 
-/* Colours that can be printed by RFont::DrawColouredText() */
+/* Colours that can be printed by RFont::DrawColouredText().  This must match */
+/* NUM_FONT_COLOURS in StdFont.h */
 
 static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(0, 128, 0), RGB(0, 0, 255), RGB(163, 21, 21) };
-#define NUM_COLOURS 4
 
 /* Written: Sunday 31-May-2010 1:41 pm */
 
@@ -27,7 +27,25 @@ RFont::RFont(CWindow *a_poWindow)
 
 #ifdef __amigaos4__
 
+	unsigned long Red, Green, Blue;
+	TInt Index;
+	LONG Pen;
+
 	m_iBaseline = 0;
+
+	/* Iterate through the colours and determine the best pen to use for each one. */
+	/* This is better done here rather than in RFont::DrawColouredText() every */
+	/* time it is called */
+
+	for (Index = 0; Index < NUM_FONT_COLOURS; ++Index)
+	{
+		Red = Utils::Red32(g_aoColours[Index] & 0xff0000);
+		Green = Utils::Green32(g_aoColours[Index] & 0xff00);
+		Blue = Utils::Blue32(g_aoColours[Index] & 0xff);
+
+		Pen	= IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
+		m_alPens[Index] = Pen;
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -277,8 +295,6 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 #ifdef __amigaos4__
 
-	unsigned long Red, Green, Blue;
-	LONG Pen;
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
 
@@ -292,7 +308,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 		Length = *a_pcText++;
 		Colour = *a_pcText++;
-		ASSERTM((Colour < 4), "RFont::DrawColouredText() => Colour index out of range");
+		ASSERTM((Colour < NUM_FONT_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Move to the position at which to print, taking into account the left and top border sizes, */
 		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
@@ -315,17 +331,9 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 			break;
 		}
 
-		/* Determine the colour to print the text and set it */
-
-		Red = Utils::Red32(g_aoColours[Colour] & 0xff0000);
-		Green = Utils::Green32(g_aoColours[Colour] & 0xff00);
-		Blue = Utils::Blue32(g_aoColours[Colour] & 0xff);
-
-		Pen	= IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
-
 		/* Display the text in the required colour */
 
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, Pen);
+		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
 		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
 
 		/* And prepare for the next run to be displayed */
@@ -347,7 +355,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 		Length = *a_pcText++;
 		Colour = *a_pcText++;
-		ASSERTM((Colour < 4), "RFont::DrawColouredText() => Colour index out of range");
+		ASSERTM((Colour < NUM_FONT_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Display the text in the required colour */
 
