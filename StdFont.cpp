@@ -20,6 +20,11 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
+	m_iHighlight = EFalse;
+	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version ignores this
+	m_iWidth = m_iHeight = m_iYOffset = 0;
+	m_poWindow = a_poWindow;
+
 #ifdef __amigaos4__
 
 	m_iBaseline = 0;
@@ -31,10 +36,6 @@ RFont::RFont(CWindow *a_poWindow)
 
 #endif /* ! __amigaos4__ */
 
-	m_iHighlight = EFalse;
-	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version ignores this
-	m_iWidth = m_iHeight = m_iYOffset = 0;
-	m_poWindow = a_poWindow;
 }
 
 /* Written: Sunday 31-May-2010 3:38 pm */
@@ -59,7 +60,7 @@ TInt RFont::Open()
 
 #else /*  ! __amigaos4__ */
 
-	int Height;
+	TInt Height;
 	TEXTMETRIC TextMetric;
 
 	/* Assume failure */
@@ -169,7 +170,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 #ifdef __amigaos4__
 
-	int Width;
+	TInt Width;
 
 	/* Move to the position at which to print, taking into account the left and top border sizes, */
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
@@ -276,10 +277,9 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 #ifdef __amigaos4__
 
-	int Width;
 	unsigned long Red, Green, Blue;
 	LONG Pen;
-	TInt NumChars;
+	TInt NumChars, Width;
 	struct TextExtent TextExtent;
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
