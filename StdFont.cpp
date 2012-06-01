@@ -417,7 +417,10 @@ void RFont::SetHighlight(TBool a_iHighlight)
 }
 
 /* Written: Wednesday 30-Nov-2011 5:49 am, Söflingen */
-// TODO: CAW
+/* @param	a_iClipWidth    Number of pixels to draw horizontally before clipping */
+/* Sets the clipping width of the area into which the font will draw.  This is the */
+/* number of pixels starting at the value passed into RFont::SetXOffset() - it is */
+/* an offset, not an absolute value! */
 
 void RFont::SetClipWidth(TInt a_iClipWidth)
 {

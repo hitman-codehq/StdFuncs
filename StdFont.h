@@ -28,7 +28,7 @@ private:
 #endif /* ! __amigaos4__ */
 
 	TBool		m_iHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
-	TInt		m_iClipWidth;	/* Nmber of pixels to draw horizontally before clipping */
+	TInt		m_iClipWidth;	/* Number of pixels to draw horizontally before clipping */
 	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;		/* Height of a character in pixels */
 	TInt		m_iXOffset;		/* Offset from left of window at which to print */
