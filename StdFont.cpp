@@ -21,7 +21,7 @@ RFont::RFont(CWindow *a_poWindow)
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
 	m_iHighlight = EFalse;
-	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version ignores this
+	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version and DrawColouredText() ignores this
 	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
