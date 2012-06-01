@@ -188,16 +188,26 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 #ifdef __amigaos4__
 
-	/* Move to the position at which to print, taking into account the left and top border sizes, */
-	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-	/* routine prints at the baseline position, not the top of the font */
+	TInt X;
 
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
-		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+	/* Calculate the position at which to draw the cursor */
 
-	/* And draw the cursor! */
+	X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
 
-	IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+	/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
+
+	if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+	{
+		/* Move to the position at which to print, taking into account the left and top border sizes, */
+		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+		/* routine prints at the baseline position, not the top of the font */
+
+		IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+
+		/* And draw the cursor! */
+
+		IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+	}
 
 #else /* ! __amigaos4__ */
 
