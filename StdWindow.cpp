@@ -485,13 +485,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
 
-		// TODO: CAW - Use WINDOW_Layout for clarity?
-		WINDOW_ParentGroup, m_poRootGadget = (Object *) VGroupObject,
-			LAYOUT_SpaceOuter, FALSE, // TODO: CAW - Proper commenting
+		WINDOW_Layout, m_poRootGadget = (Object *) VGroupObject,
 			/* This is an empty group into which can be placed BOOPSI objects */
-
-			// TODO: CAW - Not needed
-			LAYOUT_HorizAlignment, LALIGN_RIGHT,
 		EndGroup,
 	EndWindow;
 
