@@ -22,7 +22,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 	m_iHighlight = EFalse;
 	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version ignores this
-	m_iWidth = m_iHeight = m_iYOffset = 0;
+	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
 #ifdef __amigaos4__
@@ -197,7 +197,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	// TODO: CAW - This should work with proportional fonts
 	Width = m_poWindow->m_poWindow->IFont->tf_XSize;
 
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * Width)),
+	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * Width)),
 		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* And draw the cursor! */
@@ -249,7 +249,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
 	/* routine prints at the baseline position, not the top of the font */
 
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * m_iWidth)),
+	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
 		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* Calculate the maximum number of characters that can fit in the client area of the window, */
@@ -314,7 +314,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
 		/* routine prints at the baseline position, not the top of the font */
 
-		IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + (a_iX * m_iWidth)),
+		IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
 			(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 		/* Calculate the maximum number of characters that can fit in the client area of the window, */
@@ -419,6 +419,18 @@ void RFont::SetClipWidth(TInt a_iClipWidth)
 	m_iClipWidth = a_iClipWidth;
 }
 
+/* Written: Thursday 31-May-2012 7:20 am, CodeHQ Ehinger Tor */
+/* @param	a_iXOffset	Offset from the left of the window in pixels */
+/* This function sets the offset from the left of the window at which text is output */
+/* by the RFont class.  This means that when clients call the text drawing functions */
+/* and pass in an X position at which to print, that position is calculated from the */
+/* X offset passed in here, rather than the left of the window.  This allows the */
+/* client to treat areas of the window as a sub-windows. */
+
+void RFont::SetXOffset(TInt a_iXOffset)
+{
+	m_iXOffset = a_iXOffset;
+}
 /* Written: Friday 08-Jul-2010 7:42 am, CodeHQ-by-Thames */
 /* @param	a_iYOffset	Offset from the top of the window in pixels */
 /* This function sets the offset from the top of the window at which text is output */

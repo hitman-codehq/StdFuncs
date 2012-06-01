@@ -31,6 +31,7 @@ private:
 	TInt		m_iClipWidth;	/* Nmber of pixels to draw horizontally before clipping */
 	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;		/* Height of a character in pixels */
+	TInt		m_iXOffset;		/* Offset from left of window at which to print */
 	TInt		m_iYOffset;		/* Offset from top of window at which to print */
 	CWindow		*m_poWindow;	/* Ptr to window into which to render */
 
@@ -61,6 +62,8 @@ public:
 	void SetHighlight(TBool a_iHighlight);
 
 	void SetClipWidth(TInt a_iClipWidth);
+
+	void SetXOffset(TInt a_iXOffset);
 
 	void SetYOffset(TInt a_iYOffset);
 };
