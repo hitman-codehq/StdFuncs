@@ -147,6 +147,8 @@ public:
 
 	/* From CStdGadget */
 
+	virtual TInt X();
+
 	virtual TInt Y();
 
 	virtual TInt MinHeight();
@@ -188,11 +190,6 @@ public:
 	/* From CStdGadget */
 
 	void Updated(ULONG a_ulData);
-
-	// TODO: CAW - Amiga - Ensure these are valid
-	TInt Width();
-
-	TInt Height();
 };
 
 /* A class representing a status bar gadget */

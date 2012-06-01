@@ -300,39 +300,3 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 #endif /* ! __amigaos4__ */
 
 }
-
-/* Written: Saturday 26-Mar-2011 12:46 pm, CodeHQ-by-Thames */
-
-TInt CStdGadgetSlider::Width()
-{
-
-#ifdef __amigaos4__
-
-	// TODO: CAW - How to get this programmatically, here and for Height()?
-	//             Also, this cannot be called until the gadget is on screen or
-	//             it will return incorrect results
-	IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
-	m_iWidth += 6;
-
-#endif /* __amigaos4__ */
-
-	return(m_iWidth);
-}
-
-/* Written: Sunday 08-May-2011 8:52 am, CodeHQ-by-Thames */
-
-TInt CStdGadgetSlider::Height()
-{
-
-#ifdef __amigaos4__
-
-	/* Query the scroller for its height, which is set dynamically */
-
-	IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
-	m_iHeight += 6;
-
-#endif /* __amigaos4__ */
-
-	return(m_iHeight);
-}
-

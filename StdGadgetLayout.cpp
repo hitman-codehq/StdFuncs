@@ -283,6 +283,24 @@ void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
 
 }
 
+/* Written: Thursday 31-May-2011 7:16 am, CodeHQ Ehinger Tor */
+/* @return	The X position of the layout gadget */
+/* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
+/* on Win32 style client area relative positions.  So for Amiga OS we need to adjust the */
+/* X position of the layout gadget to account for this. */
+
+TInt CStdGadgetLayout::X()
+{
+
+#ifdef __amigaos4__
+
+	m_iX = (CStdGadget::X() - m_poParentWindow->m_poWindow->BorderLeft);
+
+#endif /* __amigaos4__ */
+
+	return(m_iX);
+}
+
 /* Written: Tuesday 18-Oct-2011 7:15 am, CodeHQ Söflingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
