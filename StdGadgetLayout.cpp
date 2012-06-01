@@ -14,6 +14,11 @@
 
 #endif /* __amigaos4__ */
 
+/* The LAYOUT_InnerSpacing attribute cannot be queried so we need to know it, so we */
+/* explicitly set it to a value and use that value in CStdGadgetLayout::GetSpacing() */
+
+#define INNER_SPACING 3
+
 /* Written: Monday 11-Jul-2011 5:44 am */
 // TODO: CAW - Parameters + comments all through here + ensure consistency with others
 
@@ -58,7 +63,7 @@ TInt CStdGadgetLayout::Construct()
 
 #ifdef __amigaos4__
 
-	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
+	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_InnerSpacing, INNER_SPACING, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
 	{
 		//m_poParentWindow->Attach(this);
 
@@ -164,6 +169,28 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 	}
 
 	return(RetVal);
+}
+
+/* Written: Friday 1-Jun-2012 7:11 am, CodeHQ Ehinger Tor */
+/* @return	The amount of spacing, in pixels, used between gadgets */
+/* When a layout gadget is created, it can be instructed to layout the gadgets it */
+/* owns with padding between them, or to lay them out hard up against one another. */
+/* This function returns the size of the padding used, in pixels, or 0 if the gadgets */
+/* are laid up against one another */
+
+TInt CStdGadgetLayout::GetSpacing()
+{
+
+#ifdef __amigaos4__
+
+	return(INNER_SPACING);
+
+#else /* ! __amigaos4__ */
+
+	return(0);
+
+#endif /* ! __amigaos4__ */
+
 }
 
 /* Written: Saturday 15-Oct-2011 12:42 pm, CodeHQ Söflingen */
@@ -283,7 +310,7 @@ void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
 
 }
 
-/* Written: Thursday 31-May-2011 7:16 am, CodeHQ Ehinger Tor */
+/* Written: Thursday 31-May-2012 7:16 am, CodeHQ Ehinger Tor */
 /* @return	The X position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
 /* on Win32 style client area relative positions.  So for Amiga OS we need to adjust the */

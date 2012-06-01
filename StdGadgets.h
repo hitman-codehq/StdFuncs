@@ -136,6 +136,8 @@ public:
 
 	void Attach(CStdGadget *a_poGagdet);
 
+	TInt GetSpacing();
+
 	void RethinkLayout();
 
 	void SetGadgetWeight(TInt a_iWeight);
