@@ -188,16 +188,11 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 #ifdef __amigaos4__
 
-	TInt Width;
-
 	/* Move to the position at which to print, taking into account the left and top border sizes, */
 	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
 	/* routine prints at the baseline position, not the top of the font */
 
-	// TODO: CAW - This should work with proportional fonts
-	Width = m_poWindow->m_poWindow->IFont->tf_XSize;
-
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * Width)),
+	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
 		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* And draw the cursor! */
