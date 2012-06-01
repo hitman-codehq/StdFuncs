@@ -171,7 +171,7 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 	return(RetVal);
 }
 
-/* Written: Friday 1-Jun-2012 7:11 am, CodeHQ Ehinger Tor */
+/* Written: Friday 01-Jun-2012 7:11 am, CodeHQ Ehinger Tor */
 /* @return	The amount of spacing, in pixels, used between gadgets */
 /* When a layout gadget is created, it can be instructed to layout the gadgets it */
 /* owns with padding between them, or to lay them out hard up against one another. */
