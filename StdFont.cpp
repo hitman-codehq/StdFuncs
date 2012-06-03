@@ -221,7 +221,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	{
 		/* And draw the cursor! */
 
-		TextOut(m_poWindow->m_poDC, Size.cx, (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + Size.cx), (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
 	}
 
 #endif /* ! __amigaos4__ */
@@ -270,7 +270,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - Don't use 8, here and in DrawColouredText()
-	TextOut(m_poWindow->m_poDC, a_iX * 8, (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
+	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
 
 #endif /* ! __amigaos4__ */
 
@@ -365,7 +365,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* Display the text in the required colour */
 
 		SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
-		TextOut(m_poWindow->m_poDC, a_iX * 8, (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
 
 		/* And prepare for the next run to be displayed */
 
