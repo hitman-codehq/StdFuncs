@@ -408,6 +408,10 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 #else /* ! __amigaos4__ */
 
 	// TODO: CAW - Implement this + comment this function
+	(void) a_iY;
+	(void) a_iHeight;
+	(void) a_iX;
+	(void) a_iWidth;
 
 #endif /* ! __amigaos4__ */
 
