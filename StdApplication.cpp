@@ -223,7 +223,7 @@ int RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	int Index, NumChars, X, Y;
+	int InnerWidth, InnerHeight, Index, NumChars, X, Y;
 	TBool DoubleClicked, KeyDown, KeyHandled;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
@@ -478,6 +478,20 @@ int RApplication::Main()
 
 						break;
 					}*/
+
+					case WMHI_NEWSIZE :
+					{
+						/* Determine the new size of the window */
+
+						InnerWidth = (Window->m_poWindow->Width - (Window->m_poWindow->BorderRight + Window->m_poWindow->BorderLeft));
+						InnerHeight = (Window->m_poWindow->Height - (Window->m_poWindow->BorderBottom + Window->m_poWindow->BorderTop));
+
+						/* And notify the window if this new size */
+
+						Window->InternalResize(InnerWidth, InnerHeight);
+
+						break;
+					}
 				}
 			}
 		}

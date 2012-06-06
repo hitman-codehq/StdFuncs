@@ -483,7 +483,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW),
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
 
 		WINDOW_Layout, m_poRootGadget = (Object *) VGroupObject,
 			/* This is an empty group into which can be placed BOOPSI objects */
@@ -731,6 +731,9 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 #ifdef __amigaos4__
 
 	int Bottom, Top;
+
+	// TODO: CAW - Temporary until we sort out refreshing the screen
+	(void) a_iWidth;
 
 	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
 	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
