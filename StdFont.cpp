@@ -355,7 +355,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		a_pcText += Length;
 		Width -= TextExtent.te_Width;
 
-		ASSERTM((Width > 0), "RFont::DrawColouredText() => Out of space");
+		ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
 	}
 
 #else /* ! __amigaos4__ */
