@@ -247,7 +247,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #ifdef __amigaos4__
 
-	TInt NumChars;
+	TInt NumChars, Width;
 	struct TextExtent TextExtent;
 
 	/* Move to the position at which to print, taking into account the left and top border sizes, */
@@ -258,10 +258,14 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 	/* Calculate the maximum number of characters that can fit in the client area of the window, */
-	/* as text is not automatically clipped by the Amiga OS text drawing routine */
+	/* as text is not automatically clipped by the Amiga OS text drawing routine.  The text may */
+	/* not start at the very left of the screen so take this into account */
+
+	Width = (m_iClipWidth - (a_iX * m_iWidth));
+	Width = max(0, Width);
 
 	NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
-		m_iClipWidth, m_poWindow->InnerHeight());
+		Width, m_poWindow->InnerHeight());
 
 	/* And draw as much of the text passed in as will fit in the client area */
 
@@ -303,9 +307,13 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
 
-	/* Iterate through the source text and display the runs of characters in the required colour */
+	/* Determine how much space we have in which to print.  The text may not start at the very left */
+	/* of the screen so take this into account */
 
-	Width = m_iClipWidth;
+	Width = (m_iClipWidth - (a_iX * m_iWidth));
+	Width = max(0, Width);
+
+	/* Iterate through the source text and display the runs of characters in the required colour */
 
 	while (*a_pcText)
 	{
