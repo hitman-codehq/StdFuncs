@@ -70,7 +70,7 @@ TInt RFileRequester::GetFileName(TBool a_bSaveAs)
 			/* Save the fully qualified name of the file for l8r use */
 
 			strcpy(m_acFileName, ((struct FileRequester *) Requester)->fr_Drawer);
-			strcat(m_acFileName, ((struct FileRequester *) Requester)->fr_File);
+			Utils::AddPart(m_acFileName, ((struct FileRequester *) Requester)->fr_File, sizeof(m_acFileName));
 		}
 
 		/* Either the user hit "Cancel" or the requester could not be displayed, so check to see */
