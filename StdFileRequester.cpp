@@ -8,12 +8,12 @@
 #include <proto/asl.h>
 #include <string.h>
 
+#endif /* __amigaos4__ */
+
 /* Strings for the file requester's title */
 
 static const char g_accOpenText[] = "Select file to open...";
 static const char g_accSaveText[] = "Select file to save as...";
-
-#endif /* __amigaos4__ */
 
 /* Written: Saturday 26-Jun-2010 2:48 pm */
 /* @param	a_bSaveAs ETrue to prompt for a file to save, else EFalse for a file to open */
@@ -119,10 +119,12 @@ TInt RFileRequester::GetFileName(TBool a_bSaveAs)
 
 	if (a_bSaveAs)
 	{
+		OpenFileName.lpstrTitle = g_accSaveText;
 		GotFileName = GetSaveFileName(&OpenFileName);
 	}
 	else
 	{
+		OpenFileName.lpstrTitle = g_accOpenText;
 		GotFileName = GetOpenFileName(&OpenFileName);
 	}
 
