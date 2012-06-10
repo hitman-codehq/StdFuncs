@@ -15,17 +15,34 @@
 static const char g_accOpenText[] = "Select file to open...";
 static const char g_accSaveText[] = "Select file to save as...";
 
+/* Written: Sunday 10-Jun-2012 2:48 pm */
+/* Cleans up any memory used by the class and sets the class's state back to how it was */
+/* when it was created */
+
+void RFileRequester::Close()
+{
+	delete [] m_pcDirectoryName;
+	m_pcDirectoryName = NULL;
+
+	m_acFileName[0] = '\0';
+}
+
 /* Written: Saturday 26-Jun-2010 2:48 pm */
-/* @param	a_bSaveAs ETrue to prompt for a file to save, else EFalse for a file to open */
+/* @param	a_pccFileName	Ptr to fully qualified filename with which to initialise the file */
+/*							open requester.  May be NULL */
+/* @param	a_bSaveAs		ETrue to prompt for a file to save, else EFalse for a file to open */
 /* @return	KErrNone if a filename was requested successfully */
 /*          KErrCancel if the user clicked cancel without selecting a file */
 /*          KErrNoMemory if there wasn't enough memory to allocate the requester */
 /*          KErrGeneral if another error occurred obtaining the file */
 /* Displays a native file requester prompting the user for the name of a file to open or save. */
 /* Once obtained, a ptr to this filename can be obtained by calling RFileRequester::FileName(). */
-/* Note that the filename may be 0 bytes long if the user clicked ok without selecting a file */
+/* Note that the filename may be 0 bytes long if the user clicked ok without selecting a file. */
+/* The a_pccFileName parameter can be a directory, in which case the file requester is opened */
+/* pointing to this directory, or a fully qualified filename, in which case the filename is split */
+/* and both parts are used in choosing which directory in which to open the requester */
 
-TInt RFileRequester::GetFileName(TBool a_bSaveAs)
+TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 {
 
 #ifdef __amigaos4__
@@ -97,9 +114,11 @@ TInt RFileRequester::GetFileName(TBool a_bSaveAs)
 
 #else /* ! __amigaos4__ */
 
-	BOOL GotFileName;
-	TInt RetVal;
+	const char *FileName;
+	BOOL GotFileName, Qualified;
+	TInt Length, RetVal;
 	CWindow *RootWindow;
+	TEntry Entry;
 	OPENFILENAME OpenFileName;
 
 	/* Initialise the OPENFILENAME structure to display the last filename we used, if any */
@@ -115,7 +134,52 @@ TInt RFileRequester::GetFileName(TBool a_bSaveAs)
 	RootWindow = CWindow::GetRootWindow();
 	OpenFileName.hwndOwner = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
-	/* Query the user for the filename to which to save */
+	/* If a qualified filename has been passed in then use it to initialise the dialog.  This */
+	/* is an attempt to get Windows to open our dialog in the directory represented in the */
+	/* filename passed in, but it is entirely possible that Windows will entirely ignore our */
+	/* attempts to influence it as it tries to be "smart" about which directory it uses */
+
+	if (a_pccFileName)
+	{
+		/* Ensure that the directory or filename actually exists.  If not then we won't try to */
+		/* affect where Windows opens the dialog box */
+
+		// TODO: CAW - We want to use Utils::IsDirectory() here + simplify this if possible
+		if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNone)
+		{
+			if (Entry.iIsDir)
+			{
+				OpenFileName.lpstrInitialDir = a_pccFileName;
+				m_acFileName[0] = '\0';
+			}
+			else
+			{
+				Qualified = ((strstr(a_pccFileName, "/")) || (strstr(a_pccFileName, "\\")));
+
+				if (Qualified)
+				{
+					FileName = Utils::FilePart(a_pccFileName);
+					Length = (FileName - a_pccFileName + 1);
+
+					delete [] m_pcDirectoryName;
+					m_pcDirectoryName = new char[Length];
+
+					if (m_pcDirectoryName)
+					{
+						strncpy(m_pcDirectoryName, a_pccFileName, Length);
+						m_pcDirectoryName[Length - 1] = '\0';
+
+						OpenFileName.lpstrInitialDir = m_pcDirectoryName;
+					}
+				}
+
+				ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+				strcpy(m_acFileName, a_pccFileName);
+			}
+		}
+	}
+
+	/* Query the user for the filename */
 
 	if (a_bSaveAs)
 	{

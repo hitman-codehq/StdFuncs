@@ -9,16 +9,21 @@
 
 class RFileRequester
 {
-	char	m_acFileName[MAX_FILEREQUESTER_PATH];
+	char	*m_pcDirectoryName;						/* Ptr to directory name extracted from fully qualified */
+													/* filename passed into RFileRequester::GetFileName() */
+	char	m_acFileName[MAX_FILEREQUESTER_PATH];	/* Fully qualified filename of file selected by user */
 
 public:
 
 	RFileRequester()
 	{
+		m_pcDirectoryName = NULL;
 		m_acFileName[0] = '\0';
 	}
 
-	TInt GetFileName(TBool a_bSaveAs);
+	void Close();
+
+	TInt GetFileName(const char *a_pccFileName, TBool a_bSaveAs);
 
 	const char *FileName()
 	{
