@@ -15,7 +15,7 @@ endif
 
 LFLAGS += -L../$(OBJ)
 
-EXECUTABLES = $(T_ARGS) $(T_DIR) $(T_FILE)
+EXECUTABLES = $(T_ARGS) $(T_DIR) $(T_FILE) $(T_UTILS) $(T_WILDCARD)
 
 T_ARGS = $(OBJ)/T_Args
 
@@ -23,11 +23,19 @@ T_DIR = $(OBJ)/T_Dir
 
 T_FILE = $(OBJ)/T_File
 
+T_UTILS = $(OBJ)/T_Utils
+
+T_WILDCARD = $(OBJ)/T_Wildcard
+
 T_ARGS_OBJECTS = $(OBJ)/T_Args.o
 
 T_DIR_OBJECTS = $(OBJ)/T_Dir.o
 
 T_FILE_OBJECTS = $(OBJ)/T_File.o
+
+T_UTILS_OBJECTS = $(OBJ)/T_Utils.o
+
+T_WILDCARD_OBJECTS = $(OBJ)/T_Wildcard.o
 
 All: $(OBJ) $(EXECUTABLES)
 
@@ -47,6 +55,16 @@ $(T_DIR): $(T_DIR_OBJECTS)
 $(T_FILE): $(T_FILE_OBJECTS)
 	@echo Linking $@...
 	$(LD) $(T_FILE_OBJECTS) $(LFLAGS) -o $@.debug
+	@strip -R.comment $@.debug -o $@
+
+$(T_UTILS): $(T_UTILS_OBJECTS)
+	@echo Linking $@...
+	$(LD) $(T_UTILS_OBJECTS) $(LFLAGS) -o $@.debug
+	@strip -R.comment $@.debug -o $@
+
+$(T_WILDCARD): $(T_WILDCARD_OBJECTS)
+	@echo Linking $@...
+	$(LD) $(T_WILDCARD_OBJECTS) $(LFLAGS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
 $(OBJ)/%.o: %.cpp
