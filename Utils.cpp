@@ -139,13 +139,13 @@ TInt Utils::CountTokens(const char *a_pccBuffer)
 {
 	char Char;
 	TBool FoundDelimeter, TokenStart;
-	TInt Source, Dest, RetVal;
+	TInt Source, RetVal;
 
 	/* Iterate through the string passed in and determine how many tokens are present */
 
 	FoundDelimeter = EFalse;
 	TokenStart = ETrue;
-	Dest = RetVal = 0;
+	RetVal = 0;
 
 	for (Source = 0; a_pccBuffer[Source]; ++Source)
 	{
