@@ -272,8 +272,14 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 
 #else /* ! __linux__ */
 
-	// TODO: CAW - Implement
-	RetVal = KErrNone;
+	if (RemoveDirectory(a_pccDirectoryName))
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = KErrNotFound;
+	}
 
 #endif /* ! __linux__ */
 
