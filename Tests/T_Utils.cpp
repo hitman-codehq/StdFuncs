@@ -8,6 +8,7 @@ static RTest Test("T_Utils");
 int main()
 {
 	const char *Extension, *FileName;
+	TInt Result;
 
 	Test.Title();
 	Test.Start("Utils class API test");
@@ -97,6 +98,17 @@ int main()
 
 	test(Utils::CountTokens("\tOne\t\tTwo\t") == 2);
 	test(Utils::CountTokens(" One  Two ") == 2);
+
+	/* Test #4: Ensure that directory creation and deletion routines work */
+
+	Test.Next("Ensure that Utils::CreateDirectory() and Utils::DeleteDirectory() work");
+	Result = Utils::DeleteDirectory("SomeDirectory");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	test(Utils::CreateDirectory("SomeDirectory") == KErrNone);
+	test(Utils::CreateDirectory("SomeDirectory") == KErrAlreadyExists);
+	test(Utils::DeleteDirectory("SomeDirectory") == KErrNone);
+	test(Utils::CreateDirectory("x/SomeDirectory") == KErrNotFound);
 
 	Test.End();
 
