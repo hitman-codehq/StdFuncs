@@ -388,19 +388,19 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 				}
 				else
 				{
-					Info("FullNameFromWBArg() => Unable to build filename");
+					Utils::Info("FullNameFromWBArg() => Unable to build filename");
 				}
 
 				IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 			}
 			else
 			{
-				Info("FullNameFromWBArg() => Unable to examine object");
+				Utils::Info("FullNameFromWBArg() => Unable to examine object");
 			}
 		}
 		else
 		{
-			Info("FullNameFromWBArg() => Unable to obtain file name from Lock");
+			Utils::Info("FullNameFromWBArg() => Unable to obtain file name from Lock");
 		}
 	}
 
@@ -449,7 +449,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	{
 		RetVal = KErrNotFound;
 
-		Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
+		Utils::Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 	}
 
 #elif defined(__linux__)
@@ -483,12 +483,12 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		}
 		else
 		{
-			Info("GetFileInfo() => Unable to convert timestamp to local time");
+			Utils::Info("GetFileInfo() => Unable to convert timestamp to local time");
 		}
 	}
 	else
 	{
-		Info("GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
+		Utils::Info("GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
 	}
 
 #else /* ! __linux__ */
@@ -534,7 +534,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	}
 	else
 	{
-		Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
+		Utils::Info("GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 	}
 
 #endif /* ! __linux__ */
@@ -829,7 +829,7 @@ TBool Utils::IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory)
 	}
 	else
 	{
-		Info("IsDirectory() => Unable to examine object");
+		Utils::Info("IsDirectory() => Unable to examine object");
 	}
 
 	return(RetVal);
@@ -1147,7 +1147,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 	}
 	else
 	{
-		Info("ScanDirectory() => Unable to create context to examine object");
+		Utils::Info("ScanDirectory() => Unable to create context to examine object");
 	}
 
 	return(RetVal);
