@@ -1219,8 +1219,14 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
-	RetVal = KErrGeneral;
+	if (chmod(a_pccFileName, a_uiAttributes) == 0)
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
+	}
 
 #else /* ! __linux__ */
 
