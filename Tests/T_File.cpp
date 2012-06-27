@@ -39,9 +39,9 @@ int main()
 	test(Result == KErrNone);
 	File.Close();
 
-	/* Test #2: Rename a file using BaflUtils::Rename() */
+	/* Test #2: Rename a file using BaflUtils::RenameFile() */
 
-	Test.Next("Renaming a file with BaflUtils::Rename()");
+	Test.Next("Renaming a file with BaflUtils::RenameFile()");
 
 	Result = BaflUtils::DeleteFile("NewFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
@@ -65,7 +65,7 @@ int main()
 
 	// TODO: CAW - Why doesn't this fail on Amiga OS?
 	Result = File.Create("File.txt", EFileWrite);
-	test(Result == KErrAlreadyExists);
+	test(Result == KErrAlreadyExists); // TODO: CAW - On failure, the test() macro should display the failed result
 
 	Result = File.Create("x:\\File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
