@@ -11,7 +11,17 @@ else
 	CFLAGS += -O2
 endif
 
+UNAME = $(shell uname)
+
 LIBRARY = $(OBJ)/libStdFuncs.a
+
+ifeq ($(UNAME), Linux)
+
+OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+	$(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Time.o \
+	$(OBJ)/Utils.o
+
+else
 
 OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
 	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdDialog.o $(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o \
@@ -19,10 +29,12 @@ OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o
 	$(OBJ)/StdImage.o $(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Time.o \
 	$(OBJ)/Utils.o
 
+endif
+
 All: $(OBJ) $(LIBRARY)
 
 $(OBJ):
-	@MakeDir $(OBJ)
+	@mkdir $(OBJ)
 
 $(LIBRARY): $(OBJECTS)
 	@echo Creating library $@...
@@ -33,4 +45,4 @@ $(OBJ)/%.o: %.cpp
 	$(CC) $(CFLAGS) -o $(OBJ)/$*.o $<
 
 clean:
-	@Delete $(OBJ) all quiet
+	@rm -fr $(OBJ)
