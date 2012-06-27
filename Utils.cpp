@@ -16,8 +16,10 @@
 
 #elif defined(__linux__)
 
+#include <errno.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 #endif /* __linux__ */
 
@@ -219,8 +221,14 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
-	RetVal = KErrGeneral;
+	if (mkdir(a_pccDirectoryName, 0644) == 0)
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = (errno == EEXIST) ? KErrAlreadyExists : KErrNotFound;
+	}
 
 #else /* ! __linux__ */
 
