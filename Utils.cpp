@@ -837,8 +837,6 @@ TBool Utils::IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory)
 #endif
 
 // TODO: CAW - This is going to break AMC + standardise on errors + this pulls in a reference to File.cpp!
-// TODO: CAW - __linux__ #ifdef is temporary
-#ifndef __linux__
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 {
 	unsigned char *Buffer;
@@ -903,7 +901,6 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 	return(RetVal);
 }
-#endif
 
 /* Written: Wednesday 09-Mar-2011 6:27 am */
 /* @param	a_pcPath Ptr to qualified path to be normalised */
