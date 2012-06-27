@@ -67,7 +67,7 @@ int main()
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists); // TODO: CAW - On failure, the test() macro should display the failed result
 
-	Result = File.Create("x:\\File.txt", EFileWrite);
+	Result = File.Create("x/File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
 
 	Result = File.Open("UnknownFile.txt", EFileRead);
