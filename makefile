@@ -15,18 +15,18 @@ UNAME = $(shell uname)
 
 LIBRARY = $(OBJ)/libStdFuncs.a
 
-ifeq ($(UNAME), Linux)
-
-OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-	$(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Time.o \
-	$(OBJ)/Utils.o
-
-else
+ifeq ($(UNAME), AmigaOS)
 
 OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
 	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdDialog.o $(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o \
 	$(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o \
 	$(OBJ)/StdImage.o $(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Time.o \
+	$(OBJ)/Utils.o
+
+else
+
+OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+	$(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Time.o \
 	$(OBJ)/Utils.o
 
 endif

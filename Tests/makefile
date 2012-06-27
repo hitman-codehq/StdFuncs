@@ -3,7 +3,7 @@ CC = @g++
 LD = @g++
 CFLAGS = -c -Wall -Wextra -Wwrite-strings
 IFLAGS = -I../
-LFLAGS = -lStdFuncs -lauto
+LFLAGS = -lStdFuncs
 
 ifdef DEBUG
 	OBJ = Debug
@@ -11,6 +11,14 @@ ifdef DEBUG
 else
 	OBJ = Release
 	CFLAGS += -O2
+endif
+
+UNAME = $(shell uname)
+
+ifeq ($(UNAME), AmigaOS)
+
+LFLAGS += -lauto
+
 endif
 
 LFLAGS += -L../$(OBJ)
