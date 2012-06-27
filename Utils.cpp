@@ -256,8 +256,14 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
-	RetVal = KErrNone;
+	if (IDOS->DeleteFile(a_pccDirectoryName))
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = KErrNotFound;
+	}
 
 #elif defined(__linux__)
 
