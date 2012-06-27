@@ -65,7 +65,7 @@ int main()
 
 	// TODO: CAW - Why doesn't this fail on Amiga OS?
 	Result = File.Create("File.txt", EFileWrite);
-	test(Result == KErrAlreadyExists); // TODO: CAW - On failure, the test() macro should display the failed result
+	test(Result == KErrAlreadyExists);
 
 	Result = File.Create("x/File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
