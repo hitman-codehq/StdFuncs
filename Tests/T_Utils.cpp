@@ -1,6 +1,7 @@
 
 #include <StdFuncs.h>
 #include <Test.h>
+#include <string.h>
 
 static RTest Test("T_Utils");
 
