@@ -119,7 +119,8 @@ int main()
 	Test.Next("Ensure that we can set the file date and time on a file");
 
 	/* Delete any old file hanging around from prior runs, create a new one */
-	/* and set its time to be the same as the source code for this test */
+	/* and set its time and attributes to be the same as the source code */
+	/* for this test */
 
 	Result = BaflUtils::DeleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
@@ -134,9 +135,13 @@ int main()
 	Result = Utils::SetFileDate("TimeFile.txt", OldEntry);
 	test(Result == KErrNone);
 
+	Result = Utils::SetProtection("TimeFile.txt", OldEntry.iAttributes);
+	test(Result == KErrNone);
+
 	Result = Utils::GetFileInfo("TimeFile.txt", &NewEntry);
 	test(Result == KErrNone);
 	test(OldEntry.iPlatformDate == NewEntry.iPlatformDate);
+	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
 	/* Clean up after ourselves */
 
