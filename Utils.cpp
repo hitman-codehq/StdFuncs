@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <utime.h>
 
 #endif /* __linux__ */
 
@@ -1160,6 +1161,10 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 {
 	TInt RetVal;
 
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
+
 #ifdef __amigaos4__
 
 	// TODO: Return value here and for SetProtection(). Should this be in Utils?
@@ -1168,16 +1173,20 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement this
-	RetVal = KErrGeneral;
+	struct utimbuf Time;
+
+	/* Set both the access and modification time of the file to the time passed in */
+
+	Time.actime = Time.modtime = a_roEntry.iPlatformDate;
+	
+	if (utime(a_pccFileName, &Time) == 0)
+	{
+		RetVal = KErrNone;
+	}
 
 #else /* ! __linux__ */
 
 	HANDLE Handle;
-
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
 
 	/* Open a handle to the file and set its datestamp to that passed in */
 
