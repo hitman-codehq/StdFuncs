@@ -517,12 +517,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 			IIntuition->DisposeObject(m_poWindowObj);
 			m_poWindowObj = NULL;
 
-			Utils::Info("Unable to open window");
+			Utils::Info("CWindow::Open() => Unable to open window");
 		}
 	}
 	else
 	{
-		Utils::Info("Unable to create window");
+		Utils::Info("CWindow::Open() => Unable to create window");
 	}
 
 #else /* ! __amigaos4__ */
@@ -585,22 +585,22 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 				}
 				else
 				{
-					Utils::Info("Unable to obtain window client dimensions");
+					Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
 				}
 			}
 			else
 			{
-				Utils::Info("Unable to open window");
+				Utils::Info("CWindow::Open() => Unable to open window");
 			}
 		}
 		else
 		{
-			Utils::Info("Unable to determine size of desktop");
+			Utils::Info("CWindow::Open() => Unable to determine size of desktop");
 		}
 	}
 	else
 	{
-		Utils::Info("Unable to register window class");
+		Utils::Info("CWindow::Open() => Unable to register window class");
 	}
 
 #endif /* ! __amigaos4__ */

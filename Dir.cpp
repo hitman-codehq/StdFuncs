@@ -596,7 +596,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 						}
 						else
 						{
-							Utils::Info("Unable to allocate buffer to resolve link size\n");
+							Utils::Info("RDir::Read() => Unable to allocate buffer to resolve link size\n");
 						}
 					}
 					else
