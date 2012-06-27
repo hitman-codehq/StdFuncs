@@ -1,5 +1,7 @@
 
 #include <StdFuncs.h>
+#include <BaUtils.h>
+#include <File.h>
 #include <Test.h>
 #include <string.h>
 
@@ -9,6 +11,8 @@ int main()
 {
 	const char *Extension, *FileName;
 	TInt Result;
+	RFile File;
+	TEntry OldEntry, NewEntry;
 
 	Test.Title();
 	Test.Start("Utils class API test");
@@ -109,6 +113,35 @@ int main()
 	test(Utils::CreateDirectory("SomeDirectory") == KErrAlreadyExists);
 	test(Utils::DeleteDirectory("SomeDirectory") == KErrNone);
 	test(Utils::CreateDirectory("x/SomeDirectory") == KErrNotFound);
+
+	/* Test #5: Ensure that we can set the file date and time on a file */
+
+	Test.Next("Ensure that we can set the file date and time on a file");
+
+	/* Delete any old file hanging around from prior runs, create a new one */
+	/* and set its time to be the same as the source code for this test */
+
+	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	Result = File.Create("TimeFile.txt", EFileWrite);
+	test(Result == KErrNone);
+	File.Close();
+
+	Result = Utils::GetFileInfo("T_Utils.cpp", &OldEntry);
+	test(Result == KErrNone);
+
+	Result = Utils::SetFileDate("TimeFile.txt", OldEntry);
+	test(Result == KErrNone);
+
+	Result = Utils::GetFileInfo("TimeFile.txt", &NewEntry);
+	test(Result == KErrNone);
+	test(OldEntry.iPlatformDate == NewEntry.iPlatformDate);
+
+	/* Clean up after ourselves */
+
+	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Test.End();
 
