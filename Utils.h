@@ -40,6 +40,8 @@ public:
 
 	static TInt CreateDirectory(const char *a_pccDirectoryName);
 
+	static TInt DeleteDirectory(const char *a_pccDirectoryName);
+
 	static void Error(const char *a_pccMessage, ...);
 
 	static const char *Extension(const char *a_pccFileName);

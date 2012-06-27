@@ -246,6 +246,38 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 	return(RetVal);
 }
 
+/* Written: Friday 27-Jul-2012 10:27 am */
+
+TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
+{
+	TInt RetVal;
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+	RetVal = KErrNone;
+
+#elif defined(__linux__)
+
+	if (rmdir(a_pccDirectoryName) == 0)
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = KErrNotFound; // TODO: CAW - This needs to be much improved
+	}
+
+#else /* ! __linux__ */
+
+	// TODO: CAW - Implement
+	RetVal = KErrNone;
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
+
 /* Written: Saturday 11-Jul-2009 08:56 am */
 
 // TODO: CAW - Ensure we always or never use a . in error messages!
