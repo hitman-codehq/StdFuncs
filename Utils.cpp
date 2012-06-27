@@ -17,6 +17,7 @@
 #elif defined(__linux__)
 
 #include <errno.h>
+#include <syslog.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -779,12 +780,18 @@ void Utils::FreeTempBuffer(char *a_pccBuffer)
 
 void Utils::Info(const char *a_pccMessage, ...)
 {
-	char Message[512];
 	va_list Args;
 
-	va_start(Args, a_pccMessage);
+#ifndef __linux__
+
+	char Message[512];
+
 	strcpy(Message, "Info: " );
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
+
+#endif /* ! __linux__ */
+
+	va_start(Args, a_pccMessage);
 
 #ifdef __amigaos4__
 
@@ -792,8 +799,7 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Don't use this
-	printf("%s\n", Message);
+	vsyslog(LOG_INFO, a_pccMessage, Args);
 
 #else /* ! __linux__ */
 
