@@ -788,6 +788,8 @@ void Utils::Info(const char *a_pccMessage, ...)
 {
 	va_list Args;
 
+	va_start(Args, a_pccMessage);
+
 #ifndef __linux__
 
 	char Message[512];
@@ -796,8 +798,6 @@ void Utils::Info(const char *a_pccMessage, ...)
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
 
 #endif /* ! __linux__ */
-
-	va_start(Args, a_pccMessage);
 
 #ifdef __amigaos4__
 
