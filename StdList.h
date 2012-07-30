@@ -25,10 +25,7 @@ public:
 
 	StdList()
 	{
-		m_oHead.m_poPrev = m_oTail.m_poNext = NULL;
-		m_oHead.m_poNext = &m_oTail;
-		m_oTail.m_poPrev = &m_oHead;
-		m_iCount = 0;
+		Reset();
 	};
 
 	void AddTail(T *a_poNode)
@@ -118,6 +115,14 @@ public:
 		--m_iCount;
 
 		return(RetVal);
+	}
+
+	void Reset()
+	{
+		m_oHead.m_poPrev = m_oTail.m_poNext = NULL;
+		m_oHead.m_poNext = &m_oTail;
+		m_oTail.m_poPrev = &m_oHead;
+		m_iCount = 0;
 	}
 };
 
