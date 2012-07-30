@@ -46,19 +46,48 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 }
 
 /* Written: Sunday 03-Jun-2012 11:27 am, On train to Munich Deutsches Museum */
+/* @param	a_bFreeNodes	If ETrue then all nodes referring to the pool are explicitly */
+/*							freed, otherwise they are implicitly freed */
+/* Frees the resources allocated by the class and makes it ready for use again.  After */
+/* this is called, the class is back to the state it was in when it had just been */
+/* initialised - that is, the constructor had been called but *not* RStdPool::Create(). */
+/* You should be careful with the use of the a_bFreeNodes parameter.  This is provided */
+/* mainly as an optimisation for clients that have a large number (ie. In the millions) */
+/* of allocated nodes.  If ETrue then each node will be explicitly freed from the internal */
+/* list, thus affecting the result of the RStdPool::Count() function.  If EFalse then the */
+/* internal list will be forcibly reset, which is much faster.  ETrue should only be used */
+/* when testing and in debug builds, if you need to ensure that all nodes are freed for */
+/* resource tracking purposes.  Either way, you should not ever access the contents of a */
+/* node allocated from a pool after RStdPool::Close() has been called, as its memory will */
+/* have been freed and is now invalid */
 
-void RStdPool::Close()
+void RStdPool::Close(TBool a_bFreeNodes)
 {
-	// TODO: CAW - Can we just reset the list?  Do we need to test that nodes
-	//             have all been released or is this ok?
 	CPoolNode *Node;
 
-	while ((Node = m_oNodes.RemHead()) != NULL)
+	/* If required, manually iterate through the list and free each and every */
+	/* node */
+
+	if (a_bFreeNodes)
 	{
+		while ((Node = m_oNodes.RemHead()) != NULL)
+		{
+		}
 	}
+
+	/* Otherwise just hard reset the list back to its original state */
+
+	else
+	{
+		m_oNodes.Reset();
+	}
+
+	/* Free the buffer used by the pool for its nodes */
 
 	delete [] m_pcBuffer;
 	m_pcBuffer = NULL;
+
+	/* And reset the other variables back to their defaults */
 
 	m_bExtensible = EFalse;
 	m_iSize = 0;

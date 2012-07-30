@@ -30,7 +30,9 @@ int main()
 	Test.Next("Create a non extensible pool");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
 	test(Result == KErrNone);
-	Pool.Close();
+
+	Pool.Close(ETrue);
+	test(Pool.Count() == 0);
 
 	/* Test #2: Create a pool and allocate all nodes it contains */
 
@@ -68,9 +70,8 @@ int main()
 	PoolItem = Nodes.GetHead();
 	test(PoolItem == NULL);
 
-	// TODO: CAW - What type of test to do here?
-
-	Pool.Close();
+	Pool.Close(ETrue);
+	test(Pool.Count() == 0);
 
 	Test.End();
 

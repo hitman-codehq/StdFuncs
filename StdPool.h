@@ -30,12 +30,17 @@ public:
 
 	~RStdPool()
 	{
-		Close();
+		Close(EFalse);
 	}
 
 	TInt Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible);
 
-	void Close();
+	void Close(TBool a_bFreeNodes);
+
+	TInt Count()
+	{
+		return(m_oNodes.Count());
+	}
 
 	void *GetNode();
 };
