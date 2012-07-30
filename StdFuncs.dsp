@@ -149,6 +149,10 @@ SOURCE=.\StdImage.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdPool.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdTextFile.cpp
 # End Source File
 # Begin Source File
@@ -234,6 +238,10 @@ SOURCE=.\StdImage.h
 # Begin Source File
 
 SOURCE=.\StdList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdPool.h
 # End Source File
 # Begin Source File
 
