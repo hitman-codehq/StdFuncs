@@ -28,6 +28,7 @@ public:
 		m_oHead.m_poPrev = m_oTail.m_poNext = NULL;
 		m_oHead.m_poNext = &m_oTail;
 		m_oTail.m_poPrev = &m_oHead;
+		m_iCount = 0;
 	};
 
 	void AddTail(T *a_poNode)
