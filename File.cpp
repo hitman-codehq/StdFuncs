@@ -307,7 +307,7 @@ void RFile::Close()
 
 		IDOS->Close(m_oHandle);
 
-#elif defined(__amigaos4__)
+#else /* ! __amigaos4__ */
 
 		CloseHandle(m_oHandle);
 
