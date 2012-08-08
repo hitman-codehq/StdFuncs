@@ -214,17 +214,20 @@ RDir::RDir()
 /* Written: Saturday 03-Nov-2007 4:43 pm */
 /* @param	a_pccPattern	OS specific path and wildcard to scan */
 /* @return	KErrNone if directory was opened successfully */
-/*			KErrPathNotFound if the directory or file could not be opened for scanning */
+/*			KErrNotFound if the directory or file could not be opened for scanning */
 /*			KErrNoMemory if not enough memory to open the directory or file */
 /* This function prepares to scan a file or directory.  The a_pccPattern parameter can */
 /* refer to either a directory name, a single filename, a wildcard pattern or a combination */
 /* thereof.  Examples are: */
 /* */
 /* "" */
+/* "." */
 /* "SomeDir" */
+/* "SomeDir/" */
+/* "*" */
+/* "*.cpp" */
 /* "SomeFile" */
-/* "*.txt" */
-/* "SomeDir/SomeFile" */
+/* "SomeDir/SomeFile.txt" */
 
 // TODO: CAW - For all versions, this should only open the directory, not scan it
 TInt RDir::Open(const char *a_pccPattern)
@@ -351,7 +354,21 @@ TInt RDir::Open(const char *a_pccPattern)
 		{
 			strcpy(iPath, a_pccPattern);
 			FileNameOffset = (Utils::FilePart(iPath) - iPath);
-			iPath[FileNameOffset] = '\0';
+
+			/* If FileNameOffset == 0 then there is no path component */
+
+			if (FileNameOffset > 0)
+			{
+				iPath[FileNameOffset] = '\0';
+			}
+
+			/* UNIX will not scan a directory represented by an empty string so if this has */
+			/* been passed in then convert it to a "." for compatibility with the RDir API */
+
+			if (*a_pccPattern == '\0')
+			{
+				a_pccPattern = ".";
+			}
 
 			/* Open the directory for scanning.  We don't do any actual scanning here - that will */
 			/* be done in Read() */
@@ -362,7 +379,8 @@ TInt RDir::Open(const char *a_pccPattern)
 			}
 			else
 			{
-				RetVal = KErrPathNotFound;
+				//RetVal = KErrPathNotFound; // TODO: CAW - This is breaking the Linux version and really needs to be sorted!
+				RetVal = KErrNotFound;
 			}
 		}
 		else
@@ -654,9 +672,14 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 		QualifiedName = NULL;
 		BaseLength = (strlen(iPath) + 1 + 1);
 
+		/* We must manually clear errno here, as it is not cleared by readdir() when successful */
+		/* and may result in bogus errors appearing if it was != 0 when this routine was entered! */
+
+		errno = 0;
+
 		/* Scan through the directory and fill the iEntries array with filenames */
 
-		while ((DirEnt = readdir(iDir)) != NULL)
+		while ((RetVal == KErrNone) && ((DirEnt = readdir(iDir)) != NULL))
 		{
 			/* Append the entry to the entry list, but only if it doesn't represent the current or */
 			/* parent directory */
@@ -676,9 +699,12 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 					{
 						strcpy(QualifiedName, iPath);
 						Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
-						Utils::Info(QualifiedName);
 
 						RetVal = Utils::GetFileInfo(QualifiedName, Entry);
+					}
+					else
+					{
+						RetVal = KErrNoMemory;
 					}
 				}
 				else
@@ -693,9 +719,11 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 		Utils::FreeTempBuffer(QualifiedName);
 
 		/* If DirEnt is NULL then we reached the end of the readdir() scan.  Check to see if this */
-		/* happened because we had scanned all files or if it is because there was an error */
+		/* happened because we had scanned all files or if it is because there was an error.  We */
+		/* also have to take into account that RetVal may have been set during scanning due to */
+		/* another error occurring */
 
-		if ((!(DirEnt)) && (errno != 0))
+		if ((RetVal == KErrNone) && (!(DirEnt)) && (errno != 0))
 		{
 			RetVal = KErrNotFound;
 		}
