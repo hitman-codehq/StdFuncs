@@ -33,7 +33,7 @@ public:
 
 #elif defined(__linux__)
 
-	time_t				iPlatformDate;		/* Date and time in Linux specific format */
+	time_t				iPlatformDate;		/* Date and time in UNIX specific format */
 
 #else /* ! __linux__ */
 
@@ -52,17 +52,17 @@ public:
 #ifdef __amigaos4__
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const struct DateStamp &a_roAmigaDate);
+		const struct DateStamp &a_roPlatformDate);
 
 #elif defined(__linux__)
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const time_t &a_roLinuxDate);
+		const time_t &a_roPlatformDate);
 
 #else /* ! __linux__ */
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const FILETIME &a_roWindowsDate);
+		const FILETIME &a_roPlatformDate);
 
 #endif /* ! __linux__ */
 

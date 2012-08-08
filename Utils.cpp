@@ -482,7 +482,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		{
 			RetVal = KErrNone;
 
-			/* Convert the Linux time information to a TDateTime that the TEntry can use internally */
+			/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
 
 			TDateTime DateTime((Tm->tm_year + 1900), (TMonth) (Tm->tm_mon - 1), Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
 
@@ -963,7 +963,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-	/* Linux does not at the moment support the GUI version of this library */
+	/* UNIX does not at the moment support the GUI version of this library */
 
 #ifndef __linux__
 
@@ -1055,7 +1055,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	(void) a_eMessageBoxType;
 
-	/* No GUI support in the Linux version yet so just print the message */
+	/* No GUI support in the UNIX version yet so just print the message */
 
 	PRINTF("%s: %s\n", a_pccTitle, Message);
 	RetVal = IDCANCEL;
