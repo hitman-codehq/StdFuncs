@@ -26,7 +26,7 @@ static void TestScan(const char *a_pccPath)
 
 	for (Index = 0; Index < Count; ++Index)
 	{
-		Test.Printf("%s\n", (*Entries)[Index].iName);
+		Test.Printf("%s, size = %d\n", (*Entries)[Index].iName, (*Entries)[Index].iSize);
 	}
 
 	g_oDir.Close();
@@ -38,7 +38,6 @@ int main()
 
 	Test.Title();
 	Test.Start("RDir class API test");
-	Test.Next("Reading directory");
 
 	/* Test that Close() can handle being called before Open() */
 
@@ -46,27 +45,45 @@ int main()
 
 	/* Test that Open() without wildcards works */
 
+	Test.Next("Testing Open() without using \"\"");
 	TestScan("");
 
-	/* Test that Open() with wildcards works */
+	/* Test that Open() with current directory works */
 
-	TestScan("*");
+	Test.Next("Testing Open() with \".\"");
+	TestScan(".");
 
 	/* Test that Open() with a directory path works */
 
-	TestScan("T_Args_Debug");
+	Test.Next("Testing Open() without trailing slash");
+	TestScan("SomeDir");
 
-	/* Test that Open() with a directory path and pattern works */
+	// TODO: CAW - Check the count and size are correct here
 
-	TestScan("T_D*");
+	Test.Next("Testing Open() with trailing slash");
+	TestScan("SomeDir/");
 
-	/* Test that Open() with a file path works */
+	/* Test that Open() with wildcards works */
 
+	// TODO: CAW - Get these working for UNIX and try with entries that include directory paths
+
+	Test.Next("Testing Open() with a \"*\" wildcard");
+	TestScan("*");
+
+	Test.Next("Testing Open() with a partial \"*.cpp\" wildcard");
+	TestScan("*.cpp");
+
+	/* Test that Open() with a filename works */
+
+	Test.Next("Test that Open() with a filename works");
 	TestScan("T_Dir.cpp");
+
+	Test.Next("Test that Open() with a path and filename works");
+	TestScan("SomeDir/SomeFile.txt");
 
 	/* Test that Open() with an invalid path works */
 
-	Result = g_oDir.Open("x:");
+	Result = g_oDir.Open("x");
 	test(Result == KErrNotFound);
 
 	/* Test that Close() can be called after a failed Open() without causing problems */
