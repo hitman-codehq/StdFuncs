@@ -45,6 +45,27 @@ public:
 		return(m_iCount);
 	}
 
+	/* Written: Friday 10-Aug-2012 6:53 am, CodeHQ Ehinger Tor */
+
+	void Insert(T *a_poNode, T *a_poAfter)
+	{
+		a_poNode->m_oStdListNode.m_poThis = a_poNode;
+		a_poNode->m_oStdListNode.m_poPrev = &a_poAfter->m_oStdListNode;
+		a_poNode->m_oStdListNode.m_poNext = a_poAfter->m_oStdListNode.m_poNext;
+
+		a_poAfter->m_oStdListNode.m_poNext->m_poPrev = &a_poNode->m_oStdListNode;
+		a_poAfter->m_oStdListNode.m_poNext = &a_poNode->m_oStdListNode;
+
+		++m_iCount;
+	}
+
+	/* Written: Friday 10-Aug-2012 7:42 am, CodeHQ Ehinger Tor */
+
+	bool IsOnList(T *a_poNode) const
+	{
+		return(a_poNode->m_oStdListNode.m_poPrev != NULL);
+	}
+
 	T *GetHead() const
 	{
 		return((m_oHead.m_poNext != &m_oTail) ? m_oHead.m_poNext->m_poThis : NULL);
@@ -65,7 +86,7 @@ public:
 		return((a_poCurrent->m_oStdListNode.m_poNext != &m_oTail) ? a_poCurrent->m_oStdListNode.m_poNext->m_poThis : NULL);
 	}
 
-	// TODO: CAW - This will mess up the Count() function + write a test case
+	// TODO: CAW - This will mess up the Count() function + write a test case for this whole class
 	void MoveList(StdList<T> *a_poList)
 	{
 		m_oTail.m_poPrev->m_poNext = a_poList->m_oHead.m_poNext;
@@ -79,6 +100,8 @@ public:
 	{
 		T *RetVal;
 
+		// TODO: CAW - Assert the node is on a list, here and for others
+
 		if (m_oHead.m_poNext != &m_oTail)
 		{
 			RetVal = m_oHead.m_poNext->m_poThis;
@@ -87,6 +110,8 @@ public:
 			m_oHead.m_poNext->m_poPrev = &m_oHead;
 
 			--m_iCount;
+
+			RetVal->m_oStdListNode.m_poPrev = RetVal->m_oStdListNode.m_poNext = NULL;
 		}
 		else
 		{
@@ -113,6 +138,8 @@ public:
 		a_poNode->m_oStdListNode.m_poNext->m_poPrev = a_poNode->m_oStdListNode.m_poPrev;
 
 		--m_iCount;
+
+		a_poNode->m_oStdListNode.m_poPrev = a_poNode->m_oStdListNode.m_poNext = NULL;
 
 		return(RetVal);
 	}
