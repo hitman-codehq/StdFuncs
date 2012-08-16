@@ -3,7 +3,7 @@ CC = @g++
 LD = @g++
 CFLAGS = -c -Wall -Wextra -Wwrite-strings
 IFLAGS = -I../
-LFLAGS = -lStdFuncs
+LIBS = -lStdFuncs
 
 ifdef DEBUG
 	OBJ = Debug
@@ -50,29 +50,29 @@ All: $(OBJ) $(EXECUTABLES)
 $(OBJ):
 	@mkdir $(OBJ)
 
-$(T_ARGS): $(T_ARGS_OBJECTS)
+$(T_ARGS): $(T_ARGS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
-	$(LD) $(T_ARGS_OBJECTS) $(LFLAGS) -o $@.debug
+	$(LD) $(T_ARGS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
-$(T_DIR): $(T_DIR_OBJECTS)
+$(T_DIR): $(T_DIR_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
-	$(LD) $(T_DIR_OBJECTS) $(LFLAGS) -o $@.debug
+	$(LD) $(T_DIR_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
-$(T_FILE): $(T_FILE_OBJECTS)
+$(T_FILE): $(T_FILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
-	$(LD) $(T_FILE_OBJECTS) $(LFLAGS) -o $@.debug
+	$(LD) $(T_FILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
-$(T_UTILS): $(T_UTILS_OBJECTS)
+$(T_UTILS): $(T_UTILS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
-	$(LD) $(T_UTILS_OBJECTS) $(LFLAGS) -o $@.debug
+	$(LD) $(T_UTILS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
-$(T_WILDCARD): $(T_WILDCARD_OBJECTS)
+$(T_WILDCARD): $(T_WILDCARD_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
-	$(LD) $(T_WILDCARD_OBJECTS) $(LFLAGS) -o $@.debug
+	$(LD) $(T_WILDCARD_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
 $(OBJ)/%.o: %.cpp
