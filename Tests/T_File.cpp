@@ -8,10 +8,29 @@
 static const char *WriteText = "This is a test of file reading and writing\n";
 static RTest Test("T_File");
 
-int main()
+static void WriteToFile(RFile &a_roFile)
 {
 	char Buffer[256];
-	int Result, Length;
+	int Length, Result;
+
+	Length = strlen(WriteText);
+	Result = a_roFile.Write((const unsigned char *) WriteText, Length);
+	test(Result == Length);
+
+	a_roFile.Close();
+
+	Result = a_roFile.Open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = a_roFile.Read((unsigned char *) Buffer, (Length * 2));
+	test(Result == Length);
+	Buffer[Length] = '\0';
+	test(!(strcmp(Buffer, WriteText)));
+}
+
+int main()
+{
+	int Result;
 
 	Test.Title();
 	Test.Start("RFile class API test");
@@ -23,8 +42,7 @@ int main()
 
 	Test.Next("Creating file with RFile::Replace()");
 
-	/* The test file may be hanging around from the last time the test was run so delete it */
-	/* so that it does not cause behavioural changes in the following tests */
+	/* The test file may be hanging around from the last time the test was run */
 
 	Result = BaflUtils::DeleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
@@ -43,21 +61,22 @@ int main()
 
 	Test.Next("Renaming a file with BaflUtils::RenameFile()");
 
+	/* The test file may be hanging around from the last time the test was run */
+
 	Result = BaflUtils::DeleteFile("NewFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = BaflUtils::RenameFile("File.txt", "NewFile.txt");
 	test(Result == KErrNone);
 
-	/* Test #3: Test that RFile::Create() and RFile::Open() work as expected */
-
-	Test.Next("Creating and opening files with RFile::Create() and RFile::Open()");
-
-	/* The test file will be hanging around from the last time the test was run so delete it */
-	/* so that it does not cause behavioural changes in the following tests */
+	/* Don't leave the new file laying around */
 
 	Result = BaflUtils::DeleteFile("NewFile.txt");
 	test(Result == KErrNone);
+
+	/* Test #3: Test that RFile::Create() and RFile::Open() work as expected */
+
+	Test.Next("Creating and opening files with RFile::Create() and RFile::Open()");
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
@@ -67,30 +86,41 @@ int main()
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists);
 
+	// TODO: CAW - Make this into a proper test
+	//Result = File.Create("wah/File.txt", EFileWrite);
+	//test(Result == KErrNone);
+
 	Result = File.Create("x/File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
 
 	Result = File.Open("UnknownFile.txt", EFileRead);
 	test(Result == KErrNotFound);
 
+	/* Test #4: Test that we are able to create and write to files using both supported APIs */
+
+	Test.Next("Creating and writing to files using both supported APIs");
+
+	Result = BaflUtils::DeleteFile("File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
 	Result = File.Open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Length = strlen(WriteText);
-	Result = File.Write((const unsigned char *) WriteText, Length);
-	test(Result == Length);
+	WriteToFile(File);
 
 	File.Close();
 
-	Result = File.Open("File.txt", EFileRead);
+	Result = BaflUtils::DeleteFile("File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = File.Read((unsigned char *) Buffer, (Length * 2));
-	test(Result == Length);
-	Buffer[Length] = '\0';
-	test(!(strcmp(Buffer, WriteText)));
+	WriteToFile(File);
 
 	File.Close();
+
+	/* Don't leave the new file laying around */
 
 	Result = BaflUtils::DeleteFile("File.txt");
 	test(Result == KErrNone);
