@@ -126,7 +126,9 @@ private:
 
 #elif defined(__linux__)
 
+	char			*iPathBuffer;	/* Ptr to memory used by iPath and iPattern buffers */
 	char			*iPath;			/* Path to directory being scanned, minus wildcard */
+	char			*iPattern;		/* Pattern to be used for pattern matching in RDir::Read() */
 	DIR				*iDir;
 
 #else /* ! __linux__ */

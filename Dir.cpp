@@ -12,6 +12,7 @@
 
 #endif /* __linux__ */
 
+#include <fnmatch.h>
 #include <string.h>
 #include "Dir.h"
 
@@ -203,7 +204,7 @@ RDir::RDir()
 
 #elif defined(__linux__)
 
-	iPath = NULL;
+	iPathBuffer = iPath = iPattern = NULL;
 	iDir = NULL;
 
 #endif /* __linux__ */
@@ -341,29 +342,58 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #elif defined(__linux__)
 
-	TInt FileNameOffset;
+	TInt Length, FileNameOffset;
 
 	/* Only try to scan a directory if it wasn't a single file name that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
-		/* Allocate a buffer to hold the path part of the directory and save the path into */
-		/* it by chopping off the filepart of the path passed in (which will be a wildcard). */
+		/* Allocate a buffer to hold the path part of the directory and save the path and */
+		/* wildcard (if any) into it */
 
-		if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
+		Length = strlen(a_pccPattern);
+
+		if ((iPathBuffer = new char[Length + 1]) != NULL)
 		{
-			strcpy(iPath, a_pccPattern);
-			FileNameOffset = (Utils::FilePart(iPath) - iPath);
+			strcpy(iPathBuffer, a_pccPattern);
+			FileNameOffset = (Utils::FilePart(iPathBuffer) - iPathBuffer);
 
-			/* If FileNameOffset == 0 then there is no path component */
+			/* If there is a wildcard present then extract it */
 
-			if (FileNameOffset > 0)
+			if ((strstr(iPathBuffer, "*")) || (strstr(iPathBuffer, "?")))
 			{
-				iPath[FileNameOffset] = '\0';
+				/* If FileNameOffset is > 0 then there is a path component so extract both it */
+				/* and the pattern */
+
+				if (FileNameOffset > 0)
+				{
+					iPathBuffer[FileNameOffset - 1] = '\0';
+					iPath = iPathBuffer;
+					iPattern = &iPathBuffer[FileNameOffset];
+				}
+
+				/* Otherwise there is only a pattern */
+
+				else
+				{
+					iPath = &iPathBuffer[Length];
+					iPattern = iPathBuffer;
+				}
+			}
+
+			/* There is no wildcard so extract only the path and set the pattern to empty */
+
+			else
+			{
+				iPath = iPathBuffer;
+				iPattern = &iPathBuffer[Length];
 			}
 
 			/* UNIX will not scan a directory represented by an empty string so if this has */
 			/* been passed in then convert it to a "." for compatibility with the RDir API */
+
+			// TODO: CAW - Bodge
+			a_pccPattern = iPath;
 
 			if (*a_pccPattern == '\0')
 			{
@@ -482,12 +512,17 @@ void RDir::Close()
 
 	iEntries.Purge();
 
-#ifndef WIN32
+#ifdef __amigaos4__
 
 	delete [] iPath;
 	iPath = NULL;
 
-#endif /* ! WIN32 */
+#elif defined(__linux__)
+
+	delete [] iPathBuffer;
+	iPathBuffer = iPath = iPattern = NULL;
+
+#endif /* ! __linux__ */
 
 #ifdef __amigaos4__
 
@@ -661,7 +696,8 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 #elif defined(__linux__)
 
 	char *QualifiedName;
-	TInt BaseLength, Length;
+	TBool Append;
+	TInt Length;
 	struct dirent *DirEnt;
 	struct TEntry *Entry, FileInfo;
 
@@ -670,7 +706,6 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	if (!(iSingleEntryOk))
 	{
 		QualifiedName = NULL;
-		BaseLength = (strlen(iPath) + 1 + 1);
 
 		/* We must manually clear errno here, as it is not cleared by readdir() when successful */
 		/* and may result in bogus errors appearing if it was != 0 when this routine was entered! */
@@ -684,7 +719,26 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 			/* Append the entry to the entry list, but only if it doesn't represent the current or */
 			/* parent directory */
 
+			Append = EFalse;
+
 			if ((strcmp(DirEnt->d_name, ".")) && (strcmp(DirEnt->d_name, "..")))
+			{
+				Append = ETrue;
+
+				/* If there is a wildcard then see if it matches and if not, don't append the entry */
+
+				if (iPattern[0] != '\0')
+				{
+					if (fnmatch(iPattern, DirEnt->d_name, 0) != 0)
+					{
+						Append = EFalse;
+					}
+				}
+			}
+
+			/* Append the entry if it is was judged ok to do so */
+ 
+			if (Append)
 			{
 				if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
 				{
@@ -693,7 +747,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 					// TODO: CAW - Use a function for this and change the Amiga version to match it.  Amiga
 					//             version uses IDOS->AddPart()?
-					Length = (BaseLength + strlen(DirEnt->d_name));
+					Length = (strlen(iPath) + 1 + 1 + strlen(DirEnt->d_name));
 
 					if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
 					{
