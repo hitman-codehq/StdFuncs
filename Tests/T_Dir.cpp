@@ -3,10 +3,13 @@
 #include <Dir.h>
 #include <Test.h>
 
+// TODO: CAW - Steal some code from T_Utils to create a file and set its time, and then
+//             ensure that the time is correct when the file is scanned with RDir
+
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
 
-static void TestScan(const char *a_pccPath)
+static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSize = 0)
 {
 	int Count, Index, Result;
 
@@ -29,6 +32,15 @@ static void TestScan(const char *a_pccPath)
 		Test.Printf("%s, size = %d\n", (*Entries)[Index].iName, (*Entries)[Index].iSize);
 	}
 
+	/* If a count has been explicitly passed in then ensure that it matches the number found */
+
+	if (a_iCount > 0)
+	{
+		Test.Printf("Ensuring count and size match\n");
+		test(Count == a_iCount);
+		test((*Entries)[0].iSize == a_iSize);
+	}
+
 	g_oDir.Close();
 }
 
@@ -45,7 +57,7 @@ int main()
 
 	/* Test that Open() without wildcards works */
 
-	Test.Next("Testing Open() without using \"\"");
+	Test.Next("Testing Open() with \"\"");
 	TestScan("");
 
 	/* Test that Open() with current directory works */
@@ -56,30 +68,35 @@ int main()
 	/* Test that Open() with a directory path works */
 
 	Test.Next("Testing Open() without trailing slash");
-	TestScan("SomeDir");
-
-	// TODO: CAW - Check the count and size are correct here
+	TestScan("SomeDir", 1, 174);
 
 	Test.Next("Testing Open() with trailing slash");
-	TestScan("SomeDir/");
+	TestScan("SomeDir/", 1, 174);
+
+	Test.Next("Testing Open() with a relative path without trailing slash");
+	TestScan("../Tests/SomeDir", 1, 174);
+
+	Test.Next("Testing Open() with a relative path with trailing slash");
+	TestScan("../Tests/SomeDir/", 1, 174);
 
 	/* Test that Open() with wildcards works */
-
-	// TODO: CAW - Get these working for UNIX and try with entries that include directory paths
 
 	Test.Next("Testing Open() with a \"*\" wildcard");
 	TestScan("*");
 
-	Test.Next("Testing Open() with a partial \"*.cpp\" wildcard");
-	TestScan("*.cpp");
+	Test.Next("Testing Open() with a partial \"*.dsw\" wildcard");
+	TestScan("*.dsw", 1, 2204);
+
+	Test.Next("Testing Open() with a path and partial \"*.txt\" wildcard");
+	TestScan("SomeDir/*.txt", 1, 174);
 
 	/* Test that Open() with a filename works */
 
-	Test.Next("Test that Open() with a filename works");
+	Test.Next("Testing Open() with a filename");
 	TestScan("T_Dir.cpp");
 
-	Test.Next("Test that Open() with a path and filename works");
-	TestScan("SomeDir/SomeFile.txt");
+	Test.Next("Testing Open() with a path and filename");
+	TestScan("SomeDir/SomeFile.txt", 1, 174);
 
 	/* Test that Open() with an invalid path works */
 
