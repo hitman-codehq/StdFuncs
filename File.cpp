@@ -30,6 +30,7 @@ RFile::RFile()
 }
 
 /* Written: Friday 02-Jan-2009 8:54 pm */
+// TODO: CAW - Document whether this should overwrite an existing file and write a test for it.  Document flags better
 
 TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 {
@@ -51,7 +52,12 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 
 #elif defined(__linux__)
 
-	if ((m_oHandle = open(a_pccName, (O_CREAT | O_EXCL), (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
+	TInt Flags;
+
+	Flags = (O_CREAT | O_EXCL);
+	Flags |= (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
+
+	if ((m_oHandle = open(a_pccName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
 		RetVal = KErrNone;
 	}
@@ -239,7 +245,7 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 }
 
 /* Written: Friday 02-Jan-2009 10:29 pm */
-// TODO: CAW - What happens if 0 bytes are written?  Define behaviour and make a test
+// TODO: CAW - What happens if 0 bytes are written?  What about -1? Define behaviour and make a test
 
 TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
