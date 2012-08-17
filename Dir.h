@@ -49,6 +49,14 @@ public:
 
 	TBool IsHidden() const;
 
+	TBool IsReadable() const;
+
+	TBool IsWriteable() const;
+
+	TBool IsExecutable() const;
+
+	TBool IsDeleteable() const;
+
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
 };
 

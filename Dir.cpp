@@ -9,6 +9,7 @@
 #elif defined(__linux__)
 
 #include <errno.h>
+#include <sys/stat.h>
 
 #endif /* __linux__ */
 
@@ -58,6 +59,90 @@ TBool TEntry::IsHidden() const
 #else /* ! __linux__ */
 
 	return(iAttributes & FILE_ATTRIBUTE_HIDDEN);
+
+#endif /* ! __linux__ */
+
+}
+
+/* Written: Friday 17-Aug-2012 6:49 am */
+
+TBool TEntry::IsReadable() const
+{
+
+#ifdef __amigaos4__
+
+	return(EFalse); // TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	return(iAttributes & S_IRUSR);
+
+#else /* ! __linux__ */
+
+	return(EFalse); // TODO: CAW - Implement
+
+#endif /* ! __linux__ */
+
+}
+
+/* Written: Friday 17-Aug-2012 6:51 am */
+
+TBool TEntry::IsWriteable() const
+{
+
+#ifdef __amigaos4__
+
+	return(EFalse); // TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	return(iAttributes & S_IWUSR);
+
+#else /* ! __linux__ */
+
+	return(EFalse); // TODO: CAW - Implement
+
+#endif /* ! __linux__ */
+
+}
+
+/* Written: Friday 17-Aug-2012 6:52 am */
+
+TBool TEntry::IsExecutable() const
+{
+
+#ifdef __amigaos4__
+
+	return(EFalse); // TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	return(iAttributes & S_IXUSR);
+
+#else /* ! __linux__ */
+
+	return(EFalse); // TODO: CAW - Implement
+
+#endif /* ! __linux__ */
+
+}
+
+/* Written: Friday 17-Aug-2012 6:53 am */
+
+TBool TEntry::IsDeleteable() const
+{
+
+#ifdef __amigaos4__
+
+	return(EFalse); // TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	return(iAttributes & S_IWUSR);
+
+#else /* ! __linux__ */
+
+	return(EFalse); // TODO: CAW - Implement
 
 #endif /* ! __linux__ */
 
