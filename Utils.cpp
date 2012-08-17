@@ -1282,6 +1282,15 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 }
 
 /* Written: Saturday 18-Jul-2009 7:59 am */
+/* @param	a_pccFileName	Ptr to the name of the file for which to set the protection bits */
+/*			a_uiAttributes	The set of protection bits to apply to the file */
+/* @return	KErrNone if the protection bits were set successfully */
+/*			KErrNotFound if the file could not be found */
+/*			KErrGeneral if some other unspecified error occurred */
+/* Assigns a set of protection bits to the specified file.  Note that the protection bits are */
+/* native to the platform on which the function is being called!  This parameter is of the same */
+/* format as that found in the TEntry::iAttributes member variable and this can be passed unchanged */
+/* into this function if possible */
 
 TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 {
