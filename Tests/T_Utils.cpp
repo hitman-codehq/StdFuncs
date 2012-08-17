@@ -5,6 +5,8 @@
 #include <Test.h>
 #include <string.h>
 
+#include <stdio.h>
+
 static RTest Test("T_Utils");
 
 int main()
@@ -12,7 +14,7 @@ int main()
 	const char *Extension, *FileName;
 	TInt Result;
 	RFile File;
-	TEntry OldEntry, NewEntry;
+	TEntry Entry, OldEntry, NewEntry;
 
 	Test.Title();
 	Test.Start("Utils class API test");
@@ -143,10 +145,32 @@ int main()
 	test(OldEntry.iPlatformDate == NewEntry.iPlatformDate);
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
+	/* Test #6: Ensure we can decode attributes successfully */
+	// TODO: CAW - What about using RDir to test this as well?
+ 
+	Test.Next("Ensure we can decode attributes successfully");
+
+	Result = Utils::GetFileInfo("TimeFile.txt", &Entry);
+	test(Result == KErrNone);
+
+	Test.Printf("IsReadable = %d\n", Entry.IsReadable());
+	Test.Printf("IsWriteable = %d\n", Entry.IsWriteable());
+	Test.Printf("IsExecutable = %d\n", Entry.IsExecutable());
+	Test.Printf("IsDeleteable = %d\n", Entry.IsDeleteable());
+
+	Result = Utils::SetDeleteable("TimeFile.txt");
+	test(Result == KErrNone);
+
+	Result = Utils::GetFileInfo("TimeFile.txt", &Entry);
+	test(Result == KErrNone);
+
+	Test.Printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
+	test(Entry.IsDeleteable());
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("TimeFile.txt");
-	test((Result == KErrNone) || (Result == KErrNotFound));
+	test(Result == KErrNone);
 
 	Test.End();
 
