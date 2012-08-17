@@ -477,7 +477,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 	/* Obtain information about the file and convert its last modification time to the local time */
 
-	if (stat(a_pccFileName, &Stat) == 0)
+	if (lstat(a_pccFileName, &Stat) == 0)
 	{
 		if ((Tm = localtime(&Stat.st_mtime)) != NULL)
 		{
