@@ -23,8 +23,7 @@ public:
 	TBool				iIsDir;				/* ETrue if entry is a directory */
 	TBool				iIsLink;			/* ETrue if entry is a link */
 	TUint				iSize;				/* File size in bytes */
-	// TODO: CAW - Comment what format these are in and improve documentation
-	TUint				iAttributes;		/* Protection attributes */
+	TUint				iAttributes;		/* Protection attributes, in Amiga/UNIX/Windows format */
 	TTime				iModified;			/* Time and date of the file */
 
 #ifdef __amigaos4__
