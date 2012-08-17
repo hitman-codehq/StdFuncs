@@ -84,6 +84,8 @@ public:
 
 	static TBool ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData);
 
+	static TInt SetDeleteable(const char *a_pccFileName);
+
 	static TInt SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry);
 
 	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);

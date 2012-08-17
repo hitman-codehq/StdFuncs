@@ -1173,6 +1173,59 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 
 #endif /* __amigaos4__ */
 
+/* Written: Thursday 16-Aug-2012 12:55 pm */
+/* @param	a_pccFileName	Ptr to the name of the file to be made deleteable */
+/* @return	KErrNone if successful */
+/*			KErrNotFound if the file could not be found */
+/*			KErrGeneral if some other unspecified error occurred */
+/* Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly */
+/* different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On Linux it sets */
+/* the current user's 'w' bit and on Windows it clears the read only bit */
+
+TInt Utils::SetDeleteable(const char *a_pccFileName)
+{
+	TInt RetVal;
+	TEntry Entry;
+
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
+
+#ifdef __amigaos4__
+
+	RetVal = KErrGeneral; // TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	/* Get the current file attributes as the chmod() function only lets us set all attributes, */
+	/* not just a single one */
+
+	if ((RetVal = Utils::GetFileInfo(a_pccFileName, &Entry)) == KErrNone)
+	{
+		/* Now make the file writeable so that we can delete it */
+
+		Entry.iAttributes |= S_IWUSR;
+
+		if (chmod(a_pccFileName, Entry.iAttributes) == 0)
+		{
+			RetVal = KErrNone;
+		}
+		else
+		{
+			RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
+		}
+	}
+
+#else /* ! __linux__ */
+
+	RetVal = KErrGeneral; // TODO: CAW - Implement
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+
+}
+
 /* Written: Saturday 18-Jul-2009 8:06 am */
 
 TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
