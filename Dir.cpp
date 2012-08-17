@@ -445,8 +445,8 @@ TInt RDir::Open(const char *a_pccPattern)
 						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
 
 						// TODO: CAW - Link stuff, here and in Utils.cpp
-						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime,
-							FindData.ftLastWriteTime); // TODO: CAW - Extend T_File/T_Dir for this
+						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime);
+						Lah->iPlatformDate = FindData.ftLastWriteTime;
 					}
 					else
 					{
@@ -643,7 +643,8 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 					/* And populate the new TEntry instance with information about the file or directory */
 
 					Entry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), Size, ExamineData->Protection,
-						DateTime, ExamineData->Date);
+						DateTime);
+					oEntry->iPlatformDate = ExamineData->Date;
 				}
 				else
 				{
@@ -789,8 +790,8 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 					{
 						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
 
-						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime,
-							FindData.ftLastWriteTime);
+						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime);
+						Lah->iPlatformDate = FindData.ftLastWriteTime;
 					}
 					else
 					{
