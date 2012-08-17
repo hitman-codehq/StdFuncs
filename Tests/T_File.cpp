@@ -5,16 +5,20 @@
 #include <string.h>
 #include <Test.h>
 
-static const char *WriteText = "This is a test of file reading and writing\n";
+static const char *g_pccWriteText = "This is a test of file reading and writing\n";
 static RTest Test("T_File");
+
+/* Writes text to an already open file, closes and reopens the file and reads the text */
+/* back in to ensure that it was written correctly.  Note that this will overwrite any */
+/* text already in the file from previous calls! */
 
 static void WriteToFile(RFile &a_roFile)
 {
 	char Buffer[256];
 	int Length, Result;
 
-	Length = strlen(WriteText);
-	Result = a_roFile.Write((const unsigned char *) WriteText, Length);
+	Length = strlen(g_pccWriteText);
+	Result = a_roFile.Write((const unsigned char *) g_pccWriteText, Length);
 	test(Result == Length);
 
 	a_roFile.Close();
@@ -22,10 +26,10 @@ static void WriteToFile(RFile &a_roFile)
 	Result = a_roFile.Open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
-	Result = a_roFile.Read((unsigned char *) Buffer, (Length * 2));
+	Result = a_roFile.Read((unsigned char *) Buffer, Length);
 	test(Result == Length);
 	Buffer[Length] = '\0';
-	test(!(strcmp(Buffer, WriteText)));
+	test(!(strcmp(Buffer, g_pccWriteText)));
 }
 
 int main()
@@ -103,17 +107,14 @@ int main()
 	Result = BaflUtils::DeleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = File.Open("File.txt", EFileWrite);
+	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	WriteToFile(File);
 
 	File.Close();
 
-	Result = BaflUtils::DeleteFile("File.txt");
-	test((Result == KErrNone) || (Result == KErrNotFound));
-
-	Result = File.Create("File.txt", EFileWrite);
+	Result = File.Open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	WriteToFile(File);
