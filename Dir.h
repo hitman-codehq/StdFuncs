@@ -49,23 +49,7 @@ public:
 
 	TBool IsHidden() const;
 
-#ifdef __amigaos4__
-
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const struct DateStamp &a_roPlatformDate);
-
-#elif defined(__linux__)
-
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const time_t &a_roPlatformDate);
-
-#else /* ! __linux__ */
-
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime,
-		const FILETIME &a_roPlatformDate);
-
-#endif /* ! __linux__ */
-
+	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
 };
 
 /* An instance of this class represents a number of TEntry classes and is filled */

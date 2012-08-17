@@ -65,30 +65,13 @@ TBool TEntry::IsHidden() const
 
 /* Written: Saturday 03-Nov-2007 6:42 pm */
 
-#ifdef __amigaos4__
-
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
-	const struct DateStamp &a_roPlatformDate)
-
-#elif defined(__linux__)
-
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
-	const time_t &a_roPlatformDate)
-
-#else /* ! __linux__ */
-
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime,
-	const FILETIME &a_roPlatformDate)
-
-#endif /* ! __linux__ */
-
+void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime)
 {
 	iIsDir = a_bIsDir;
 	iIsLink = a_bIsLink;
 	iSize = a_uiSize;
 	iAttributes = a_uiAttributes;
 	iModified = a_roDateTime;
-	iPlatformDate = a_roPlatformDate;
 }
 
 /* Written: Saturday 03-Nov-2007 5:57 pm */

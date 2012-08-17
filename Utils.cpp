@@ -450,7 +450,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		/* And populate the new TEntry instance with information about the file or directory */
 
 		a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
-			ExamineData->Protection, DateTime, ExamineData->Date);
+			ExamineData->Protection, DateTime);
+		a_poEntry->iPlatformDate = ExamineData->Date;
 
 		/* Copy the filename into the TEntry structure */
 
@@ -488,7 +489,10 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 			/* Fill in the file's properties in the TEntry structure */
 
-			a_poEntry->Set(S_ISDIR(Stat.st_mode), 0, Stat.st_size, Stat.st_mode, DateTime, Stat.st_mtime);
+			// TODO: CAW - This was wrong (st_mode).  Why didn't the T_Utils test pick it up?
+			//Attributes = Stat.st_mode;
+			a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
+			a_poEntry->iPlatformDate = Stat.st_mtime;
 
 			/* Copy the filename into the TEntry structure */
 
@@ -532,7 +536,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 			/* Fill in the file's properties in the TEntry structure */
 
 			a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
-				DateTime, FindData.ftLastWriteTime);
+				DateTime);
+			a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
 
 			/* Copy the filename into the TEntry structure */
 
