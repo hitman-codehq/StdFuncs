@@ -142,7 +142,7 @@ TBool TEntry::IsDeleteable() const
 
 #else /* ! __linux__ */
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)) == 0);
 
 #endif /* ! __linux__ */
 
