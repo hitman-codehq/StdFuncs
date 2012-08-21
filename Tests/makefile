@@ -17,7 +17,7 @@ UNAME = $(shell uname)
 
 ifeq ($(UNAME), AmigaOS)
 
-LFLAGS += -lauto
+LIBS += -lauto
 
 endif
 
