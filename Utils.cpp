@@ -1185,7 +1185,8 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 /*			KErrGeneral if some other unspecified error occurred */
 /* Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly */
 /* different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On Linux it sets */
-/* the current user's 'w' bit and on Windows it clears the read only bit */
+/* the current user's 'w' bit and on Windows it clears the read only, system and hidden bits by */
+/* setting the file type to normal, thus clearing all bits */
 
 TInt Utils::SetDeleteable(const char *a_pccFileName)
 {
@@ -1223,7 +1224,10 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 
 #else /* ! __linux__ */
 
-	RetVal = KErrGeneral; // TODO: CAW - Implement
+	/* Use our version of SetProtection() rather than the native SetFileAttributes() function */
+	/* so that we don't have to worry about error handling */
+
+	RetVal = Utils::SetProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
 
 #endif /* ! __linux__ */
 
