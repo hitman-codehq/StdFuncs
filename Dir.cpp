@@ -9,11 +9,11 @@
 #elif defined(__linux__)
 
 #include <errno.h>
+#include <fnmatch.h>
 #include <sys/stat.h>
 
 #endif /* __linux__ */
 
-#include <fnmatch.h>
 #include <string.h>
 #include "Dir.h"
 
