@@ -729,7 +729,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 					Entry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), Size, ExamineData->Protection,
 						DateTime);
-					oEntry->iPlatformDate = ExamineData->Date;
+					Entry->iPlatformDate = ExamineData->Date;
 				}
 				else
 				{
