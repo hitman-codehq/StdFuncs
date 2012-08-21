@@ -142,7 +142,7 @@ int main()
 
 	Result = Utils::GetFileInfo("TimeFile.txt", &NewEntry);
 	test(Result == KErrNone);
-	test(OldEntry.iPlatformDate == NewEntry.iPlatformDate);
+	test(OldEntry.iModified == NewEntry.iModified);
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
 	/* Test #6: Ensure we can decode attributes successfully */
