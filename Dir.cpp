@@ -79,7 +79,7 @@ TBool TEntry::IsReadable() const
 
 #else /* ! __linux__ */
 
-	return(EFalse); // TODO: CAW - Implement
+	return(ETrue);
 
 #endif /* ! __linux__ */
 
@@ -100,7 +100,7 @@ TBool TEntry::IsWriteable() const
 
 #else /* ! __linux__ */
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & FILE_ATTRIBUTE_READONLY) == 0);
 
 #endif /* ! __linux__ */
 
@@ -121,7 +121,7 @@ TBool TEntry::IsExecutable() const
 
 #else /* ! __linux__ */
 
-	return(EFalse); // TODO: CAW - Implement
+	return(ETrue);
 
 #endif /* ! __linux__ */
 
