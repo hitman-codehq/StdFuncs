@@ -16,7 +16,7 @@
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
@@ -32,7 +32,7 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 17
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 CWindow *CWindow::m_poRootWindow;	/* Ptr to root window on which all other windows open */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
@@ -94,7 +94,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 	}
 }
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
@@ -338,7 +338,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	return(RetVal);
 }
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 /* Written: Wednesday 13-Oct-2010 7:29 am */
 
@@ -351,11 +351,11 @@ void CWindow::Activate()
 	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
 	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	DEBUGCHECK((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 }
 
@@ -462,15 +462,15 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 {
 	TInt RetVal, ScreenWidth, ScreenHeight;
 
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
+
 	/* Get the size of the screen so we can open the window filling its full size */
 
 	Utils::GetScreenSize(&ScreenWidth, &ScreenHeight);
 
 #ifdef __amigaos4__
-
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
 
 	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
 	/* provided by Reaction, such as the movement of proportional gadgets */
@@ -525,17 +525,17 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		Utils::Info("CWindow::Open() => Unable to create window");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	HINSTANCE Instance;
 	RECT Rect;
 	WNDCLASS WndClass;
 
 	(void) a_pccScreenName;
-
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
 
 	/* Populate a WNDCLASS structure in preparation for registering the window class */
 
@@ -603,7 +603,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		Utils::Info("CWindow::Open() => Unable to register window class");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* If everything went well, perform general postamble window opening work */
 
@@ -637,7 +637,11 @@ void CWindow::Close()
 		m_poWindowObj = NULL;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (m_poWindow)
 	{
@@ -645,7 +649,7 @@ void CWindow::Close()
 		m_poWindow = NULL;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
 
@@ -695,7 +699,11 @@ void CWindow::DrawNow()
 
 	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight));
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	RECT Rect;
 
@@ -712,7 +720,7 @@ void CWindow::DrawNow()
 		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -768,7 +776,11 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	Draw(a_iTop, a_iBottom);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	RECT Rect;
 
@@ -791,7 +803,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -827,12 +839,16 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 		Utils::Info("CWindow::EnableMenuItem() => Menu mapping not found");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	DEBUGCHECK((::EnableMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_ENABLED : MF_DISABLED) != -1),
 		"CWindow::EnableMenuItem() => Unable to set menu item state");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -882,12 +898,16 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
 		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 

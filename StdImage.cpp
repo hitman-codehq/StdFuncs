@@ -85,13 +85,18 @@ TInt RStdImage::Open(const char *a_pccFileName)
 
 	return(RetVal);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+	return(KErrNotFound);
+
+#else /* ! __linux__ */
 
 	m_poBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), a_pccFileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 	return((m_poBitmap) ? KErrNone : KErrNotFound);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -112,7 +117,11 @@ void RStdImage::Close()
 		m_poBitMap = NULL;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	/* If any bitmap object has been created, destroy it */
 
@@ -122,7 +131,6 @@ void RStdImage::Close()
 		m_poBitmap = NULL;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
-

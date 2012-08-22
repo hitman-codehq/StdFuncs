@@ -47,12 +47,16 @@ RFont::RFont(CWindow *a_poWindow)
 		m_alPens[Index] = Pen;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -76,7 +80,12 @@ TInt RFont::Open()
 	m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
 	m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
 
-#else /*  ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+	RetVal = KErrGeneral;
+
+#else /*  ! __linux__ */
 
 	TInt Height;
 	TEXTMETRIC TextMetric;
@@ -129,7 +138,7 @@ TInt RFont::Open()
 		Utils::Info("RFont::Open() => Unable to create temporary DC");
 	}
 
-#endif /*  ! __amigaos4__ */
+#endif /*  ! __linux__ */
 
 	return(RetVal);
 }
@@ -143,7 +152,7 @@ void RFont::Close()
 
 	SetHighlight(EFalse);
 
-#ifndef __amigaos4__
+#ifdef WIN32
 
 	if (m_poOldFont)
 	{
@@ -163,7 +172,7 @@ void RFont::Close()
 		m_poDC = m_poWindow->m_poDC = NULL;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 }
 
@@ -209,7 +218,11 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 		IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	SIZE Size;
 
@@ -224,7 +237,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 		TextOut(m_poWindow->m_poDC, (m_iXOffset + Size.cx), (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
@@ -271,12 +284,16 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	// TODO: CAW - Don't use 8, here and in DrawColouredText()
 	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -358,7 +375,11 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
@@ -381,7 +402,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		a_pcText += Length;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -404,7 +425,11 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (a_iHighlight)
 	{
@@ -417,7 +442,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		SetTextColor(m_poWindow->m_poDC, m_oText);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* And save the highlight state for l8r use */
 

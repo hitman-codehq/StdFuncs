@@ -68,7 +68,11 @@ TInt CStdGadgetSlider::Construct()
 	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
 		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	DWORD Style;
 
@@ -95,7 +99,7 @@ TInt CStdGadgetSlider::Construct()
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, m_iX, m_iY, m_iWidth, m_iHeight,
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	if (m_poGadget)
 	{
@@ -120,14 +124,18 @@ CStdGadgetSlider::~CStdGadgetSlider()
 
 	// TODO: CAW - Implement
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (m_poGadget)
 	{
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetSlider::~CStdGadgetSlider() => Cannot destroy native slider gadget");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -155,7 +163,11 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 		m_poClient->SliderUpdated(this, (Result + 1));
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	TInt Position;
 	SCROLLINFO ScrollInfo;
@@ -228,7 +240,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -251,7 +263,11 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	SCROLLINFO ScrollInfo;
 
@@ -260,7 +276,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	ScrollInfo.nPos = a_iPosition;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE); // TODO: CAW - Look into refreshing display
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -286,7 +302,9 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+#else /* ! __linux__ */
 
 	SCROLLINFO ScrollInfo;
 
@@ -297,6 +315,6 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ScrollInfo.nMax = a_iMaxRange;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }

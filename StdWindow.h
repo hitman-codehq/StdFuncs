@@ -63,13 +63,17 @@ public:
 	Object				*m_poWindowObj;				/* Ptr to underlying Reaction window */
 	struct Window		*m_poWindow;				/* Ptr to underlying Intuition window */
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	int					*m_poWindow;				// TODO: CAW - Placeholder to make compiling easier
+
+#else /* ! __linux__ */
 
 	HWND				m_poWindow;					/* Ptr to underlying Windows window */
 	HDC					m_poDC;						/* Device context and paint structure into which to */
 	PAINTSTRUCT			m_oPaintStruct;				/* render;  valid only during calls to CWindow::Draw() */
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 public:
 
@@ -132,11 +136,11 @@ public:
 
 	ULONG GetSignal();
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam);
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 	void MakeRootWindow()
 	{

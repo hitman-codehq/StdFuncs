@@ -123,7 +123,11 @@ void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
 	(void) a_iX;
 	(void) a_iY;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (a_iX == -1)
 	{
@@ -137,7 +141,7 @@ void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetPosition() => Unable to set gadget position");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -160,7 +164,11 @@ void CStdGadget::SetGadgetSize(TInt a_iWidth, TInt a_iHeight)
 	(void) a_iWidth;
 	(void) a_iHeight;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (a_iWidth == -1)
 	{
@@ -174,6 +182,6 @@ void CStdGadget::SetGadgetSize(TInt a_iWidth, TInt a_iHeight)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetSize() => Unable to set gadget size");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }

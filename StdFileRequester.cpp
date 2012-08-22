@@ -44,10 +44,10 @@ void RFileRequester::Close()
 
 TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 {
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
-	TInt RetVal;
 	CWindow *RootWindow;
 	APTR Requester;
 	struct Screen *Screen;
@@ -110,13 +110,16 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		RetVal = KErrNoMemory;
 	}
 
-	return(RetVal);
+#elif defined(__linux__)
 
-#else /* ! __amigaos4__ */
+	// TODO: CAW - Implement
+	RetVal = KErrNoMemory;
+
+#else /* ! __linux__ */
 
 	const char *FileName;
 	BOOL GotFileName, Qualified;
-	TInt Length, RetVal;
+	TInt Length;
 	CWindow *RootWindow;
 	TEntry Entry;
 	OPENFILENAME OpenFileName;
@@ -216,8 +219,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		Utils::Info("RFileRequester::GetFileName() => Unable to obtain filename, error = %d", RetVal);
 	}
 
+#endif /* ! __linux__ */
+
 	return(RetVal);
-
-#endif /* ! __amigaos4__ */
-
 }

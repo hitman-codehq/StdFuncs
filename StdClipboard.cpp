@@ -25,7 +25,12 @@ int RClipboard::Open(CWindow *a_poWindow)
 
 	RetVal = KErrNone;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement here and for Close()
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
 
 	RetVal = (OpenClipboard(a_poWindow->m_poWindow)) ? KErrNone : KErrGeneral;
 
@@ -34,7 +39,7 @@ int RClipboard::Open(CWindow *a_poWindow)
 		Utils::Info("RClipboard::Open() => Unable to open clipboard");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -44,13 +49,11 @@ int RClipboard::Open(CWindow *a_poWindow)
 void RClipboard::Close()
 {
 
-#ifdef __amigaos4__
-
-#else /* ! __amigaos4__ */
+#ifdef WIN32
 
 	DEBUGCHECK(CloseClipboard(), "RClipboard::Close() => Unable to close clipboard");
 
-#endif /* __amigaos4__ */
+#endif /* WIN32 */
 
 }
 
@@ -125,7 +128,11 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 		m_iDataSize = a_iMaxLength;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
 
@@ -161,7 +168,7 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 		Utils::Info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -192,7 +199,11 @@ void RClipboard::SetDataEnd()
 	delete [] m_pcSetData;
 	m_pcSetData = NULL;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	ASSERTM((m_poHandle != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
 
@@ -211,7 +222,7 @@ void RClipboard::SetDataEnd()
 		Utils::Info("RClipboard::SetDataEnd() => Unable to set clipboard data");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -236,7 +247,11 @@ const char *RClipboard::GetDataStart()
 		m_pccGetData = m_pccCurrentGetData = (const char *) RetVal;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	HANDLE Handle;
 
@@ -263,7 +278,7 @@ const char *RClipboard::GetDataStart()
 		Utils::Info("RClipboard::GetDataStart() => No clipboard data available");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -278,11 +293,15 @@ void RClipboard::GetDataEnd()
 
 	ITextClip->DisposeClipVector((STRPTR) m_pccGetData);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	GlobalUnlock((void *) m_pccGetData);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	m_pccGetData = NULL;
 }

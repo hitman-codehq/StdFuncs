@@ -11,11 +11,11 @@
 #include <proto/intuition.h>
 #include <reaction/reaction.h>
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 #include <commctrl.h>
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 #include <string.h>
 
@@ -142,7 +142,11 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		}
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	TInt Offset, ParentWidth;
 	INITCOMMONCONTROLSEX InitCommonControls;
@@ -209,7 +213,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to initialise common controls library");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* If the platform specific gadget was successfully created, finish the generic initialisation and */
 	/* attach it to the parent layout */
@@ -243,14 +247,18 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 	delete [] m_poPartsGadgets;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	if (m_poGadget)
 	{
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetStatusBar::~CStdGadgetStatusBar() => Cannot destroy native status bar gadget");
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	/* Free the content of the parts, if allocated */
 
@@ -318,11 +326,15 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
 			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+		// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 		DEBUGCHECK((SendMessage(m_poGadget, SB_SETTEXT, a_iPart, (LPARAM) a_pccText) != FALSE), "CStdGadgetStatusBar::SetText() => Unable to set status bar text");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	}
 }

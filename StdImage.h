@@ -23,11 +23,11 @@ class RStdImage
 	Object			*m_poBitMapObj;	/* Datatype object representing the loaded image */
 	struct BitMap	*m_poBitMap;	/* BitMap data extracted from the bitmap datatype */
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	HBITMAP			m_poBitmap;		/* Handle to Windows bitmap representing the loaded image */
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 public:
 
@@ -40,11 +40,11 @@ public:
 		m_poBitMapObj = NULL;
 		m_poBitMap = NULL;
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 		m_poBitmap = NULL;
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 	}
 
@@ -69,14 +69,14 @@ public:
 		return(m_poBitMap);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	HBITMAP Bitmap()
 	{
 		return(m_poBitmap);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 };
 

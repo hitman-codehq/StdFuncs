@@ -21,11 +21,11 @@ private:
 
 	int			m_iDataSize;			/* Size of buffer to be written */
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	HANDLE		m_poHandle;				/* Handle to data to be written */
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 public:
 

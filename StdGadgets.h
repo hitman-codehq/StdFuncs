@@ -51,11 +51,15 @@ protected:
 
 	Object					*m_poGadget;		/* Ptr to underlying BOOPSI gadget */
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	int						*m_poGadget;		// TODO: CAW - Placeholder to make compiling easier
+
+#else /* ! __linux__ */
 
 	HWND					m_poGadget;			/* Ptr to the underlying Windows control */
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 private:
 

@@ -166,7 +166,11 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 		(void) a_iResourceID;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+		// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 		CWindow *RootWindow;
 		HWND Window;
@@ -189,7 +193,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 		}
 		else
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 		{
 			RetVal = KErrGeneral;
@@ -253,11 +257,15 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAw - Implement
+
+#else /* ! __linux__ */
 
 	CheckDlgButton(m_poWindow, a_iGadgetID, BST_CHECKED);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -281,7 +289,11 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	HWND DialogItem;
 
@@ -294,7 +306,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	EnableWindow(DialogItem, a_bEnable);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -359,7 +371,12 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 		DEBUGCHECK((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+	RetVal = 0;
+
+#else /* ! __linux__ */
 
 #ifdef _DEBUG
 
@@ -374,7 +391,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 #endif /* ! _DEBUG */
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -415,15 +432,21 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		}
 	}
 
+	// TODO: CAW - This is a bit bodgey!
 	if (RetVal == KErrNone)
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+	Length = 0;
+
+#else /* ! __linux__ */
 
 	/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
 	Length = (GetWindowTextLength(GetDlgItem(m_poWindow, a_iGadgetID)) + 1);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	{
 		/* If the user wants the contents of get gadget as well then obtain them */
@@ -462,14 +485,18 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 				strcpy(m_pcTextBuffer, Text);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+				// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 				/* For Win32 we still have to obtain the text itself */
 
 				// TODO: CAW - Make the Win32 version return KErrNotFound
 				if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 				{
 					RetVal = Length;
@@ -518,11 +545,16 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	return(RetVal);
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+	return(EFalse);
+
+#else /* ! __linux__ */
 
 	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -559,11 +591,15 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	DEBUGCHECK((SetFocus(GetDlgItem(m_poWindow, a_iGadgetID)) != NULL), "CDialog::SetGadgetFocus() => Unable to activate control");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
 
@@ -584,10 +620,14 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	DEBUGCHECK((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }

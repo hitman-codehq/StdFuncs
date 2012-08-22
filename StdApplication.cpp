@@ -43,12 +43,12 @@ RApplication::RApplication()
 	m_iLastX = m_iLastY = m_iNumMenuMappings = 0;
 	m_poMenuMappings = NULL;
 
-#else /* ! __amigaos4__ */
+#elif defined(WIN32)
 
 	m_poAccelerators = NULL;
 	m_poCurrentDialog = NULL;
 
-#endif /* ! __amigaos4__ */
+#endif /* WIN32 */
 
 	m_poWindows = NULL;
 	m_pcoMenuItems = NULL;
@@ -498,7 +498,11 @@ int RApplication::Main()
 	}
 	while (!(m_bDone));
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	MSG Msg;
 
@@ -539,7 +543,7 @@ int RApplication::Main()
 		DestroyAcceleratorTable(m_poAccelerators);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 	return(KErrNone);
 }
@@ -711,10 +715,14 @@ void RApplication::Exit()
 
 	m_bDone = ETrue;
 
-#else /* ! __amigaos4__ */
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
 
 	PostQuitMessage(0);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __linux__ */
 
 }
