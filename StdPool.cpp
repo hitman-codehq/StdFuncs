@@ -1,6 +1,7 @@
 
-#include <new.h>
+#include <new>
 #include "StdFuncs.h"
+#include <string.h>
 #include "StdPool.h"
 
 /* Written: Sunday 13-May-2012 2:18 pm, Lindau (Bodensee) */
@@ -20,7 +21,7 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 	TInt Index, RetVal;
 	CPoolNode *PoolNode;
 
-	ASSERTM((a_iSize >= sizeof(CPoolNode)), "RStdPool::Create() => Node size is too small");
+	ASSERTM((a_iSize >= (TInt) sizeof(CPoolNode)), "RStdPool::Create() => Node size is too small");
 
 	m_bExtensible = a_bExtensible;
 	m_iSize = a_iSize;
