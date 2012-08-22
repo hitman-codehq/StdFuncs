@@ -1184,7 +1184,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 /*			KErrNotFound if the file could not be found */
 /*			KErrGeneral if some other unspecified error occurred */
 /* Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly */
-/* different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On Linux it sets */
+/* different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On UNIX it sets */
 /* the current user's 'w' bit and on Windows it clears the read only, system and hidden bits by */
 /* setting the file type to normal, thus clearing all bits */
 
