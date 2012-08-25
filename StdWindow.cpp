@@ -16,7 +16,12 @@
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
 
-#elif defined(WIN32)
+#elif defined(__linux__)
+
+#include <QtGui/QMainWindow>
+#include <QtGui/QPaintEvent>
+
+#else /* __linux__ */
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
@@ -36,6 +41,33 @@ static const SKeyMapping g_aoKeyMap[] =
 
 CWindow *CWindow::m_poRootWindow;	/* Ptr to root window on which all other windows open */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
+
+#ifdef __linux__
+
+/* This custom class is required to intercept certain required Qt messages such as paint */
+/* events etc. so that we can pass them onto our framework */
+
+class CQtWindow : public QMainWindow
+{
+private:
+
+	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
+
+protected:
+
+	/* From QMainWindow */
+
+	void paintEvent(QPaintEvent *a_poPaintEvent);
+
+public:
+
+	CQtWindow(CWindow *a_poWindow)
+	{
+		m_poWindow = a_poWindow;
+	}
+};
+
+#endif /* __linux__ */
 
 #ifdef __amigaos4__
 
@@ -94,7 +126,23 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 	}
 }
 
-#elif defined(WIN32)
+#elif defined(__linux__)
+
+/* Written: Friday 24-Aug-2012 10:47 am */
+/* @param	a_poPaintEvent	Ptr to a structure containing information about the event */
+/* This function is called whenever Qt performs a repaint of the window and will pass */
+/* the event along to the generic CWindow::Draw() function, so that client code can */
+/* perform its custom drawing */
+
+// TODO: CAW - bottom() seems to be -1 so correct.  Check other ports and document this
+void CQtWindow::paintEvent(QPaintEvent *a_poPaintEvent)
+{
+	QRect Rect = a_poPaintEvent->rect();
+
+	m_poWindow->Draw(Rect.top(), Rect.bottom());
+}
+
+#else /* ! __linux__ */
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
@@ -338,7 +386,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	return(RetVal);
 }
 
-#endif /* WIN32 */
+#endif /* ! __linux__ */
 
 /* Written: Wednesday 13-Oct-2010 7:29 am */
 
@@ -527,7 +575,29 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	/* Allocate a window based on the QMainWindow class */
+
+	if ((m_poWindow = new CQtWindow(this)) != NULL)
+	{
+		RetVal = KErrNone;
+
+		/* Set the window to the size of the desktop and display it */
+
+		m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
+		m_poWindow->show();
+
+		/* And save the size of the client area */
+
+		QSize Size = m_poWindow->size();
+		m_iInnerWidth = Size.width();
+		m_iInnerHeight = Size.height();
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+
+		Utils::Info("CWindow::Open() => Out of memory");
+	}
 
 #else /* ! __linux__ */
 
