@@ -9,6 +9,8 @@
 
 #elif defined(__linux__)
 
+#include <sys/param.h>
+
 #define TRUE 1
 #define FALSE 0
 
@@ -35,6 +37,15 @@ typedef void * APTR;
 typedef unsigned char UBYTE;
 
 #endif /* ! __linux__ */
+
+#if !defined(__linux__)
+
+/* We used to define this as max() but bizarrely Qt undefines it when you include certain headers! */
+/* So now we use MAX() instead and for Linux we use the one in sys/param.h instead */
+
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+#endif /* !defined(__linux) */
 
 #include "MungWall.h"
 
@@ -86,8 +97,6 @@ typedef int TBool;
 typedef unsigned long COLORREF;
 
 #define RGB(r, g, b) (b | (g << 8) | (r << 16))
-
-#define max(a, b) (((a) > (b)) ? (a) : (b))
 
 #endif /* ! WIN32 */
 
