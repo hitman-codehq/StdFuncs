@@ -379,7 +379,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* not start at the very left of the screen so take this into account */
 
 	Width = (m_iClipWidth - (a_iX * m_iWidth));
-	Width = max(0, Width);
+	Width = MAX(0, Width);
 
 	NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
 		Width, m_poWindow->InnerHeight());
@@ -436,7 +436,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 	/* of the screen so take this into account */
 
 	Width = (m_iClipWidth - (a_iX * m_iWidth));
-	Width = max(0, Width);
+	Width = MAX(0, Width);
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
