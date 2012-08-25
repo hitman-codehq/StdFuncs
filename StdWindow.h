@@ -84,7 +84,7 @@ public:
 		m_poApplication  = a_poApplication;
 	}
 
-	~CWindow();
+	virtual ~CWindow();
 
 	TInt Open(const char *a_pccTitle, const char *a_pccScreenName);
 
