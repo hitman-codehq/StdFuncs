@@ -2,9 +2,10 @@
 #ifndef STDAPPLICATION_H
 #define STDAPPLICATION_H
 
-/* Forward declaration to reduce the # of includes required */
+/* Forward declarations to reduce the # of includes required */
 
 class CWindow;
+class QApplication;
 
 /* Enumeration defining the types of menu items that can be created. These are mapped */
 /* onto the types used by Amiga OS for easy use on that operating system */
@@ -55,12 +56,16 @@ private:
 	struct SStdMenuMapping	*m_poMenuMappings;	/* Array of menu ID -> FULLMENUNUM mappings */
 	TInt					m_iNumMenuMappings;	/* # of entries in m_poMenuMappings */
 
-#elif defined(WIN32)
+#elif defined(__linux__)
+
+	QApplication	*m_poApplication;	/* Ptr to underlying Qt application */
+
+#else /* ! __linux__ */
 
 	HACCEL			m_poAccelerators;	/* Ptr to application's accelerator table, if any */
 	HWND			m_poCurrentDialog;	/* Ptr to window handle of currently active dialog, if any */
 
-#endif /* WIN32 */
+#endif /* ! __linux__ */
 
 	const struct SStdMenuItem *m_pcoMenuItems;	/* Ptr to a list of structures describing the application's menus */
 

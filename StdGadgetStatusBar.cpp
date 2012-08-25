@@ -145,6 +145,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 #elif defined(__linux__)
 
 	// TODO: CAW - Implement
+	RetVal = KErrNone;
 
 #else /* ! __linux__ */
 

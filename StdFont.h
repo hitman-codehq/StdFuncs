@@ -6,6 +6,12 @@
 
 class CWindow;
 
+#ifdef __linux__
+
+#include <QtGui/QPainter>
+
+#endif /* __linux__ */
+
 #define NUM_FONT_COLOURS 4
 
 class RFont
@@ -17,15 +23,21 @@ private:
 	TInt		m_iBaseline;				/* Distance from the top of char to baseline */
 	LONG		m_alPens[NUM_FONT_COLOURS];	/* Array of pens found using IGraphics->ObtainBestPen() */
 
-#elif defined(WIN32)
+#elif defined(__linux__)
+
+	QPainter	m_oPainter;		/* Object used for rendering text to the screen */
+	QColor		m_oBackground;	/* Background and text colours at the time */
+	QColor		m_oText;		/* that RFont.Open() was called */
+
+#else /* ! __linux__ */
 
 	HDC			m_poDC;			/* Ptr to temporary DC, if required */
 	HFONT		m_poFont;		/* Win32 font with which to render */
 	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
-	COLORREF	m_oBackground;	/* Background colour and text colours at the */
-	COLORREF	m_oText;		/* time that RFont.Open() was callsed */
+	COLORREF	m_oBackground;	/* Background and text colours at the time */
+	COLORREF	m_oText;		/* that RFont.Open() was callsed */
 
-#endif /* WIN32 */
+#endif /* ! __linux__ */
 
 	TBool		m_iHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iClipWidth;	/* Number of pixels to draw horizontally before clipping */

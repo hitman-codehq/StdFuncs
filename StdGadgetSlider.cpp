@@ -71,6 +71,7 @@ TInt CStdGadgetSlider::Construct()
 #elif defined(__linux__)
 
 	// TODO: CAW - Implement
+	return(KErrNone);
 
 #else /* ! __linux__ */
 

@@ -28,7 +28,12 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 19
 
-#endif /* __amigaos4__ */
+#elif defined(__linux__)
+
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
+
+#endif /* __linux__ */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
 
@@ -201,15 +206,32 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 {
 	TInt RetVal;
 
+#ifdef __linux__
+
+	// TODO: CAW - Temporary + hanging backets below are not nice
+	static char *ArgV[1] = { "Hello" };
+	static int ArgC = 1;
+
+	m_poApplication = new QApplication(ArgC, ArgV);
+	RetVal = (m_poApplication != NULL) ? KErrNone : KErrNoMemory;
+
+	if (RetVal == KErrNone)
+
+#else /* ! __linux__ */
+
 	/* Assume success */
 
 	RetVal = KErrNone;
 
-	/* Create the application's menu, if requested */
+#endif /* __linux */
 
-	if (a_pcoMenuItems)
 	{
-		RetVal = CreateMenus(a_pcoMenuItems);
+		/* Create the application's menu, if requested */
+
+		if (a_pcoMenuItems)
+		{
+			RetVal = CreateMenus(a_pcoMenuItems);
+		}
 	}
 
 	return(RetVal);
@@ -500,7 +522,7 @@ int RApplication::Main()
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	m_poApplication->exec();
 
 #else /* ! __linux__ */
 

@@ -10,8 +10,9 @@
 
 #endif /* __amigaos4__ */
 
-/* Forward declaration to reduce the # of includes required */
+/* Forward declarations to reduce the # of includes required */
 
+class QMainWindow;
 class RApplication;
 
 /* Mouse events that can be reported to the client */
@@ -65,7 +66,7 @@ public:
 
 #elif defined(__linux__)
 
-	int					*m_poWindow;				// TODO: CAW - Placeholder to make compiling easier
+	QMainWindow			*m_poWindow;				/* Ptr to underlying Qt window */
 
 #else /* ! __linux__ */
 
@@ -177,6 +178,7 @@ public:
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
 
+	// TODO: CAW - Document when this is called.  ie.  Can it be called if the window is not yet open?
 	virtual void Resize(TInt /*a_iOldInnerWidth*/, TInt /*a_iOldInnerHeight*/) { }
 
 protected:
