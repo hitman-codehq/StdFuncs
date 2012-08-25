@@ -7,7 +7,11 @@
 
 #include <proto/graphics.h>
 
-#endif /* __amigaos4__ */
+#elif defined(__linux__)
+
+#include <QtGui/QMainWindow>
+
+#endif /* __linux__ */
 
 /* Colours that can be printed by RFont::DrawColouredText().  This must match */
 /* NUM_FONT_COLOURS in StdFont.h */
@@ -49,7 +53,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	m_iBaseline = 0;
 
 #else /* ! __linux__ */
 
@@ -61,6 +65,15 @@ RFont::RFont(CWindow *a_poWindow)
 }
 
 /* Written: Sunday 31-May-2010 3:38 pm */
+/* @return	KErrNone if the font was opened successfully, else KErrGeneral */
+/* Opens the font for use.  This function can be called at any time but before rendering, you */
+/* must first also call RFont::Begin() to setup the rendering context.  Begin() can unfortunately */
+/* only be called in response to a system paint event (in other words, from your overridden */
+/* CWindow::Draw() function) due to needing to fit in with Qt's architecture.  For cross platform */
+/* compatibility, this requirement therefore applies to all platforms, not just Qt. */
+/* */
+/* After this function has been called, the RFont::Width() and RFont::Height() functions are able */
+/* to be called, but no other functions */
 
 TInt RFont::Open()
 {
@@ -70,11 +83,11 @@ TInt RFont::Open()
 
 	ASSERTM(m_poWindow, "RFont::Open() => Window handle not set");
 
-	/* RFont::Open() cannow fail on the Amiga */
+	/* RFont::Open() cannot fail on the Amiga */
 
 	RetVal = KErrNone;
 
-	/* Determine the baseline & height of the font from the window */
+	/* Determine the baseline, width & height of the font from the window */
 
 	m_iBaseline = m_poWindow->m_poWindow->IFont->tf_Baseline;
 	m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
@@ -82,8 +95,16 @@ TInt RFont::Open()
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
-	RetVal = KErrGeneral;
+	/* RFont::Open() cannot fail under Qt */
+
+	RetVal = KErrNone;
+
+	/* Determine the width & height of the font from the window */
+
+	QFontMetrics fm = m_poWindow->m_poWindow->fontMetrics();
+	m_iBaseline = fm.ascent();
+	m_iHeight = fm.height();
+	m_iWidth = fm.averageCharWidth();
 
 #else /*  ! __linux__ */
 
@@ -108,6 +129,7 @@ TInt RFont::Open()
 
 		Height = -MulDiv(10, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
 
+		// TODO: CAW - This is an expensive routine - can we shorten it?
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
 		{
@@ -144,13 +166,10 @@ TInt RFont::Open()
 }
 
 /* Written: Monday 05-Jul-2010 7:13 am */
+/* Closes the font after use and frees any associated resouces */
 
 void RFont::Close()
 {
-	/* Set the text and background colours back to their default as these are held by the */
-	/* operating system and will persist across instances of the RFont class */
-
-	SetHighlight(EFalse);
 
 #ifdef WIN32
 
@@ -172,7 +191,76 @@ void RFont::Close()
 		m_poDC = m_poWindow->m_poDC = NULL;
 	}
 
+#else /* ! WIN32 */
+
+	m_iBaseline = 0;
+
 #endif /* WIN32 */
+
+}
+
+/* Written: Saturday 25-Aug-2012 11:30 am */
+/* @return	KErrNone if successful, else KErrGeneral if painting could not be started */
+/* Prepares the RFont class for writing text using the Draw*() functions.  This should be called */
+/* when you are about to render text in response to the overridden CWindow::Draw() function. */
+/* This function exists mainly for compatibility with Qt, which introduces some restrictions on */
+/* precisely when rendering can occur.  On other operating systems, you can write text using */
+/* RFont at any time.  However on Qt you can only write text in response to widget paint events. */
+/* So we have to follow Qt's way of working, even though it adds extra complexity to our framework */
+/* At the end of rendering, call RFont::End() to release the rendering context */
+
+TInt RFont::Begin()
+{
+	TInt RetVal;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+#ifdef __linux__
+
+	/* Begin the Qt paint process */
+
+	if (m_oPainter.begin(m_poWindow->m_poWindow))
+	{
+		/* Save the background and text colours for l8r use */
+
+		m_oBackground = m_oPainter.background().color();
+		m_oText = m_oPainter.pen().color();
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+
+		Utils::Info("RFont::Begin() => Unable to begin painting to device");
+	}
+
+#endif /* __linux__ */
+
+	return(RetVal);
+}
+
+/* Written: Saturday 25-Aug-2012 11:32 am */
+/* Ends the rendering process started by RFont::Begin().  All calls to RFont::Begin() must */
+/* have a matching call to RFont::End() */
+
+void RFont::End()
+{
+	// TODO: CAW - Assert on Begin() having been called and also in Draw() functions
+	//             Also assert that Open() has been called in Begin(), Width() and Height()
+
+	/* Set the text and background colours back to their default as these are held by the */
+	/* operating system and will persist across instances of the RFont class */
+
+	SetHighlight(EFalse);
+
+#ifdef __linux__
+
+	/* Finish the Qt paint process */
+
+	m_oPainter.end();
+
+#endif /* __linux__ */
 
 }
 
@@ -220,7 +308,23 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	TInt X, Y;
+
+	/* Calculate the position at which to draw the cursor */
+
+	X = (m_iXOffset + (a_iX * m_iWidth));
+	Y = (m_iYOffset + (a_iY * m_iHeight));
+
+	/* Printing inverted text on Linux doesn't seem to work, so fill the cursor rectangle using the */
+	/* background colour */
+
+	m_oPainter.fillRect(X, Y, m_iWidth, m_iHeight, m_oText);
+
+	/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
+	/* uses the Y position as the baseline of the font, not as the top */
+
+	QByteArray String(Cursor, 1);
+	m_oPainter.drawText(X, (Y + m_iBaseline), String);
 
 #else /* ! __linux__ */
 
@@ -286,7 +390,11 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	/* Render the passed in, taking into account that QPainter::drawText() uses the Y position as */
+	/* the baseline of the font, not as the top */
+
+	QByteArray String(a_pcText, a_iLength);
+	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 #else /* ! __linux__ */
 
@@ -427,7 +535,16 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	if (a_iHighlight)
+	{
+		m_oPainter.setBrush(m_oText);
+		m_oPainter.setPen(m_oBackground);
+	}
+	else
+	{
+		m_oPainter.setBrush(m_oBackground);
+		m_oPainter.setPen(m_oText);
+	}
 
 #else /* ! __linux__ */
 

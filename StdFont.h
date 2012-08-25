@@ -18,16 +18,21 @@ class RFont
 {
 private:
 
+#ifndef WIN32
+
+	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
+
+#endif /* ! WIN32 */
+
 #ifdef __amigaos4__
 
-	TInt		m_iBaseline;				/* Distance from the top of char to baseline */
 	LONG		m_alPens[NUM_FONT_COLOURS];	/* Array of pens found using IGraphics->ObtainBestPen() */
 
 #elif defined(__linux__)
 
 	QPainter	m_oPainter;		/* Object used for rendering text to the screen */
 	QColor		m_oBackground;	/* Background and text colours at the time */
-	QColor		m_oText;		/* that RFont.Open() was called */
+	QColor		m_oText;		/* that RFont.Begin() was called */
 
 #else /* ! __linux__ */
 
@@ -35,7 +40,7 @@ private:
 	HFONT		m_poFont;		/* Win32 font with which to render */
 	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
 	COLORREF	m_oBackground;	/* Background and text colours at the time */
-	COLORREF	m_oText;		/* that RFont.Open() was callsed */
+	COLORREF	m_oText;		/* that RFont.Begin() was callsed */
 
 #endif /* ! __linux__ */
 
@@ -54,6 +59,10 @@ public:
 	TInt Open();
 
 	void Close();
+
+	TInt Begin();
+
+	void End();
 
 	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
 
