@@ -9,7 +9,9 @@
 /*			a_iNumItems		# of items that can be held in the pool */
 /*			a_bExtensible	ETrue if the pool can be extended beyond its */
 /*							initial size, else EFalse */
-/* @return	KErrNone if successful, else KErrNoMemory */
+/* @return	KErrNone if successful */
+/*			KErrNoMemory if not enough memory was available */
+/*			KErrInUse if the Create() has already been called */
 /* Initialises a pool that is large enough to contain a_iNumItems of */
 /* size a_iSize.  When requests are made from the pool for items, they */
 /* will be returned from the pool and the pool will be automatically */
@@ -17,30 +19,23 @@
 
 TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 {
-	char *Buffer;
-	TInt Index, RetVal;
-	CPoolNode *PoolNode;
+	TInt RetVal;
 
 	ASSERTM((a_iSize >= (TInt) sizeof(CPoolNode)), "RStdPool::Create() => Node size is too small");
 
-	m_bExtensible = a_bExtensible;
-	m_iSize = a_iSize;
-
-	m_pcBuffer = Buffer = new char[a_iSize * a_iNumItems];
-
-	RetVal = (m_pcBuffer != NULL) ? KErrNone : KErrNoMemory;
-
-	if (RetVal == KErrNone)
+	if (m_iSize == 0)
 	{
-// TODO: CAW - Hmmm.  What to do about this?
-#undef new
+		m_iSize = a_iSize;
+		m_iNumItems = a_iNumItems;
+		m_bExtensible = a_bExtensible;
 
-		for (Index = 0; Index < a_iNumItems; ++Index)
-		{
-			PoolNode = new(Buffer) CPoolNode;
-			m_oNodes.AddTail(PoolNode);
-			Buffer += a_iSize;
-		}
+		RetVal = ExtendPool();
+	}
+	else
+	{
+		RetVal = KErrInUse;
+
+		Utils::Info("RStdPool::Create() => Pool is already in use");
 	}
 
 	return(RetVal);
@@ -60,10 +55,12 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 /* when testing and in debug builds, if you need to ensure that all nodes are freed for */
 /* resource tracking purposes.  Either way, you should not ever access the contents of a */
 /* node allocated from a pool after RStdPool::Close() has been called, as its memory will */
-/* have been freed and is now invalid */
+/* have been freed and is now invalid.  Once this function has returned, you can call */
+/* RStdPool::Create() to reuse the pool if desired */
 
 void RStdPool::Close(TBool a_bFreeNodes)
 {
+	CBufferNode *Buffer;
 	CPoolNode *Node;
 
 	/* If required, manually iterate through the list and free each and every */
@@ -71,9 +68,7 @@ void RStdPool::Close(TBool a_bFreeNodes)
 
 	if (a_bFreeNodes)
 	{
-		while ((Node = m_oNodes.RemHead()) != NULL)
-		{
-		}
+		while ((Node = m_oNodes.RemHead()) != NULL) { }
 	}
 
 	/* Otherwise just hard reset the list back to its original state */
@@ -83,15 +78,17 @@ void RStdPool::Close(TBool a_bFreeNodes)
 		m_oNodes.Reset();
 	}
 
-	/* Free the buffer used by the pool for its nodes */
+	/* Free the buffers used by the pool for its nodes */
 
-	delete [] m_pcBuffer;
-	m_pcBuffer = NULL;
+	while ((Buffer = m_oBuffers.RemHead()) != NULL)
+	{
+		delete [] (char *) Buffer;
+	}
 
 	/* And reset the other variables back to their defaults */
 
 	m_bExtensible = EFalse;
-	m_iSize = 0;
+	m_iNumItems = m_iSize = 0;
 }
 
 /* Written: Sunday 03-Jun-2012 11:20 pm, On train to Munich Deutsches Museum */
@@ -100,12 +97,78 @@ void *RStdPool::GetNode()
 {
 	CPoolNode *RetVal;
 
+	/* Get a ptr to the first available node */
+
 	RetVal = m_oNodes.GetHead();
+
+	/* If there are none left and the pool is extendable, then try to allocate */
+	/* another block of nodes and then get a ptr to the first available new node */
+
+	if ((!(RetVal)) && (m_bExtensible))
+	{
+		if (ExtendPool() == KErrNone)
+		{
+			RetVal = m_oNodes.GetHead();
+		}
+	}
+
+	/* If we obtained a node successfully then remove it from the list of available */
+	/* nodes as it is no longer available */
 
 	if (RetVal)
 	{
 		m_oNodes.Remove(RetVal);
 		memset(RetVal, 0, m_iSize);
+	}
+
+	return(RetVal);
+}
+
+/* Written: Tuesday 31-Jul-2012 9:42 am, Starbucks Nürnberg */
+/* @return	KErrNone if successful, else KErrNoMemory */
+/* Extends the pool by allocating a further m_iNumItems of nodes in a single */
+/* allocation.  The block is added to the list of blocks and the nodes are */
+/* added to the list of nodes */
+
+TInt RStdPool::ExtendPool()
+{
+	char *Buffer;
+	TInt Index, RetVal;
+	CBufferNode *BufferNode;
+	CPoolNode *PoolNode;
+
+	/* Allocate a buffer large enough to hold the requested number of nodes */
+	/* of the requested size, plus one more which can be used to keep track */
+	/* of the block in the list of blocks */
+
+	if ((Buffer = new char[m_iSize * (m_iNumItems + 1)]) != NULL)
+	{
+		RetVal = KErrNone;
+
+// TODO: CAW - Hmmm.  What to do about this?
+#undef new
+		/* Perform an in place new on the first node, thus magically transforming */
+		/* it into a CBufferNode, and add it to the list of buffers */
+
+		BufferNode = new(Buffer) CBufferNode;
+		m_oBuffers.AddTail(BufferNode);
+		Buffer += sizeof(CBufferNode);
+
+		/* For the remaining nodes in the buffer, perform an in place new on each */
+		/* one to make it into a CPoolNode, and add them all to the list of nodes */
+
+		for (Index = 0; Index < m_iNumItems; ++Index)
+		{
+			PoolNode = new(Buffer) CPoolNode;
+			m_oNodes.AddTail(PoolNode);
+			Buffer += m_iSize;
+		}
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+
+		Utils::Info("RStdPool::ExtendPool() => Out of memory");
 	}
 
 	return(RetVal);
