@@ -1271,43 +1271,37 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 	TInt RetVal;
 	TEntry Entry;
 
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
-
-#ifdef __amigaos4__
-
-	RetVal = KErrGeneral; // TODO: CAW - Implement
-
-#elif defined(__linux__)
+#if defined(__amigaos4__) || defined(__linux__)
 
 	/* Get the current file attributes as the chmod() function only lets us set all attributes, */
 	/* not just a single one */
 
+	// TODO: CAW - Extra errors?
 	if ((RetVal = Utils::GetFileInfo(a_pccFileName, &Entry)) == KErrNone)
 	{
 		/* Now make the file writeable so that we can delete it */
 
+#ifdef __amigaos4__
+
+		Entry.iAttributes &= ~FIBF_DELETE;
+
+#else /* ! __amigaos4__ */
+
 		Entry.iAttributes |= S_IWUSR;
 
-		if (chmod(a_pccFileName, Entry.iAttributes) == 0)
-		{
-			RetVal = KErrNone;
-		}
-		else
-		{
-			RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
-		}
+#endif /* ! __amigaos4__ */
+
+		RetVal = Utils::SetProtection(a_pccFileName, Entry.iAttributes);
 	}
 
-#else /* ! __linux__ */
+#else /* ! defined(__amigaos4__) || defined(__linux__) */
 
 	/* Use our version of SetProtection() rather than the native SetFileAttributes() function */
 	/* so that we don't have to worry about error handling */
 
 	RetVal = Utils::SetProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
 
-#endif /* ! __linux__ */
+#endif /* ! defined(__amigaos4__) || defined(__linux__) */
 
 	return(RetVal);
 

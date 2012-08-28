@@ -71,7 +71,7 @@ TBool TEntry::IsReadable() const
 
 #ifdef __amigaos4__
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & FIBF_READ) == 0);
 
 #elif defined(__linux__)
 
@@ -92,7 +92,7 @@ TBool TEntry::IsWriteable() const
 
 #ifdef __amigaos4__
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & FIBF_WRITE) == 0);
 
 #elif defined(__linux__)
 
@@ -113,7 +113,7 @@ TBool TEntry::IsExecutable() const
 
 #ifdef __amigaos4__
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & FIBF_EXECUTE) == 0);
 
 #elif defined(__linux__)
 
@@ -134,7 +134,7 @@ TBool TEntry::IsDeleteable() const
 
 #ifdef __amigaos4__
 
-	return(EFalse); // TODO: CAW - Implement
+	return((iAttributes & FIBF_DELETE) == 0);
 
 #elif defined(__linux__)
 
