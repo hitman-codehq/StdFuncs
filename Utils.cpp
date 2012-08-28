@@ -292,6 +292,84 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 	return(RetVal);
 }
 
+/* Written: Monday 27-Aug-2012 06:56 am */
+/* @return	Does not return if successful */
+/*			KErrNone if process is already detached from the CLI */
+/*			KErrGeneral if unable to detach the process */
+/* This function is mainly for Amiga OS and relaunches the current process */
+/* asynchronously before exiting the current process.  This gives the user the */
+/* impression that the process has automatically detached itself from the CLI. */
+/* Note that if successful, this function will not return and will instead shut */
+/* the process down using exit().  The second time it is called (by the newly */
+/* launched process), it will detect that the new process is already detached from */
+/* the CLI and will simply return without doing anything */
+
+TInt Utils::Detach()
+{
+	TInt RetVal;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+#ifdef __amigaos4__
+
+	char Command[MAX_PATH], CommandBuffer[MAX_PATH]; // TODO: CAW - I don't like this.  How to measure stack usage?
+	const char *CommandName;
+	TInt Result;
+	BPTR Cos;
+	struct CommandLineInterface *CLI;
+	struct Process *Process;
+
+	/* If we are started from the CLI and are not already backgrounded (ie. By the "run" */
+	/* command or by our own relaunching of ourselves as backgrounded) then relaunch */
+	/* the process asynchronously */
+
+	CLI = IDOS->Cli();
+
+	if ((CLI) && (!(CLI->cli_Background ) && (CLI->cli_CommandName)))
+	{
+		/* Extract the path to the executable from the CLI structure and from that extract */
+		/* the name of the executable.  This will be used for setting the task name so that */
+		/* the program shows up in the task list as something more useful than "New Process" */
+
+		IDOS->CopyStringBSTRToC(CLI->cli_CommandName, CommandBuffer, sizeof(Command));
+		CommandName = Utils::FilePart(CommandBuffer);
+
+		/* Build the string used to relaunch the process */
+
+		Process = (struct Process *) IExec->FindTask(NULL);
+		IUtility->SNPrintf(Command, sizeof(Command),"\"%b\" %s", CLI->cli_CommandName, IDOS->GetArgStr());
+
+		/* We want to use the parent's input stream for both input and output, so duplicate */
+		/* it as it will be closed when the child process exits */
+
+		if ((Cos = IDOS->DupFileHandle(Process->pr_CIS)) != 0)
+		{
+			/* And launch the child process!  If successful then exit as this is essentially */
+			/* performing a fork() and we don't want to keep the parent process alive */
+
+			Result = IDOS->SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
+				SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+
+			if (Result == 0)
+			{
+				exit(0);
+			}
+			else
+			{
+				RetVal = KErrGeneral;
+
+				IDOS->Close(Cos);
+			}
+		}
+	}
+
+#endif /* __amigaos4__ */
+
+	return(RetVal);
+}
+
 /* Written: Saturday 11-Jul-2009 08:56 am */
 
 // TODO: CAW - Ensure we always or never use a . in error messages!

@@ -42,6 +42,8 @@ public:
 
 	static TInt DeleteDirectory(const char *a_pccDirectoryName);
 
+	static TInt Detach();
+
 	static void Error(const char *a_pccMessage, ...);
 
 	static const char *Extension(const char *a_pccFileName);
