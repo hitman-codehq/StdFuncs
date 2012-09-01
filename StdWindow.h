@@ -121,6 +121,12 @@ public:
 
 	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
 
+	/* This function is *internal* and must not be used.  Unfortunately making it private */
+	/* would require exposing too much of the internals of the CWindow class so it is */
+	/* public with a warning instead.  Sometimes C++ can be a right nuisance! */
+
+	void InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight);
+
 	TInt InnerWidth()
 	{
 		return(m_iInnerWidth);
@@ -186,10 +192,6 @@ protected:
 	CWindow() { }
 
 	void CompleteOpen();
-
-private:
-
-	void InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight);
 };
 
 #endif /* ! STDWINDOW_H */

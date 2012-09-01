@@ -59,6 +59,8 @@ protected:
 
 	void paintEvent(QPaintEvent *a_poPaintEvent);
 
+	void resizeEvent(QResizeEvent *a_poResizeEvent);
+
 public:
 
 	CQtWindow(CWindow *a_poWindow)
@@ -140,6 +142,18 @@ void CQtWindow::paintEvent(QPaintEvent *a_poPaintEvent)
 	QRect Rect = a_poPaintEvent->rect();
 
 	m_poWindow->Draw(Rect.top(), Rect.bottom());
+}
+
+/* Written: Saturday 25-Aug-2012 1:36 pm */
+/* @param	a_poResizeEvent	Ptr to a structure containing information about the event */
+/* This function is called whenever Qt performs a resize of the window and will pass */
+/* the event along to the generic CWindow::Resize() function, to notify client code */
+
+void CQtWindow::resizeEvent(QResizeEvent *a_poResizeEvent)
+{
+	QSize Size = a_poResizeEvent->size();
+
+	m_poWindow->InternalResize(Size.width(), Size.height());
 }
 
 #elif defined(WIN32)
