@@ -28,12 +28,12 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 19
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 
-#endif /* __linux__ */
+#endif /* QT_GUI_LIB */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
 
@@ -206,7 +206,7 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 {
 	TInt RetVal;
 
-#ifdef __linux__
+#ifdef QT_GUI_LIB
 
 	// TODO: CAW - Temporary + hanging backets below are not nice
 	static char *ArgV[1] = { "Hello" };
@@ -217,13 +217,13 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 
 	if (RetVal == KErrNone)
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	/* Assume success */
 
 	RetVal = KErrNone;
 
-#endif /* __linux */
+#endif /* ! QT_GUI_LIB */
 
 	{
 		/* Create the application's menu, if requested */
@@ -520,11 +520,11 @@ int RApplication::Main()
 	}
 	while (!(m_bDone));
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	m_poApplication->exec();
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	MSG Msg;
 
@@ -565,7 +565,7 @@ int RApplication::Main()
 		DestroyAcceleratorTable(m_poAccelerators);
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 	return(KErrNone);
 }

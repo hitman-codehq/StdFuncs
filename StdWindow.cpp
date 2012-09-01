@@ -16,12 +16,12 @@
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QPaintEvent>
 
-#else /* __linux__ */
+#elif defined(WIN32)
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
@@ -42,7 +42,7 @@ static const SKeyMapping g_aoKeyMap[] =
 CWindow *CWindow::m_poRootWindow;	/* Ptr to root window on which all other windows open */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
-#ifdef __linux__
+#ifdef QT_GUI_LIB
 
 /* This custom class is required to intercept certain required Qt messages such as paint */
 /* events etc. so that we can pass them onto our framework */
@@ -67,7 +67,7 @@ public:
 	}
 };
 
-#endif /* __linux__ */
+#endif /* QT_GUI_LIB */
 
 #ifdef __amigaos4__
 
@@ -126,7 +126,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 	}
 }
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 /* Written: Friday 24-Aug-2012 10:47 am */
 /* @param	a_poPaintEvent	Ptr to a structure containing information about the event */
@@ -142,7 +142,7 @@ void CQtWindow::paintEvent(QPaintEvent *a_poPaintEvent)
 	m_poWindow->Draw(Rect.top(), Rect.bottom());
 }
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 /* Written: Saturday 08-May-2010 4:43 pm */
 
@@ -386,7 +386,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	return(RetVal);
 }
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 /* Written: Wednesday 13-Oct-2010 7:29 am */
 
@@ -573,7 +573,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		Utils::Info("CWindow::Open() => Unable to create window");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	/* Allocate a window based on the QMainWindow class */
 
@@ -599,7 +599,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		Utils::Info("CWindow::Open() => Out of memory");
 	}
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	HINSTANCE Instance;
 	RECT Rect;
@@ -673,7 +673,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		Utils::Info("CWindow::Open() => Unable to register window class");
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 	/* If everything went well, perform general postamble window opening work */
 

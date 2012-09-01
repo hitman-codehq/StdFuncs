@@ -7,11 +7,11 @@
 
 #include <proto/graphics.h>
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 #include <QtGui/QMainWindow>
 
-#endif /* __linux__ */
+#endif /* QT_GUI_LIB */
 
 /* Colours that can be printed by RFont::DrawColouredText().  This must match */
 /* NUM_FONT_COLOURS in StdFont.h */
@@ -93,7 +93,7 @@ TInt RFont::Open()
 	m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
 	m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	/* RFont::Open() cannot fail under Qt */
 
@@ -106,7 +106,7 @@ TInt RFont::Open()
 	m_iHeight = fm.height();
 	m_iWidth = fm.averageCharWidth();
 
-#else /*  ! __linux__ */
+#elif defined(WIN32)
 
 	TInt Height;
 	TEXTMETRIC TextMetric;
@@ -160,7 +160,7 @@ TInt RFont::Open()
 		Utils::Info("RFont::Open() => Unable to create temporary DC");
 	}
 
-#endif /*  ! __linux__ */
+#endif /* WIN32 */
 
 	return(RetVal);
 }
@@ -217,7 +217,7 @@ TInt RFont::Begin()
 
 	RetVal = KErrNone;
 
-#ifdef __linux__
+#ifdef QT_GUI_LIB
 
 	/* Begin the Qt paint process */
 
@@ -235,7 +235,7 @@ TInt RFont::Begin()
 		Utils::Info("RFont::Begin() => Unable to begin painting to device");
 	}
 
-#endif /* __linux__ */
+#endif /* QT_GUI_LIB */
 
 	return(RetVal);
 }
@@ -254,13 +254,13 @@ void RFont::End()
 
 	SetHighlight(EFalse);
 
-#ifdef __linux__
+#ifdef QT_GUI_LIB
 
 	/* Finish the Qt paint process */
 
 	m_oPainter.end();
 
-#endif /* __linux__ */
+#endif /* QT_GUI_LIB */
 
 }
 
@@ -306,7 +306,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 		IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	TInt X, Y;
 
@@ -326,7 +326,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	QByteArray String(Cursor, 1);
 	m_oPainter.drawText(X, (Y + m_iBaseline), String);
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	SIZE Size;
 
@@ -341,7 +341,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 		TextOut(m_poWindow->m_poDC, (m_iXOffset + Size.cx), (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
@@ -388,7 +388,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	/* Render the passed in, taking into account that QPainter::drawText() uses the Y position as */
 	/* the baseline of the font, not as the top */
@@ -396,12 +396,12 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	QByteArray String(a_pcText, a_iLength);
 	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	// TODO: CAW - Don't use 8, here and in DrawColouredText()
 	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 }
 
@@ -533,7 +533,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	if (a_iHighlight)
 	{
@@ -546,7 +546,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		m_oPainter.setPen(m_oText);
 	}
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	if (a_iHighlight)
 	{
@@ -559,7 +559,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 		SetTextColor(m_poWindow->m_poDC, m_oText);
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 	/* And save the highlight state for l8r use */
 
