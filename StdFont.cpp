@@ -219,9 +219,14 @@ TInt RFont::Begin()
 
 #ifdef QT_GUI_LIB
 
-	/* Begin the Qt paint process */
+	QWidget *CentralWidget;
 
-	if (m_oPainter.begin(m_poWindow->m_poWindow))
+	/* Begin the Qt paint process on the window's central widget */
+
+	CentralWidget = m_poWindow->m_poWindow->centralWidget();
+	ASSERTM((CentralWidget != NULL), "RFont::Begin() => Central widget has not been assigned to window");
+
+	if (m_oPainter.begin(CentralWidget))
 	{
 		/* Save the background and text colours for l8r use */
 

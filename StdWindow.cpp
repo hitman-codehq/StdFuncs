@@ -18,6 +18,7 @@
 
 #elif defined(QT_GUI_LIB)
 
+#include <QtGui/QKeyEvent>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPaintEvent>
 
@@ -57,13 +58,40 @@ protected:
 
 	/* From QMainWindow */
 
-	void paintEvent(QPaintEvent *a_poPaintEvent);
+	void keyPressEvent(QKeyEvent *a_poKeyEvent);
 
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 
 public:
 
 	CQtWindow(CWindow *a_poWindow)
+	{
+		m_poWindow = a_poWindow;
+
+		/* Allow the window to accept keyboard input by default */
+
+		setFocusPolicy(Qt::StrongFocus);
+	}
+};
+
+/* Qt on UNIX requires that you have a QWidget derived object as the so-called "central widget" */
+/* and does not handle the window decoration offsets correctly if you don't.  We will therefore */
+/* render into this widget rather than directly into the QMainWindow (which still works, but gets */
+/* the offsets of the client area wrong) */
+
+class CQtCanvas : public QWidget
+{
+	CWindow		*m_poWindow;
+
+protected:
+
+	/* From QWidget */
+
+	void paintEvent(QPaintEvent *a_poPaintEvent);
+
+public:
+
+	CQtCanvas(CWindow *a_poWindow) : QWidget(a_poWindow->m_poWindow)
 	{
 		m_poWindow = a_poWindow;
 	}
@@ -130,18 +158,44 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 #elif defined(QT_GUI_LIB)
 
-/* Written: Friday 24-Aug-2012 10:47 am */
+/* Written: Friday 31-Aug-2012 3:02 pm */
+/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
+/* This function is called whenever a keydown or keyup event occurs and will pass the */
+/* event along to the underlying framework window in the expected format, filtering */
+/* out any key events in which the framework is not interested */
+
+void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
+{
+	QString String = a_poKeyEvent->text();
+
+	/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+
+	if (String.length() >= 1)
+	{
+		m_poWindow->OfferKeyEvent(String[0].toAscii(), ETrue);
+	}
+	else
+	{
+		QMainWindow::keyPressEvent(a_poKeyEvent);
+	}
+}
+
+/* Written: Thursday 06-Sep-2012 1:35 pm */
 /* @param	a_poPaintEvent	Ptr to a structure containing information about the event */
 /* This function is called whenever Qt performs a repaint of the window and will pass */
 /* the event along to the generic CWindow::Draw() function, so that client code can */
 /* perform its custom drawing */
 
-// TODO: CAW - bottom() seems to be -1 so correct.  Check other ports and document this
-void CQtWindow::paintEvent(QPaintEvent *a_poPaintEvent)
+void CQtCanvas::paintEvent(QPaintEvent *a_poPaintEvent)
 {
 	QRect Rect = a_poPaintEvent->rect();
 
-	m_poWindow->Draw(Rect.top(), Rect.bottom());
+	/* Pass the request along to the underlying framework window.  Note that QRect::bottom() */
+	/* will return the inclusive bottom pixel but our framework works with exclusive pixel */
+	/* positions.  We therefore need to calculate that position using QRect::height() */
+
+	// TODO: CAW - Check other ports and document this
+	m_poWindow->Draw(Rect.top(), (Rect.top() + Rect.height()));
 }
 
 /* Written: Saturday 25-Aug-2012 1:36 pm */
@@ -589,28 +643,45 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 
 #elif defined(QT_GUI_LIB)
 
+	QWidget *CentralWidget;
+
+	/* Assume failure */
+
+	RetVal = KErrNoMemory;
+
 	/* Allocate a window based on the QMainWindow class */
 
 	if ((m_poWindow = new CQtWindow(this)) != NULL)
 	{
-		RetVal = KErrNone;
+		/* We also need a QWidget based class to use as the so-called "central widget" */
 
-		/* Set the window to the size of the desktop and display it */
+		if ((CentralWidget = new CQtCanvas(this)) != NULL)
+		{
+			RetVal = KErrNone;
 
-		m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
-		m_poWindow->show();
+			/* Assign the widget as the main window's central widget */
 
-		/* And save the size of the client area */
+			m_poWindow->setCentralWidget(CentralWidget);
 
-		QSize Size = m_poWindow->size();
-		m_iInnerWidth = Size.width();
-		m_iInnerHeight = Size.height();
+			/* Set the window to the size of the desktop and display it */
+
+			m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
+			m_poWindow->show();
+
+			/* And save the size of the client area */
+
+			QSize Size = m_poWindow->size();
+			m_iInnerWidth = Size.width();
+			m_iInnerHeight = Size.height();
+		}
+		else
+		{
+			Utils::Info("CWindow::Open() => Not enough memory to create central widget");
+		}
 	}
 	else
 	{
-		RetVal = KErrNoMemory;
-
-		Utils::Info("CWindow::Open() => Out of memory");
+		Utils::Info("CWindow::Open() => Not enough memory to create window");
 	}
 
 #elif defined(WIN32)
@@ -785,7 +856,7 @@ void CWindow::DrawNow()
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	DrawNow(0, (m_iInnerHeight + 1));
 
 #else /* ! __linux__ */
 
@@ -862,7 +933,22 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	QWidget *CentralWidget;
+
+	/* If no width was passed in then we want to redraw the entire width of the client area */
+
+	if (a_iWidth != -1)
+	{
+		a_iWidth = m_iInnerWidth;
+	}
+
+	CentralWidget = m_poWindow->centralWidget();
+	ASSERTM((CentralWidget != NULL), "CWindow::DrawNow() => Central widget has not been assigned to window");
+
+	/* And invalidate the vertical band.  Liken Windows, this will defer the dredrawing until l8r, */
+	/* possibly coalescing multiple redraws into one */
+
+	CentralWidget->update(a_iTop, 0, a_iWidth, a_iBottom);
 
 #else /* ! __linux__ */
 
