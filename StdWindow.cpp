@@ -848,11 +848,13 @@ void CWindow::CompleteOpen()
 
 void CWindow::DrawNow()
 {
-	/* Just determine the dimensions of the window and pass the call on */
+	/* Just determine the dimensions of the window and pass the call on, taking */
+	/* into account that the bottom pixel offset is exclusive, thus adding 1 on */
+	/* the platforms required */
 
 #ifdef __amigaos4__
 
-	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight));
+	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight + 1));
 
 #elif defined(__linux__)
 
