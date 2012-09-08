@@ -569,6 +569,13 @@ void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 	{
 		Close(IDCANCEL);
 	}
+
+	/* If they key is an enter key being released then simulate an IDOK event */
+	
+	else if ((a_iKey == STD_KEY_ENTER) && (!(a_bKeyDown)))
+	{
+		HandleCommand(IDOK);
+	}
 }
 
 /* Written: Sunday 24-Oct-2010 5:21 pm */
