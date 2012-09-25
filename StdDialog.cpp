@@ -431,6 +431,14 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			RetVal = KErrNone;
 			Length = (strlen(Text) + 1);
 		}
+		else
+		{
+			Utils::Info("CDialog::GetGadgetText() => Unable to obtain gadget text for gadget with ID %d", a_iGadgetID);
+		}
+	}
+	else
+	{
+		Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
 	}
 
 #elif defined(__linux__)
