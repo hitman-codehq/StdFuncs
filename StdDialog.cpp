@@ -411,14 +411,15 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
 	TInt Length, RetVal;
 
+	/* Assume failure */
+
+	RetVal = KErrNotFound;
+	Length = 0;
+
 #ifdef __amigaos4__
 
 	const char *Text;
 	APTR Gadget;
-
-	/* Assume failure */
-
-	RetVal = KErrNotFound;
 
 	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
 	/* its length */
@@ -432,9 +433,6 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		}
 	}
 
-	// TODO: CAW - This is a bit bodgey!
-	if (RetVal == KErrNone)
-
 #elif defined(__linux__)
 
 	// TODO: CAW - Implement
@@ -442,12 +440,25 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #else /* ! __linux__ */
 
-	/* Determine the length of the text held in the gadget and add space for a NULL terminator */
+	HWND Gadget;
 
-	Length = (GetWindowTextLength(GetDlgItem(m_poWindow, a_iGadgetID)) + 1);
+	/* Get a ptr to the Windows control to query */
+
+	if ((Gadget = GetDlgItem(m_poWindow, a_iGadgetID)) != NULL)
+	{
+		/* Determine the length of the text held in the gadget and add space for a NULL terminator */
+
+		Length = (GetWindowTextLength(Gadget) + 1);
+		RetVal = KErrNone;
+	}
+	else
+	{
+		Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
+	}
 
 #endif /* ! __linux__ */
 
+	if (RetVal == KErrNone)
 	{
 		/* If the user wants the contents of get gadget as well then obtain them */
 
@@ -484,6 +495,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 				/* For Amiga OS we already have a ptr to the text so just make a copy of it */
 
 				strcpy(m_pcTextBuffer, Text);
+				RetVal = Length;
 
 #elif defined(__linux__)
 
@@ -493,14 +505,17 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 				/* For Win32 we still have to obtain the text itself */
 
-				// TODO: CAW - Make the Win32 version return KErrNotFound
-				if ((Length = GetDlgItemText(m_poWindow, a_iGadgetID, m_pcTextBuffer, Length)) >= 0)
-
-#endif /* ! __linux__ */
-
+				if ((Length = GetWindowText(Gadget, m_pcTextBuffer, Length)) >= 0)
 				{
 					RetVal = Length;
 				}
+				else
+				{
+					RetVal = KErrNotFound;
+				}
+
+#endif /* ! __linux__ */
+
 			}
 		}
 
