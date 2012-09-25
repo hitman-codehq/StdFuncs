@@ -806,9 +806,10 @@ void CWindow::Close()
 
 #endif /* ! __linux__ */
 
-	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
+	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
+	/* from the gadget list automatically */
 
-	while ((LayoutGadget = m_oGadgets.RemHead()) != NULL)
+	while ((LayoutGadget = m_oGadgets.GetHead()) != NULL)
 	{
 		delete LayoutGadget;
 	}
