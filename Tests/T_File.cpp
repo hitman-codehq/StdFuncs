@@ -48,7 +48,7 @@ int main()
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	// TODO: CAW - Bodgey - this returns KErrNotFound if the file is in use
+	// TODO: CAW - Bodgey - this returns KErrNotFound if the file is in use.  Write a test for this
 	Result = BaflUtils::DeleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
@@ -87,16 +87,11 @@ int main()
 	test(Result == KErrNone);
 	File.Close();
 
-	// TODO: CAW - Why doesn't this fail on Amiga OS?
-	//Result = File.Create("File.txt", EFileWrite);
-	//test(Result == KErrAlreadyExists);
+	Result = File.Create("File.txt", EFileWrite);
+	test(Result == KErrAlreadyExists);
 
-	// TODO: CAW - Make this into a proper test
-	//Result = File.Create("wah/File.txt", EFileWrite);
-	//test(Result == KErrNone);
-
-	//Result = File.Create("x/File.txt", EFileWrite);
-	//test(Result == KErrPathNotFound);
+	Result = File.Create("UnknownPath/File.txt", EFileWrite);
+	test(Result == KErrPathNotFound);
 
 	Result = File.Open("UnknownFile.txt", EFileRead);
 	test(Result == KErrNotFound);
