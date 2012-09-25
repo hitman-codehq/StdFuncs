@@ -34,12 +34,13 @@ static void WriteToFile(RFile &a_roFile)
 
 int main()
 {
+	char Buffer[256];
 	int Result;
 
 	Test.Title();
 	Test.Start("RFile class API test");
 
-	RFile File;
+	RFile File, File2;
 
 	// TODO: CAW - These numbers don't match up with those from RTest
 	/* Test #1: Test that RFile.Replace() works as expected */
@@ -85,12 +86,39 @@ int main()
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
+
+	/* Ensure that files cannot be opened in a shared mode */
+
+	Result = File2.Open("File.txt", EFileRead);
+	test(Result == KErrGeneral);
+
+	Result = File2.Open("File.txt", EFileWrite);
+	test(Result == KErrGeneral);
+
 	File.Close();
+
+	Result = File.Open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	/* Ensure that files cannot be opened in a shared mode */
+
+	Result = File2.Open("File.txt", EFileRead);
+	test(Result == KErrGeneral);
+
+	Result = File2.Open("File.txt", EFileWrite);
+	test(Result == KErrGeneral);
+
+	File.Close();
+
+	/* Ensure other Create() and Open() errors are as expected */
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists);
 
 	Result = File.Create("UnknownPath/File.txt", EFileWrite);
+	test(Result == KErrPathNotFound);
+
+	Result = File.Open("UnknownPath/UnknownFile.txt", EFileRead);
 	test(Result == KErrPathNotFound);
 
 	Result = File.Open("UnknownFile.txt", EFileRead);
@@ -106,6 +134,18 @@ int main()
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
+	/* Ensure that trying to read 0 bytes is handled sanely */
+
+	Result = File.Read((unsigned char *) Buffer, 0);
+	test(Result == 0);
+
+	/* Ensure that trying to write 0 bytes is handled sanely */
+
+	Result = File.Write((const unsigned char *) g_pccWriteText, 0);
+	test(Result == 0);
+
+	/* Now write some real data */
+
 	WriteToFile(File);
 
 	File.Close();
@@ -113,7 +153,22 @@ int main()
 	Result = File.Open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
+	/* Ensure that trying to read 0 bytes is handled sanely */
+
+	Result = File.Read((unsigned char *) Buffer, 0);
+	test(Result == 0);
+
 	WriteToFile(File);
+
+	File.Close();
+
+	/* Ensure we can't write to a file opened in read only mode */
+
+	Result = File.Open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = File.Write((const unsigned char *) g_pccWriteText, strlen(g_pccWriteText));
+	test(Result == KErrGeneral);
 
 	File.Close();
 
