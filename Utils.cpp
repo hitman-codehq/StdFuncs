@@ -223,7 +223,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 #elif defined(__linux__)
 
-	if (mkdir(a_pccDirectoryName, 0775) == 0)
+	if (mkdir(a_pccDirectoryName, 0755) == 0)
 	{
 		RetVal = KErrNone;
 	}
