@@ -421,7 +421,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		case WM_VSCROLL :
 		{
 			/* Iterate through the window's list of layout gadgets and search each one to see */
-			/* if it contains a gadget that represents the Win32 slider that was just moved */
+			/* if it contains a gadget that represents the Windows slider that was just moved */
 
 			if ((LayoutGadget = Window->m_oGadgets.GetHead()) != NULL)
 			{

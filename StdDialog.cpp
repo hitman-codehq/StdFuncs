@@ -511,7 +511,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #else /* ! __linux__ */
 
-				/* For Win32 we still have to obtain the text itself */
+				/* For Windows we still have to obtain the text itself */
 
 				if ((Length = GetWindowText(Gadget, m_pcTextBuffer, Length)) >= 0)
 				{

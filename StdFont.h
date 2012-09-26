@@ -38,8 +38,8 @@ private:
 #elif defined(WIN32)
 
 	HDC			m_poDC;			/* Ptr to temporary DC, if required */
-	HFONT		m_poFont;		/* Win32 font with which to render */
-	HFONT		m_poOldFont;	/* Win32 font previously selected into window */
+	HFONT		m_poFont;		/* Windows font with which to render */
+	HFONT		m_poOldFont;	/* Windows font previously selected into window */
 	COLORREF	m_oBackground;	/* Background and text colours at the time */
 	COLORREF	m_oText;		/* that RFont.Begin() was callsed */
 

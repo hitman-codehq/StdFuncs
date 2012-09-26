@@ -174,7 +174,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 /* Written: Friday 04-Jun-2010 8:36 am  */
 /* @param	a_pcArguments	Ptr to a string containing a list of arguments passed in */
-/*							from the command line.  Note that this is a Win32 style list */
+/*							from the command line.  Note that this is a Windows style list */
 /*							as passed into WinMain() and thus the first argument is NOT */
 /*							the filename */
 

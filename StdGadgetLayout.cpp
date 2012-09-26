@@ -129,11 +129,11 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 /* @return	A ptr to the standard gadget that contains the native gadget, */
 /*			if found, else NULL */
 /* This function searches through the list of the layout's attached gadgets for */
-/* a particular native gadget (whether Win32 or Amiga OS).  It is an internal */
+/* a particular native gadget (whether Windows or Amiga OS).  It is an internal */
 /* function designed for use when mapping native events onto standard cross */
 /* platform events and should not be used by client code.  Currently, due to */
-/* inconsistencies in Win32 & Amiga OS methods of representing gadgets, this */
-/* function searches for the native gadget ptr on Win32 and the gadget ID on */
+/* inconsistencies in Windows & Amiga OS methods of representing gadgets, this */
+/* function searches for the native gadget ptr on Windows and the gadget ID on */
 /* Amiga OS! */
 
 CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
@@ -313,7 +313,7 @@ void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
 /* Written: Thursday 31-May-2012 7:16 am, CodeHQ Ehinger Tor */
 /* @return	The X position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
-/* on Win32 style client area relative positions.  So for Amiga OS we need to adjust the */
+/* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
 /* X position of the layout gadget to account for this. */
 
 TInt CStdGadgetLayout::X()
@@ -331,7 +331,7 @@ TInt CStdGadgetLayout::X()
 /* Written: Tuesday 18-Oct-2011 7:15 am, CodeHQ Söflingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
-/* on Win32 style client area relative positions.  So for Amiga OS we need to adjust the */
+/* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
 /* Y position of the layout gadget to account for this. */
 
 TInt CStdGadgetLayout::Y()

@@ -606,7 +606,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		{
 			RetVal = KErrNone;
 
-			/* Convert the Win32 SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
+			/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
 
 			TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
 				SystemTime.wSecond, 0);
@@ -1147,7 +1147,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	UINT Type;
 
-	/* Determine the type of Win32 message box to display, based on the type passed in */
+	/* Determine the type of Windows message box to display, based on the type passed in */
 
 	if (a_eMessageBoxType == EMBTOk)
 	{
@@ -1166,7 +1166,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 		Type = MB_YESNOCANCEL;
 	}
 
-	/* Display the message box and return the standard Win32 return code */
+	/* Display the message box and return the standard Windows return code */
 
 	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 

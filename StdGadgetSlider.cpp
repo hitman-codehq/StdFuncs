@@ -141,7 +141,7 @@ CStdGadgetSlider::~CStdGadgetSlider()
 }
 
 /* Written: Sunday 21-Nov-2010 11:01 am */
-/* @param	a_ulData	For Amiga OS this is not used.  For Win32 it is the type of update */
+/* @param	a_ulData	For Amiga OS this is not used.  For Windows it is the type of update */
 /*						this is, such as SB_THUMBTRACK etc. */
 /* Determines the current position of the slider gadget and notifies client code about it */
 
