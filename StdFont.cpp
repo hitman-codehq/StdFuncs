@@ -51,17 +51,17 @@ RFont::RFont(CWindow *a_poWindow)
 		m_alPens[Index] = Pen;
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	m_iBaseline = 0;
 	m_poFont = NULL;
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 }
 

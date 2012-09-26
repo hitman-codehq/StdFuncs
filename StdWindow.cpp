@@ -934,7 +934,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	Draw(a_iTop, a_iBottom);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	QWidget *CentralWidget;
 
@@ -953,7 +953,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	CentralWidget->update(a_iTop, 0, a_iWidth, a_iBottom);
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	RECT Rect;
 
@@ -976,7 +976,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 }
 
