@@ -33,6 +33,7 @@ private:
 	QPainter	m_oPainter;		/* Object used for rendering text to the screen */
 	QColor		m_oBackground;	/* Background and text colours at the time */
 	QColor		m_oText;		/* that RFont.Begin() was called */
+	QFont		*m_poFont;		/* Qt font with which to render */
 
 #elif defined(WIN32)
 

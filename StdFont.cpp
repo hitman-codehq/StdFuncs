@@ -54,6 +54,7 @@ RFont::RFont(CWindow *a_poWindow)
 #elif defined(__linux__)
 
 	m_iBaseline = 0;
+	m_poFont = NULL;
 
 #else /* ! __linux__ */
 
@@ -95,16 +96,32 @@ TInt RFont::Open()
 
 #elif defined(QT_GUI_LIB)
 
-	/* RFont::Open() cannot fail under Qt */
+	/* Create a monospace font in the desired point size */
 
-	RetVal = KErrNone;
+	if ((m_poFont = new QFont("Monospace", 10)) != NULL)
+	{
+		RetVal = KErrNone;
 
-	/* Determine the width & height of the font from the window */
+		/* As this is a programmer's editor, we want a fixed width font */
 
-	QFontMetrics fm = m_poWindow->m_poWindow->fontMetrics();
-	m_iBaseline = fm.ascent();
-	m_iHeight = fm.height();
-	m_iWidth = fm.averageCharWidth();
+		m_poFont->setFixedPitch(true);
+
+		/* Determine the width & height of the font */
+
+		QFontMetrics Metrics(*m_poFont);
+		m_iBaseline = Metrics.ascent();
+		m_iHeight = Metrics.height();
+		m_iWidth = Metrics.averageCharWidth();
+
+		/* And assign the font to the window! */
+
+		m_poWindow->m_poWindow->setFont(*m_poFont);
+
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+	}
 
 #elif defined(WIN32)
 
@@ -395,7 +412,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Render the passed in, taking into account that QPainter::drawText() uses the Y position as */
+	/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 	/* the baseline of the font, not as the top */
 
 	QByteArray String(a_pcText, a_iLength);
