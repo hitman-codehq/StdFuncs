@@ -30,7 +30,16 @@ RFile::RFile()
 }
 
 /* Written: Friday 02-Jan-2009 8:54 pm */
-// TODO: CAW - Document whether this should overwrite an existing file and write a test for it.  Document flags better
+/* @param	a_pccName		Ptr to the name of the file to be created */
+/*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
+/*							API and is ignored (but should be EFileWrite for consistency) */
+/* @return	KErrNone if successful */
+/*			KErrAlreadyExists if the file already exists */
+/*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrGeneral if some other unexpected error occurred */
+/* Creates a new file that can subsequently be used for writing operations.  If a file already */
+/* exists with the same name then the function will fail.  The a_pccName parameter can specify */
+/* a path to the file but the path must already exist */
 
 TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 {
@@ -131,6 +140,16 @@ TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
 }
 
 /* Written: Friday 02-Jan-2009 8:57 pm */
+/* @param	a_pccName		Ptr to the name of the file to be opened */
+/*			a_uiFileMode	Mode in which to open the file */
+/* @return	KErrNone if successful */
+/*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotFound if the path is ok, but the file does not exist */
+/*			KErrGeneral if some other unexpected error occurred */
+/* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
+/* in the file mode EFileRead, EFileWrite, or a logical combination of them both.  If the file mode */
+/* EFileWrite is specified then the file will also be writeable.  The a_pccName parameter can */
+/* optionally specify a path to the file */
 
 TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 {
@@ -175,7 +194,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 
 #else /* ! __linux__ */
 
-	DWORD FileMode;
+	DWORD Error, FileMode;
 
 	FileMode = GENERIC_READ;
 
@@ -184,14 +203,26 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 		FileMode |= GENERIC_WRITE;
 	}
 
-	if ((m_oHandle = CreateFile(a_pccName, FileMode, (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_oHandle = CreateFile(a_pccName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
 	else
 	{
-		// TODO: CAW - Write a test for this + implement for all platforms.  Also test for such things as trying to write to a read only file
-		RetVal = (GetLastError() == ERROR_SHARING_VIOLATION) ? KErrInUse : KErrNotFound;
+		Error = GetLastError();
+
+		if (Error == ERROR_PATH_NOT_FOUND)
+		{
+			RetVal = KErrPathNotFound;
+		}
+		else if (Error == ERROR_FILE_NOT_FOUND)
+		{
+			RetVal = KErrNotFound;
+		}
+		else
+		{
+			RetVal = KErrGeneral;
+		}
 	}
 
 #endif /* ! __linux__ */
@@ -200,7 +231,12 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 }
 
 /* Written: Friday 02-Jan-2009 10:20 pm */
-// TODO: CAW - What about passing in a_iLength of 0?
+/* @param	a_pcucBuffer	Ptr to the buffer to read the data into */
+/*			a_iLength		Number of bytes in the buffer to be read */
+/* @return	Number of bytes read, if successful, otherwise KErrGeneral */
+/* Reads a number of bytes from the file.  There must be sufficient data in the file to be */
+/* able to satisfy the read request, or the function will fail.  It is safe to try and write */
+/* 0 bytes.  In this case 0 will be returned */
 
 TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 {
@@ -230,13 +266,24 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 
 	DWORD BytesRead;
 
-	if (ReadFile(m_oHandle, a_pucBuffer, a_iLength, &BytesRead, NULL))
+	/* Only try to read if at least one byte is being read.  Windows acts strangely if you */
+	/* try to read 0 bytes (it returns ERROR_ACCESS_DENIED) even though it can handle trying */
+	/* to write 0 bytes, so we will handle the 0 length ourselves */
+
+	if (a_iLength > 0)
 	{
-		RetVal = BytesRead;
+		if (ReadFile(m_oHandle, a_pucBuffer, a_iLength, &BytesRead, NULL))
+		{
+			RetVal = BytesRead;
+		}
+		else
+		{
+			RetVal = KErrGeneral;
+		}
 	}
 	else
 	{
-		RetVal = KErrGeneral;
+		RetVal = 0;
 	}
 
 #endif /* ! __linux__ */
@@ -245,7 +292,13 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 }
 
 /* Written: Friday 02-Jan-2009 10:29 pm */
-// TODO: CAW - What happens if 0 bytes are written?  What about -1? Define behaviour and make a test
+/* @param	a_pcucBuffer	Ptr to the buffer to be written to the file */
+/*			a_iLength		Number of bytes in the buffer to be written */
+/* @return	Number of bytes written, if successful, otherwise KErrGeneral */
+/* Writes a number of bytes to the file.  The file must have been opened in a writeable mode, */
+/* either by using RFile::Open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the */
+/* latter two cases, files are always opened as writeable, regardless of the file mode passed in. */
+/* It is safe to try and write 0 bytes.  In this case 0 will be returned */
 
 TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
