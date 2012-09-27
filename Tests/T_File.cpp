@@ -49,7 +49,6 @@ int main()
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	// TODO: CAW - Bodgey - this returns KErrNotFound if the file is in use.  Write a test for this
 	Result = BaflUtils::DeleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
@@ -75,7 +74,7 @@ int main()
 	Result = BaflUtils::RenameFile("File.txt", "NewFile.txt");
 	test(Result == KErrNone);
 
-	/* Don't leave the new file laying around */
+	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("NewFile.txt");
 	test(Result == KErrNone);
@@ -172,7 +171,7 @@ int main()
 
 	File.Close();
 
-	/* Don't leave the new file laying around */
+	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("File.txt");
 	test(Result == KErrNone);
