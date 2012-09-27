@@ -167,6 +167,63 @@ int main()
 	Test.Printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
 	test(Entry.IsDeleteable());
 
+	/* Test #7: Ensure that trying to delete an object that is in use acts sanely */
+
+	Test.Next("Ensure that trying to delete an object that is in use acts sanely");
+
+	/* Create a file and try to delete it while it is open for writing */
+
+	Result = File.Replace("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = BaflUtils::DeleteFile("File.txt");
+	test(Result == KErrInUse);
+
+	File.Close();
+
+	/* Ensure the objects aren't hanging around from last run */
+
+	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound) || (Result == KErrPathNotFound));
+
+	Result = BaflUtils::DeleteFile("InUseDirectory");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	/* Create a directory and try to delete it while it is use */
+
+	Result = Utils::CreateDirectory("InUseDirectory");
+	test(Result == KErrNone);
+
+	Result = File.Create("InUseDirectory/File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = BaflUtils::DeleteFile("InUseDirectory");
+	test(Result == KErrInUse);
+
+	File.Close();
+
+	/* Clean up after ourselves */
+
+	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
+	test(Result == KErrNone);
+
+	Result = BaflUtils::DeleteFile("InUseDirectory");
+	test(Result == KErrNone);
+
+	/* Test #8: Test unsuccessful deleteing of a file and directory */
+
+	Result = BaflUtils::DeleteFile("UnknownFile.txt");
+	test(Result == KErrNotFound);
+
+	Result = BaflUtils::DeleteFile("UnknownPath/UnknownFile.txt");
+	test(Result == KErrPathNotFound);
+
+	Result = BaflUtils::DeleteFile("UnknownDirectory");
+	test(Result == KErrNotFound);
+
+	Result = BaflUtils::DeleteFile("UnknownDirectory/UnknownDirectory");
+	test(Result == KErrPathNotFound);
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("TimeFile.txt");
