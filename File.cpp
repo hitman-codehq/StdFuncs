@@ -120,6 +120,16 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 }
 
 /* Written: Monday 19-Apr-2010 6:26 am */
+/* @param	a_pccName		Ptr to the name of the file to be created */
+/*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
+/*							API and is ignored (but should be EFileWrite for consistency) */
+/* @return	KErrNone if successful */
+/*			KErrAlreadyExists if the file already exists */
+/*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrGeneral if some other unexpected error occurred */
+/* Creates a new file that can subsequently be used for writing operations.  If a file already */
+/* exists with the same name then the function will replace it.  The a_pccName parameter can specify */
+/* a path to the file but the path must already exist */
 
 TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
 {
@@ -345,6 +355,7 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 }
 
 /* Written: Friday 02-Jan-2009 8:58 pm */
+/* Closes a file that has been created for reading & writing, or opened for reading. */
 
 void RFile::Close()
 {
@@ -353,7 +364,7 @@ void RFile::Close()
 
 	if (m_oHandle != -1)
 	{
-		close(m_oHandle); // TODO: CAW - Assert, here and below?
+		DEBUGCHECK(close(m_oHandle) == 0); // TODO: CAW - Assert below as well?
 		m_oHandle = -1;
 	}
 
