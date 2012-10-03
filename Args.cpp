@@ -157,6 +157,13 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 			printf("%s\n", a_pccTemplate);
 			gets(Buffer);
 
+			/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
+			/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
+			/* adds an extra entry for the executable name as the first argument.  This */
+			/* is required so that when we call Open() it will ignore this first argument, */
+			/* for compatibility with argument lists passed into main(), which also have */
+			/* the executable name in argv[0]! */
+
 			if ((ArgV = ExtractArguments(Buffer, &ArgC)) != NULL)
 			{
 				/* Command line has been input so put the executable's name in the first argument slot and parse */
@@ -200,7 +207,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 /* @param	a_pcArguments	Ptr to a string containing a list of arguments passed in */
 /*							from the command line.  Note that this is a Windows style list */
 /*							as passed into WinMain() and thus the first argument is NOT */
-/*							the filename */
+/*							the executable name */
 
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
 {
@@ -209,10 +216,10 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 
 	/* Extract the arguments from the string into an ArgV style ptr array.  This */
 	/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
-	/* adds an extra (unused) entry for the filename as the first argument.  This */
+	/* adds an extra entry for the executable name as the first argument.  This */
 	/* is required so that when we call Open() it will ignore this first argument, */
 	/* for compatibility with argument lists passed into main(), which also have */
-	/* the filename in argv[0]! */
+	/* the executable name in argv[0]! */
 
 	if ((ArgV = ExtractArguments(a_pcArguments, &ArgC)) != NULL)
 	{
@@ -551,6 +558,14 @@ TInt RArgs::CountMultiArguments()
 }
 
 /* Written: Sunday 03-05-2010 9:38 am */
+/* @param	a_pcBuffer	Ptr to buffer to be parsed */
+/*			a_piArgC	Ptr to variable into which to place argument count */
+/* @return	Ptr to an array of ptrs to the arguments extracted */
+/* This function will parse a string that contains a list of white space separated */
+/* arguments, and will extract each argument into a separate string buffer.  It will */
+/* then allocate a list of ptrs to these buffers which simulates a main() style ArgV */
+/* list of ptrs.  This list will include an empty (points to NULL) entry in position 0 */
+/* to simulate the name of the executable being in this entry */
 
 const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 {
@@ -558,9 +573,9 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 	const char **RetVal;
 	TInt Index, Offset, NumArgs;
 
-	/* Find out how many arguments are present in the string passed in */
+	/* Find out how many arguments are present in the string passed in and add */
+	/* one for the executable name entry */
 
-	// TODO: CAW - +1 bodginess
 	NumArgs = (Utils::CountTokens(a_pcBuffer) + 1);
 
 	/* Allocate an array of ptrs to strings, that can be used as an ArgV style array to hold ptrs */
@@ -569,6 +584,10 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 	if ((RetVal = new const char *[NumArgs]) != NULL)
 	{
 		TLex Lex(a_pcBuffer);
+
+		/* Make the executable name entry "empty" */
+
+		RetVal[0] = NULL;
 
 		/* Iterate through the command line entered and extract each token, NULL terminating it and */
 		/* putting a ptr to it in the ArgV array */
