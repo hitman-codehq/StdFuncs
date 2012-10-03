@@ -51,22 +51,38 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 #ifdef __amigaos4__
 
+		int Index, Size;
+
 		(void) a_pccArgV;
 		(void) a_iArgC;
 
-		/* For Amiga OS we can let dos.library do the hard work for us */
+		/* Assume failure */
+
+		RetVal = KErrNoMemory;
+
+		/* For Amiga OS we can let dos.library do the hard work for us.  However, for */
+		/* compatibility with other operating systems we use the arguments passed in, */
+		/* rather than the internal ones originally parsed by dos.library */
 
 		m_poInputRDArgs	= (struct RDArgs *) IDOS->AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
 
 		if (m_poInputRDArgs)
 		{
-			int Index = 0; // TODO: CAW
-			int Size = 2;
+			/* Start with a size of 2 to hold the '\n' EOL character and NULL terminator */
+
+			Size = 2;
+
+			/* Determine how much memory to allocate to hold all of the arguments.  We */
+			/* allocate extra memory for a space between each argument and also for " */
+			/* delimiters, which we must use or special Amiga characters such as '=" in */
+			/* filenames will not work */
 
 			for (Index = 1; Index < a_iArgC; ++Index)
 			{
-				Size += (strlen(a_pccArgV[Index]) + 3); // TODO: CAW - Comments here & above
+				Size += (strlen(a_pccArgV[Index]) + 3);
 			}
+
+			/* Allocate the buffer and copy the arguments into it */
 
 			if ((m_pcBuffer = new char[Size]) != NULL)
 			{
@@ -74,44 +90,54 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 				for (Index = 1; Index < a_iArgC; ++Index)
 				{
-					if (strstr(a_pccArgV[Index], " ") > 0) // TODO: CAW - Bodgey
-						strcat(m_pcBuffer, "\"");
-
+					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcBuffer, "\"");
 					strcat(m_pcBuffer, a_pccArgV[Index]);
+					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcBuffer, "\"");
 
-					if (strstr(a_pccArgV[Index], " ") > 0) // TODO: CAW - Bodgey
-						strcat(m_pcBuffer, "\"");
+					/* If this is not the last argument, append a space to it */
 
 					if ((Index + 1) < a_iArgC)
+					{
 						strcat(m_pcBuffer, " ");
+					}
 				}
 
 				strcat(m_pcBuffer, "\n");
 
+				/* Put the arguments into the RDArgs structure for parsing */
+
 				m_poInputRDArgs->RDA_Source.CS_Buffer = m_pcBuffer;
 				m_poInputRDArgs->RDA_Source.CS_Length = Size;
 
-		// TODO: CAW
-		if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, m_poInputRDArgs)) != NULL)
-		{
-			RetVal = KErrNone;
-		}
-		else
-		{
-			// TODO: CAW - What about other errors such as ERROR_TOO_MANY_ARGS?
-			if (IDOS->IoErr() == ERROR_REQUIRED_ARG_MISSING)
-			{
-				RetVal = KErrNotFound;
+				/* And try and parse them! */
+
+				if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, m_poInputRDArgs)) != NULL)
+				{
+					RetVal = KErrNone;
+				}
+				else
+				{
+					// TODO: CAW - What about other errors such as ERROR_TOO_MANY_ARGS?
+					if (IDOS->IoErr() == ERROR_REQUIRED_ARG_MISSING)
+					{
+						RetVal = KErrNotFound;
+					}
+					else
+					{
+						RetVal = KErrNoMemory;
+					}
+
+					Utils::Info("RArgs::Open() => Unable to read command line arguments");
+				}
 			}
 			else
 			{
-				// TODO: CAW - What about handling ERROR_TOO_MANY_ARGS?
-				RetVal = KErrNoMemory;
+				Utils::Info("RArgs::Open() => Out of memory");
 			}
-
-			Utils::Info("RArgs::Open() => Unable to read command line arguments");
 		}
-			}
+		else
+		{
+			Utils::Info("RArgs::Open() => Unable to allocate RDArgs structure");
 		}
 
 #else /* ! __amigaos4__ */
