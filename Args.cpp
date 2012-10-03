@@ -788,7 +788,7 @@ const char *RArgs::ProjectFileName()
 
 TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
-	char **ArgV, *OptionName, Type;
+	char **ArgV, *OptionName, **Arguments, Type;
 	TInt Arg, Index, Offset, RetVal;
 
 	/* Assume success */
@@ -871,13 +871,52 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 							}
 						}
 
-						/* If the option was an A option and it was not found then signal that an error has occurred */
+						/* If the option was an A option and it was not found then try to steal an argument */
+						/* from the multi argument list */
 
 						if ((Type == 'A') && (Arg == a_iArgC))
 						{
-							Utils::Info("RArgs::ReadArgs() => Option \"%s\" must have an argument", OptionName);
+							/* Assume failure */
 
 							RetVal = KErrNotFound;
+
+							/* If there is a multi argument list present then try and steal an argument */
+
+							if ((m_iMagicOption != -1) && (m_plArgs[m_iMagicOption]))
+							{
+								/* Scan through the multi argument list until we either find an argument or */
+								/* reach the end of the list */
+
+								Arguments = (char **) m_plArgs[m_iMagicOption];
+
+								while (*Arguments)
+								{
+									if (*(Arguments + 1))
+									{
+										*Arguments++;
+									}
+									else
+									{
+										break;
+									}
+								}
+
+								/* If we have found an argument then "steal" it by moving it into the current */
+								/* option's slot.  This is consistent with the behaviour of Amiga OS */
+
+								if (*Arguments)
+								{
+									RetVal = KErrNone;
+									m_plArgs[Index] = (LONG) *Arguments;
+									*Arguments = NULL;
+								}
+							}
+
+							if (m_plArgs[Index] == 0)
+							{
+								Utils::Info("RArgs::ReadArgs() => Option \"%s\" must have an argument", OptionName);
+							}
+
 							delete [] OptionName;
 
 							break;
