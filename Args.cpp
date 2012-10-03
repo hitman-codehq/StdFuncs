@@ -37,13 +37,11 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 	m_iNumArgs = a_iNumOptions;
 
-	/* Allocate an array of LONGs into which ptrs to arguments can be placed. */
-	/* We allocate an extra entry for the name of the executable, which will */
-	/* go into m_plArgs[0] */
+	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
 
 	if ((m_plArgs = new LONG[m_iNumArgs]) != NULL)
 	{
-		/* Determine which if the option (if any) is the magic multi option */
+		/* Determine which if option (if any) is the magic multi option */
 
 		FindMagicMultiOption(a_pccTemplate, a_iNumOptions);
 
@@ -204,7 +202,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 /*							as passed into WinMain() and thus the first argument is NOT */
 /*							the filename */
 
-// TODO: CAW - Call ReadArgs() directly from within here
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
 {
 	const char **ArgV;
@@ -475,7 +472,11 @@ void RArgs::Close()
 
 	if (m_iMagicOption != -1)
 	{
-		delete [] (char **) (m_plArgs[m_iMagicOption]); // TODO: CAW - Bodgey bodgey bodgey
+		/* Unlike the other options, which are ptrs to unowned memory, the magic option */
+		/* points to an array of ptrs to arguments and this array is owned by the magic */
+		/* option itself.  Thus we must cast the data for the option in order to delete it */
+
+		delete [] (char **) (m_plArgs[m_iMagicOption]);
 		m_iMagicOption = -1;
 	}
 
@@ -712,7 +713,7 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 void RArgs::FindMagicMultiOption(const char *a_pccTemplate, TInt a_iNumOptions)
 {
 	char Type;
-	TInt Index, Offset, RetVal; // TODO: CAW
+	TInt Index, Offset, RetVal;
 
 	Offset = 0;
 
@@ -816,7 +817,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 		}
 
 		/* If no error occurred, now we have to iterate through the template again, this time looking for A */
-		/* options and optional options and using whatever arguments are leftover on the command line as their */
+		/* options and optional options, using whatever arguments are leftover on the command line as their */
 		/* values */
 
 		if (RetVal == KErrNone)
