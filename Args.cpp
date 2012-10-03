@@ -234,12 +234,11 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 
 /* Written: Saturday 10-Jan-2009 3:12 pm */
 
-// TODO: CAW - Comment out for Win32?
+#ifdef __amigaos4__
+
 TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
 {
 	TInt RetVal;
-
-#ifdef __amigaos4__
 
 	char *Source, *Dest;
 	TBool Directory, FoundEquals;
@@ -248,13 +247,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 	struct DiskObject *DiskObject;
 	struct RDArgs *RDArgs;
 	struct WBArg *WBArg;
-
-#else /* ! __amigaos4__ */
-
-	(void) a_pccTemplate;
-	(void) a_poWBStartup;
-
-#endif /* ! __amigaos4__ */
 
 	/* Assume failure */
 
@@ -269,8 +261,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 		m_iNumArgs = a_iNumOptions;
 
 		/* Get some information about the .info file associated with the WBStartup message passed in */
-
-#ifdef __amigaos4__
 
 		WBArg = a_poWBStartup->sm_ArgList;
 
@@ -433,9 +423,6 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 		{
 			Utils::Info("RArgs::Open() => Unable to open icon for object \"%s\"", WBArg->wa_Name);
 		}
-
-#endif /* __amigaos4__ */
-
 	}
 	else
 	{
@@ -451,6 +438,8 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 
 	return(RetVal);
 }
+
+#endif /* __amigaos4__ */
 
 /* Written: Sunday 04-Nov-2007 11:52 am */
 
