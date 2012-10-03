@@ -385,7 +385,7 @@ TInt RDir::Open(const char *a_pccPattern)
 				/* Open a context for the directory to be scanned */
 
 				iContext = IDOS->ObtainDirContextTags(EX_StringNameInput, iPath,
-					EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_END);
+					EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
 
 				if (iContext)
 				{

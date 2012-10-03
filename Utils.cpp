@@ -1209,7 +1209,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 	/* and a control structure for scanning through the directory */
 
 	Context = IDOS->ObtainDirContextTags(EX_StringNameInput, a_pccDirectoryName,
-		EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_END);
+		EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
 
 	if (Context)
 	{
