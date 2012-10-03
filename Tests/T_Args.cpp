@@ -4,8 +4,6 @@
 #include <Test.h>
 #include <string.h>
 
-// TODO: CAW - Test/A/M and empty args as well (what was the one that was crashing?)
-
 /* Fake command line to test a full set of arguments */
 
 static const char *g_pccArgV[] =
@@ -49,9 +47,10 @@ static const char *g_pccMultiArgV[] =
 
 static const char g_accMultiSourceTemplate[] = "SOURCE/A/M,DEST/A";
 
-/* Template for use in obtaining multiple destination filenames */
+/* Template for use in obtaining multiple destination filenames.  We also use the /M */
+/* option in a different place here than in the above string, to test this positioning */
 
-static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/A/M";
+static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/M/A";
 
 /* Definitions of the number of arguments that can be passed in and their offsets in the */
 /* multiple source argument array */
