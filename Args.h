@@ -39,7 +39,7 @@ private:
 
 	TInt ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType);
 
-	void FindMagicMultiOption(const char *a_pccTemplate, TInt a_iNumOptions);
+	void FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions);
 
 	TInt ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 

@@ -43,7 +43,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 	{
 		/* Determine which if option (if any) is the magic multi option */
 
-		FindMagicMultiOption(a_pccTemplate, a_iNumOptions);
+		FindMagicOption(a_pccTemplate, a_iNumOptions);
 
 		/* Now read the arguments, according to the argument template */
 
@@ -669,7 +669,14 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 		else if (Char == '/')
 		{
 			EndOffset = Offset;
-			*a_pcType = a_pccTemplate[Offset + 1];
+
+			/* Special handling for the magic option, as this overrides any other types of options */
+			/* and we don't care if a magic option is also an /A option etc. */
+
+			if (*a_pcType != 'M')
+			{
+				*a_pcType = a_pccTemplate[Offset + 1];
+			}
 		}
 
 		++Offset;
@@ -721,7 +728,7 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 
 /* Written: Saturday 29-Oct-2011 7:28 am, CodeHQ Söflingen */
 
-void RArgs::FindMagicMultiOption(const char *a_pccTemplate, TInt a_iNumOptions)
+void RArgs::FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions)
 {
 	char Type;
 	TInt Index, Offset, RetVal;
