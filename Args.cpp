@@ -620,8 +620,17 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 }
 
 /* Written: Thursday 16-Jul-2009 6:37 am */
-/* @param	a_ppcOption	Ptr to a ptr into which to place the name of the option extracted. */
-/*						May be NULL if you are only interested in the option's type */
+/* @param	a_pccTemplate		Ptr to Amiga OS style template to be parsed */
+/*			a_piOffset			Ptr to variable containing offset to which template has been parsed */
+/*			a_ppcOption			Ptr to a ptr into which to place a ptr to the name of the option extracted. */
+/*								May be NULL if you are only interested in the option's type */
+/*			a_pcType			Ptr to a variable into which to place the type of the option, such */
+/*								as 'M' or 'A' etc. */
+/* @return	KErrNone if the option and its type were extracted successfully */
+/*			KErrNotFound if no more options are present in the template passed in */
+/*			KErrNoMemory if there was not enough memory to extract the option */
+/* Parses an Amiga OS style option string, starting at the offset passed in, and extracts the next option */
+/* option available at that offset, as well as its type, such as 'M' or 'A' */
 
 TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType)
 {
@@ -668,13 +677,12 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 
 		else if (Char == '/')
 		{
-			EndOffset = Offset;
-
 			/* Special handling for the magic option, as this overrides any other types of options */
 			/* and we don't care if a magic option is also an /A option etc. */
 
 			if (*a_pcType != 'M')
 			{
+				EndOffset = Offset;
 				*a_pcType = a_pccTemplate[Offset + 1];
 			}
 		}
@@ -703,10 +711,6 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 		{
 			if ((*a_ppcOption = Option = new char[(EndOffset - StartOffset) + 1]) != NULL)
 			{
-				/* Indicate success */
-
-				RetVal = KErrNone;
-
 				/* And copy the found option into the allocated buffer */
 
 				for (Offset = 0; StartOffset < EndOffset; ++StartOffset)
