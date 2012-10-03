@@ -879,12 +879,6 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 							break;
 						}
 					}
-
-					// TODO: CAW - Ensure that this matches the quirky behaviour of the Amiga version as described
-					//			   in the autodocs
-					// TODO: CAW - This is pretty horrible as in the case of DEST/A/M, OptionName will be DEST/A
-					//             and it's undescribed why DEST doesn't get handled by the above
-
 					else if (Type == 'M')
 					{
 						/* Now scan through the arguments passed in looking for an unused one */
