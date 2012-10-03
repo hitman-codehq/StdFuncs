@@ -497,7 +497,7 @@ void RArgs::Close()
 		m_poTTRDArgs = NULL;
 	}
 
-	/* Free the argument structure, if it exists */
+	/* Free the argument structures, if they exist */
 
 	if (m_poRDArgs)
 	{
@@ -511,6 +511,8 @@ void RArgs::Close()
 		m_poInputRDArgs = NULL;
 	}
 
+	/* And free the buffer used for holding copies of the arguments */
+
 	delete m_pcBuffer;
 	m_pcBuffer = NULL;
 
@@ -519,6 +521,7 @@ void RArgs::Close()
 	/* Ensure that everything is back to the exact state it was in before Open() was called */
 
 	m_iNumArgs = 0;
+	m_iMagicOption = -1;
 }
 
 /* Written: Sunday 04-Nov-2007 12:12 pm */
