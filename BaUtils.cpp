@@ -17,7 +17,7 @@
 #elif defined(__linux__)
 
 #define DELETE_FILE(FileName) (unlink(FileName) == 0)
-#define DELETE_DIRECTORY(DirectoryName) rmdir(DirectoryName) == 0)
+#define DELETE_DIRECTORY(DirectoryName) (rmdir(DirectoryName) == 0)
 
 #else /* ! __linux__ */
 
