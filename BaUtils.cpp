@@ -9,7 +9,7 @@
 
 #endif /* __linux__ */
 
-#ifdef __amigaos4_
+#ifdef __amigaos4__
 
 #define DELETE_FILE(FileName) IDOS->DeleteFile(FileName)
 #define DELETE_DIRECTORY(DirectoryName) IDOS->DeleteFile(DirectoryName)
