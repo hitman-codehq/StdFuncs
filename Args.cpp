@@ -925,25 +925,41 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 #endif /* ! __amigaos4__ */
 
 /* Written: Sunday 04-Nov-2007 11:57 am */
+/* @param	a_iIndex	Index of the argument to retrieve */
+/* @return	Ptr to the argument passed in, or NULL if no argument was passed in */
+/* This function will return the argument that was passed in that matches the option */
+/* in the template used for parsing arguments.  The index of the argument matches the */
+/* index of the option in the template.  Thus if COPY/A was the first option then its */
+/* argument will be at index 0.  If DELETE/A was the second option then its argument */
+/* will be at index 1 etc. */
 
 const char *RArgs::operator[](TInt a_iIndex)
 {
 	const char *RetVal;
-	const char **MultiArguments;
 
 	ASSERTM(((a_iIndex >= 0) && (a_iIndex < m_iNumArgs)), "RArgs::operator[]() => a_iIndex is out of range");
 
+	/* If the magic option is being requested then we need to handle it specially as the */
+	/* argument indexed will not point to the argument itself, but to an array of ptrs to */
+	/* arguments assigned to the magic option */
+
 	if (a_iIndex == m_iMagicOption)
 	{
-		if ((MultiArguments = (const char **) m_plArgs[a_iIndex]) != NULL)
+		/* If the magic option was filled in then extract the first argument that was */
+		/* assigned to the option */
+
+		if (m_plArgs[m_iMagicOption])
 		{
-			RetVal = *(const char **) m_plArgs[a_iIndex];
+			RetVal = *(const char **) m_plArgs[m_iMagicOption];
 		}
 		else
 		{
 			RetVal = NULL;
 		}
 	}
+
+	/* Otherwise this is a normal option so just return whatever argument was assigned to it */
+
 	else
 	{
 		RetVal = (const char *) m_plArgs[a_iIndex];
