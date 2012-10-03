@@ -45,6 +45,7 @@ private:
 
 private:
 
+	char			*m_pcArgumentBuffer;	/* Buffer for emulating CLI command line when reading main() arguments */
 	char			*m_pcCommandLine;		/* Buffer for emulating CLI command line when running from Workbench */
 	char			*m_pcProjectFileName;	/* Name of project icon that was started with the program, if any */
 	TInt			m_iMagicOption;			/* Index of magic option, if any */
@@ -52,8 +53,7 @@ private:
 	LONG			*m_plArgs;				/* Array of LONGs into which to place ptrs to arguments */
 	struct RDArgs	*m_poRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading arguments */
 	struct RDArgs	*m_poTTRDArgs;			/* Structure for use by IDOS->ReadArgs() when reading tooltypes */
-	struct RDArgs	*m_poInputRDArgs;		// TODO: CAW
-	char			*m_pcBuffer;			 // TODO: CAW - Position & name
+	struct RDArgs	*m_poInputRDArgs;		/* Structure for use by IDOS->ReadArgs() when reading main() arguments */
 };
 
 #endif /* ! ARGS_H */

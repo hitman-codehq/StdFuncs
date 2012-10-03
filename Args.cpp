@@ -20,7 +20,7 @@
 
 RArgs::RArgs()
 {
-	m_pcBuffer = m_pcCommandLine = m_pcProjectFileName = NULL;
+	m_pcArgumentBuffer = m_pcCommandLine = m_pcProjectFileName = NULL;
 	m_iMagicOption = -1;
 	m_iNumArgs = 0;
 	m_plArgs = NULL;
@@ -82,29 +82,29 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 			/* Allocate the buffer and copy the arguments into it */
 
-			if ((m_pcBuffer = new char[Size]) != NULL)
+			if ((m_pcArgumentBuffer = new char[Size]) != NULL)
 			{
-				m_pcBuffer[0] = '\0';
+				m_pcArgumentBuffer[0] = '\0';
 
 				for (Index = 1; Index < a_iArgC; ++Index)
 				{
-					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcBuffer, "\"");
-					strcat(m_pcBuffer, a_pccArgV[Index]);
-					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcBuffer, "\"");
+					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcArgumentBuffer, "\"");
+					strcat(m_pcArgumentBuffer, a_pccArgV[Index]);
+					if (strstr(a_pccArgV[Index], " ") > 0) strcat(m_pcArgumentBuffer, "\"");
 
 					/* If this is not the last argument, append a space to it */
 
 					if ((Index + 1) < a_iArgC)
 					{
-						strcat(m_pcBuffer, " ");
+						strcat(m_pcArgumentBuffer, " ");
 					}
 				}
 
-				strcat(m_pcBuffer, "\n");
+				strcat(m_pcArgumentBuffer, "\n");
 
 				/* Put the arguments into the RDArgs structure for parsing */
 
-				m_poInputRDArgs->RDA_Source.CS_Buffer = m_pcBuffer;
+				m_poInputRDArgs->RDA_Source.CS_Buffer = m_pcArgumentBuffer;
 				m_poInputRDArgs->RDA_Source.CS_Length = Size;
 
 				/* And try and parse them! */
@@ -513,8 +513,8 @@ void RArgs::Close()
 
 	/* And free the buffer used for holding copies of the arguments */
 
-	delete m_pcBuffer;
-	m_pcBuffer = NULL;
+	delete m_pcArgumentBuffer;
+	m_pcArgumentBuffer = NULL;
 
 #endif /* __amigaos4__ */
 
