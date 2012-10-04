@@ -197,7 +197,7 @@ int main()
 	Result = File.Create("InUseDirectory/File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = BaflUtils::DeleteFile("InUseDirectory");
+	Result = Utils::DeleteDirectory("InUseDirectory");
 	test(Result == KErrInUse);
 
 	File.Close();
@@ -207,10 +207,10 @@ int main()
 	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
 	test(Result == KErrNone);
 
-	Result = BaflUtils::DeleteFile("InUseDirectory");
+	Result = Utils::DeleteDirectory("InUseDirectory");
 	test(Result == KErrNone);
 
-	/* Test #8: Test unsuccessful deleteing of a file and directory */
+	/* Test #8: Test unsuccessful deleting of a file and directory */
 
 	Result = BaflUtils::DeleteFile("UnknownFile.txt");
 	test(Result == KErrNotFound);
@@ -218,10 +218,10 @@ int main()
 	Result = BaflUtils::DeleteFile("UnknownPath/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
-	Result = BaflUtils::DeleteFile("UnknownDirectory");
+	Result = Utils::DeleteDirectory("UnknownDirectory");
 	test(Result == KErrNotFound);
 
-	Result = BaflUtils::DeleteFile("UnknownDirectory/UnknownDirectory");
+	Result = Utils::DeleteDirectory("UnknownDirectory/UnknownDirectory");
 	test(Result == KErrPathNotFound);
 
 	/* Clean up after ourselves */

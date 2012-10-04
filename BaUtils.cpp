@@ -4,7 +4,9 @@
 
 #ifdef __linux__
 
+#include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #endif /* __linux__ */
@@ -12,71 +14,32 @@
 #ifdef __amigaos4__
 
 #define DELETE_FILE(FileName) IDOS->DeleteFile(FileName)
-#define DELETE_DIRECTORY(DirectoryName) IDOS->DeleteFile(DirectoryName)
 
 #elif defined(__linux__)
 
 #define DELETE_FILE(FileName) (unlink(FileName) == 0)
-#define DELETE_DIRECTORY(DirectoryName) (rmdir(DirectoryName) == 0)
 
 #else /* ! __linux__ */
 
 #define DELETE_FILE(FileName) ::DeleteFile(FileName)
-#define DELETE_DIRECTORY(DirectoryName) RemoveDirectory(DirectoryName)
 
 #endif /* ! __linux__ */
 
-/* Written: Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor */
-/* Internal function that takes the OS specific error from the last function call and maps */
-/* it onto the appropriate return code for BaflUtils::DeleteFile() */
-
-static TInt MapDeleteError()
-{
-	TInt RetVal;
-
-#ifdef WIN32
-
-	DWORD Error;
-
-	Error = GetLastError();
-
-	if (Error == ERROR_FILE_NOT_FOUND)
-	{
-		RetVal = KErrNotFound;
-	}
-	else if (Error == ERROR_PATH_NOT_FOUND)
-	{
-		RetVal = KErrPathNotFound;
-	}
-	else if ((Error == ERROR_DIR_NOT_EMPTY) || (Error == ERROR_SHARING_VIOLATION))
-	{
-		RetVal = KErrInUse;
-	}
-	else
-	{
-		RetVal = KErrGeneral;
-	}
-
-#endif /* WIN32 */
-
-	return(RetVal);
-}
-
 /* Written: Wednesday 01-Jul-2009 7:54 pm */
-/* @param	a_pccFileName	Name of the file or directory to be deleted */
+/* @param	a_pccFileName	Name of the file to be deleted */
 /* @return	KErrNone if successful */
-/*			KErrPathNotFound if the path to the file or directory does not exist */
-/*			KErrNotFound if the path is ok, but the file or directory does not exist */
-/*			KErrInUse if the file or directory is open for use */
+/*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotFound if the path is ok, but the file does not exist */
+/*			KErrInUse if the file is open for use */
 /*			KErrGeneral if some other unexpected error occurred */
-/* This function will delete a file or directory.  The object in question must */
-/* not be open for use in any way and if it is a directory then it must be empty */
+/* This function will delete a file.  The file in question must not be */
+/* open for use in any way */
 
 TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 {
 	TInt RetVal;
 
-	/* First assume that the object is a file and try to delete it */
+	/* First try to delete the file */
 
 	if (DELETE_FILE(a_pccFileName))
 	{
@@ -86,25 +49,40 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapDeleteError();
+		RetVal = Utils::MapLastError();
 
-		if (RetVal == KErrGeneral)
+#ifdef __linux__
+
+		char Name[MAX_PATH];
+		struct stat Stat;
+		TInt NameOffset;
+
+		/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
+		/* must do a little extra work to determine this */
+
+		if (RetVal == KErrNotFound)
 		{
-			/* Otherwise it was some other error so assume the object is a directory and try to delete it */
+			// TODO: CAW - Variables + create a Utils::PathPart().  The test passes but only out of luck
+			NameOffset = (Utils::FilePart(a_pccFileName) - a_pccFileName);
 
-			if (DELETE_DIRECTORY(a_pccFileName))
+			if (NameOffset > 0)
 			{
-				RetVal = KErrNone;
-			}
-			else
-			{
-				RetVal = MapDeleteError();
+				memcpy(Name, a_pccFileName, NameOffset);
+				Name[--NameOffset] = '\0';
+
+				if (stat(Name, &Stat) == -1)
+				{
+					RetVal = KErrPathNotFound;
+				}
 			}
 		}
+
+#endif /* __linux__ */
+
 	}
 
 	return(RetVal);
-}
+} 
 
 /* Written: Monday 19-Apr-2010 6:26 am */
 

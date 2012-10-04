@@ -29,17 +29,24 @@
 #include <string.h>
 #include "File.h"
 
-#define PRINTF printf
+#ifdef __amigaos4__
 
-#if defined(__amigaos4__) || defined(__linux__)
-
+#define DELETE_DIRECTORY(DirectoryName) IDOS->DeleteFile(DirectoryName)
 #define VSNPRINTF vsnprintf
 
-#else /* ! defined(__amigaos4__) || defined(__linux__) */
+#elif defined(__linux__)
 
+#define DELETE_DIRECTORY(DirectoryName) (rmdir(DirectoryName) == 0)
+#define VSNPRINTF vsnprintf
+
+#else /* ! __linux__ */
+
+#define DELETE_DIRECTORY(DirectoryName) RemoveDirectory(DirectoryName)
 #define VSNPRINTF _vsnprintf
 
-#endif /* ! defined(__amigaos4__) || defined(__linux__) */
+#endif /* ! __linux__ */
+
+#define PRINTF printf
 
 #ifndef __amigaos4__
 
@@ -52,6 +59,61 @@ static const char *g_apccMonths[] =
 #endif /* ! __amigaos4__ */
 
 TBool g_bUsingGUI;	/* ETrue if running a GUI based program */
+
+/* Written: Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor */
+/* Internal function that takes the OS specific error from the last function call and maps */
+/* it onto the appropriate Symbian return code */
+
+TInt Utils::MapLastError()
+{
+	TInt RetVal;
+
+#ifdef __amigaos4__
+
+	RetVal = KErrGeneral;
+
+#elif defined(__linux__)
+
+	if (errno == ENOENT)
+	{
+		RetVal = KErrNotFound;
+	}
+	else if (errno == EBUSY)
+	{
+		RetVal = KErrInUse;
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+	}
+
+#else /* ! __linux__ */
+
+	DWORD Error;
+
+	Error = GetLastError();
+
+	if (Error == ERROR_FILE_NOT_FOUND)
+	{
+		RetVal = KErrNotFound;
+	}
+	else if (Error == ERROR_PATH_NOT_FOUND)
+	{
+		RetVal = KErrPathNotFound;
+	}
+	else if ((Error == ERROR_DIR_NOT_EMPTY) || (Error == ERROR_SHARING_VIOLATION))
+	{
+		RetVal = KErrInUse;
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+	}
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
 
 /* Written: Thursday 16-Jul-2009 3:58 pm */
 
@@ -249,45 +311,60 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 }
 
 /* Written: Friday 27-Jul-2012 10:27 am */
+/* @param	a_pccDirectoryName	Name of the directory to be deleted */
+/* @return	KErrNone if successful */
+/*			KErrPathNotFound if the path to the directory does not exist */
+/*			KErrNotFound if the path is ok, but the directory does not exist */
+/*			KErrInUse if the directory is open for use */
+/*			KErrGeneral if some other unexpected error occurred */
+/* This function will delete a directory.  The directory in question must not be */
+/* open for use in any way and must be empty */
 
 TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+	/* First try to delete the directory */
 
-	if (IDOS->DeleteFile(a_pccDirectoryName))
+	if (DELETE_DIRECTORY(a_pccDirectoryName))
 	{
 		RetVal = KErrNone;
 	}
 	else
 	{
-		RetVal = KErrNotFound;
-	}
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-#elif defined(__linux__)
+		RetVal = MapLastError();
 
-	if (rmdir(a_pccDirectoryName) == 0)
-	{
-		RetVal = KErrNone;
-	}
-	else
-	{
-		RetVal = KErrNotFound; // TODO: CAW - This needs to be much improved
-	}
+#ifdef __linux__
 
-#else /* ! __linux__ */
+		char Name[MAX_PATH];
+		struct stat Stat;
+		TInt NameOffset;
 
-	if (RemoveDirectory(a_pccDirectoryName))
-	{
-		RetVal = KErrNone;
-	}
-	else
-	{
-		RetVal = KErrNotFound;
-	}
+		/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
+		/* must do a little extra work to determine this */
 
-#endif /* ! __linux__ */
+		if (RetVal == KErrNotFound)
+		{
+			// TODO: CAW - Variables + create a Utils::PathPart().  The test passes but only out of luck
+			NameOffset = (Utils::FilePart(a_pccDirectoryName) - a_pccDirectoryName);
+
+			if (NameOffset > 0)
+			{
+				memcpy(Name, a_pccDirectoryName, NameOffset);
+				Name[--NameOffset] = '\0';
+
+				if (stat(Name, &Stat) == -1)
+				{
+					RetVal = KErrPathNotFound;
+				}
+			}
+		}
+
+#endif /* __linux__ */
+
+	}
 
 	return(RetVal);
 }

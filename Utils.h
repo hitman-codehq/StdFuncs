@@ -78,6 +78,8 @@ public:
 
 	static TInt LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer);
 
+	static TInt MapLastError();
+
 	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs);
 
 	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, ...);
