@@ -205,7 +205,7 @@ int main()
 
 	Result = Args.Open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);
-	test(Args.Count() == ARGS_MULTI_NUM_ARGS); // TODO: CAW - This doesn't make much sense any more + how does it fit in with Valid()?
+	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
 
 	/* Ensure that the string arguments have been read as expected */
 
