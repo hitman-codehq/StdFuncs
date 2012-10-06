@@ -1,10 +1,9 @@
 
 #include <StdFuncs.h>
+#include <BaUtils.h>
 #include <Dir.h>
+#include <File.h>
 #include <Test.h>
-
-// TODO: CAW - Steal some code from T_Utils to create a file and set its time, and then
-//             ensure that the time is correct when the file is scanned with RDir
 
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
@@ -47,6 +46,8 @@ static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSi
 int main()
 {
 	int Result;
+	RFile File;
+	TEntry Entry;
 
 	Test.Title();
 	Test.Start("RDir class API test");
@@ -100,6 +101,43 @@ int main()
 	/* Test #9: Test calling Close() a second time */
 
 	Test.Next("Test calling Close() a second time");
+	g_oDir.Close();
+
+	/* Test #10: Test similar to Test #7 of T_Utils.cpp, but using RDir to */
+	/* confirm results rather than Utils::GetFileInfo() */
+
+	Test.Next("Ensure that date and time can be read by RDir");
+
+	/* Delete any old file hanging around from prior runs, create a new one */
+	/* and set its time and attributes to be the same as the source code */
+	/* for this test */
+
+	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	Result = File.Create("TimeFile.txt", EFileWrite);
+	test(Result == KErrNone);
+	File.Close();
+
+	Result = Utils::GetFileInfo("T_Dir.cpp", &Entry);
+	test(Result == KErrNone);
+
+	Result = Utils::SetFileDate("TimeFile.txt", Entry);
+	test(Result == KErrNone);
+
+	Result = Utils::SetProtection("TimeFile.txt", Entry.iAttributes);
+	test(Result == KErrNone);
+
+	Result = g_oDir.Open("TimeFile.txt");
+	test(Result == KErrNone);
+
+	TEntryArray *Entries;
+	Result = g_oDir.Read(Entries);
+	test(Result == KErrNone);
+
+	test((*Entries)[0].iModified == Entry.iModified);
+	test((*Entries)[0].iAttributes == Entry.iAttributes);
+
 	g_oDir.Close();
 
 	Test.End();
