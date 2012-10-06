@@ -146,8 +146,7 @@ int main()
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
 	/* Test #8: Ensure we can decode attributes successfully */
-	// TODO: CAW - What about using RDir to test this as well?
- 
+
 	Test.Next("Ensure we can decode attributes successfully");
 
 	Result = Utils::GetFileInfo("TimeFile.txt", &Entry);
