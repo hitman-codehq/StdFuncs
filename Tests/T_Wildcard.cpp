@@ -12,7 +12,7 @@ int main()
 
 	/* Test #2: Basic match of a name containing no wildcards */
 
-	Test.Next("Match a name containing no wildcards");
+	Test.Next("Basic match of a name containing no wildcards");
 
 	RWildcard wildcard;
 	test(wildcard.Open("test.txt") == KErrNone);
@@ -21,7 +21,7 @@ int main()
 
 	/* Test #3: Match of a name containing simple wildcards */
 
-	Test.Next("Match a name containing simple wildcards");
+	Test.Next("Match of a name containing simple wildcards");
 
 	test(wildcard.Open("*.txt") == KErrNone);
 	test(wildcard.Match("test.txt") == ETrue);
@@ -31,9 +31,9 @@ int main()
 	test(wildcard.Match("test.txt") == ETrue);
 	wildcard.Close();
 
-	/* Test #4: Match of a name containing simple wildcards */
+	/* Test #4: Match of a name containing more complex wildcards */
 
-	Test.Next("Match a name containing more complex wildcards");
+	Test.Next("Match of a name containing more complex wildcards");
 
 	test(wildcard.Open("test.*xt") == KErrNone);
 	test(wildcard.Match("test.txt") == ETrue);

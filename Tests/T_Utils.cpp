@@ -19,9 +19,9 @@ int main()
 	Test.Title();
 	Test.Start("Utils class API test");
 
-	/* Test #2: Extract a file from a path */
+	/* Test #2: Extract a file from a path with Utils::FilePart() */
 
-	Test.Next("Extracting file names with Utils::FilePart()");
+	Test.Next("Extract a file from a path with Utils::FilePart()");
 
 	FileName = Utils::FilePart("*.txt");
 	test(strlen(FileName) > 0);
@@ -35,9 +35,9 @@ int main()
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	/* Test #2: Extract an extension from a file name */
+	/* Test #3: Extract an extension from a file name with Utils::Extension() */
 
-	Test.Next("Extracting extensions with Utils::Extension()");
+	Test.Next("Extract an extension from a file name with Utils::Extension()");
 
 	Extension = Utils::Extension("*.txt");
 	test(Extension != NULL);
@@ -50,7 +50,7 @@ int main()
 	Extension = Utils::Extension("*txt");
 	test(Extension == NULL);
 
-	/* Test #2: Trimming white space from the start & end of a string */
+	/* Test #4: Trimming white space from the start & end of a string */
 
 	Test.Next("Trimming white space from the start & end of a string");
 
@@ -78,7 +78,7 @@ int main()
 	test(String3[0] == 'h');
 	test(String3[strlen(String3) - 1] == 'd');
 
-	/* Test #3: Ensure that Utils::CountTokens() functions correctly */
+	/* Test #5: Ensure that Utils::CountTokens() functions correctly */
 
 	Test.Next("Ensure that Utils::CountTokens() functions correctly");
 	test(Utils::CountTokens("") == 0);
@@ -105,9 +105,9 @@ int main()
 	test(Utils::CountTokens("\tOne\t\tTwo\t") == 2);
 	test(Utils::CountTokens(" One  Two ") == 2);
 
-	/* Test #4: Ensure that directory creation and deletion routines work */
+	/* Test #6: Ensure Utils::CreateDirectory() and Utils::DeleteDirectory() work */
 
-	Test.Next("Ensure that Utils::CreateDirectory() and Utils::DeleteDirectory() work");
+	Test.Next("Ensure Utils::CreateDirectory() and Utils::DeleteDirectory() work");
 	Result = Utils::DeleteDirectory("SomeDirectory");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
@@ -116,7 +116,7 @@ int main()
 	test(Utils::DeleteDirectory("SomeDirectory") == KErrNone);
 	test(Utils::CreateDirectory("x/SomeDirectory") == KErrNotFound);
 
-	/* Test #5: Ensure that we can set the file date and time on a file */
+	/* Test #7: Ensure that we can set the file date and time on a file */
 
 	Test.Next("Ensure that we can set the file date and time on a file");
 
@@ -145,7 +145,7 @@ int main()
 	test(OldEntry.iModified == NewEntry.iModified);
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
-	/* Test #6: Ensure we can decode attributes successfully */
+	/* Test #8: Ensure we can decode attributes successfully */
 	// TODO: CAW - What about using RDir to test this as well?
  
 	Test.Next("Ensure we can decode attributes successfully");
@@ -167,7 +167,7 @@ int main()
 	Test.Printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
 	test(Entry.IsDeleteable());
 
-	/* Test #7: Ensure that trying to delete an object that is in use acts sanely */
+	/* Test #9: Ensure that trying to delete an object that is in use acts sanely */
 
 	Test.Next("Ensure that trying to delete an object that is in use acts sanely");
 
@@ -210,7 +210,9 @@ int main()
 	Result = Utils::DeleteDirectory("InUseDirectory");
 	test(Result == KErrNone);
 
-	/* Test #8: Test unsuccessful deleting of a file and directory */
+	/* Test #10: Test unsuccessful deleting of a file and directory */
+
+	Test.Next("Test unsuccessful deleting of a file and directory");
 
 	Result = BaflUtils::DeleteFile("UnknownFile.txt");
 	test(Result == KErrNotFound);

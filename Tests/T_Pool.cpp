@@ -54,7 +54,7 @@ int main()
 
 	RStdPool Pool;
 
-	/* Test #1: Create a pool that has a maximum number of nodes and which cannot */
+	/* Test #2: Create a pool that has a maximum number of nodes and which cannot */
 	/* be extended */
 
 	Test.Next("Create a non extensible pool");
@@ -64,7 +64,7 @@ int main()
 	Pool.Close(ETrue);
 	test(Pool.Count() == 0);
 
-	/* Test #2: Try to call RStdPool::Create() twice in a row */
+	/* Test #3: Try to call RStdPool::Create() twice in a row */
 
 	Test.Next("Try to call RStdPool::Create() twice in a row");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
@@ -76,7 +76,7 @@ int main()
 	Pool.Close(ETrue);
 	test(Pool.Count() == 0);
 
-	/* Test #3: Create a non extensible pool and allocate all nodes */
+	/* Test #4: Create a non extensible pool and allocate all nodes */
 
 	Test.Next("Create a non extensible pool and allocate all nodes");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
@@ -104,7 +104,7 @@ int main()
 	Pool.Close(ETrue);
 	test(Pool.Count() == 0);
 
-	/* Test #4: Create an extensible pool and allocate first block of nodes */
+	/* Test #5 Create an extensible pool and allocate first block of nodes */
 
 	Test.Next("Create an extensible pool and allocate first block of nodes");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, ETrue);
@@ -130,7 +130,7 @@ int main()
 	Nodes.Reset();
 	test(Nodes.Count() == 0);
 
-	/* Test #5: Create a non extensible pool and allocate, free and reallocate all nodes */
+	/* Test #6: Create a non extensible pool and allocate, free and reallocate all nodes */
 
 	Test.Next("Create a non extensible pool and allocate all nodes");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);

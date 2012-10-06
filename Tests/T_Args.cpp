@@ -86,12 +86,12 @@ int main()
 	Test.Title();
 	Test.Start("RArgs class API test");
 
-	/* Test that Close() can handle being called before Open() */
+	/* Test #2: Test that Close() can handle being called before Open() */
 
-	Test.Next("Check calling close before open");
+	Test.Next("Test that Close() can handle being called before Open()");
 	Args.Close();
 
-	/* Parse simple command line parameters that contain no white space */
+	/* Test #3: Parse simple command line arguments */
 
 	Test.Next("Parse simple command line arguments");
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
@@ -116,9 +116,9 @@ int main()
 
 	Args.Close();
 
-	/* Parse more complex command line parameters that contain white space */
+	/* Test #4: Parse more complex command line parameters that contain white space */
 
-	Test.Next("Parse complex command line arguments");
+	Test.Next("Parse complex command line arguments that contain white space");
 
 	OneString = new char[strlen(g_pccOneStringExtraWhite) + 1];
 	test(OneString != NULL);
@@ -136,9 +136,9 @@ int main()
 
 	Args.Close();
 
-	/* Parse more complex command line parameters that contain extra white space */
+	/* Test #5: Parse more complex command line parameters that contain extra white space */
 
-	Test.Next("Parse complex command line arguments with extra white space");
+	Test.Next("Parse complex command line arguments that contain extra white space");
 
 	strcpy(OneString, g_pccOneStringExtraWhite);
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
@@ -153,8 +153,7 @@ int main()
 
 	Args.Close();
 
-	/* Parse more complex command line parameters that contain white space without space separaters */
-	/* between " argument terminators */
+	/* Test #6: Parse complex command line arguments lacking white space */
 
 	Test.Next("Parse complex command line arguments lacking white space");
 
@@ -171,16 +170,16 @@ int main()
 
 	Args.Close();
 
-	/* Test not passing in a parameter for an /A option */
+	/* Test #7: Test not passing in a parameter for an /A option */
 
 	Test.Next("Not passing in a parameter for an /A option");
 
 	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
 	test(Result == KErrNotFound);
 
-	/* Parse command line parameters with multiple sources and one destination */
+	/* Test #8: Command line parameters with multiple sources and one destination */
 
-	Test.Next("Parse command line parameters with multiple sources and one destination");
+	Test.Next("Command line parameters with multiple sources and one destination");
 
 	Result = Args.Open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);
@@ -199,9 +198,9 @@ int main()
 
 	Args.Close();
 
-	/* Parse command line parameters with one source and multiple destinations */
+	/* Test #9: Command line parameters with one source and multiple destinations */
 
-	Test.Next("Parse command line parameters with one source and multiple destinations");
+	Test.Next("Command line parameters with one source and multiple destinations");
 
 	Result = Args.Open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);

@@ -42,8 +42,7 @@ int main()
 
 	RFile File, File2;
 
-	// TODO: CAW - These numbers don't match up with those from RTest
-	/* Test #1: Test that RFile.Replace() works as expected */
+	/* Test #2: Test that RFile.Replace() works as expected */
 
 	Test.Next("Creating file with RFile::Replace()");
 
@@ -62,7 +61,7 @@ int main()
 	test(Result == KErrNone);
 	File.Close();
 
-	/* Test #2: Rename a file using BaflUtils::RenameFile() */
+	/* Test #3: Rename a file using BaflUtils::RenameFile() */
 
 	Test.Next("Renaming a file with BaflUtils::RenameFile()");
 
@@ -79,7 +78,7 @@ int main()
 	Result = BaflUtils::DeleteFile("NewFile.txt");
 	test(Result == KErrNone);
 
-	/* Test #3: Test that RFile::Create() and RFile::Open() work as expected */
+	/* Test #4: Test that RFile::Create() and RFile::Open() work as expected */
 
 	Test.Next("Creating and opening files with RFile::Create() and RFile::Open()");
 
@@ -123,7 +122,7 @@ int main()
 	Result = File.Open("UnknownFile.txt", EFileRead);
 	test(Result == KErrNotFound);
 
-	/* Test #4: Test that we are able to create and write to files using both supported APIs */
+	/* Test #5: Test that we are able to create and write to files using both supported APIs */
 
 	Test.Next("Creating and writing to files using both supported APIs");
 

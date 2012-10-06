@@ -55,60 +55,51 @@ int main()
 
 	g_oDir.Close();
 
-	/* Test that Open() without wildcards works */
+	/* Test #2: Test that Open() without wildcards works */
 
-	Test.Next("Testing Open() with \"\"");
+	Test.Next("Test that Open() without wildcards works");
 	TestScan("");
 
-	/* Test that Open() with current directory works */
+	/* Test #3: Test that Open() with current directory works */
 
-	Test.Next("Testing Open() with \".\"");
+	Test.Next("Test that Open() with current directory works");
 	TestScan(".");
 
-	/* Test that Open() with a directory path works */
+	/* Test #4: Test that Open() with a directory path works */
 
-	Test.Next("Testing Open() without trailing slash");
+	Test.Next("Test that Open() with a directory path works");
 	TestScan("SomeDir", 1, 174);
-
-	Test.Next("Testing Open() with trailing slash");
 	TestScan("SomeDir/", 1, 174);
-
-	Test.Next("Testing Open() with a relative path without trailing slash");
 	TestScan("../Tests/SomeDir", 1, 174);
-
-	Test.Next("Testing Open() with a relative path with trailing slash");
 	TestScan("../Tests/SomeDir/", 1, 174);
 
-	/* Test that Open() with wildcards works */
+	/* Test #5: Test that Open() with wildcards works */
 
-	Test.Next("Testing Open() with a \"*\" wildcard");
+	Test.Next("Test that Open() with wildcards works");
 	TestScan("*");
-
-	Test.Next("Testing Open() with a partial \"*.dsw\" wildcard");
 	TestScan("*.dsw", 1, 2204);
-
-	Test.Next("Testing Open() with a path and partial \"*.txt\" wildcard");
 	TestScan("SomeDir/*.txt", 1, 174);
 
-	/* Test that Open() with a filename works */
+	/* Test #6: Test that Open() with a filename works */
 
-	Test.Next("Testing Open() with a filename");
+	Test.Next("Test that Open() with a filename works");
 	TestScan("T_Dir.cpp");
-
-	Test.Next("Testing Open() with a path and filename");
 	TestScan("SomeDir/SomeFile.txt", 1, 174);
 
-	/* Test that Open() with an invalid path works */
+	/* Test #7: Test that Open() with an invalid path works */
 
+	Test.Next("Test that Open() with an invalid path works");
 	Result = g_oDir.Open("x");
 	test(Result == KErrNotFound);
 
-	/* Test that Close() can be called after a failed Open() without causing problems */
+	/* Test #8: Test calling Close() after a failed Open() */
 
+	Test.Next("Test calling Close() after a failed Open()");
 	g_oDir.Close();
 
-	/* Test that Close() can be called a second time without causing problems */
+	/* Test #9: Test calling Close() a second time */
 
+	Test.Next("Test calling Close() a second time");
 	g_oDir.Close();
 
 	Test.End();
