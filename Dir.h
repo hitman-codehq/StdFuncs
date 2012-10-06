@@ -28,7 +28,6 @@ public:
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - I don't like this, nor the Set() function below
 	struct DateStamp	iPlatformDate;		/* Date and time in Amiga specific format */
 
 #elif defined(__linux__)
