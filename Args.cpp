@@ -628,7 +628,7 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 /*								as 'M' or 'A' etc. */
 /* @return	KErrNone if the option and its type were extracted successfully */
 /*			KErrNotFound if no more options are present in the template passed in */
-/*			KErrNoMemory if there was not enough memory to extract the option */
+/*			KErrNoMemory if not enough memory was available */
 /* Parses an Amiga OS style option string, starting at the offset passed in, and extracts the next option */
 /* option available at that offset, as well as its type, such as 'M' or 'A' */
 

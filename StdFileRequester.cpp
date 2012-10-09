@@ -33,7 +33,7 @@ void RFileRequester::Close()
 /* @param	a_bSaveAs		ETrue to prompt for a file to save, else EFalse for a file to open */
 /* @return	KErrNone if a filename was requested successfully */
 /*          KErrCancel if the user clicked cancel without selecting a file */
-/*          KErrNoMemory if there wasn't enough memory to allocate the requester */
+/*			KErrNoMemory if not enough memory was available */
 /*          KErrGeneral if another error occurred obtaining the file */
 /* Displays a native file requester prompting the user for the name of a file to open or save. */
 /* Once obtained, a ptr to this filename can be obtained by calling RFileRequester::FileName(). */

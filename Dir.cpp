@@ -284,7 +284,7 @@ RDir::RDir()
 /* @param	a_pccPattern	OS specific path and wildcard to scan */
 /* @return	KErrNone if directory was opened successfully */
 /*			KErrNotFound if the directory or file could not be opened for scanning */
-/*			KErrNoMemory if not enough memory to open the directory or file */
+/*			KErrNoMemory if not enough memory was available */
 /* This function prepares to scan a file or directory.  The a_pccPattern parameter can */
 /* refer to either a directory name, a single filename, a wildcard pattern or a combination */
 /* thereof.  Examples are: */

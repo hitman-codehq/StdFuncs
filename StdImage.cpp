@@ -14,7 +14,7 @@
 /* @param	a_pccFileName The name of the image file to be opened */
 /* @return	KErrNone the image was loaded successfully; or */
 /*			KErrNotFound if the image could not be found */
-/*			KErrNoMemory if not enough memory is available */
+/*			KErrNoMemory if not enough memory was available */
 /* Loads an image into memory using the underlying operating system's image */
 /* loading functions.  This enables the client software to load images and to */
 /* access them in a platform independent manner while keeping the size of the */

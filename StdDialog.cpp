@@ -401,7 +401,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 /*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
 /* @return	Length of the text if successful */
 /*			KErrNotFound if the gadget with the specified ID was not found */
-/*			KErrNoMemory if out of memory */
+/*			KErrNoMemory if not enough memory was available */
 /* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
 /* and length.  Optionally, this function can obtain just the length.  This function gets the */
 /* text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so */
