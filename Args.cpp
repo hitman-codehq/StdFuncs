@@ -549,7 +549,7 @@ TInt RArgs::CountMultiArguments()
 			while (*MultiArguments)
 			{
 				++RetVal;
-				*MultiArguments++;
+				++MultiArguments;
 			}
 		}
 	}
@@ -893,7 +893,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								{
 									if (*(Arguments + 1))
 									{
-										*Arguments++;
+										++Arguments;
 									}
 									else
 									{
@@ -945,7 +945,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 									while (*Ptr)
 									{
-										*Ptr++;
+										++Ptr;
 									}
 
 									*Ptr = ArgV[Arg];
