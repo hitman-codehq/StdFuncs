@@ -32,7 +32,7 @@ RFile::RFile()
 }
 
 /* Written: Friday 02-Jan-2009 8:54 pm */
-/* @param	a_pccName		Ptr to the name of the file to be created */
+/* @param	a_pccFileName	Ptr to the name of the file to be created */
 /*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
 /*							API and is ignored (but should be EFileWrite for consistency) */
 /* @return	KErrNone if successful */
@@ -41,10 +41,10 @@ RFile::RFile()
 /*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Creates a new file that can subsequently be used for writing operations.  If a file already */
-/* exists with the same name then the function will fail.  The a_pccName parameter can specify */
+/* exists with the same name then the function will fail.  The a_pccFileName parameter can specify */
 /* a path to the file but the path must already exist */
 
-TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
+TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 {
 	TInt RetVal;
 
@@ -53,7 +53,7 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 #ifdef __amigaos4__
 
 	// TODO: CAW - Map Symbian -> Amiga open modes, here and in Open(). Return correct errors and update test for all ports
-	if ((m_oHandle = IDOS->Open(a_pccName, MODE_NEWFILE)) != 0)
+	if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
 	{
 		RetVal = KErrNone;
 	}
@@ -70,7 +70,7 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 
 	/* Create a new file in read/write mode */
 
-	if ((m_oHandle = open(a_pccName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
+	if ((m_oHandle = open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
 		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
 		/* multiple locks on individual files */
@@ -92,12 +92,12 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapLastOpenError(a_pccName);
+		RetVal = MapLastOpenError(a_pccFileName);
 	}
 
 #else /* ! __linux__ */
 
-	if ((m_oHandle = CreateFile(a_pccName, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
@@ -129,7 +129,7 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 #ifdef __linux__
 
 /* Written: Monday 09-Oct-2012 5:47 am */
-/* @param	a_pccName		Ptr to the name of the file to be checked */
+/* @param	a_pccFileName		Ptr to the name of the file to be checked */
 /* @return	KErrNone if successful */
 /*			KErrAlreadyExists if the file already exists */
 /*			KErrPathNotFound if the path to the file does not exist */
@@ -140,7 +140,7 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 /* if its path exists, thus differentiating between the file not existing and the */
 /* path to that file not existing */
 
-TInt RFile::MapLastOpenError(const char *a_pccName)
+TInt RFile::MapLastOpenError(const char *a_pccFileName)
 {
 	char *Name;
 	TInt NameOffset, RetVal;
@@ -157,8 +157,7 @@ TInt RFile::MapLastOpenError(const char *a_pccName)
 	{
 		/* Determine the path to the file that was opened */
 
-		// TODO: CAW - Create a Utils::PathPart().  Rename a_pccName to a_pccFileName everywhere
-		NameOffset = (Utils::FilePart(a_pccName) - a_pccName);
+		NameOffset = (Utils::FilePart(a_pccFileName) - a_pccFileName);
 
 		/* If the file is not in the current directory then check if the path exists */
 
@@ -168,7 +167,7 @@ TInt RFile::MapLastOpenError(const char *a_pccName)
 
 			if ((Name = new char[NameOffset + 1]) != NULL)
 			{
-				memcpy(Name, a_pccName, NameOffset);
+				memcpy(Name, a_pccFileName, NameOffset);
 				Name[--NameOffset] = '\0';
 
 				/* Now check for the existence of the file */
@@ -195,7 +194,7 @@ TInt RFile::MapLastOpenError(const char *a_pccName)
 #endif /* __linux__ */
 
 /* Written: Monday 19-Apr-2010 6:26 am */
-/* @param	a_pccName		Ptr to the name of the file to be created */
+/* @param	a_pccFileName		Ptr to the name of the file to be created */
 /*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
 /*							API and is ignored (but should be EFileWrite for consistency) */
 /* @return	KErrNone if successful */
@@ -203,29 +202,29 @@ TInt RFile::MapLastOpenError(const char *a_pccName)
 /*			KErrPathNotFound if the path to the file does not exist */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Creates a new file that can subsequently be used for writing operations.  If a file already */
-/* exists with the same name then the function will replace it.  The a_pccName parameter can specify */
+/* exists with the same name then the function will replace it.  The a_pccFileName parameter can specify */
 /* a path to the file but the path must already exist */
 
-TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
+TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 {
 	TInt RetVal;
 
 	/* Try to delete the file specified so that it can be recreated */
 
-	RetVal = BaflUtils::DeleteFile(a_pccName);
+	RetVal = BaflUtils::DeleteFile(a_pccFileName);
 
 	/* If the file was deleted successfully or if it didn't exist, continue on to create a new file */
 
 	if ((RetVal == KErrNone) || (RetVal == KErrNotFound))
 	{
-		RetVal = Create(a_pccName, a_uiFileMode);
+		RetVal = Create(a_pccFileName, a_uiFileMode);
 	}
 
 	return(RetVal);
 }
 
 /* Written: Friday 02-Jan-2009 8:57 pm */
-/* @param	a_pccName		Ptr to the name of the file to be opened */
+/* @param	a_pccFileName		Ptr to the name of the file to be opened */
 /*			a_uiFileMode	Mode in which to open the file */
 /* @return	KErrNone if successful */
 /*			KErrPathNotFound if the path to the file does not exist */
@@ -234,10 +233,10 @@ TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
 /*			KErrGeneral if some other unexpected error occurred */
 /* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
 /* in the file mode EFileRead, EFileWrite, or a logical combination of them both.  If the file mode */
-/* EFileWrite is specified then the file will also be writeable.  The a_pccName parameter can */
+/* EFileWrite is specified then the file will also be writeable.  The a_pccFileName parameter can */
 /* optionally specify a path to the file */
 
-TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
+TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 {
 	TInt RetVal;
 
@@ -245,7 +244,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 
 	(void) a_uiFileMode;
 
-	if ((m_oHandle = IDOS->Open(a_pccName, MODE_OLDFILE)) != 0)
+	if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_OLDFILE)) != 0)
 	{
 		RetVal = KErrNone;
 	}
@@ -262,7 +261,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 
 	Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
 
-	if ((m_oHandle = open(a_pccName, Flags, 0)) != -1)
+	if ((m_oHandle = open(a_pccFileName, Flags, 0)) != -1)
 	{
 		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
 		/* multiple locks on individual files */
@@ -284,7 +283,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapLastOpenError(a_pccName);
+		RetVal = MapLastOpenError(a_pccFileName);
 
 	}
 
@@ -299,7 +298,7 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 		FileMode |= GENERIC_WRITE;
 	}
 
-	if ((m_oHandle = CreateFile(a_pccName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_oHandle = CreateFile(a_pccFileName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}

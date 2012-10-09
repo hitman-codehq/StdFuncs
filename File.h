@@ -32,17 +32,17 @@ class RFile
 
 private:
 
-	TInt MapLastOpenError(const char *a_pccName);
+	TInt MapLastOpenError(const char *a_pccFileName);
 
 public:
 
 	RFile();
 
-	TInt Create(const char *a_pccName, TUint a_uiFileMode);
+	TInt Create(const char *a_pccFileName, TUint a_uiFileMode);
 
-	TInt Replace(const char *a_pccName, TUint a_uiFileMode);
+	TInt Replace(const char *a_pccFileName, TUint a_uiFileMode);
 
-	TInt Open(const char *a_pccName, TUint a_uiFileMode);
+	TInt Open(const char *a_pccFileName, TUint a_uiFileMode);
 
 	TInt Read(unsigned char *a_pucBuffer, TInt a_iLength) const;
 
