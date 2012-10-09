@@ -7,6 +7,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -36,6 +38,7 @@ RFile::RFile()
 /* @return	KErrNone if successful */
 /*			KErrAlreadyExists if the file already exists */
 /*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Creates a new file that can subsequently be used for writing operations.  If a file already */
 /* exists with the same name then the function will fail.  The a_pccName parameter can specify */
@@ -63,29 +66,33 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 
 	TInt Flags;
 
-	Flags = (O_CREAT | O_EXCL);
-	Flags |= (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
+	Flags = (O_CREAT | O_EXCL | O_RDWR);
+
+	/* Create a new file in read/write mode */
 
 	if ((m_oHandle = open(a_pccName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
-		RetVal = KErrNone;
-	}
-	else
-	{
-		if (errno == EEXIST)
+		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
+		/* multiple locks on individual files */
+
+		if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
 		{
-			RetVal = KErrAlreadyExists;
-		}
-		else if (errno == ENOENT)
-		{
-			// TODO: CAW - Finish these
-			// RetVal = KErrNotFound; // TODO: CAW - WTF?  How does this differ from KErrPathNotFound?
-			RetVal = KErrPathNotFound;
+			RetVal = KErrNone;
 		}
 		else
 		{
+			Utils::Info("RFile::Create() => Unable to lock file for exclusive access");
+
 			RetVal = KErrGeneral;
+
+			Close();
 		}
+	}
+	else
+	{
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+		RetVal = MapLastOpenError(a_pccName);
 	}
 
 #else /* ! __linux__ */
@@ -118,6 +125,74 @@ TInt RFile::Create(const char *a_pccName, TUint a_uiFileMode)
 
 	return(RetVal);
 }
+
+#ifdef __linux__
+
+/* Written: Monday 09-Oct-2012 5:47 am */
+/* @param	a_pccName		Ptr to the name of the file to be checked */
+/* @return	KErrNone if successful */
+/*			KErrAlreadyExists if the file already exists */
+/*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotEnoughMemory if not enough memory was available */
+/*			KErrGeneral if some other unexpected error occurred */
+/* Maps the last error that occurred from a UNIX error to a Symbian style error. */
+/* This will also handle the case where a file was not found, by checking to see */
+/* if its path exists, thus differentiating between the file not existing and the */
+/* path to that file not existing */
+
+TInt RFile::MapLastOpenError(const char *a_pccName)
+{
+	char *Name;
+	TInt NameOffset, RetVal;
+	struct stat Stat;
+
+	/* See what the last error was */
+
+	RetVal = Utils::MapLastError();
+
+	/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
+	/* must do a little extra work to determine this */
+
+	if (RetVal == KErrNotFound)
+	{
+		/* Determine the path to the file that was opened */
+
+		// TODO: CAW - Create a Utils::PathPart().  Rename a_pccName to a_pccFileName everywhere
+		NameOffset = (Utils::FilePart(a_pccName) - a_pccName);
+
+		/* If the file is not in the current directory then check if the path exists */
+
+		if (NameOffset > 0)
+		{
+			/* Allocate a buffer long enough to hold the path to the file */
+
+			if ((Name = new char[NameOffset + 1]) != NULL)
+			{
+				memcpy(Name, a_pccName, NameOffset);
+				Name[--NameOffset] = '\0';
+
+				/* Now check for the existence of the file */
+
+				if (stat(Name, &Stat) == -1)
+				{
+					RetVal = KErrPathNotFound;
+				}
+
+				delete [] Name;
+			}
+			else
+			{
+				Utils::Info("RFile::MapLastOpenError() => Out of memory");
+
+				RetVal = KErrNoMemory;
+			}
+		}
+	}
+
+	return(RetVal);
+}
+
+#endif /* __linux__ */
 
 /* Written: Monday 19-Apr-2010 6:26 am */
 /* @param	a_pccName		Ptr to the name of the file to be created */
@@ -155,6 +230,7 @@ TInt RFile::Replace(const char *a_pccName, TUint a_uiFileMode)
 /* @return	KErrNone if successful */
 /*			KErrPathNotFound if the path to the file does not exist */
 /*			KErrNotFound if the path is ok, but the file does not exist */
+/*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
 /* in the file mode EFileRead, EFileWrite, or a logical combination of them both.  If the file mode */
@@ -182,24 +258,34 @@ TInt RFile::Open(const char *a_pccName, TUint a_uiFileMode)
 
 	TInt Flags;
 
+	/* Open an existing file in read or read/write mode as requested */
+
 	Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
 
 	if ((m_oHandle = open(a_pccName, Flags, 0)) != -1)
 	{
-		RetVal = KErrNone;
-	}
-	else
-	{
-		if (errno == ENOENT)
+		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
+		/* multiple locks on individual files */
+
+		if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
 		{
-			// TODO: CAW - Finish these
-			RetVal = KErrNotFound; // TODO: CAW - WTF?  How does this differ from KErrPathNotFound?  These all need to be documented
-			//RetVal = KErrPathNotFound;
+			RetVal = KErrNone;
 		}
 		else
 		{
+			Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
 			RetVal = KErrGeneral;
+
+			Close();
 		}
+	}
+	else
+	{
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+		RetVal = MapLastOpenError(a_pccName);
+
 	}
 
 #else /* ! __linux__ */
@@ -364,7 +450,7 @@ void RFile::Close()
 
 	if (m_oHandle != -1)
 	{
-		DEBUGCHECK(close(m_oHandle) == 0); // TODO: CAW - Assert below as well?
+		DEBUGCHECK((close(m_oHandle) == 0), "RFile::Close() => Unable to close file"); // TODO: CAW - Assert below as well?
 		m_oHandle = -1;
 	}
 
