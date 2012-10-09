@@ -74,7 +74,11 @@ TInt Utils::MapLastError()
 
 #elif defined(__linux__)
 
-	if (errno == ENOENT)
+	if (errno == EEXIST)
+	{
+		RetVal = KErrAlreadyExists;
+	}
+	else if (errno == ENOENT)
 	{
 		RetVal = KErrNotFound;
 	}
