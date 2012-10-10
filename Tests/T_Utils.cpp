@@ -170,7 +170,11 @@ int main()
 
 	Test.Next("Ensure that trying to delete an object that is in use acts sanely");
 
-	/* Create a file and try to delete it while it is open for writing */
+	/* Delete any old file hanging around from prior runs, then create a file and try */
+	/* to delete it while it is open for writing */
+
+	Result = BaflUtils::DeleteFile("File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
@@ -228,6 +232,9 @@ int main()
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	test(Result == KErrNone);
+
+	Result = BaflUtils::DeleteFile("File.txt");
 	test(Result == KErrNone);
 
 	Test.End();
