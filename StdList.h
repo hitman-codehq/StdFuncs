@@ -40,7 +40,7 @@ public:
 		++m_iCount;
 	}
 
-	TInt Count()
+	TInt Count() const
 	{
 		return(m_iCount);
 	}

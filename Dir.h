@@ -64,12 +64,9 @@ public:
 
 class TEntryArray
 {
-	TInt				iCount;		// TODO: CAW - Should this be in the StdList? Why does list have a ptr to this class?
 	StdList<TEntry>		iEntries;	/* List of entries */
 
 public:
-
-	TEntryArray();
 
 	/* Note that having a destructor in T classes is non standard, but this is required */
 	/* to free the iEntries array, and this class is really private to RDir anyway */

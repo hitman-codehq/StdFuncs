@@ -159,13 +159,6 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttr
 	iModified = a_roDateTime;
 }
 
-/* Written: Saturday 03-Nov-2007 5:57 pm */
-
-TEntryArray::TEntryArray()
-{
-	iCount = 0;
-};
-
 /* Written: Saturday 03-Nov-2007 5:58 pm */
 
 TEntryArray::~TEntryArray()
@@ -189,7 +182,6 @@ TEntry *TEntryArray::Append(const char *a_pccName)
 
 		/* And append the node to the list */
 
-		++iCount;
 		iEntries.AddTail(Entry);
 	}
 
@@ -200,7 +192,7 @@ TEntry *TEntryArray::Append(const char *a_pccName)
 
 TInt TEntryArray::Count() const
 {
-	return(iCount);
+	return(iEntries.Count());
 }
 
 /* Written: Saturday 03-Nov-2007 6:20 pm */
@@ -245,10 +237,6 @@ void TEntryArray::Purge()
 	{
 		delete Entry;
 	}
-
-	/* And indicate that the array is now empty */
-
-	iCount = 0;
 }
 
 /* Written: Saturday 11-Jul-2008 11:42 pm */
@@ -256,7 +244,6 @@ void TEntryArray::Purge()
 void TEntryArray::Remove(const TEntry *a_poEntry)
 {
 	iEntries.Remove((TEntry *) a_poEntry);
-	--iCount;
 }
 
 /* Written: Saturday 03-Nov-2007 5:24 pm */
