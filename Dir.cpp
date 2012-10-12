@@ -280,11 +280,77 @@ RDir::RDir()
 	iSingleEntryOk = EFalse;
 }
 
+#ifdef WIN32
+
+/* Written: Friday 12-Oct-2012 5:39 am, Maxhotel Lindau */
+/* @param	a_poFindData	Windows specific information about a scanned file */
+/* @return	KErrNone if the entry was appended successfully */
+/*			KErrNoMemory if not enough memory was available */
+/*			KErrGeneral if some other unspecified error occurred */
+/* This Windows specific function will take a structure containing information about */
+/* a scanned file and will convert it to the internal TEntry format used by the */
+/* framework.  It will then append it to the list of entries representing the directory */
+/* that has been scanned */
+
+TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
+{
+	TInt RetVal;
+	TEntry *Entry;
+	SYSTEMTIME SystemTime;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+	/* Only add the entry if it is not one of the pseudo directory entries */
+
+	if ((strcmp(a_poFindData->cFileName, ".")) && (strcmp(a_poFindData->cFileName, "..")))
+	{
+		/* Allocate a TEntry structure and simultaneously append it to the list */
+
+		if ((Entry = iEntries.Append(a_poFindData->cFileName)) != NULL)
+		{
+			/* Determine the time that the object was last written to */
+
+			if (FileTimeToSystemTime(&a_poFindData->ftLastWriteTime, &SystemTime))
+			{
+				/* Convert the Windows time to a generic framework time structure */
+
+				TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay,
+					SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
+
+				/* And populate the TEntry structure with the rest of the information */
+
+				// TODO: CAW - Link stuff, here and in Utils.cpp.  Can this be a reusable function?
+				Entry->Set((a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, a_poFindData->nFileSizeLow, a_poFindData->dwFileAttributes, DateTime);
+				Entry->iPlatformDate = a_poFindData->ftLastWriteTime;
+			}
+			else
+			{
+				Utils::Info("RDir::AppendDirectoryEntry() => Unable to determine time of file or directory");
+
+				RetVal = KErrGeneral;
+			}
+		}
+		else
+		{
+			Utils::Info("RDir::AppendDirectoryEntry() => Unable to convert Windows time to generic framework time");
+
+			RetVal = KErrNoMemory;
+		}
+	}
+
+	return(RetVal);
+}
+
+#endif /* WIN32 */
+
 /* Written: Saturday 03-Nov-2007 4:43 pm */
 /* @param	a_pccPattern	OS specific path and wildcard to scan */
 /* @return	KErrNone if directory was opened successfully */
 /*			KErrNotFound if the directory or file could not be opened for scanning */
 /*			KErrNoMemory if not enough memory was available */
+/*			KErrGeneral if some other unspecified error occurred */
 /* This function prepares to scan a file or directory.  The a_pccPattern parameter can */
 /* refer to either a directory name, a single filename, a wildcard pattern or a combination */
 /* thereof.  Examples are: */
@@ -490,65 +556,39 @@ TInt RDir::Open(const char *a_pccPattern)
 #else /* ! __linux__ */
 
 	char Path[10240]; // TODO: CAW
+	const char *FileName;
 	WIN32_FIND_DATA FindData;
+
+	/* Only try to scan a directory if it wasn't a single file name that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
-		// TODO: CAW - Should only scan the end of a_pccPattern using FilePart()
-		if (!(strstr(a_pccPattern, "*")) && (!(strstr(a_pccPattern, "?"))))
+		/* We may or may not need to append a wildcard, depending on whether there */
+		/* is already one in the pattern passed in, so determine this and build a */
+		/* wildcard pattern to scan for as appropriate */
+
+		FileName = Utils::FilePart(a_pccPattern);
+
+		if (!(strstr(FileName, "*")) && !(strstr(FileName, "?")))
 		{
-			if (strlen(a_pccPattern) > 0)
-			{
-				strcpy(Path, a_pccPattern);
-				strcat(Path, "/*.*");
-			}
-			else
-			{
-				strcpy(Path, "*.*"); // TODO: CAW - Needed
-			}
+			strcpy(Path, a_pccPattern);
+			DEBUGCHECK((Utils::AddPart(Path, "*.*", sizeof(Path)) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
 		}
 		else
 		{
-			strcpy(Path, a_pccPattern); // TODO: CAW - Needed
+			strcpy(Path, a_pccPattern);
 		}
+
+		/* Scan the directory using the wildcard and find the first entry */
 
 		if ((iHandle = FindFirstFile(Path, &FindData)) != INVALID_HANDLE_VALUE)
 		{
-			RetVal = KErrNone;
-
-			if ((strcmp(FindData.cFileName, ".")) && (strcmp(FindData.cFileName, "..")))
-			{
-				// TODO: CAW - What frees that + all in one function please + name + finish date time stuff
-				TEntry *Lah = iEntries.Append(FindData.cFileName);
-
-				if (Lah)
-				{
-					SYSTEMTIME SystemTime;
-
-					if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
-					{
-						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
-
-						// TODO: CAW - Link stuff, here and in Utils.cpp
-						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime);
-						Lah->iPlatformDate = FindData.ftLastWriteTime;
-					}
-					else
-					{
-						RetVal = KErrGeneral; // TODO: CAW + this stuff is done here twice and in Utils::GetFileInfo()
-					}
-				}
-				else
-				{
-					RetVal = KErrNoMemory;
-				}
-			}
+			RetVal = AppendDirectoryEntry(&FindData);
 		}
 		else
 		{
-			// TODO: CAW - Ensure these match Symbian return values. Not finding a file is ok as it means
-			//			that the directory was opened successfully but that no files were in it. Write a
-			//			test case to handle this situation
+			// TODO: CAW - Not finding a file is ok as it means that the directory was opened
+			// successfully but that no files were in it. Write a test case to handle this
 			if (GetLastError() == ERROR_FILE_NOT_FOUND)
 			{
 				RetVal = KErrNone;
@@ -856,40 +896,23 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	WIN32_FIND_DATA FindData;
 
+	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+
 	if (!(iSingleEntryOk))
 	{
-		// TODO: CAW - How to tell if this has failed or run out of files?
 		while (FindNextFile(iHandle, &FindData))
 		{
-			if ((strcmp(FindData.cFileName, ".")) && (strcmp(FindData.cFileName, "..")))
+			if ((RetVal = AppendDirectoryEntry(&FindData)) != KErrNone)
 			{
-				// TODO: CAW - What frees that + all in one function please + name + finish date time stuff
-				TEntry *Lah = iEntries.Append(FindData.cFileName);
-
-				if (Lah)
-				{
-					SYSTEMTIME SystemTime;
-
-					// TODO: CAW - This should take DST into account. What about on Amiga OS?
-					if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
-					{
-						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
-
-						Lah->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0/*EXD_IS_LINK(Entry)*/, FindData.nFileSizeLow, FindData.dwFileAttributes, DateTime);
-						Lah->iPlatformDate = FindData.ftLastWriteTime;
-					}
-					else
-					{
-						RetVal = KErrGeneral; // TODO: CAW
-					}
-				}
-				else
-				{
-					RetVal = KErrNoMemory;
-
-					break;
-				}
+				break;
 			}
+		}
+
+		/* Determine whether we ran out of files to scan or an error occurred when scanning */
+
+		if (GetLastError() !=  ERROR_NO_MORE_FILES)
+		{
+			RetVal = KErrGeneral;
 		}
 	}
 

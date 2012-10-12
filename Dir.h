@@ -103,8 +103,16 @@ public:
 
 	void Close();
 
-	// TODO: CAW - Is it possible to make this more Symbian like?
+	// TODO: CAW - Is it possible to make this more Symbian like?  What about ordering of functions/members in here?
 	TInt Read(TEntryArray *&a_rpoEntries);
+
+private:
+
+#ifdef WIN32
+
+	TInt AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData);
+
+#endif /* WIN32 */
 
 private:
 
