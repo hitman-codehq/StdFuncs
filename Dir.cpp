@@ -595,8 +595,6 @@ TInt RDir::Open(const char *a_pccPattern)
 			}
 			else
 			{
-				// TODO: CAW - Not finding a file is ok as it means that the directory was opened
-				// successfully but that no files were in it. Write a test case to handle this
 				if (GetLastError() == ERROR_FILE_NOT_FOUND)
 				{
 					RetVal = KErrNone;

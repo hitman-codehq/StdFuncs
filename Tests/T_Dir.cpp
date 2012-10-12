@@ -140,6 +140,23 @@ int main()
 
 	g_oDir.Close();
 
+	/* Test #11: Ensure an empty directory can be scanned without problem */
+
+	Test.Next("Ensure an empty directory can be scanned without problem");
+
+	Result = Utils::CreateDirectory("EmptyDirectory");
+	test((Result == KErrNone) || (Result == KErrAlreadyExists));
+
+	test(g_oDir.Open("EmptyDirectory") == KErrNone);
+	test(g_oDir.Read(Entries) == KErrNone);
+	test(Entries->Count() == 0);
+
+	g_oDir.Close();
+
+	/* Clean up after ourselves */
+
+	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
+
 	Test.End();
 
 	return(RETURN_OK);
