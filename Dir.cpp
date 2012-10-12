@@ -682,6 +682,14 @@ void RDir::Close()
 }
 
 /* Written: Saturday 03-Nov-2007 5:38 pm */
+/* @param	a_roEntries	Reference to a ptr into which to place a ptr to the */
+/*						array of entries read by this function */
+/* @return	KErrNone if successful */
+/*			KErrNoMemory if not enough memory was available */
+/*			KErrGeneral if some other unspecified error occurred */
+/* Scans a directory that has been prepared with RDir::Open() and populates a list */
+/* with all of the entries found.  This list is then returned to the calling client */
+/* code */
 
 TInt RDir::Read(TEntryArray *&a_roEntries)
 {
@@ -815,7 +823,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	{
 		if (!(iSingleEntryOk))
 		{
-			RetVal = KErrGeneral; // TODO: CAW - What should this be?
+			RetVal = KErrGeneral; // TODO: CAW - What should this be?  Check all return values in here and update description
 		}
 	}
 
