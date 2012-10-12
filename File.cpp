@@ -464,7 +464,7 @@ void RFile::Close()
 
 #else /* ! __amigaos4__ */
 
-		CloseHandle(m_oHandle);
+		DEBUGCHECK((CloseHandle(m_oHandle) != FALSE), "RFile::Close() => Unable to close file");
 
 #endif /* ! __amigaos4__ */
 
