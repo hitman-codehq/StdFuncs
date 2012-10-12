@@ -640,15 +640,6 @@ void RDir::Close()
 	delete [] iPath;
 	iPath = NULL;
 
-#elif defined(__linux__)
-
-	delete [] iPathBuffer;
-	iPathBuffer = iPath = iPattern = NULL;
-
-#endif /* ! __linux__ */
-
-#ifdef __amigaos4__
-
 	delete [] iPattern;
 	iPattern = NULL;
 
@@ -659,6 +650,9 @@ void RDir::Close()
 	}
 
 #elif defined(__linux__)
+
+	delete [] iPathBuffer;
+	iPathBuffer = iPath = iPattern = NULL;
 
 	if (iDir)
 	{
