@@ -157,6 +157,12 @@ int main()
 
 	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
 
+	/* Test #12: Ensure calling RDir::Read() on an unopened RDir fails gracefully */
+
+	Test.Next("Ensure calling RDir::Read() on an unopened RDir fails gracefully");
+
+	test(g_oDir.Read(Entries) == KErrGeneral);
+
 	Test.End();
 
 	return(RETURN_OK);

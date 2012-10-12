@@ -923,18 +923,27 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	if (!(iSingleEntryOk))
 	{
-		while (FindNextFile(iHandle, &FindData))
+		if (iHandle)
 		{
-			if ((RetVal = AppendDirectoryEntry(&FindData)) != KErrNone)
+			while (FindNextFile(iHandle, &FindData))
 			{
-				break;
+				if ((RetVal = AppendDirectoryEntry(&FindData)) != KErrNone)
+				{
+					break;
+				}
+			}
+
+			/* Determine whether we ran out of files to scan or an error occurred when scanning */
+
+			if (GetLastError() !=  ERROR_NO_MORE_FILES)
+			{
+				RetVal = KErrGeneral;
 			}
 		}
-
-		/* Determine whether we ran out of files to scan or an error occurred when scanning */
-
-		if (GetLastError() !=  ERROR_NO_MORE_FILES)
+		else
 		{
+			Utils::Info("RDir::Read() => Unable to scan an unopened directory");
+
 			RetVal = KErrGeneral;
 		}
 	}
