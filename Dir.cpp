@@ -555,48 +555,65 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #else /* ! __linux__ */
 
-	char Path[10240]; // TODO: CAW
+	char *Path;
 	const char *FileName;
+	TInt Length;
 	WIN32_FIND_DATA FindData;
 
 	/* Only try to scan a directory if it wasn't a single file name that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
-		/* We may or may not need to append a wildcard, depending on whether there */
-		/* is already one in the pattern passed in, so determine this and build a */
-		/* wildcard pattern to scan for as appropriate */
+		/* Allocate a buffer large enough to hold the path to be scanned and the */
+		/* wildcard pattern used to scan it ("/*.*\0" == 5 bytes) */
 
-		FileName = Utils::FilePart(a_pccPattern);
+		Length = (strlen(a_pccPattern) + 5);
 
-		if (!(strstr(FileName, "*")) && !(strstr(FileName, "?")))
+		if ((Path = new char[Length]) != NULL)
 		{
-			strcpy(Path, a_pccPattern);
-			DEBUGCHECK((Utils::AddPart(Path, "*.*", sizeof(Path)) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
-		}
-		else
-		{
-			strcpy(Path, a_pccPattern);
-		}
+			/* We may or may not need to append a wildcard, depending on whether there */
+			/* is already one in the pattern passed in, so determine this and build a */
+			/* wildcard pattern to scan for as appropriate */
 
-		/* Scan the directory using the wildcard and find the first entry */
+			FileName = Utils::FilePart(a_pccPattern);
 
-		if ((iHandle = FindFirstFile(Path, &FindData)) != INVALID_HANDLE_VALUE)
-		{
-			RetVal = AppendDirectoryEntry(&FindData);
-		}
-		else
-		{
-			// TODO: CAW - Not finding a file is ok as it means that the directory was opened
-			// successfully but that no files were in it. Write a test case to handle this
-			if (GetLastError() == ERROR_FILE_NOT_FOUND)
+			if (!(strstr(FileName, "*")) && !(strstr(FileName, "?")))
 			{
-				RetVal = KErrNone;
+				strcpy(Path, a_pccPattern);
+				DEBUGCHECK((Utils::AddPart(Path, "*.*", Length) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
 			}
 			else
 			{
-				RetVal = KErrNotFound;
+				strcpy(Path, a_pccPattern);
 			}
+
+			/* Scan the directory using the wildcard and find the first entry */
+
+			if ((iHandle = FindFirstFile(Path, &FindData)) != INVALID_HANDLE_VALUE)
+			{
+				RetVal = AppendDirectoryEntry(&FindData);
+			}
+			else
+			{
+				// TODO: CAW - Not finding a file is ok as it means that the directory was opened
+				// successfully but that no files were in it. Write a test case to handle this
+				if (GetLastError() == ERROR_FILE_NOT_FOUND)
+				{
+					RetVal = KErrNone;
+				}
+				else
+				{
+					RetVal = KErrNotFound;
+				}
+			}
+
+			delete [] Path;
+		}
+		else
+		{
+			Utils::Info("RDir::Open() => Out of memory");
+
+			RetVal = KErrNoMemory;
 		}
 	}
 
