@@ -82,29 +82,32 @@ int main()
 
 	Test.Next("Creating and opening files with RFile::Create() and RFile::Open()");
 
+	/* Ensure that files cannot be opened in a shared mode when created */
+	/* with RFile::Create() */
+
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	/* Ensure that files cannot be opened in a shared mode */
-
 	Result = File2.Open("File.txt", EFileRead);
-	test(Result == KErrGeneral);
+	test(Result == KErrInUse);
 
 	Result = File2.Open("File.txt", EFileWrite);
-	test(Result == KErrGeneral);
+	test(Result == KErrInUse);
 
 	File.Close();
+
+	/* Ensure that files cannot be opened in a shared mode when opened */
+	/* with RFile::Open() */
+	// TODO: CAW - What about EFileRead shared mode?
 
 	Result = File.Open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	/* Ensure that files cannot be opened in a shared mode */
-
 	Result = File2.Open("File.txt", EFileRead);
-	test(Result == KErrGeneral);
+	test(Result == KErrInUse);
 
 	Result = File2.Open("File.txt", EFileWrite);
-	test(Result == KErrGeneral);
+	test(Result == KErrInUse);
 
 	File.Close();
 
