@@ -552,7 +552,7 @@ TInt RDir::Open(const char *a_pccPattern)
 	if (!(iSingleEntryOk))
 	{
 		/* Allocate a buffer large enough to hold the path to be scanned and the */
-		/* wildcard pattern used to scan it ("/*.*\0" == 5 bytes) */
+		/* wildcard pattern used to scan it (wildcard + \0" == 5 bytes) */
 
 		Length = (strlen(a_pccPattern) + 5);
 
