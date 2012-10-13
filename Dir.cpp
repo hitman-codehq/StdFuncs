@@ -356,7 +356,6 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 /* "SomeFile" */
 /* "SomeDir/SomeFile.txt" */
 
-// TODO: CAW - For all versions, this should only open the directory, not scan it
 TInt RDir::Open(const char *a_pccPattern)
 {
 	TInt RetVal;
@@ -399,34 +398,44 @@ TInt RDir::Open(const char *a_pccPattern)
 	LONG Result;
 	STRPTR FileNameOffset;
 
-	/* Allocate a buffer for the path passed in and save it for l8r use */
+	/* Only try to scan a directory if it wasn't a single file name that was passed in */
 
-	// TODO: CAW - Make like Windows version, here and in Read().  When done make all checks for iSingleEntryOk
-	//             into one for all platforms
-	if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
+	if (!(iSingleEntryOk))
 	{
-		strcpy(iPath, a_pccPattern);
+		/* Allocate a buffer for the path passed in and save it for l8r use in RDir::Read(). */
+		/* It is required in order to examine links */
 
-		if (!(iSingleEntryOk))
+		if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
 		{
-			Length = (strlen(a_pccPattern) * 2 + 4 + 2); // TODO: CAW
+			strcpy(iPath, a_pccPattern);
+
+			/* We may or may not need to use a pattern, depending on whether there is one */
+			/* passed in, so determine this and build a pattern to scan for as appropriate */
+
+			Pattern	= Utils::FilePart(a_pccPattern);
+
+			/* According to dos.doc, the buffer used must be at least twice the size of */
+			/* the pattern it is scanning + 2 */
+
+			Length = (strlen(Pattern) * 2 + 2);
 
 			if ((iPattern = new char[Length]) != NULL)
 			{
 				RetVal = KErrNone;
 
-				Pattern = IDOS->FilePart(a_pccPattern);
-
-				if (*Pattern == '\0')
-				{
-					Pattern = "#?"; // TODO: CAW - Needed?
-				}
+				/* See if a pattern was passed in */
 
 				if ((Result = IDOS->ParsePatternNoCase(Pattern, iPattern, Length)) == 1)
 				{
+					/* We are using a pattern so remove it from the base path, which we */
+					/* want to point just to the directory */
+
 					FileNameOffset = IDOS->PathPart(iPath);
 					iPath[FileNameOffset - iPath] = '\0';
 				}
+
+				/* No pattern is in use so indicate this */
+
 				else if (Result == 0)
 				{
 					delete [] iPattern;
@@ -434,7 +443,7 @@ TInt RDir::Open(const char *a_pccPattern)
 				}
 				else
 				{
-					RetVal = KErrGeneral; // TODO: CAW + all errors need to be checked here and documentation updated
+					RetVal = KErrGeneral;
 				}
 			}
 
@@ -445,11 +454,7 @@ TInt RDir::Open(const char *a_pccPattern)
 				iContext = IDOS->ObtainDirContextTags(EX_StringNameInput, iPath,
 					EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
 
-				if (iContext)
-				{
-					RetVal = KErrNone; // TODO: CAW
-				}
-				else
+				if (!(iContext))
 				{
 					Result = IDOS->IoErr();
 
@@ -463,6 +468,12 @@ TInt RDir::Open(const char *a_pccPattern)
 					}
 				}
 			}
+		}
+		else
+		{
+			Utils::Info("RDir::Open() => Out of memory");
+
+			RetVal = KErrNoMemory;
 		}
 	}
 
@@ -698,7 +709,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	Error = EFalse;
 
-	if (iContext) // TODO: CAW - Test without this + perform full failure testing
+	if (iContext)
 	{
 		while ((ExamineData = IDOS->ExamineDir(iContext)) != NULL)
 		{
@@ -713,7 +724,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 			{
 				if (!(IDOS->MatchPatternNoCase(iPattern, ExamineData->Name)))
 				{
-					AddFile = EFalse; // TODO: CAW - What about error checking using IDOS->IoErr() below?
+					AddFile = EFalse;
 				}
 			}
 
@@ -807,7 +818,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	{
 		if (!(iSingleEntryOk))
 		{
-			RetVal = KErrGeneral; // TODO: CAW - What should this be?  Check all return values in here and update description
+			RetVal = KErrGeneral;
 		}
 	}
 
