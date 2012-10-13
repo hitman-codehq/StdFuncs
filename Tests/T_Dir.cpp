@@ -77,49 +77,42 @@ int main()
 	Test.Next("Test that Open() without wildcards works");
 	TestScan("");
 
-	/* Test #3: Test that Open() with current directory works */
-
-	Test.Next("Test that Open() with current directory works");
-	TestScan(".");
-
-	/* Test #4: Test that Open() with a directory path works */
+	/* Test #3: Test that Open() with a directory path works */
 
 	Test.Next("Test that Open() with a directory path works");
 	TestScan("SomeDir", 1, 174);
 	TestScan("SomeDir/", 1, 174);
-	TestScan("../Tests/SomeDir", 1, 174);
-	TestScan("../Tests/SomeDir/", 1, 174);
 
-	/* Test #5: Test that Open() with wildcards works */
+	/* Test #4: Test that Open() with wildcards works */
 
 	Test.Next("Test that Open() with wildcards works");
 	TestScan("*");
 	TestScan("*.dsw", 1, 2204);
 	TestScan("SomeDir/*.txt", 1, 174);
 
-	/* Test #6: Test that Open() with a filename works */
+	/* Test #5: Test that Open() with a filename works */
 
 	Test.Next("Test that Open() with a filename works");
 	TestScan("T_Dir.cpp");
 	TestScan("SomeDir/SomeFile.txt", 1, 174);
 
-	/* Test #7: Test that Open() with an invalid path works */
+	/* Test #6: Test that Open() with an invalid path works */
 
 	Test.Next("Test that Open() with an invalid path works");
 	Result = g_oDir.Open("x");
 	test(Result == KErrNotFound);
 
-	/* Test #8: Test calling Close() after a failed Open() */
+	/* Test #7: Test calling Close() after a failed Open() */
 
 	Test.Next("Test calling Close() after a failed Open()");
 	g_oDir.Close();
 
-	/* Test #9: Test calling Close() a second time */
+	/* Test #8: Test calling Close() a second time */
 
 	Test.Next("Test calling Close() a second time");
 	g_oDir.Close();
 
-	/* Test #10: Test similar to Test #7 of T_Utils.cpp, but using RDir to */
+	/* Test #9: Test similar to Test #7 of T_Utils.cpp, but using RDir to */
 	/* confirm results rather than Utils::GetFileInfo() */
 
 	Test.Next("Ensure that date and time can be read by RDir");
@@ -156,7 +149,7 @@ int main()
 
 	g_oDir.Close();
 
-	/* Test #11: Ensure an empty directory can be scanned without problem */
+	/* Test #10: Ensure an empty directory can be scanned without problem */
 
 	Test.Next("Ensure an empty directory can be scanned without problem");
 
@@ -169,16 +162,32 @@ int main()
 
 	g_oDir.Close();
 
-	/* Clean up after ourselves */
-
-	test(BaflUtils::DeleteFile("TimeFile.txt") == KErrNone);
-	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
-
-	/* Test #12: Ensure calling RDir::Read() on an unopened RDir fails gracefully */
+	/* Test #11: Ensure calling RDir::Read() on an unopened RDir fails gracefully */
 
 	Test.Next("Ensure calling RDir::Read() on an unopened RDir fails gracefully");
 
 	test(g_oDir.Read(Entries) == KErrGeneral);
+
+#ifndef __amigaos4__
+
+	/* The framework usually works identically on all platforms, but as there are */
+	/* subtle differences between different platforms when it comes to paths, this */
+	/* is one area where we don't try to retain identical behaviour across platforms. */
+	/* So only test these paths on non Amiga OS systems */
+
+	/* Test #12: Test some paths that only work on Windows and UNIX */
+
+	Test.Next("Test some paths that only work on Windows and UNIX");
+	TestScan(".");
+	TestScan("../Tests/SomeDir", 1, 174);
+	TestScan("../Tests/SomeDir/", 1, 174);
+
+#endif /* ! __amigaos4__ */
+
+	/* Clean up after ourselves */
+
+	test(BaflUtils::DeleteFile("TimeFile.txt") == KErrNone);
+	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
 
 	Test.End();
 
