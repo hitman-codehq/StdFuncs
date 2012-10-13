@@ -171,6 +171,7 @@ int main()
 
 	/* Clean up after ourselves */
 
+	test(BaflUtils::DeleteFile("TimeFile.txt") == KErrNone);
 	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
 
 	/* Test #12: Ensure calling RDir::Read() on an unopened RDir fails gracefully */
