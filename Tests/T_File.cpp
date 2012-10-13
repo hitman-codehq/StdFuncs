@@ -97,10 +97,23 @@ int main()
 	File.Close();
 
 	/* Ensure that files cannot be opened in a shared mode when opened */
-	/* with RFile::Open() */
-	// TODO: CAW - What about EFileRead shared mode?
+	/* with RFile::Open() in writeable mode */
 
 	Result = File.Open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = File2.Open("File.txt", EFileRead);
+	test(Result == KErrInUse);
+
+	Result = File2.Open("File.txt", EFileWrite);
+	test(Result == KErrInUse);
+
+	File.Close();
+
+	/* Ensure that files cannot be opened in a shared mode when opened */
+	/* with RFile::Open() in read only mode */
+
+	Result = File.Open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
 	Result = File2.Open("File.txt", EFileRead);
