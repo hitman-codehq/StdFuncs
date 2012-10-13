@@ -4,13 +4,14 @@
 #include <Dir.h>
 #include <File.h>
 #include <Test.h>
+#include <string.h>
 
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
 
 static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSize = 0)
 {
-	int Count, Index, Result;
+	int Count, Index, FileIndex, Result;
 
 	/* Test opening using the path passed in */
 
@@ -24,11 +25,26 @@ static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSi
 	test(Result == KErrNone);
 
 	Count = Entries->Count();
+	FileIndex = 0;
 	Test.Printf("Path \"%s\" count = %d\n", a_pccPath, Count);
 
-	for (Index = 0; Index < Count; ++Index)
+	/* Scan through the entries and list them.  We also want to filter out any instances */
+	/* of the .svn directory that appear, as these are present on some operating systems */
+	/* and not others */
+
+	for (Index = 0; Index < Entries->Count(); ++Index)
 	{
-		Test.Printf("%s, size = %d\n", (*Entries)[Index].iName, (*Entries)[Index].iSize);
+		/* If the .svn directory was found then reduce the count of objects present */
+
+		if (strcmp((*Entries)[Index].iName, ".svn") == 0)
+		{
+			--Count;
+		}
+		else
+		{
+			Test.Printf("%s, size = %d\n", (*Entries)[Index].iName, (*Entries)[Index].iSize);
+			FileIndex = Index;
+		}
 	}
 
 	/* If a count has been explicitly passed in then ensure that it matches the number found */
@@ -37,7 +53,7 @@ static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSi
 	{
 		Test.Printf("Ensuring count and size match\n");
 		test(Count == a_iCount);
-		test((*Entries)[0].iSize == a_iSize);
+		test((*Entries)[FileIndex].iSize == a_iSize);
 	}
 
 	g_oDir.Close();
