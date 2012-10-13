@@ -2,14 +2,13 @@
 #include "StdFuncs.h"
 #include "BaUtils.h"
 #include "File.h"
+#include <string.h>
 
 #ifdef __linux__
 
 #include <errno.h>
 #include <fcntl.h>
-#include <string.h>
 #include <sys/file.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #endif /* __linux__ */
@@ -25,6 +24,7 @@ RFile::RFile()
 
 #else /* ! __linux__ */
 
+	m_uiFileMode = 0;
 	m_oHandle = 0;
 
 #endif /* ! __linux__ */
@@ -52,14 +52,36 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Map Symbian -> Amiga open modes, here and in Open(). Return correct errors and update test for all ports
-	if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
+	TEntry Entry;
+
+	/* Only create the file if it does not already exist.  Amiga OS does not */
+	/* have a mode that allows us to do this so we have to manually perform a */
+	/* check ourselves */
+
+	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
 	{
-		RetVal = KErrNone;
+		// TODO: CAW - Map Symbian -> Amiga open modes, here and in Open(). Return correct errors and update test for all ports
+		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
+		{
+			RetVal = KErrNone;
+
+			m_uiFileMode = EFileWrite;
+		}
+		else
+		{
+			if (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND)
+			{
+				RetVal = KErrPathNotFound;
+			}
+			else
+			{
+				RetVal = KErrGeneral;
+			}
+		}
 	}
 	else
 	{
-		RetVal = KErrNotFound;
+		RetVal = KErrAlreadyExists;
 	}
 
 #elif defined(__linux__)
@@ -126,7 +148,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	return(RetVal);
 }
 
-#ifdef __linux__
+#ifndef WIN32
 
 /* Written: Monday 09-Oct-2012 5:47 am */
 /* @param	a_pccFileName		Ptr to the name of the file to be checked */
@@ -144,7 +166,7 @@ TInt RFile::MapLastOpenError(const char *a_pccFileName)
 {
 	char *Name;
 	TInt NameOffset, RetVal;
-	struct stat Stat;
+	struct TEntry Entry;
 
 	/* See what the last error was */
 
@@ -172,7 +194,7 @@ TInt RFile::MapLastOpenError(const char *a_pccFileName)
 
 				/* Now check for the existence of the file */
 
-				if (stat(Name, &Stat) == -1)
+				if (Utils::GetFileInfo(Name, &Entry) == KErrNotFound)
 				{
 					RetVal = KErrPathNotFound;
 				}
@@ -191,10 +213,10 @@ TInt RFile::MapLastOpenError(const char *a_pccFileName)
 	return(RetVal);
 }
 
-#endif /* __linux__ */
+#endif /* ! WIN32 */
 
 /* Written: Monday 19-Apr-2010 6:26 am */
-/* @param	a_pccFileName		Ptr to the name of the file to be created */
+/* @param	a_pccFileName	Ptr to the name of the file to be created */
 /*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
 /*							API and is ignored (but should be EFileWrite for consistency) */
 /* @return	KErrNone if successful */
@@ -224,11 +246,12 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 }
 
 /* Written: Friday 02-Jan-2009 8:57 pm */
-/* @param	a_pccFileName		Ptr to the name of the file to be opened */
+/* @param	a_pccFileName	Ptr to the name of the file to be opened */
 /*			a_uiFileMode	Mode in which to open the file */
 /* @return	KErrNone if successful */
 /*			KErrPathNotFound if the path to the file does not exist */
 /*			KErrNotFound if the path is ok, but the file does not exist */
+/*			KErrInUse if the file is already open for writing */
 /*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
@@ -242,15 +265,37 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #ifdef __amigaos4__
 
-	(void) a_uiFileMode;
+	/* Open the existing file.  We want to open it as having an exclusive lock */
+	/* and being read only if EFileWrite is not specified but neither of */
+	/* these features are supported by Amiga OS so we will emulate them l8r */
 
 	if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_OLDFILE)) != 0)
 	{
-		RetVal = KErrNone;
+		/* And change the shared lock to an exclusive lock as our API only */
+		/* supports opening files exclusively */
+
+		if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+		{
+			RetVal = KErrNone;
+
+			/* Save the read/write mode for l8r use */
+
+			m_uiFileMode = a_uiFileMode;
+		}
+		else
+		{
+			Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
+			RetVal = KErrGeneral;
+
+			Close();
+		}
 	}
 	else
 	{
-		RetVal = KErrNotFound;
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+		RetVal = MapLastOpenError(a_pccFileName);
 	}
 
 #elif defined(__linux__)
@@ -403,9 +448,21 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 #ifdef __amigaos4__
 
-	RetVal = IDOS->Write(m_oHandle, a_pcucBuffer, a_iLength);
+	/* Only allow writing if the file was opened using the EFileWrite file mode.  Amiga OS */
+	/* doesn't support this functionality so we have to emulate it */
 
-	if (RetVal == -1)
+	if (m_uiFileMode & EFileWrite)
+	{
+		/* Now perform the write and ensure all of the bytes were written */
+
+		RetVal = IDOS->Write(m_oHandle, a_pcucBuffer, a_iLength);
+
+		if (RetVal == -1)
+		{
+			RetVal = KErrGeneral;
+		}
+	}
+	else
 	{
 		RetVal = KErrGeneral;
 	}
@@ -423,6 +480,8 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 #else /* ! __linux__ */
 
 	DWORD BytesWritten;
+
+	/* Perform the write and ensure all of the bytes were written */
 
 	if ((WriteFile(m_oHandle, a_pcucBuffer, a_iLength, &BytesWritten, NULL)) &&
 		((TInt) BytesWritten == a_iLength))

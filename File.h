@@ -18,6 +18,7 @@ class RFile
 
 #ifdef __amigaos4__
 
+	TUint	m_uiFileMode;	/* Mode in which file was opened for access */
 	BPTR	m_oHandle;		/* Handle to the open file or 0 if closed */
 
 #elif defined(__linux__)
