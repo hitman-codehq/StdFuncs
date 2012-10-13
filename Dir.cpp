@@ -50,11 +50,16 @@ TBool TEntry::IsHidden() const
 
 #ifdef __amigaos4__
 
-	return(EFalse); // TODO: CAW + use a similar check to below above?
+	/* Amiga OS does not have the concept of hidden files */
+
+	return(EFalse);
 
 #elif defined(__linux__)
 
-	return(EFalse); // TODO: CAW + use a similar check to below above?
+	/* UNIX does not have the concept of hidden files (we won't count files starting */
+	/* with . as hidden as this is not a function of the filesystem */
+
+	return(EFalse);
 
 #else /* ! __linux__ */
 
