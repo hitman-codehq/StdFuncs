@@ -380,12 +380,8 @@ TInt RDir::Open(const char *a_pccPattern)
 			{
 				RetVal = KErrNone;
 
-				// TODO: CAW - Why isn't this using Set()? Is Set() required?
-				Entry->iIsDir = iSingleEntry.iIsDir;
-				Entry->iIsLink = iSingleEntry.iIsLink;
-				Entry->iSize = iSingleEntry.iSize;
-				Entry->iAttributes = iSingleEntry.iAttributes;
-				Entry->iModified = iSingleEntry.iModified;
+				Entry->Set(iSingleEntry.iIsDir, iSingleEntry.iIsLink, iSingleEntry.iSize, iSingleEntry.iAttributes,
+					iSingleEntry.iModified.DateTime());
 				Entry->iPlatformDate = iSingleEntry.iPlatformDate;
 			}
 		}
