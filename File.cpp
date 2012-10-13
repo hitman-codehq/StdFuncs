@@ -60,7 +60,6 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
 	{
-		// TODO: CAW - Map Symbian -> Amiga open modes, here and in Open(). Return correct errors and update test for all ports
 		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
 		{
 			RetVal = KErrNone;
@@ -69,14 +68,9 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		}
 		else
 		{
-			if (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND)
-			{
-				RetVal = KErrPathNotFound;
-			}
-			else
-			{
-				RetVal = KErrGeneral;
-			}
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+			RetVal = MapLastOpenError(a_pccFileName);
 		}
 	}
 	else
@@ -155,6 +149,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 /* @return	KErrNone if successful */
 /*			KErrAlreadyExists if the file already exists */
 /*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotFound if the path is ok, but the file does not exist */
 /*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Maps the last error that occurred from a UNIX error to a Symbian style error. */
