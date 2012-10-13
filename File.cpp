@@ -508,7 +508,7 @@ void RFile::Close()
 
 	if (m_oHandle != -1)
 	{
-		DEBUGCHECK((close(m_oHandle) == 0), "RFile::Close() => Unable to close file"); // TODO: CAW - Assert below as well?
+		DEBUGCHECK((close(m_oHandle) == 0), "RFile::Close() => Unable to close file");
 		m_oHandle = -1;
 	}
 
@@ -519,7 +519,7 @@ void RFile::Close()
 
 #ifdef __amigaos4__
 
-		IDOS->Close(m_oHandle);
+		DEBUGCHECK((IDOS->Close(m_oHandle) != 0), "RFile::Close() => Unable to close file");
 
 #else /* ! __amigaos4__ */
 
