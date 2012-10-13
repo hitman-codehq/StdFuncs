@@ -70,7 +70,26 @@ TInt Utils::MapLastError()
 
 #ifdef __amigaos4__
 
-	RetVal = KErrGeneral;
+	LONG Result;
+
+	Result = IDOS->IoErr();
+
+	if (Result == ERROR_OBJECT_NOT_FOUND)
+	{
+		RetVal = KErrNotFound;
+	}
+	else if (Result == ERROR_DIR_NOT_FOUND)
+	{
+		RetVal = KErrPathNotFound;
+	}
+	else if ((Result == ERROR_DIRECTORY_NOT_EMPTY) || (Result == ERROR_OBJECT_IN_USE))
+	{
+		RetVal = KErrInUse;
+	}
+	else
+	{
+		RetVal = KErrGeneral;
+	}
 
 #elif defined(__linux__)
 
@@ -340,10 +359,10 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 
 		RetVal = MapLastError();
 
-#ifdef __linux__
+#ifndef WIN32
 
 		char Name[MAX_PATH];
-		struct stat Stat;
+		struct TEntry Entry;
 		TInt NameOffset;
 
 		/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
@@ -359,14 +378,14 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 				memcpy(Name, a_pccDirectoryName, NameOffset);
 				Name[--NameOffset] = '\0';
 
-				if (stat(Name, &Stat) == -1)
+				if (GetFileInfo(Name, &Entry) == KErrNotFound)
 				{
 					RetVal = KErrPathNotFound;
 				}
 			}
 		}
 
-#endif /* __linux__ */
+#endif /* ! WIN32 */
 
 	}
 
