@@ -1,12 +1,11 @@
 
 #include "StdFuncs.h"
 #include "BaUtils.h"
+#include <string.h>
 
 #ifdef __linux__
 
-#include <string.h>
 #include <stdio.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #endif /* __linux__ */
@@ -51,10 +50,10 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 
 		RetVal = Utils::MapLastError();
 
-#ifdef __linux__
+#ifndef WIN32
 
 		char Name[MAX_PATH];
-		struct stat Stat;
+		struct TEntry Entry;
 		TInt NameOffset;
 
 		/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
@@ -70,7 +69,7 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 				memcpy(Name, a_pccFileName, NameOffset);
 				Name[--NameOffset] = '\0';
 
-				if (stat(Name, &Stat) == -1)
+				if (Utils::GetFileInfo(Name, &Entry) == KErrNotFound)
 				{
 					RetVal = KErrPathNotFound;
 				}
