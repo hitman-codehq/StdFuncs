@@ -768,9 +768,13 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 							/* Obtain the size of the file that the link points to */
 
-							if (Utils::GetFileInfo(LinkName, &LinkEntry) == KErrNone) // TODO: CAW
+							if ((RetVal = Utils::GetFileInfo(LinkName, &LinkEntry) == KErrNone))
 							{
 								Size = LinkEntry.iSize;
+							}
+							else
+							{
+								break;
 							}
 
 							delete [] LinkName;
