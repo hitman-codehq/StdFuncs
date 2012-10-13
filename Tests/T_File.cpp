@@ -124,6 +124,18 @@ int main()
 
 	File.Close();
 
+	/* Ensure that files cannot be opened in a shared mode using RFile::Create() */
+
+	test(BaflUtils::DeleteFile("File.txt") == KErrNone);
+
+	Result = File.Create("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = File2.Create("File.txt", EFileWrite);
+	test(Result == KErrInUse);
+
+	File.Close();
+
 	/* Ensure other Create() and Open() errors are as expected */
 
 	Result = File.Create("File.txt", EFileWrite);
