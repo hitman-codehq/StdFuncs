@@ -1008,36 +1008,6 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #endif /* _DEBUG */
 
-// TODO: CAW - Make this GetFileInfo() so that LoadFile() and OpenDirectory() can use it.  Comments all through here!
-/* Written: Monday 09-Apr-2007 12:20 am */
-
-// TODO: CAW
-#ifdef __amigaos4__
-
-TBool Utils::IsDirectory(const char *a_pccFileName, TBool *a_pbDirectory)
-{
-	TBool RetVal;
-	struct ExamineData *ExamineData;
-
-	RetVal = EFalse;
-
-	if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, a_pccFileName, TAG_DONE)) != NULL)
-	{
-		RetVal = ETrue;
-		*a_pbDirectory = (EXD_IS_DIRECTORY(ExamineData)) ? ETrue : EFalse;
-
-		IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
-	}
-	else
-	{
-		Utils::Info("Utils::IsDirectory() => Unable to examine object");
-	}
-
-	return(RetVal);
-}
-
-#endif
-
 // TODO: CAW - This is going to break AMC + standardise on errors + this pulls in a reference to File.cpp!
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 {
