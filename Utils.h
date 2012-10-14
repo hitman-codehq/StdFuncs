@@ -92,7 +92,7 @@ public:
 
 	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);
 
-	static void TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
+	static TBool TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
 
 	static void TrimString(char *a_pcString);
 

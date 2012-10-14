@@ -54,7 +54,7 @@
 
 static const char *g_apccMonths[] =
 {
-	"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 #endif /* ! __amigaos4__ */
@@ -1478,25 +1478,34 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 /* Written: Saturday 23-Jul-2009 06:58 am */
 
-void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
+TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
 {
+	TBool RetVal;
 
 #ifdef __amigaos4__
 
 	struct DateTime DateTime = { { 0, 0, 0 }, FORMAT_DOS, DTF_SUBST, NULL, NULL, NULL };
 
-	// TODO: CAW - This is broken and return code should be checked
+	/* Convert the entry passed in into date and time strings, taking care to respect */
+	/* the current locale */
+
 	DateTime.dat_Stamp = a_roEntry.iPlatformDate;
+	DateTime.dat_Format = FORMAT_DOS;
+	DateTime.dat_Flags = DTF_SUBST;
+	DateTime.dat_StrDay = NULL;
 	DateTime.dat_StrTime = a_pcTime;
 	DateTime.dat_StrDate = a_pcDate;
 
-	if (IDOS->DateToStr(&DateTime))
-	{
-	}
+	/* Although unlikely, this can fail so we have to check it */
+
+	RetVal = (IDOS->DateToStr(&DateTime) != 0);
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Check against Amiga format + this is ugly!
+	RetVal = ETrue;
+
+	/* Write out the date and time in the same format as Amiga OS using the FORMAT_DOS format */
+
 	sprintf(a_pcDate, "%02d-%s-%04d", a_roEntry.iModified.DateTime().Day(), g_apccMonths[a_roEntry.iModified.DateTime().Month()],
 		a_roEntry.iModified.DateTime().Year());
 
@@ -1504,6 +1513,7 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry
 
 #endif /* __amigaos4__ */
 
+	return(RetVal);
 }
 
 /* Written: Sunday 01-Aug-2010 1:20 pm */
