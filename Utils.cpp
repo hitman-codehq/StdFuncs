@@ -50,9 +50,10 @@
 
 #ifndef __amigaos4__
 
+/* List of month names for use by Utils::TimeToString() */
+
 static const char *g_apccMonths[] =
 {
-	// TODO: CAW - Check against Amiga formats
 	"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
 };
 
