@@ -1445,9 +1445,14 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW + Write a test case for this, that tests KErrNone, KErrNotFound and KErrGeneral return codes
-	RetVal = KErrNone;
-	IDOS->SetProtection(a_pccFileName, a_uiAttributes);
+	if (IDOS->SetProtection(a_pccFileName, a_uiAttributes))
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
+	}
 
 #elif defined(__linux__)
 

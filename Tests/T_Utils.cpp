@@ -145,6 +145,11 @@ int main()
 	test(OldEntry.iModified == NewEntry.iModified);
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
+	/* While we are checking Utils::SetProtection(), ensure that it returns the correct */
+	/* return code when a file is not found */
+
+	test(Utils::SetProtection("UnknownFile.txt", OldEntry.iAttributes) == KErrNotFound);
+
 	/* Test #8: Ensure we can decode attributes successfully */
 
 	Test.Next("Ensure we can decode attributes successfully");
