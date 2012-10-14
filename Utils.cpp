@@ -1384,15 +1384,16 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 {
 	TInt RetVal;
 
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
-
 #ifdef __amigaos4__
 
-	// TODO: Return value here and for SetProtection(). Should this be in Utils?
-	RetVal = KErrNone;
-	IDOS->SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate);
+	if (IDOS->SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
+	{
+		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
+	}
 
 #elif defined(__linux__)
 
@@ -1405,6 +1406,10 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 	if (utime(a_pccFileName, &Time) == 0)
 	{
 		RetVal = KErrNone;
+	}
+	else
+	{
+		RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
 	}
 
 #else /* ! __linux__ */
@@ -1419,8 +1424,16 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 		{
 			RetVal = KErrNone;
 		}
+		else
+		{
+			RetVal = KErrGeneral;
+		}
 
 		CloseHandle(Handle);
+	}
+	else
+	{
+		RetVal = (GetLastError() == ERROR_FILE_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
 #endif /* ! __linux__ */

@@ -145,9 +145,10 @@ int main()
 	test(OldEntry.iModified == NewEntry.iModified);
 	test(OldEntry.iAttributes == NewEntry.iAttributes);
 
-	/* While we are checking Utils::SetProtection(), ensure that it returns the correct */
+	/* While we are checking these functions, ensure that they return the correct */
 	/* return code when a file is not found */
 
+	test(Utils::SetFileDate("UnknownFile.txt", OldEntry) == KErrNotFound);
 	test(Utils::SetProtection("UnknownFile.txt", OldEntry.iAttributes) == KErrNotFound);
 
 	/* Test #8: Ensure we can decode attributes successfully */
