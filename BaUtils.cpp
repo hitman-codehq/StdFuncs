@@ -48,36 +48,7 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = Utils::MapLastError();
-
-#ifndef WIN32
-
-		char Name[MAX_PATH];
-		struct TEntry Entry;
-		TInt NameOffset;
-
-		/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
-		/* must do a little extra work to determine this */
-
-		if (RetVal == KErrNotFound)
-		{
-			// TODO: CAW - Variables + create a Utils::PathPart().  The test passes but only out of luck
-			NameOffset = (Utils::FilePart(a_pccFileName) - a_pccFileName);
-
-			if (NameOffset > 0)
-			{
-				memcpy(Name, a_pccFileName, NameOffset);
-				Name[--NameOffset] = '\0';
-
-				if (Utils::GetFileInfo(Name, &Entry) == KErrNotFound)
-				{
-					RetVal = KErrPathNotFound;
-				}
-			}
-		}
-
-#endif /* __linux__ */
-
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 	}
 
 	return(RetVal);

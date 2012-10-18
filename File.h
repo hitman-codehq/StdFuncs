@@ -31,10 +31,6 @@ class RFile
 
 #endif /* ! __linux__ */
 
-private:
-
-	TInt MapLastOpenError(const char *a_pccFileName);
-
 public:
 
 	RFile();

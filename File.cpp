@@ -70,7 +70,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = MapLastOpenError(a_pccFileName);
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 	}
 	else
@@ -108,7 +108,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapLastOpenError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 	}
 
 #else /* ! __linux__ */
@@ -141,74 +141,6 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	return(RetVal);
 }
-
-#ifndef WIN32
-
-/* Written: Monday 09-Oct-2012 5:47 am */
-/* @param	a_pccFileName		Ptr to the name of the file to be checked */
-/* @return	KErrNone if successful */
-/*			KErrAlreadyExists if the file already exists */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrNotFound if the path is ok, but the file does not exist */
-/*			KErrNotEnoughMemory if not enough memory was available */
-/*			KErrGeneral if some other unexpected error occurred */
-/* Maps the last error that occurred from a UNIX error to a Symbian style error. */
-/* This will also handle the case where a file was not found, by checking to see */
-/* if its path exists, thus differentiating between the file not existing and the */
-/* path to that file not existing */
-
-TInt RFile::MapLastOpenError(const char *a_pccFileName)
-{
-	char *Name;
-	TInt NameOffset, RetVal;
-	struct TEntry Entry;
-
-	/* See what the last error was */
-
-	RetVal = Utils::MapLastError();
-
-	/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
-	/* must do a little extra work to determine this */
-
-	if (RetVal == KErrNotFound)
-	{
-		/* Determine the path to the file that was opened */
-
-		NameOffset = (Utils::FilePart(a_pccFileName) - a_pccFileName);
-
-		/* If the file is not in the current directory then check if the path exists */
-
-		if (NameOffset > 0)
-		{
-			/* Allocate a buffer long enough to hold the path to the file */
-
-			if ((Name = new char[NameOffset + 1]) != NULL)
-			{
-				memcpy(Name, a_pccFileName, NameOffset);
-				Name[--NameOffset] = '\0';
-
-				/* Now check for the existence of the file */
-
-				if (Utils::GetFileInfo(Name, &Entry) == KErrNotFound)
-				{
-					RetVal = KErrPathNotFound;
-				}
-
-				delete [] Name;
-			}
-			else
-			{
-				Utils::Info("RFile::MapLastOpenError() => Out of memory");
-
-				RetVal = KErrNoMemory;
-			}
-		}
-	}
-
-	return(RetVal);
-}
-
-#endif /* ! WIN32 */
 
 /* Written: Monday 19-Apr-2010 6:26 am */
 /* @param	a_pccFileName	Ptr to the name of the file to be created */
@@ -290,7 +222,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapLastOpenError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 	}
 
 #elif defined(__linux__)
@@ -323,7 +255,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = MapLastOpenError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 
 	}
 
