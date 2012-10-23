@@ -117,7 +117,11 @@ TInt Utils::MapLastError()
 
 	Error = GetLastError();
 
-	if (Error == ERROR_FILE_NOT_FOUND)
+	if (Error == ERROR_FILE_EXISTS)
+	{
+		RetVal = KErrAlreadyExists;
+	}
+	else if (Error == ERROR_FILE_NOT_FOUND)
 	{
 		RetVal = KErrNotFound;
 	}

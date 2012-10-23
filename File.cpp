@@ -118,27 +118,37 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __linux__ */
 
+	TInt Result;
+
+	/* Create a new file in read/write mode */
+
 	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
 	else
 	{
-		DWORD Error;
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		Error = GetLastError();
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 
-		if (Error == ERROR_FILE_EXISTS)
+		/* For Windows we need some special handling as trying to open a file for */
+		/* writing when it already exists will return ERROR_FILE_EXISTS but we want */
+		/* to treat it as a ERROR_SHARING_VIOLATION, thus returning KErrInUse as on */
+		/* the other platforms.  So try to open the file in read only mode, and if */
+		/* it returns KErrInUse then change the error.  Otherwise the error is valid */
+		/* so we want to retain it as it is */
+
+		if (RetVal == KErrAlreadyExists)
 		{
-			RetVal = KErrAlreadyExists;
-		}
-		else if (Error == ERROR_PATH_NOT_FOUND)
-		{
-			RetVal = KErrPathNotFound;
-		}
-		else
-		{
-			RetVal = KErrGeneral;
+			if ((Result = Open(a_pccFileName, EFileRead)) == KErrInUse)
+			{
+				RetVal = KErrInUse;
+			}
+
+			/* Close the file as it may have been successfully opened by the above call */
+
+			Close();
 		}
 	}
 
@@ -266,7 +276,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __linux__ */
 
-	DWORD Error, FileMode;
+	DWORD FileMode;
 
 	FileMode = GENERIC_READ;
 
@@ -281,20 +291,9 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 	}
 	else
 	{
-		Error = GetLastError();
+		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		if (Error == ERROR_PATH_NOT_FOUND)
-		{
-			RetVal = KErrPathNotFound;
-		}
-		else if (Error == ERROR_FILE_NOT_FOUND)
-		{
-			RetVal = KErrNotFound;
-		}
-		else
-		{
-			RetVal = KErrGeneral;
-		}
+		RetVal = Utils::MapLastFileError(a_pccFileName);
 	}
 
 #endif /* ! __linux__ */
