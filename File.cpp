@@ -24,10 +24,15 @@ RFile::RFile()
 
 #else /* ! __linux__ */
 
-	m_uiFileMode = 0;
 	m_oHandle = 0;
 
 #endif /* ! __linux__ */
+
+#ifdef __amigaos4__
+
+	m_uiFileMode = 0;
+
+#endif /* __amigaos4__ */
 
 }
 
