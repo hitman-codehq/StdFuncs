@@ -597,11 +597,7 @@ void RApplication::Close()
 	m_poMenuMappings = NULL;
 	m_iNumMenuMappings = 0;
 
-#else /* ! __amigaos4__ */
-
-	// TODO: CAW - Do the same thing for Win32 here
-
-#endif /* ! __amigaos4__ */
+#endif /* __amigaos4__ */
 
 }
 
