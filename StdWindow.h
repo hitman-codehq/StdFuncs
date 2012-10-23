@@ -154,8 +154,7 @@ public:
 		m_poRootWindow = this;
 	}
 
-	// TODO: CAW - Naming - Use Get or not?
-	static CWindow *GetRootWindow()
+	static CWindow *RootWindow()
 	{
 		return(m_poRootWindow);
 	}

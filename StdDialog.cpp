@@ -178,7 +178,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 		/* See if a root window has been set by the application and if so, open the dialog on that */
 		/* window.  Otherwise just open it on the desktop */
 
-		RootWindow = CWindow::GetRootWindow();
+		RootWindow = CWindow::RootWindow();
 		Window = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
 		/* Open the dialog specified by the ID passed in */

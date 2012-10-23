@@ -1175,7 +1175,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	/* See if a root window has been set by the application and if so, open the message box on */
 	/* that window.  Otherwise just open it on the desktop or Workbench */
 
-	RootWindow = CWindow::GetRootWindow();
+	RootWindow = CWindow::RootWindow();
 
 #endif /* ! __linux__ */
 
