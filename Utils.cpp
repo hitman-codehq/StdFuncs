@@ -139,8 +139,6 @@ TInt Utils::MapLastError()
 	return(RetVal);
 }
 
-#ifndef WIN32
-
 /* Written: Monday 09-Oct-2012 5:47 am */
 /* @param	a_pccFileName		Ptr to the name of the file to be checked */
 /* @return	KErrNone if successful */
@@ -156,16 +154,24 @@ TInt Utils::MapLastError()
 
 TInt Utils::MapLastFileError(const char *a_pccFileName)
 {
-	char *Name;
-	TInt NameOffset, RetVal;
-	struct TEntry Entry;
+	TInt RetVal;
 
 	/* See what the last error was */
 
 	RetVal = Utils::MapLastError();
 
-	/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound so we */
-	/* must do a little extra work to determine this */
+#ifdef WIN32
+
+	(void) a_pccFileName;
+
+#else /* ! WIN32 */
+
+	char *Name;
+	TInt NameOffset;
+	struct TEntry Entry;
+
+	/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound */
+	/* so we must do a little extra work here.  Amiga OS needs a little help too */
 
 	if (RetVal == KErrNotFound)
 	{
@@ -202,10 +208,10 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 		}
 	}
 
+#endif /* ! WIN32 */
+
 	return(RetVal);
 }
-
-#endif /* ! WIN32 */
 
 /* Written: Thursday 16-Jul-2009 3:58 pm */
 
