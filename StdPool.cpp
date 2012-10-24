@@ -23,11 +23,15 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 
 	ASSERTM((a_iSize >= (TInt) sizeof(CPoolNode)), "RStdPool::Create() => Node size is too small");
 
+	/* Initialise the pool if it has not already been initialised */
+
 	if (m_iSize == 0)
 	{
 		m_iSize = a_iSize;
 		m_iNumItems = a_iNumItems;
 		m_bExtensible = a_bExtensible;
+
+		/* Now allocate the initial set of a_iNumItems nodes */
 
 		RetVal = ExtendPool();
 	}
@@ -92,6 +96,12 @@ void RStdPool::Close(TBool a_bFreeNodes)
 }
 
 /* Written: Sunday 03-Jun-2012 11:20 pm, On train to Munich Deutsches Museum */
+/* @return	Ptr to the new node if successful, else NULL */
+/* Allocates a node from the list of available nodes.  This is a very fast operation */
+/* as it simply returns the first node on the list of available nodes.  If there are */
+/* no nodes on the list and the pool is extensible, an attempt will be made to */
+/* allocate further memory for nodes via the heap.  If no memory could be allocated */
+/* or if the pool was not extensible, NULL will be returned */
 
 void *RStdPool::GetNode()
 {

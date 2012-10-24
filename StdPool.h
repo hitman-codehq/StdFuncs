@@ -15,7 +15,12 @@ public:
 	StdListNode<CBufferNode>	m_oStdListNode;		/* Standard list node */
 };
 
-// TODO: CAW - Properly comment this and the .cpp file
+/* Class used for allocating small fixed size objects from an area of preallocated */
+/* memory.  This class allows you to very quickly allocate and free structures */
+/* without the overhead of calling into a heap allocator.  It is also more memory */
+/* efficient than a heap allocator as the memory used for the nodes is reused for */
+/* their metadata when they are not allocated (ie. they are in the pool) */
+
 class CPoolNode
 {
 public:
