@@ -522,7 +522,6 @@ TInt Utils::Detach()
 
 /* Written: Saturday 11-Jul-2009 08:56 am */
 
-// TODO: CAW - Ensure we always or never use a . in error messages!
 void Utils::Error(const char *a_pccMessage, ...)
 {
 	// TODO: CAW - Risk of overflow, here, above and in Utils::Info
