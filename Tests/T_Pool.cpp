@@ -40,6 +40,7 @@ static void FreeNodes(RStdPool *a_poPool, StdList<SPoolItem> *a_poNodes)
 		test(PoolItem->m_iOne == ((Index << 16) | Index));
 
 		a_poNodes->Remove(PoolItem);
+		a_poPool->ReleaseNode(PoolItem);
 	}
 }
 
@@ -81,6 +82,7 @@ int main()
 	Test.Next("Create a non extensible pool and allocate all nodes");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
 	test(Result == KErrNone);
+	test(Pool.Count() == NUM_NODES);
 
 	/* Allocate the nodes */
 
@@ -90,11 +92,12 @@ int main()
 
 	PoolItem = (struct SPoolItem *) Pool.GetNode();
 	test(PoolItem == NULL);
+	test(Pool.Count() == 0);
 
 	/* Free all of the allocated nodes */
 
 	FreeNodes(&Pool, &Nodes);
-	test(Pool.Count() == 0);
+	test(Pool.Count() == NUM_NODES);
 
 	/* Ensure that our temporary node list is now empty */
 
@@ -135,13 +138,14 @@ int main()
 	Test.Next("Create a non extensible pool and allocate all nodes");
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
 	test(Result == KErrNone);
+	test(Pool.Count() == NUM_NODES);
 
-	// TODO: CAW - Temporarily 1 until we actually release the nodes!
-	for (Index = 0; Index < 1; ++Index)
+	for (Index = 0; Index < 2; ++Index)
 	{
 		/* Allocate the nodes */
 
 		AllocateNodes(&Pool, NUM_NODES, &Nodes);
+		test(Pool.Count() == 0);
 
 		/* Ensure that when we ask for one more node, it fails */
 
@@ -151,6 +155,7 @@ int main()
 		/* Free all of the nodes in preparation for reallocating them */
 
 		FreeNodes(&Pool, &Nodes);
+		test(Pool.Count() == NUM_NODES);
 	}
 
 	Test.End();

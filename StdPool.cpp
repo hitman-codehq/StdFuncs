@@ -124,6 +124,18 @@ void *RStdPool::GetNode()
 	return(RetVal);
 }
 
+/* Written: Wednesday 24-Oct-2012 6:37 am, Vis à Vis Hotel, Lindau */
+/* @param	a_poNode	Ptr to the node to be released back to the pool */
+/* Releases a node previously allocated using RPool::GetNode() back into */
+/* the pool, thus making it available for allocation again */
+
+void RStdPool::ReleaseNode(void *a_poNode)
+{
+	ASSERTM((a_poNode != NULL), "RStdPool::ReleaseNode() => Valid node must be passed in");
+
+	m_oNodes.AddTail((CPoolNode *) a_poNode);
+}
+
 /* Written: Tuesday 31-Jul-2012 9:42 am, Starbucks Nürnberg */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Extends the pool by allocating a further m_iNumItems of nodes in a single */

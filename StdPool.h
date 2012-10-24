@@ -56,6 +56,8 @@ public:
 	TInt ExtendPool();
 
 	void *GetNode();
+
+	void ReleaseNode(void *a_poNode);
 };
 
 #endif /* ! STDPOOL_H */
