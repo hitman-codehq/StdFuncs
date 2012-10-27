@@ -1,7 +1,5 @@
 
-#include <new>
 #include "StdFuncs.h"
-#include <string.h>
 #include "StdPool.h"
 
 /* Written: Sunday 13-May-2012 2:18 pm, Lindau (Bodensee) */
@@ -167,21 +165,18 @@ TInt RStdPool::ExtendPool()
 	{
 		RetVal = KErrNone;
 
-// TODO: CAW - Hmmm.  What to do about this?
-#undef new
-		/* Perform an in place new on the first node, thus magically transforming */
-		/* it into a CBufferNode, and add it to the list of buffers */
+		/* Make the first node into a CBufferNode and add it to the list of buffers */
 
-		BufferNode = new(Buffer) CBufferNode;
+		BufferNode = (CBufferNode *) Buffer;
 		m_oBuffers.AddTail(BufferNode);
-		Buffer += sizeof(CBufferNode);
+		Buffer += m_iSize;
 
-		/* For the remaining nodes in the buffer, perform an in place new on each */
-		/* one to make it into a CPoolNode, and add them all to the list of nodes */
+		/* For the remaining nodes in the buffer transform each one into a CPoolNode, */
+		/* and add it to the list of nodes */
 
 		for (Index = 0; Index < m_iNumItems; ++Index)
 		{
-			PoolNode = new(Buffer) CPoolNode;
+			PoolNode = (CPoolNode *) Buffer;
 			m_oNodes.AddTail(PoolNode);
 			Buffer += m_iSize;
 		}
