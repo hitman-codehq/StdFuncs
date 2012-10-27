@@ -464,9 +464,9 @@ TInt Utils::Detach()
 
 #ifdef __amigaos4__
 
-	char Command[MAX_PATH], CommandBuffer[MAX_PATH]; // TODO: CAW - I don't like this.  How to measure stack usage?
+	char *Command, *CommandNameBuffer;
 	const char *CommandName;
-	TInt Result;
+	TInt ArgStrLength, CommandLength, CommandNameLength, Result;
 	BPTR Cos;
 	struct CommandLineInterface *CLI;
 	struct Process *Process;
@@ -479,40 +479,71 @@ TInt Utils::Detach()
 
 	if ((CLI) && (!(CLI->cli_Background ) && (CLI->cli_CommandName)))
 	{
-		/* Extract the path to the executable from the CLI structure and from that extract */
-		/* the name of the executable.  This will be used for setting the task name so that */
-		/* the program shows up in the task list as something more useful than "New Process" */
+		/* Determine the size of the buffers needed for the command name and command line */
 
-		IDOS->CopyStringBSTRToC(CLI->cli_CommandName, CommandBuffer, sizeof(Command));
-		CommandName = Utils::FilePart(CommandBuffer);
+		CommandNameLength = IDOS->CopyStringBSTRToC(CLI->cli_CommandName, NULL, 0);
+		ArgStrLength = strlen(IDOS->GetArgStr());
 
-		/* Build the string used to relaunch the process */
+		/* Allocate a buffer long enough for the command name. This must include an extra */
+		/* byte for the NULL terminator */
 
-		Process = (struct Process *) IExec->FindTask(NULL);
-		IUtility->SNPrintf(Command, sizeof(Command),"\"%b\" %s", CLI->cli_CommandName, IDOS->GetArgStr());
+		CommandNameBuffer = new char[CommandNameLength + 1];
 
-		/* We want to use the parent's input stream for both input and output, so duplicate */
-		/* it as it will be closed when the child process exits */
+		/* Allocate a buffer long enough to hold the command line.  This must include */
+		/* extra bytes for the " and space characters, as well as a NULL terminator */
 
-		if ((Cos = IDOS->DupFileHandle(Process->pr_CIS)) != 0)
+		CommandLength = (CommandNameLength + ArgStrLength + 4);
+		Command = new char[CommandLength];
+
+		if ((CommandNameBuffer) && (Command))
 		{
-			/* And launch the child process!  If successful then exit as this is essentially */
-			/* performing a fork() and we don't want to keep the parent process alive */
+			/* Extract the path to the executable from the CLI structure and from that extract */
+			/* the name of the executable.  This will be used for setting the task name so that */
+			/* the program shows up in the task list as something more useful than "New Process" */
 
-			Result = IDOS->SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
-				SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+			IDOS->CopyStringBSTRToC(CLI->cli_CommandName, CommandNameBuffer, (CommandNameLength + 1));
+			CommandName = Utils::FilePart(CommandNameBuffer);
 
-			if (Result == 0)
+			/* Build the string used to relaunch the process */
+
+			Process = (struct Process *) IExec->FindTask(NULL);
+			IUtility->SNPrintf(Command, CommandLength,"\"%b\" %s", CLI->cli_CommandName, IDOS->GetArgStr());
+
+			/* We want to use the parent's input stream for both input and output, so duplicate */
+			/* it as it will be closed when the child process exits */
+
+			if ((Cos = IDOS->DupFileHandle(Process->pr_CIS)) != 0)
 			{
-				exit(0);
-			}
-			else
-			{
-				RetVal = KErrGeneral;
+				/* And launch the child process!  If successful then exit as this is essentially */
+				/* performing a fork() and we don't want to keep the parent process alive */
 
-				IDOS->Close(Cos);
+				Result = IDOS->SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
+					SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+
+				if (Result == 0)
+				{
+					/* Free the command buffers before we exit */
+
+					delete [] Command;
+					delete [] CommandNameBuffer;
+
+					exit(0);
+				}
+				else
+				{
+					RetVal = KErrGeneral;
+
+					IDOS->Close(Cos);
+				}
 			}
 		}
+		else
+		{
+			Utils::Info("Utils::Detach() => Out of memory");
+		}
+
+		delete [] Command;
+		delete [] CommandNameBuffer;
 	}
 
 #endif /* __amigaos4__ */
@@ -944,7 +975,7 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 
 /* Written: Tuesday 28-Feb-2012 8:43 am, CodeHQ Ehinger Tor */
 /* @param	a_pccBuffer	Ptr to the currently allocated buffer */
-/* @param	a_iSize		Size in bytes of the new buffer to be allocated */
+/*			a_iSize		Size in bytes of the new buffer to be allocated */
 /* @return	A Ptr to the allocated buffer if successful, else NULL */
 /* This function is useful if you have a situation that calls for a temporary */
 /* buffer of an unknown and varying size (thus preventing the use of a satic */
