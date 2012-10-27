@@ -56,8 +56,8 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	/* window.  Otherwise just open it on the desktop */
 
 	// TODO: CAW - This is tedious - make a GetRootWindowWindow() or similar function
-	RootWindow = CWindow::GetRootWindow();
-	Screen = (RootWindow) ? CWindow::GetRootWindow()->m_poWindow->WScreen : NULL;
+	RootWindow = CWindow::RootWindow();
+	Screen = (RootWindow) ? CWindow::RootWindow()->m_poWindow->WScreen : NULL;
 
 	/* Taglist containing the tags for laying out the requester, and their default values. */
 	/* We define it here so that it can be dynamically initialised with the screen ptr */
