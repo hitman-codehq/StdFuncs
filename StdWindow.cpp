@@ -537,7 +537,6 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 {
 	TInt OldInnerWidth, OldInnerHeight;
-	//CStdGadget *Gadget; // TODO: CAW - Rename if keeping this function but is the function even used now?
 
 	/* Save the old width & height for l8r */
 
