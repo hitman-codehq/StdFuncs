@@ -198,7 +198,6 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	BOOL GotFileName;
 	CWindow *RootWindow;
-	TEntry Entry;
 	OPENFILENAME OpenFileName;
 
 	/* Initialise the OPENFILENAME structure to display the last filename we used, if any */
