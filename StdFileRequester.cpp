@@ -44,7 +44,78 @@ void RFileRequester::Close()
 
 TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 {
-	TInt RetVal;
+	const char *DirectoryName, *FileName;
+	TBool Qualified;
+	TInt Length, RetVal;
+	TEntry Entry;
+
+	/* If a qualified filename has been passed in that contains a directory then use it to */
+	/* initialise the requester so that it opens in that directory */
+
+	DirectoryName = NULL;
+
+	if (a_pccFileName)
+	{
+		/* Ensure that the directory or filename actually exists.  If not then we won't try to */
+		/* affect where we open the dialog box */
+
+		if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNone)
+		{
+			/* It's a directory so open the requester there and signal that there is no filename */
+
+			if (Entry.iIsDir)
+			{
+				DirectoryName = a_pccFileName;
+				m_acFileName[0] = '\0';
+			}
+			else
+			{
+				/* Otherwise see if the filename passed in is a qualified path.  If so then we */
+				/* will split it into a directory in which to open the requester, and a filename */
+				/* that can be displayed in the requester */
+
+				Qualified = ((strstr(a_pccFileName, "/")) || (strstr(a_pccFileName, "\\")) || (strstr(a_pccFileName, ":")));
+
+				if (Qualified)
+				{
+					/* Separate the directory part of the qualified filename from the file part */
+
+					FileName = Utils::FilePart(a_pccFileName);
+					Length = (FileName - a_pccFileName + 1);
+
+					/* Allocate enough memory to hold the directory part and copy the directory */
+					/* name into it */
+
+					delete [] m_pcDirectoryName;
+					m_pcDirectoryName = new char[Length];
+
+					if (m_pcDirectoryName)
+					{
+						strncpy(m_pcDirectoryName, a_pccFileName, Length);
+						m_pcDirectoryName[Length - 1] = '\0';
+
+						/* And indicate that we wish the requester to use this as the initial */
+						/* directory in which it opens */
+
+						DirectoryName = m_pcDirectoryName;
+					}
+
+					/* Display the filename part in the requester */
+
+					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					strcpy(m_acFileName, FileName);
+				}
+
+				/* No path so just open in the current directory, displaying the filename in the requester */
+
+				else
+				{
+					ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					strcpy(m_acFileName, a_pccFileName);
+				}
+			}
+		}
+	}
 
 #ifdef __amigaos4__
 
@@ -63,6 +134,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	/* We define it here so that it can be dynamically initialised with the screen ptr */
 
 	struct TagItem Tags[] = { { ASLFR_Screen, (LONG) Screen }, { ASLFR_TitleText, (LONG) g_accOpenText },
+		{ ASLFR_InitialDrawer, (LONG) "" }, { ASLFR_InitialFile, (LONG) m_acFileName },
 		{ ASLFR_DoSaveMode, a_bSaveAs }, { TAG_DONE, FALSE } };
 
 	/* Dynamically determine the requester title to use */
@@ -70,6 +142,14 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	if (a_bSaveAs)
 	{
 		Tags[1].ti_Data = (LONG) g_accSaveText;
+	}
+
+	/* If a directory name has been included in the path passed in then try to open the */
+	/* requester in that directory */
+
+	if (DirectoryName)
+	{
+		Tags[2].ti_Data = (LONG) DirectoryName;
 	}
 
 	/* Allocate an ASL file requester */
@@ -117,9 +197,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 #else /* ! __linux__ */
 
-	const char *FileName;
-	BOOL GotFileName, Qualified;
-	TInt Length;
+	BOOL GotFileName;
 	CWindow *RootWindow;
 	TEntry Entry;
 	OPENFILENAME OpenFileName;
@@ -137,54 +215,12 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	RootWindow = CWindow::RootWindow();
 	OpenFileName.hwndOwner = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
-	/* If a qualified filename has been passed in then use it to initialise the dialog.  This */
-	/* is an attempt to get Windows to open our dialog in the directory represented in the */
-	/* filename passed in, but it is entirely possible that Windows will entirely ignore our */
-	/* attempts to influence it as it tries to be "smart" about which directory it uses */
+	/* If a directory name has been included in the path passed in then try to open the */
+	/* requester in that directory - if Windows will take any notice of our request! */
 
-	if (a_pccFileName)
+	if (DirectoryName)
 	{
-		/* Ensure that the directory or filename actually exists.  If not then we won't try to */
-		/* affect where Windows opens the dialog box */
-
-		// TODO: CAW - We want to use Utils::IsDirectory() here + simplify this if possible
-		if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNone)
-		{
-			if (Entry.iIsDir)
-			{
-				OpenFileName.lpstrInitialDir = a_pccFileName;
-				m_acFileName[0] = '\0';
-			}
-			else
-			{
-				Qualified = ((strstr(a_pccFileName, "/")) || (strstr(a_pccFileName, "\\")));
-
-				if (Qualified)
-				{
-					FileName = Utils::FilePart(a_pccFileName);
-					Length = (FileName - a_pccFileName + 1);
-
-					delete [] m_pcDirectoryName;
-					m_pcDirectoryName = new char[Length];
-
-					if (m_pcDirectoryName)
-					{
-						strncpy(m_pcDirectoryName, a_pccFileName, Length);
-						m_pcDirectoryName[Length - 1] = '\0';
-
-						OpenFileName.lpstrInitialDir = m_pcDirectoryName;
-					}
-
-					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
-					strcpy(m_acFileName, FileName);
-				}
-				else
-				{
-					ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
-					strcpy(m_acFileName, a_pccFileName);
-				}
-			}
-		}
+		OpenFileName.lpstrInitialDir = DirectoryName;
 	}
 
 	/* Query the user for the filename */
