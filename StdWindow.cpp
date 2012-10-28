@@ -451,6 +451,13 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 #endif /* WIN32 */
 
+/* Written: Monday 08-Feb-2010 7:19 am */
+
+CWindow::~CWindow()
+{
+	Close();
+}
+
 /* Written: Wednesday 13-Oct-2010 7:29 am */
 
 void CWindow::Activate()
@@ -500,6 +507,65 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 }
 
+/* Written: Tuesday 10-Apr-2012 7:07 am, CodeHQ Ehinger Tor */
+/* @param	a_iItemID	ID of the menu item to be checked or unchecked */
+/* @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it */
+/* This function will enable or disable the checkmark in a checkable menu item */
+
+void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
+{
+
+#ifdef __amigaos4__
+
+	ULONG FullMenuNum;
+	struct MenuItem *MenuItem;
+
+	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
+
+	if ((FullMenuNum = FindMenuMapping(m_poApplication->MenuMappings(), m_poApplication->NumMenuMappings(), a_iItemID)) != 0)
+	{
+		/* Now use the result to find the actual menu in the menu strip */
+
+		if ((MenuItem = IIntuition->ItemAddress(m_poApplication->Menus(), FullMenuNum)) != NULL)
+		{
+			/* Enable or disable the menu item's check mark as appropriate */
+
+			IIntuition->ClearMenuStrip(m_poWindow);
+
+			if (a_bEnable)
+			{
+				MenuItem->Flags |= CHECKED;
+			}
+			else
+			{
+				MenuItem->Flags &= ~CHECKED;
+			}
+
+			IIntuition->ResetMenuStrip(m_poWindow, m_poApplication->Menus());
+		}
+		else
+		{
+			Utils::Info("CWindow::CheckMenuItem() => Menu item not found");
+		}
+	}
+	else
+	{
+		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
+	}
+
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
+
+	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
+		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
+
+#endif /* ! __linux__ */
+
+}
+
 /* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
 
 void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
@@ -526,250 +592,6 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 
 #endif /* ! __amigaos4__ */
 
-}
-
-/* Written: Sunday 01-May-2011 10:48 am */
-/* @param	a_iInnerWidth	New width of client area */
-/*			a_iInnerHeight	New height of client area */
-/* This function is called whenever the size of the window changes and will reposition any auto-position */
-/* gadgets and will notify the derived window class that the size has changed. */
-
-void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
-{
-	TInt OldInnerWidth, OldInnerHeight;
-
-	/* Save the old width & height for l8r */
-
-	OldInnerWidth = m_iInnerWidth;
-	OldInnerHeight = m_iInnerHeight;
-
-	/* Save the new width & height for l8r */
-
-	m_iInnerWidth = a_iInnerWidth;
-	m_iInnerHeight = a_iInnerHeight;
-
-	/* Don't let the client area get negative in size or it will require too much fiddling around */
-	/* in the client program.  Just pretend it's 0 x 0 at the smallest */
-
-	if (m_iInnerWidth < 0)
-	{
-		m_iInnerWidth = 0;
-	}
-
-	if (m_iInnerHeight < 0)
-	{
-		m_iInnerHeight = 0;
-	}
-
-	/* Now let the derived window class know that the window's size has changed */
-
-	Resize(OldInnerWidth, OldInnerHeight);
-}
-
-/* Written: Monday 08-Feb-2010 7:13 am */
-
-TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
-{
-	TInt RetVal, ScreenWidth, ScreenHeight;
-
-	/* Assume failure */
-
-	RetVal = KErrGeneral;
-
-	/* Get the size of the screen so we can open the window filling its full size */
-
-	Utils::GetScreenSize(&ScreenWidth, &ScreenHeight);
-
-#ifdef __amigaos4__
-
-	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
-	/* provided by Reaction, such as the movement of proportional gadgets */
-
-	m_oIDCMPHook.h_Entry = (ULONG (*)()) IDCMPFunction;
-	m_oIDCMPHook.h_Data = this;
-
-	/* Create a Reaction Window and open it on the requested screen at the maximum size of */
-	/* the screen.  If no screen name is specified, fall back to the Workbench */
-
-	m_poWindowObj = (Object *) WindowObject,
-		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
-		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
-		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
-		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
-		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
-
-		WINDOW_Layout, m_poRootGadget = (Object *) VGroupObject,
-			/* This is an empty group into which can be placed BOOPSI objects */
-		EndGroup,
-	EndWindow;
-
-	if (m_poWindowObj)
-	{
-		if (RA_OpenWindow(m_poWindowObj))
-		{
-			/* Get a ptr to the underlying Intuition Window, as it is handy to have for such */
-			/* things as obtaining the window's signal bit */
-
-			IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
-
-			/* Indicate success */
-
-			RetVal = KErrNone;
-
-			/* Calculate the inner width and height of the window, for l8r use */
-
-			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
-			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
-		}
-		else
-		{
-			IIntuition->DisposeObject(m_poWindowObj);
-			m_poWindowObj = NULL;
-
-			Utils::Info("CWindow::Open() => Unable to open window");
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::Open() => Unable to create window");
-	}
-
-#elif defined(QT_GUI_LIB)
-
-	QWidget *CentralWidget;
-
-	/* Assume failure */
-
-	RetVal = KErrNoMemory;
-
-	/* Allocate a window based on the QMainWindow class */
-
-	if ((m_poWindow = new CQtWindow(this)) != NULL)
-	{
-		/* We also need a QWidget based class to use as the so-called "central widget" */
-
-		if ((CentralWidget = new CQtCanvas(this)) != NULL)
-		{
-			RetVal = KErrNone;
-
-			/* Assign the widget as the main window's central widget */
-
-			m_poWindow->setCentralWidget(CentralWidget);
-
-			/* Set the window to the size of the desktop and display it */
-
-			m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
-			m_poWindow->show();
-
-			/* And save the size of the client area */
-
-			QSize Size = m_poWindow->size();
-			m_iInnerWidth = Size.width();
-			m_iInnerHeight = Size.height();
-		}
-		else
-		{
-			Utils::Info("CWindow::Open() => Not enough memory to create central widget");
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::Open() => Not enough memory to create window");
-	}
-
-#elif defined(WIN32)
-
-	HINSTANCE Instance;
-	RECT Rect;
-	WNDCLASS WndClass;
-
-	(void) a_pccScreenName;
-
-	/* Populate a WNDCLASS structure in preparation for registering the window class */
-
-	Instance = GetModuleHandle(NULL);
-	WndClass.style = CS_DBLCLKS;
-	WndClass.lpfnWndProc = WindowProc;
-	WndClass.cbClsExtra = 10;
-	WndClass.cbWndExtra = 20;
-	WndClass.hInstance = Instance;
-	WndClass.hIcon = 0;
-	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
-	WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-	WndClass.lpszMenuName = MAKEINTRESOURCE(101);
-	WndClass.lpszClassName = a_pccTitle;
-
-	/* Register the window class and open the window */
-
-	if (RegisterClass(&WndClass))
-	{
-		/* Determine the size of the desktop window so that we can open the window taking up the */
-		/* entire size of the screen, but minus that used by the system taskbar.  This is why we */
-		/* use SystemParametersInfo() instead of GetClientRect() */
-
-		if (SystemParametersInfo(SPI_GETWORKAREA, 0, &Rect, 0))
-		{
-			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
-				Rect.right, Rect.bottom, 0, 0, Instance, 0)) != NULL)
-			{
-				/* Save a ptr to the window handle for use in the WindowProc() routine */
-
-				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
-
-				/* And display the window on the screen, maximised */
-
-				ShowWindow(m_poWindow, SW_MAXIMIZE);
-
-				if (GetClientRect(m_poWindow, &Rect))
-				{
-					/* Indicate success */
-
-					RetVal = KErrNone;
-
-					/* And save the size of the client area */
-
-					m_iInnerWidth = (Rect.right - Rect.left);
-					m_iInnerHeight = (Rect.bottom - Rect.top);
-				}
-				else
-				{
-					Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
-				}
-			}
-			else
-			{
-				Utils::Info("CWindow::Open() => Unable to open window");
-			}
-		}
-		else
-		{
-			Utils::Info("CWindow::Open() => Unable to determine size of desktop");
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::Open() => Unable to register window class");
-	}
-
-#endif /* WIN32 */
-
-	/* If everything went well, perform general postamble window opening work */
-
-	if (RetVal == KErrNone)
-	{
-		CompleteOpen();
-	}
-
-	/* Otherwise clean up whatever resources were allocated */
-
-	else
-	{
-		// TODO: CAW - Unregister on error
-		Close();
-	}
-
-	return(RetVal);
 }
 
 /* Written: Monday 08-Feb-2010 7:18 am */
@@ -1019,65 +841,6 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
-/* Written: Tuesday 10-Apr-2012 7:07 am, CodeHQ Ehinger Tor */
-/* @param	a_iItemID	ID of the menu item to be checked or unchecked */
-/* @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it */
-/* This function will enable or disable the checkmark in a checkable menu item */
-
-void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
-{
-
-#ifdef __amigaos4__
-
-	ULONG FullMenuNum;
-	struct MenuItem *MenuItem;
-
-	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
-
-	if ((FullMenuNum = FindMenuMapping(m_poApplication->MenuMappings(), m_poApplication->NumMenuMappings(), a_iItemID)) != 0)
-	{
-		/* Now use the result to find the actual menu in the menu strip */
-
-		if ((MenuItem = IIntuition->ItemAddress(m_poApplication->Menus(), FullMenuNum)) != NULL)
-		{
-			/* Enable or disable the menu item's check mark as appropriate */
-
-			IIntuition->ClearMenuStrip(m_poWindow);
-
-			if (a_bEnable)
-			{
-				MenuItem->Flags |= CHECKED;
-			}
-			else
-			{
-				MenuItem->Flags &= ~CHECKED;
-			}
-
-			IIntuition->ResetMenuStrip(m_poWindow, m_poApplication->Menus());
-		}
-		else
-		{
-			Utils::Info("CWindow::CheckMenuItem() => Menu item not found");
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
-	}
-
-#elif defined(__linux__)
-
-	// TODO: CAW - Implement
-
-#else /* ! __linux__ */
-
-	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
-		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
-
-#endif /* ! __linux__ */
-
-}
-
 #ifdef __amigaos4__
 
 /* Written: Saturday 14-Apr-2012 8:02 am, CodeHQ Ehinger Tor */
@@ -1140,12 +903,248 @@ ULONG CWindow::GetSignal()
 
 #endif /* __amigaos4__ */
 
-/* Written: Monday 08-Feb-2010 7:19 am */
+/* Written: Sunday 01-May-2011 10:48 am */
+/* @param	a_iInnerWidth	New width of client area */
+/*			a_iInnerHeight	New height of client area */
+/* This function is called whenever the size of the window changes and will reposition any auto-position */
+/* gadgets and will notify the derived window class that the size has changed. */
 
-// TODO: CAW - Move + others in this file
-CWindow::~CWindow()
+void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 {
-	Close();
+	TInt OldInnerWidth, OldInnerHeight;
+
+	/* Save the old width & height for l8r */
+
+	OldInnerWidth = m_iInnerWidth;
+	OldInnerHeight = m_iInnerHeight;
+
+	/* Save the new width & height for l8r */
+
+	m_iInnerWidth = a_iInnerWidth;
+	m_iInnerHeight = a_iInnerHeight;
+
+	/* Don't let the client area get negative in size or it will require too much fiddling around */
+	/* in the client program.  Just pretend it's 0 x 0 at the smallest */
+
+	if (m_iInnerWidth < 0)
+	{
+		m_iInnerWidth = 0;
+	}
+
+	if (m_iInnerHeight < 0)
+	{
+		m_iInnerHeight = 0;
+	}
+
+	/* Now let the derived window class know that the window's size has changed */
+
+	Resize(OldInnerWidth, OldInnerHeight);
+}
+
+/* Written: Monday 08-Feb-2010 7:13 am */
+
+TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
+{
+	TInt RetVal, ScreenWidth, ScreenHeight;
+
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
+
+	/* Get the size of the screen so we can open the window filling its full size */
+
+	Utils::GetScreenSize(&ScreenWidth, &ScreenHeight);
+
+#ifdef __amigaos4__
+
+	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
+	/* provided by Reaction, such as the movement of proportional gadgets */
+
+	m_oIDCMPHook.h_Entry = (ULONG (*)()) IDCMPFunction;
+	m_oIDCMPHook.h_Data = this;
+
+	/* Create a Reaction Window and open it on the requested screen at the maximum size of */
+	/* the screen.  If no screen name is specified, fall back to the Workbench */
+
+	m_poWindowObj = (Object *) WindowObject,
+		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
+		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
+		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
+		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
+		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
+		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
+
+		WINDOW_Layout, m_poRootGadget = (Object *) VGroupObject,
+			/* This is an empty group into which can be placed BOOPSI objects */
+		EndGroup,
+	EndWindow;
+
+	if (m_poWindowObj)
+	{
+		if (RA_OpenWindow(m_poWindowObj))
+		{
+			/* Get a ptr to the underlying Intuition Window, as it is handy to have for such */
+			/* things as obtaining the window's signal bit */
+
+			IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
+
+			/* Indicate success */
+
+			RetVal = KErrNone;
+
+			/* Calculate the inner width and height of the window, for l8r use */
+
+			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
+			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+		}
+		else
+		{
+			IIntuition->DisposeObject(m_poWindowObj);
+			m_poWindowObj = NULL;
+
+			Utils::Info("CWindow::Open() => Unable to open window");
+		}
+	}
+	else
+	{
+		Utils::Info("CWindow::Open() => Unable to create window");
+	}
+
+#elif defined(QT_GUI_LIB)
+
+	QWidget *CentralWidget;
+
+	/* Assume failure */
+
+	RetVal = KErrNoMemory;
+
+	/* Allocate a window based on the QMainWindow class */
+
+	if ((m_poWindow = new CQtWindow(this)) != NULL)
+	{
+		/* We also need a QWidget based class to use as the so-called "central widget" */
+
+		if ((CentralWidget = new CQtCanvas(this)) != NULL)
+		{
+			RetVal = KErrNone;
+
+			/* Assign the widget as the main window's central widget */
+
+			m_poWindow->setCentralWidget(CentralWidget);
+
+			/* Set the window to the size of the desktop and display it */
+
+			m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
+			m_poWindow->show();
+
+			/* And save the size of the client area */
+
+			QSize Size = m_poWindow->size();
+			m_iInnerWidth = Size.width();
+			m_iInnerHeight = Size.height();
+		}
+		else
+		{
+			Utils::Info("CWindow::Open() => Not enough memory to create central widget");
+		}
+	}
+	else
+	{
+		Utils::Info("CWindow::Open() => Not enough memory to create window");
+	}
+
+#elif defined(WIN32)
+
+	HINSTANCE Instance;
+	RECT Rect;
+	WNDCLASS WndClass;
+
+	(void) a_pccScreenName;
+
+	/* Populate a WNDCLASS structure in preparation for registering the window class */
+
+	Instance = GetModuleHandle(NULL);
+	WndClass.style = CS_DBLCLKS;
+	WndClass.lpfnWndProc = WindowProc;
+	WndClass.cbClsExtra = 10;
+	WndClass.cbWndExtra = 20;
+	WndClass.hInstance = Instance;
+	WndClass.hIcon = 0;
+	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
+	WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+	WndClass.lpszMenuName = MAKEINTRESOURCE(101);
+	WndClass.lpszClassName = a_pccTitle;
+
+	/* Register the window class and open the window */
+
+	if (RegisterClass(&WndClass))
+	{
+		/* Determine the size of the desktop window so that we can open the window taking up the */
+		/* entire size of the screen, but minus that used by the system taskbar.  This is why we */
+		/* use SystemParametersInfo() instead of GetClientRect() */
+
+		if (SystemParametersInfo(SPI_GETWORKAREA, 0, &Rect, 0))
+		{
+			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
+				Rect.right, Rect.bottom, 0, 0, Instance, 0)) != NULL)
+			{
+				/* Save a ptr to the window handle for use in the WindowProc() routine */
+
+				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
+
+				/* And display the window on the screen, maximised */
+
+				ShowWindow(m_poWindow, SW_MAXIMIZE);
+
+				if (GetClientRect(m_poWindow, &Rect))
+				{
+					/* Indicate success */
+
+					RetVal = KErrNone;
+
+					/* And save the size of the client area */
+
+					m_iInnerWidth = (Rect.right - Rect.left);
+					m_iInnerHeight = (Rect.bottom - Rect.top);
+				}
+				else
+				{
+					Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
+				}
+			}
+			else
+			{
+				Utils::Info("CWindow::Open() => Unable to open window");
+			}
+		}
+		else
+		{
+			Utils::Info("CWindow::Open() => Unable to determine size of desktop");
+		}
+	}
+	else
+	{
+		Utils::Info("CWindow::Open() => Unable to register window class");
+	}
+
+#endif /* WIN32 */
+
+	/* If everything went well, perform general postamble window opening work */
+
+	if (RetVal == KErrNone)
+	{
+		CompleteOpen();
+	}
+
+	/* Otherwise clean up whatever resources were allocated */
+
+	else
+	{
+		// TODO: CAW - Unregister on error
+		Close();
+	}
+
+	return(RetVal);
 }
 
 /* Written: Saturday 05-Nov-2011 9:03 am, CodeHQ Söflingen */
