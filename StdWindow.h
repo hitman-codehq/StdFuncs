@@ -25,6 +25,11 @@ enum TStdMouseEvent
 	EStdMouseDoubleClick	/* Mouse button double clicked */
 };
 
+/* The ptr to the root window lives as a global in Utils.cpp rather than as a static */
+/* in CWindow, to prevent non GUI programs pulling the framework in */
+
+extern CWindow *g_poRootWindow;
+
 /* This is the base class for all platform specific windows and dialog boxes */
 
 class CWindow
@@ -39,7 +44,6 @@ private:
 
 	TBool				m_bFillBackground;			/* ETrue to fill background when drawing */
 	CWindow				*m_poNext;					/* Ptr to next window in list */
-	static CWindow		*m_poRootWindow;			/* Ptr to root window on which all other windows open */
 
 #ifdef __amigaos4__
 
@@ -151,12 +155,12 @@ public:
 
 	void MakeRootWindow()
 	{
-		m_poRootWindow = this;
+		g_poRootWindow = this;
 	}
 
 	static CWindow *RootWindow()
 	{
-		return(m_poRootWindow);
+		return(g_poRootWindow);
 	}
 
 #ifdef __amigaos4__

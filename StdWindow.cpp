@@ -40,7 +40,6 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #endif /* WIN32 */
 
-CWindow *CWindow::m_poRootWindow;	/* Ptr to root window on which all other windows open */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
 #ifdef QT_GUI_LIB
@@ -1130,7 +1129,7 @@ struct Screen *CWindow::GetRootWindowScreen()
 	/* Get a ptr to the root window's underlying Amiga OS window, taking into account that there */
 	/* may not be a root window */
 
-	Window = (m_poRootWindow) ? m_poRootWindow->m_poWindow : NULL;
+	Window = (g_poRootWindow) ? g_poRootWindow->m_poWindow : NULL;
 
 	/* If there was a root window then return that window's Screen */
 

@@ -59,7 +59,16 @@ static const char *g_apccMonths[] =
 
 #endif /* ! __amigaos4__ */
 
-TBool g_bUsingGUI;	/* ETrue if running a GUI based program */
+/* ETrue if running a GUI based program */
+
+TBool g_bUsingGUI;
+
+/* Ptr to root window on which all other windows open.  This was defined in CWindow as a static, */
+/* but this caused the GUI framework to be linked in even for command line only programs.  Thus */
+/* it is now kept as a global variable.  Less elegent perhaps, but it significantly reduces the */
+/* amount of code statically linked in */
+
+CWindow	*g_poRootWindow;
 
 /* Written: Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor */
 /* Internal function that takes the OS specific error from the last function call and maps */
