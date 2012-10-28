@@ -13,6 +13,8 @@ endif
 
 LIBRARY = $(OBJ)/libStdFuncs.a
 
+UNAME = $(shell uname)
+
 ifeq ($(UNAME), AmigaOS)
 
 OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
