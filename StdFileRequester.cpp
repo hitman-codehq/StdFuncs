@@ -133,15 +133,15 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	/* Taglist containing the tags for laying out the requester, and their default values. */
 	/* We define it here so that it can be dynamically initialised with the screen ptr */
 
-	struct TagItem Tags[] = { { ASLFR_Screen, (LONG) Screen }, { ASLFR_TitleText, (LONG) g_accOpenText },
-		{ ASLFR_InitialDrawer, (LONG) "" }, { ASLFR_InitialFile, (LONG) m_acFileName },
+	struct TagItem Tags[] = { { ASLFR_Screen, (ULONG) Screen }, { ASLFR_TitleText, (ULONG) g_accOpenText },
+		{ ASLFR_InitialDrawer, (ULONG) "" }, { ASLFR_InitialFile, (ULONG) m_acFileName },
 		{ ASLFR_DoSaveMode, a_bSaveAs }, { TAG_DONE, FALSE } };
 
 	/* Dynamically determine the requester title to use */
 
 	if (a_bSaveAs)
 	{
-		Tags[1].ti_Data = (LONG) g_accSaveText;
+		Tags[1].ti_Data = (ULONG) g_accSaveText;
 	}
 
 	/* If a directory name has been included in the path passed in then try to open the */
@@ -149,7 +149,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	if (DirectoryName)
 	{
-		Tags[2].ti_Data = (LONG) DirectoryName;
+		Tags[2].ti_Data = (ULONG) DirectoryName;
 	}
 
 	/* Allocate an ASL file requester */
