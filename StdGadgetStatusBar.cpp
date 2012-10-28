@@ -1,23 +1,15 @@
 
 #include "StdFuncs.h"
+#include <string.h>
 #include "StdGadgets.h"
+#include "StdReaction.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
-
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
-#include <proto/intuition.h>
-#include <reaction/reaction.h>
-
-#elif defined(WIN32)
+#ifdef WIN32
 
 #include <commctrl.h>
 
 #endif /* WIN32 */
-
-#include <string.h>
 
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */

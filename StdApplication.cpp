@@ -1,16 +1,12 @@
 
 #include "StdFuncs.h"
 #include "StdApplication.h"
+#include "StdReaction.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos4__
 
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
 #include <proto/gadtools.h>
-#include <proto/intuition.h>
-#include <reaction/reaction.h>
 #include <proto/keymap.h>
 
 /* Array of key mappings for mapping Amiga keys onto standard keys */

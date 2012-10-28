@@ -1,18 +1,9 @@
 
 #include "StdFuncs.h"
+#include <string.h>
 #include "StdApplication.h"
 #include "StdDialog.h"
-
-#ifdef __amigaos4__
-
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
-#include <proto/intuition.h>
-#include <reaction/reaction.h>
-#include <string.h>
-
-#endif /* __amigaos4__ */
+#include "StdReaction.h"
 
 #ifdef WIN32
 

@@ -1,19 +1,9 @@
 
 #include "StdFuncs.h"
-#include "StdGadgets.h"
-#include "StdWindow.h"
-
-#ifdef __amigaos4__
-
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
-#include <proto/intuition.h>
-#include <reaction/reaction.h>
-
-#endif /* __amigaos4__ */
-
 #include <string.h>
+#include "StdGadgets.h"
+#include "StdReaction.h"
+#include "StdWindow.h"
 
 /* Written: Wednesday 21-Mar-2011 6:25 am, Hilton Košice */
 

@@ -1,6 +1,5 @@
 
 #include "StdFuncs.h"
-#include <string.h>
 #include "StdPool.h"
 
 /* Written: Sunday 13-May-2012 2:18 pm, Lindau (Bodensee) */

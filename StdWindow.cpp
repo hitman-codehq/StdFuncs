@@ -2,17 +2,13 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdGadgets.h"
+#include "StdReaction.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos4__
 
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
 #include <proto/gadtools.h>
-#include <proto/intuition.h>
 #include <proto/utility.h>
-#include <reaction/reaction.h>
 #include <intuition/gui.h>
 #include <intuition/imageclass.h>
 

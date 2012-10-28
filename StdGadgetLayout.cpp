@@ -1,18 +1,8 @@
 
 #include "StdFuncs.h"
 #include "StdGadgets.h"
+#include "StdReaction.h"
 #include "StdWindow.h"
-
-// TODO: CAW - Create a StdReaction.h file
-#ifdef __amigaos4__
-
-#define ALL_REACTION_CLASSES
-#define ALL_REACTION_MACROS
-
-#include <proto/intuition.h>
-#include <reaction/reaction.h>
-
-#endif /* __amigaos4__ */
 
 /* The LAYOUT_InnerSpacing attribute cannot be queried so we need to know it, so we */
 /* explicitly set it to a value and use that value in CStdGadgetLayout::GetSpacing() */
