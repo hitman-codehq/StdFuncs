@@ -100,7 +100,8 @@ void RStdPool::Close(TBool a_bFreeNodes)
 /* as it simply returns the first node on the list of available nodes.  If there are */
 /* no nodes on the list and the pool is extensible, an attempt will be made to */
 /* allocate further memory for nodes via the heap.  If no memory could be allocated */
-/* or if the pool was not extensible, NULL will be returned */
+/* or if the pool was not extensible, NULL will be returned.  To ensure fast allocation, */
+/* the contents of the node are *not* cleared to zero */
 
 void *RStdPool::GetNode()
 {
@@ -127,7 +128,6 @@ void *RStdPool::GetNode()
 	if (RetVal)
 	{
 		m_oNodes.Remove(RetVal);
-		memset(RetVal, 0, m_iSize);
 	}
 
 	return(RetVal);
