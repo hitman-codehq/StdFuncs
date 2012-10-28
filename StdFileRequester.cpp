@@ -126,7 +126,6 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	/* See if a root window has been set by the application and if so, open the dialog on that */
 	/* window.  Otherwise just open it on the desktop */
 
-	// TODO: CAW - This is tedious - make a GetRootWindowWindow() or similar function
 	RootWindow = CWindow::RootWindow();
 	Screen = (RootWindow) ? CWindow::RootWindow()->m_poWindow->WScreen : NULL;
 
