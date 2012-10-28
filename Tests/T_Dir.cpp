@@ -168,12 +168,19 @@ int main()
 
 	test(g_oDir.Read(Entries) == KErrGeneral);
 
-#ifndef __amigaos4__
-
 	/* The framework usually works identically on all platforms, but as there are */
 	/* subtle differences between different platforms when it comes to paths, this */
 	/* is one area where we don't try to retain identical behaviour across platforms. */
 	/* So only test these paths on non Amiga OS systems */
+
+#ifdef __amigaos4__
+
+	/* Test #12: Test scanning Ram: to ensure that the Disk.info link is correct */
+
+	Test.Next("Test scanning Ram: to ensure that the Disk.info link is correct");
+	TestScan("Ram:");
+
+#else /* ! __amigaos4__ */
 
 	/* Test #12: Test some paths that only work on Windows and UNIX */
 
