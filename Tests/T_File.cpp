@@ -198,6 +198,19 @@ int main()
 
 	File.Close();
 
+	/* Test #5: Ensure opening a wildcard fails as expected */
+
+	Test.Next("Ensure opening a wildcard fails as expected");
+
+	Result = File.Open("*.h", EFileRead);
+	test(Result == KErrNotFound);
+
+	Result = File.Open("*.h", EFileWrite);
+	test(Result == KErrNotFound);
+
+	Result = File.Create("*.h", EFileRead);
+	test(Result == KErrNotFound);
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("File.txt");
