@@ -1350,6 +1350,68 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	return(RetVal);
 }
 
+/* Written: Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor */
+/* @param	a_pccFileName	Ptr to filename to be resolved */
+/* @return	Ptr to the fully qualified name of the filename passed in, */
+/*			if successful, else NULL */
+/* Takes a filename that contains either no path or a relative path and */
+/* converts it to a fully qualified filename.  It is the responsibility */
+/* of the caller to free the returned buffer with delete [].  It is safe */
+/* to pass in an already qualified filename - the filename will simply */
+/* be copied into an allocated buffer and returned */
+
+char *Utils::ResolveFileName(const char *a_pccFileName)
+{
+	char *RetVal;
+	DWORD Length;
+
+#ifdef __amigaos4__
+
+// TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+// TODO: CAW - Implement
+
+#else /* ! __linux__ */
+
+	/* Assume failure */
+
+	RetVal = NULL;
+
+	/* Determine now much memory is required to hold the fully qualified */
+	/* path and allocate a buffer of the required size */
+
+	if ((Length = GetFullPathName(a_pccFileName, 0, NULL, NULL)) > 0)
+	{
+		if ((RetVal = new char[Length]) != NULL)
+		{
+			/* Convert the filename into a fully qualified path and put it in */
+			/* the allocated buffer */
+
+			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) == 0)
+			{
+				Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
+
+				delete [] RetVal;
+				RetVal = NULL;
+			}
+		}
+		else
+		{
+			Utils::Info("Utils::ResolveFileName() => Out of memory");
+		}
+	}
+	else
+	{
+		Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
+	}
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
+
 #ifdef __amigaos4__
 
 // TODO: CAW - Convert this to use RDir?  Why is it OS4 only?  Comments and error messages, ExamineDir() result

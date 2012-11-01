@@ -86,6 +86,8 @@ public:
 
 	static void NormalisePath(char *a_pcPath);
 
+	static char *ResolveFileName(const char *a_pccPath);
+
 	static TBool ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData);
 
 	static TInt SetDeleteable(const char *a_pccFileName);
