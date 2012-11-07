@@ -36,6 +36,12 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #endif /* WIN32 */
 
+#ifdef WIN32
+
+TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
+
+#endif /* WIN32 */
+
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
 #ifdef QT_GUI_LIB
@@ -234,10 +240,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			Window->Activated(!(a_oWParam == WA_INACTIVE));
 
-			/* And forget about the control keypress as we won't get a WM_KEYUP for it now that */
-			/* we no longer have focus */
+			/* And forget about the alt and ctrl keypresses as we won't get a WM_KEYUP for them now */
+			/* that swe no longer have focus */
 
-			m_bCtrlPressed = EFalse;
+			m_bAltPressed = m_bCtrlPressed = EFalse;
 
 			break;
 		}
@@ -274,9 +280,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_CHAR :
 		{
-			/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
+			/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII, */
+			/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
 
-			if (m_bCtrlPressed)
+			if ((m_bCtrlPressed) && (!(m_bAltPressed)))
 			{
 				a_oWParam |= 0x60;
 			}
@@ -314,7 +321,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			/* This is pretty horrible.  Because Windows mixes its WM_KEY#? and WM_CHAR events, we */
 			/* can get duplicate keys that need to get filtered out in order to provide a consistent */
-			/* pattern to calling CWindow::OfferKeyEvent() .  Also, when ctrl is pressed the ASCII */
+			/* pattern to calling CWindow::OfferKeyEvent().  Also, when ctrl is pressed the ASCII */
 			/* characters sent to WM_CHAR messages are different so again we need to adjust these */
 			/* back to standard ASCII so keeping track of the state of the ctrl key is the only way */
 			/* to achieve this */
@@ -325,16 +332,21 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			}
 
 			/* This is even more horrible.  When the ALT GR key is pressed, rather than using a special */
-			/* key, Windows sends through a VK_CONTROL WM_KEYDOWN event, followed by WK_MENU (otherwise */
+			/* key, Windows sends through a VK_CONTROL WM_KEYDOWN event, followed by VK_MENU (otherwise */
 			/* known as ALT) WM_KEYDOWN and WM_KEYUP events, with NO following VK_CONTROL WM_KEYUP event! */
 			/* So we need to put some special magic in here to handle this nonsense or we will think that */
-			/* the ctrl key is pressed when it isn't */
+			/* the ctrl key is pressed when it isn't.  We also have to keep track of the VK_MENU key to */
+			/* extend our workarounds to work when using altgr to enter characters on German keyboards */
 
 			else if (a_oWParam == VK_MENU)
 			{
-				if ((a_uiMessage == WM_KEYUP) && (m_bCtrlPressed))
+				if (a_uiMessage == WM_KEYDOWN)
 				{
-					m_bCtrlPressed = EFalse;
+					m_bAltPressed = ETrue;
+				}
+				else
+				{
+					m_bAltPressed = m_bCtrlPressed = EFalse;
 				}
 			}
 
