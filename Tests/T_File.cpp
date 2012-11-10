@@ -211,6 +211,19 @@ int main()
 	Result = File.Create("*.h", EFileRead);
 	test(Result == KErrNotFound);
 
+#ifdef __amigaos4__
+
+	Result = File.Open("#?.h", EFileRead);
+	test(Result == KErrNotFound);
+
+	Result = File.Open("#?.h", EFileWrite);
+	test(Result == KErrNotFound);
+
+	Result = File.Create("#?.h", EFileRead);
+	test(Result == KErrNotFound);
+
+#endif /* __amigaos4__ */
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("File.txt");

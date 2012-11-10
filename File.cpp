@@ -59,28 +59,37 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	TEntry Entry;
 
-	/* Only create the file if it does not already exist.  Amiga OS does not */
-	/* have a mode that allows us to do this so we have to manually perform a */
-	/* check ourselves */
+	/* Opening wildcards are not supported by our API although Amiga OS allows it! */
 
-	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
+	if ((strstr(a_pccFileName, "#") == NULL) && (strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
 	{
-		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
-		{
-			RetVal = KErrNone;
+		/* Only create the file if it does not already exist.  Amiga OS does not */
+		/* have a mode that allows us to do this so we have to manually perform a */
+		/* check ourselves */
 
-			m_uiFileMode = EFileWrite;
+		if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
+		{
+			if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
+			{
+				RetVal = KErrNone;
+
+				m_uiFileMode = EFileWrite;
+			}
+			else
+			{
+				/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+				RetVal = Utils::MapLastFileError(a_pccFileName);
+			}
 		}
 		else
 		{
-			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-			RetVal = Utils::MapLastFileError(a_pccFileName);
+			RetVal = KErrAlreadyExists;
 		}
 	}
 	else
 	{
-		RetVal = KErrAlreadyExists;
+		RetVal = KErrNotFound;
 	}
 
 #elif defined(__linux__)
@@ -207,37 +216,46 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #ifdef __amigaos4__
 
-	/* Open the existing file.  We want to open it as having an exclusive lock */
-	/* and being read only if EFileWrite is not specified but neither of */
-	/* these features are supported by Amiga OS so we will emulate them l8r */
+	/* Opening wildcards are not supported by our API although Amiga OS allows it! */
 
-	if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_OLDFILE)) != 0)
+	if ((strstr(a_pccFileName, "#") == NULL) && (strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
 	{
-		/* And change the shared lock to an exclusive lock as our API only */
-		/* supports opening files exclusively */
+		/* Open the existing file.  We want to open it as having an exclusive lock */
+		/* and being read only if EFileWrite is not specified but neither of */
+		/* these features are supported by Amiga OS so we will emulate them l8r */
 
-		if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_OLDFILE)) != 0)
 		{
-			RetVal = KErrNone;
+			/* And change the shared lock to an exclusive lock as our API only */
+			/* supports opening files exclusively */
 
-			/* Save the read/write mode for l8r use */
+			if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+			{
+				RetVal = KErrNone;
 
-			m_uiFileMode = a_uiFileMode;
+				/* Save the read/write mode for l8r use */
+
+				m_uiFileMode = a_uiFileMode;
+			}
+			else
+			{
+				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
+				RetVal = KErrGeneral;
+
+				Close();
+			}
 		}
 		else
 		{
-			Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = KErrGeneral;
-
-			Close();
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 	}
 	else
 	{
-		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-		RetVal = Utils::MapLastFileError(a_pccFileName);
+		RetVal = KErrNotFound;
 	}
 
 #elif defined(__linux__)
