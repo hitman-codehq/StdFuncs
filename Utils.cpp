@@ -31,6 +31,8 @@
 
 #ifdef __amigaos4__
 
+#define MAX_NAME_FROM_LOCK_LENGTH 1024
+
 #define DELETE_DIRECTORY(DirectoryName) IDOS->DeleteFile(DirectoryName)
 #define VSNPRINTF vsnprintf
 
@@ -1363,17 +1365,46 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 char *Utils::ResolveFileName(const char *a_pccFileName)
 {
 	char *RetVal;
-	DWORD Length;
+	BPTR Lock;
 
 #ifdef __amigaos4__
 
-// TODO: CAW - Implement
+	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
+	/* by dos.library's autodocs */
+
+	if ((RetVal = new char[MAX_NAME_FROM_LOCK_LENGTH ]) != NULL)
+	{
+		/* Get a lock on the specified filename and convert it to a qualified filename */
+
+		if ((Lock = IDOS->Lock(a_pccFileName, SHARED_LOCK)) != 0)
+		{
+			if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH ) == 0)
+			{
+				Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+
+				delete [] RetVal;
+				RetVal = NULL;
+			}
+
+			IDOS->UnLock(Lock);
+		}
+		else
+		{
+			Utils::Info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
+		}
+	}
+	else
+	{
+		Utils::Info("Utils::ResolveFileName() => Out of memory");
+	}
 
 #elif defined(__linux__)
 
 // TODO: CAW - Implement
 
 #else /* ! __linux__ */
+
+	DWORD Length;
 
 	/* Assume failure */
 
