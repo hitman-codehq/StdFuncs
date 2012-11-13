@@ -22,7 +22,8 @@
 /* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
 /* longer valid on return */
 
-CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
+CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout,
+	TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
 	CStdGadgetStatusBar *RetVal;
 
