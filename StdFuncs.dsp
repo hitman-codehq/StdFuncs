@@ -245,6 +245,10 @@ SOURCE=.\StdPool.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdReaction.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdTextFile.h
 # End Source File
 # Begin Source File
