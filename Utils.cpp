@@ -1365,9 +1365,10 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 char *Utils::ResolveFileName(const char *a_pccFileName)
 {
 	char *RetVal;
-	BPTR Lock;
 
 #ifdef __amigaos4__
+
+	BPTR Lock;
 
 	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
 	/* by dos.library's autodocs */
