@@ -17,6 +17,10 @@ static const char *g_apccBasicListWhitespaceResults[] = { "One", "two", "three",
 static char g_acBasicListQuotes[] = "\"One\" two \"three\" four \"five\"";
 static const char *g_apccBasicListQuotesResults[BASIC_LIST_QUOTES_COUNT] = { "One", "two", "three", "four", "five" };
 
+#define NON_DESTRUCTIVE_LIST_COUNT 5
+static const char g_acNonDestructiveList[] = "One two three four five";
+static const char *g_apccNonDestructiveListResults[] = { "One", "two", "three", "four", "five" };
+
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 // TODO: CAW
 
@@ -36,6 +40,9 @@ static void CheckList(TLex &a_roLex, const char *a_apccList[], TInt a_iListCount
 
 int main()
 {
+	const char *Token;
+	TInt Index, Offset;
+
 	Test.Title();
 	Test.Start("TLex class API test");
 
@@ -51,6 +58,20 @@ int main()
 
 	TLex BasicQuotes(g_acBasicListQuotes);
 	CheckList(BasicQuotes, g_apccBasicListQuotesResults, BASIC_LIST_QUOTES_COUNT);
+
+	/* Test #3: Basic a non destructive test */
+
+	Test.Next("Basic a non destructive test");
+
+	TLex Lex(g_acNonDestructiveList, strlen(g_acNonDestructiveList));
+
+	for (Index = 0; Index < NON_DESTRUCTIVE_LIST_COUNT; ++Index)
+	{
+		Token = Lex.NextToken(&Offset);
+		test(Token != NULL);
+		Test.Printf("Index %d = %s\n", Index, g_apccNonDestructiveListResults[Index]);
+		test(strncmp(Token, g_apccNonDestructiveListResults[Index], strlen(g_apccNonDestructiveListResults[Index])) == 0);
+	}
 
 	Test.End();
 
