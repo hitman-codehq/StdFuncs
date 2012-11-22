@@ -6,8 +6,8 @@
 #include <Test.h>
 #include <string.h>
 
-static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
-static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
+static RDir g_oDir;			/* RDir class is global to implicitly test re-use */
+static RTest Test("T_Dir");	/* Class to use for testing and reporting results */
 
 static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSize = 0)
 {

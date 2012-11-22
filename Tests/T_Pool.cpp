@@ -5,7 +5,7 @@
 
 #define NUM_NODES 500
 
-static RTest Test("T_Pool");		/* Class to use for testing and reporting results */
+static RTest Test("T_Pool");	/* Class to use for testing and reporting results */
 
 struct SPoolItem
 {
