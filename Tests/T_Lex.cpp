@@ -9,6 +9,10 @@ static RTest Test("T_Lex"); /* Class to use for testing and reporting results */
 static char g_acBasicList[] = "One two three four five";
 static const char *g_apccBasicListResults[] = { "One", "two", "three", "four", "five" };
 
+#define BASIC_LIST_WHITESPACE_COUNT 5
+static char g_acBasicListWhitespace[] = " \tOne  two  three  four  five ";
+static const char *g_apccBasicListWhitespaceResults[] = { "One", "two", "three", "four", "five" };
+
 #define BASIC_LIST_QUOTES_COUNT 5
 static char g_acBasicListQuotes[] = "\"One\" two \"three\" four \"five\"";
 static const char *g_apccBasicListQuotesResults[BASIC_LIST_QUOTES_COUNT] = { "One", "two", "three", "four", "five" };
@@ -41,6 +45,9 @@ int main()
 
 	TLex Basic(g_acBasicList);
 	CheckList(Basic, g_apccBasicListResults, BASIC_LIST_COUNT);
+
+	TLex BasicWhitespace(g_acBasicListWhitespace);
+	CheckList(BasicWhitespace, g_apccBasicListWhitespaceResults, BASIC_LIST_WHITESPACE_COUNT);
 
 	TLex BasicQuotes(g_acBasicListQuotes);
 	CheckList(BasicQuotes, g_apccBasicListQuotesResults, BASIC_LIST_QUOTES_COUNT);
