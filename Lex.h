@@ -20,11 +20,7 @@ public:
 		m_iLength = a_iLength;
 	}
 
-	TLex(char *a_pcString)
-	{
-		m_pcString = a_pcString;
-		m_iLength = strlen(a_pcString);
-	}
+	TLex(char *a_pcString);
 
 	char *NextToken();
 

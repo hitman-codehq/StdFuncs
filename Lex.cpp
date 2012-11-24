@@ -1,6 +1,16 @@
 
 #include "StdFuncs.h"
+#include <string.h>
 #include "Lex.h"
+
+/* Written: Saturday 24-Nov-2012 9:34 am */
+/* Initialises the TLex class for destructive extraction of tokens */
+
+TLex::TLex(char *a_pcString)
+{
+	m_pcString = a_pcString;
+	m_iLength = strlen(a_pcString);
+}
 
 /* Written: Monday 21-Jun-2010 6:51 am */
 /* @return	The next token available in the TLex instance */
