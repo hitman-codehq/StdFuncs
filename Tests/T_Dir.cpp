@@ -87,7 +87,7 @@ int main()
 
 	Test.Next("Test that Open() with wildcards works");
 	TestScan("*");
-	TestScan("*.dsw", 1, 2204);
+	TestScan("*.dsw", 1, 2478);
 	TestScan("SomeDir/*.txt", 1, 174);
 
 	/* Test #5: Test that Open() with a filename works */
