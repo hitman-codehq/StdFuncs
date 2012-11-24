@@ -101,7 +101,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	{
 		*a_piLength = (NextToken - RetVal);
 		++NextToken;
-		--m_iLength;
+		++Index;
 	}
 
 	/* Otherwise signal that no more tokens were found */
@@ -114,6 +114,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	/* Save the current position in the string for use in the next call */
 
 	m_pccString = NextToken;
+	m_iLength -= Index;
 
 	return(RetVal);
 }
