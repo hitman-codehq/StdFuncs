@@ -3,6 +3,13 @@
 #include "Lex.h"
 
 /* Written: Monday 21-Jun-2010 6:51 am */
+/* @return	The next token available in the TLex instance */
+/* Parses the string with which the TLex was initialised and returns a ptr to the */
+/* next available token in the string.  This token will be NULL terminated.  the */
+/* first call to this routine will return the first token in the string and successive */
+/* calls will return successive tokens.  This is a destructive routine in that it */
+/* "destroys" the string passed in by writing NULL terminators into it, moving */
+/* through the source string as tokens are extraced */
 
 char *TLex::NextToken()
 {
@@ -31,6 +38,12 @@ char *TLex::NextToken()
 }
 
 /* Written: Thursday 22-Nov-2012 6:12 am */
+/* @passed	A ptr to a variable into which to place the length of the token */
+/* @return	The next token available in the TLex instance */
+/* Parses the string with which the TLex was initialised and returns a ptr to the */
+/* next available token in the string.  This token will NOT be NULL terminated but */
+/* its length will instead be returned in the variable pointed to by a_piLength. */
+/* This is a non destructive routine */
 
 const char *TLex::NextToken(TInt *a_piLength)
 {
