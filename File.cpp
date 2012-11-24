@@ -22,17 +22,16 @@ RFile::RFile()
 
 	m_oHandle = -1;
 
-#else /* ! __linux__ */
+#elif defined(__amigaos4__)
 
-	m_oHandle = 0;
-
-#endif /* ! __linux__ */
-
-#ifdef __amigaos4__
-
+	// TODO: CAW - WTF?
 	m_uiFileMode = 0;
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
+
+	m_oHandle = INVALID_HANDLE_VALUE;
+
+#endif /* ! __amigaos4__ */
 
 }
 
@@ -461,22 +460,20 @@ void RFile::Close()
 		m_oHandle = -1;
 	}
 
-#else /* ! __linux__ */
+#elif defined(__amigaos4__)
 
 	if (m_oHandle != 0)
 	{
-
-#ifdef __amigaos4__
-
 		DEBUGCHECK((IDOS->Close(m_oHandle) != 0), "RFile::Close() => Unable to close file");
+		m_oHandle = 0;
+	}
 
 #else /* ! __amigaos4__ */
 
+	if (m_oHandle != INVALID_HANDLE_VALUE)
+	{
 		DEBUGCHECK((CloseHandle(m_oHandle) != FALSE), "RFile::Close() => Unable to close file");
-
-#endif /* ! __amigaos4__ */
-
-		m_oHandle = 0;
+		m_oHandle = INVALID_HANDLE_VALUE;
 	}
 
 #endif /* ! __linux__ */
