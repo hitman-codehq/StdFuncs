@@ -1,5 +1,6 @@
 
 #include <StdFuncs.h>
+#include <string.h>
 #include <Lex.h>
 #include <Test.h>
 
