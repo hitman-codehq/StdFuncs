@@ -24,8 +24,7 @@ RFile::RFile()
 
 #elif defined(__amigaos4__)
 
-	// TODO: CAW - WTF?
-	m_uiFileMode = 0;
+	m_uiFileMode = m_oHandle = 0;
 
 #else /* ! __amigaos4__ */
 
