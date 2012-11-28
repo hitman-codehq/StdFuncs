@@ -8,8 +8,10 @@
 
 TLex::TLex(char *a_pcString)
 {
+	m_pccString = NULL;
 	m_pcString = a_pcString;
 	m_iLength = strlen(a_pcString);
+	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
 }
 
 /* Written: Monday 21-Jun-2010 6:51 am */
@@ -58,60 +60,108 @@ char *TLex::NextToken()
 const char *TLex::NextToken(TInt *a_piLength)
 {
 	const char *NextToken, *RetVal;
+	TBool FoundQuotes;
 	TInt Index;
 
 	ASSERTM((m_pccString != NULL), "TLex::NextToken() => String to parse not initialised");
 
 	/* Assume the token will be extracted from the start of the string */
 
-	RetVal = m_pccString;
+	NextToken = RetVal = m_pccString;
 	Index = 0;
+	FoundQuotes = EFalse;
 
 	/* Skip past any white space at the start of the string */
 
-	while ((Index < m_iLength) && ((*RetVal == ' ') || (*RetVal == '\t')))
-	{
-		++RetVal;
-		++Index;
-	}
-
-	/* If the new token start with a " then extract up until the next " and include and */
-	/* white space found between the start and end " characters */
-
-	NextToken = RetVal;
-
-	if (*NextToken == '"')
+	while ((Index < m_iLength) && ((*NextToken == ' ') || (*NextToken == '\t')))
 	{
 		++NextToken;
-		++RetVal;
 		++Index;
-
-		while ((Index < m_iLength) && (*NextToken != '"'))
-		{
-			++NextToken;
-			++Index;
-		}
 	}
 
-	/* Otherwise just extract up until the next white space character */
+	/* If there was white space and the class is configured to keep white space then */
+	/* we already have a token to return */
 
-	else
+	if ((Index == 0) || (!(m_bKeepWhiteSpace)))
 	{
-		while ((Index < m_iLength) && (*NextToken != ' ') && (*NextToken != '\t'))
+		/* If the new token start with a " then extract up until the next " and include and */
+		/* white space found between the start and end " characters */
+
+		RetVal = NextToken;
+
+		if (*NextToken == '"')
 		{
 			++NextToken;
 			++Index;
+			FoundQuotes = ETrue;
+
+			/* Only skip the beginning " if we are not configured to keep it */
+
+			if (!(m_bKeepQuotes))
+			{
+				++RetVal;
+			}
+
+			/* Extract the string itself as the token */
+
+			while ((Index < m_iLength) && (*NextToken != '"'))
+			{
+				++NextToken;
+				++Index;
+			}
+
+			/* Only skip the end " if we are not configured to keep it */
+
+			if (m_bKeepQuotes)
+			{
+				++NextToken;
+				++Index;
+			}
+		}
+
+		/* Otherwise just extract up until the next white space character */
+
+		else
+		{
+			while ((Index < m_iLength) && (*NextToken != ' ') && (*NextToken != '\t'))
+			{
+				++NextToken;
+				++Index;
+			}
 		}
 	}
 
-	/* If the token found contains any characters then determine its length and point past */
-	/* the separator so the ptr can be used in the next call */
+	/* If the token found contains any characters then determine its length */
 
 	if (NextToken > RetVal)
 	{
 		*a_piLength = (NextToken - RetVal);
-		++NextToken;
-		++Index;
+
+		/* If we have found some white space then skip past it.  This is only */
+		/* required for use by the destructive token extractor, which will put */
+		/* a NULL terminator into what is currently pointed to by NextToken, */
+		/* thus causing the next call to this function to fail */
+
+		if ((*NextToken == ' ') || (*NextToken == '\t'))
+		{
+			/* Only skip if we are not configured to treat white space as a */
+			/* token.  Note that this is incompatible with the destructive */
+			/* token extractor! */
+
+			if (!(m_bKeepWhiteSpace))
+			{
+				++NextToken;
+				++Index;
+			}
+		}
+
+		/* If this is an end quote then skip it */
+
+		else if ((*NextToken == '"') && (FoundQuotes))
+		{
+			++NextToken;
+			++Index;
+		}
 	}
 
 	/* Otherwise signal that no more tokens were found */
@@ -127,4 +177,20 @@ const char *TLex::NextToken(TInt *a_piLength)
 	m_iLength -= Index;
 
 	return(RetVal);
+}
+
+/* Written: Tuesday 27-Nov-2012 5:52 am */
+/* Configures the TLex class such that it retains white space, quotes or both. */
+/* Note that if you use the destructive version of the TLex::NextToken() then */
+/* this function can cause incompatibilities with it, as the destructive NextToken()
+/* depends on being able to write its NULL terminator into the white space.  If */
+/* you need to extract white space then you will need to use the non destructive */
+/* version of TLex::NextToken() */
+/* @param a_bKeepQuotes     ETrue to retain the " quotation marks in extracted strings */
+/*        a_bKeepWhiteSpace ETrue to return white space as a token */
+
+void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
+{
+	m_bKeepQuotes = a_bKeepQuotes;
+	m_bKeepWhiteSpace = a_bKeepWhiteSpace;
 }
