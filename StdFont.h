@@ -12,7 +12,14 @@ class CWindow;
 
 #endif /* QT_GUI_LIB */
 
-#define NUM_FONT_COLOURS 4
+/* # of colours that text can be displayed in and the symbolic names of */
+/* those colours */
+
+#define STDFONT_NUM_COLOURS 4
+#define STDFONT_BLACK 0
+#define STDFONT_RED 1
+#define STDFONT_GREEN 2
+#define STDFONT_BLUE 3
 
 class RFont
 {
