@@ -8,10 +8,38 @@
 
 TLex::TLex(char *a_pcString)
 {
+	/* Remember to set these in the other constructor as well */
+
 	m_pccString = NULL;
 	m_pcString = a_pcString;
+	m_pcWhitespace = " \t";
 	m_iLength = strlen(a_pcString);
+	m_iWhitespaceLength = 2;
 	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
+}
+
+/* Written: Wednesday 05-Dec-2012 5:37 am */
+/* @param a_cCharacter Character to be checked */
+/* @returns ETrue if a_cCharacter is white space, else EFalse */
+/* Checks a character against the contents of the white space list to see */
+/* if it is white space */
+
+TBool TLex::CheckWhitespace(char a_cCharacter)
+{
+	TInt Index;
+
+	/* Scan through the white space list and see if the character passed */
+	/* in is valid white space */
+
+	for (Index = 0; Index < m_iWhitespaceLength; ++Index)
+	{
+		if (a_cCharacter == m_pcWhitespace[Index])
+		{
+			break;
+		}
+	}
+
+	return(Index < m_iWhitespaceLength);
 }
 
 /* Written: Monday 21-Jun-2010 6:51 am */
@@ -73,7 +101,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	/* Skip past any white space at the start of the string */
 
-	while ((Index < m_iLength) && ((*NextToken == ' ') || (*NextToken == '\t')))
+	while ((Index < m_iLength) && (CheckWhitespace(*NextToken)))
 	{
 		++NextToken;
 		++Index;
@@ -123,7 +151,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 		else
 		{
-			while ((Index < m_iLength) && (*NextToken != ' ') && (*NextToken != '\t'))
+			while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
 			{
 				++NextToken;
 				++Index;
@@ -142,7 +170,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 		/* a NULL terminator into what is currently pointed to by NextToken, */
 		/* thus causing the next call to this function to fail */
 
-		if ((*NextToken == ' ') || (*NextToken == '\t'))
+		if (CheckWhitespace(*NextToken))
 		{
 			/* Only skip if we are not configured to treat white space as a */
 			/* token.  Note that this is incompatible with the destructive */
@@ -193,4 +221,20 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
 {
 	m_bKeepQuotes = a_bKeepQuotes;
 	m_bKeepWhiteSpace = a_bKeepWhiteSpace;
+}
+
+/* Written: Wednesday 05-Dec-2012 5:30 am */
+/* @param a_pcWhitespace Ptr to string containing the new white space characters */
+/* Sets the white space character list so that other characters can be treated as */
+/* white space.  For example, to parse the string ".cpp;.c;.h" into its separate */
+/* tokens you would use a white space string of ";".  Note that white space is */
+/* treated specially by the destructive extraction routines and thus setting the */
+/* white space separator is only allowed for the non destructive routines */
+
+void TLex::SetWhitespace(const char *a_pcWhitespace)
+{
+	ASSERTM((m_pcString == NULL), "TLex::SetWhitespace() => Alternate whitespace can only be used for non destructive extraction");
+
+	m_pcWhitespace = a_pcWhitespace;
+	m_iWhitespaceLength = strlen(a_pcWhitespace);
 }

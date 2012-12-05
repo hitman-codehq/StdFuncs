@@ -32,6 +32,16 @@ static const char *g_apccQuotesListResults[] = { "\"One\"", "\"two\"", "\"three\
 #define SPACES_COUNT 7
 static const char *g_apccSpacesListResults[] = { "  ", "One", " ", "two", " ", "three", "  " };
 
+#define SEMICOLON_COUNT 7
+static char g_acSemiColonList[] = ";\"One\";;\"two\";;\"three\";";
+static const char *g_apccQuotesAndSpacesSemiColonListResults[] = { ";", "\"One\"", ";;", "\"two\"", ";;", "\"three\"", ";" };
+
+#define QUOTES_SEMICOLON_COUNT 3
+static const char *g_apccQuotesSemiColonListResults[] = { "\"One\"", "\"two\"", "\"three\"" };
+
+#define SPACES_SEMICOLON_COUNT 7
+static const char *g_apccSpacesSemiColonListResults[] = { ";", "One", ";;", "two", ";;", "three", ";" };
+
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
 /*			a_apccList		Array of ptrs to strings containing the exepcted results */
@@ -129,6 +139,25 @@ int main()
 	TLex Spaces(g_acQuotesAndSpaceList, strlen(g_acQuotesAndSpaceList));
 	Spaces.SetConfig(EFalse, ETrue);
 	CheckListNonDestructive(Spaces, g_apccSpacesListResults, SPACES_COUNT);
+
+	/* Test #5: Test alternate white space separator */
+
+	Test.Next("Test alternate white space separator");
+
+	TLex QuotesAndSpacesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	QuotesAndSpacesSemiColon.SetConfig(ETrue, ETrue);
+	QuotesAndSpacesSemiColon.SetWhitespace(";");
+	CheckListNonDestructive(QuotesAndSpacesSemiColon, g_apccQuotesAndSpacesSemiColonListResults, SEMICOLON_COUNT);
+
+	TLex QuotesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	QuotesSemiColon.SetConfig(ETrue, EFalse);
+	QuotesSemiColon.SetWhitespace(";");
+	CheckListNonDestructive(QuotesSemiColon, g_apccQuotesSemiColonListResults, QUOTES_SEMICOLON_COUNT);
+
+	TLex SpacesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	SpacesSemiColon.SetConfig(EFalse, ETrue);
+	SpacesSemiColon.SetWhitespace(";");
+	CheckListNonDestructive(SpacesSemiColon, g_apccSpacesSemiColonListResults, SPACES_SEMICOLON_COUNT);
 
 	Test.End();
 
