@@ -100,7 +100,7 @@ int main()
 	test(Utils::CountTokens("\"One\"\t\"Two\"") == 2);
 	test(Utils::CountTokens("\"One\"\tTwo") == 2);
 
-	/* Some checks for handling extra whitespace */
+	/* Some checks for handling extra white space */
 
 	test(Utils::CountTokens("\tOne\t\tTwo\t") == 2);
 	test(Utils::CountTokens(" One  Two ") == 2);
