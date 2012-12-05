@@ -225,7 +225,8 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
 }
 
 /* Written: Wednesday 05-Dec-2012 5:30 am */
-/* @param a_pcWhitespace Ptr to string containing the new white space characters */
+/* @param a_pcWhitespace	Ptr to string containing the new white space characters */
+/*							Contents must be valid for the duration of the class's use */
 /* Sets the white space character list so that other characters can be treated as */
 /* white space.  For example, to parse the string ".cpp;.c;.h" into its separate */
 /* tokens you would use a white space string of ";".  Note that white space is */
@@ -234,7 +235,8 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
 
 void TLex::SetWhitespace(const char *a_pcWhitespace)
 {
-	ASSERTM((m_pcString == NULL), "TLex::SetWhitespace() => Alternate whitespace can only be used for non destructive extraction");
+	ASSERTM((a_pcWhitespace != NULL), "TLex::SetWhitespace() => Ptr to white space can not be NULL");
+	ASSERTM((m_pcString == NULL), "TLex::SetWhitespace() => Alternate white space can only be used for non destructive extraction");
 
 	m_pcWhitespace = a_pcWhitespace;
 	m_iWhitespaceLength = strlen(a_pcWhitespace);

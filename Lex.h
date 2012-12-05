@@ -14,7 +14,7 @@ private:
 	TBool		m_bKeepQuotes;		/* ETrue to keep the quote marks around strings */
 	TBool		m_bKeepWhiteSpace;	/* ETrue to treat white space as a token */
 	TInt		m_iLength;			/* Length of the string to be parsed */
-	TInt		m_iWhitespaceLength;/* # of characters of whitespace to be checked */
+	TInt		m_iWhitespaceLength;/* # of characters of white space to be checked */
 
 public:
 
