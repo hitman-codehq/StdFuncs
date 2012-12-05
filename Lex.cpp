@@ -5,6 +5,7 @@
 
 /* Written: Saturday 24-Nov-2012 9:34 am */
 /* Initialises the TLex class for destructive extraction of tokens */
+/* @param a_pcString Ptr to string to be parsed for tokens */
 
 TLex::TLex(char *a_pcString)
 {
@@ -19,7 +20,7 @@ TLex::TLex(char *a_pcString)
 }
 
 /* Written: Wednesday 05-Dec-2012 5:37 am */
-/* @param a_cCharacter Character to be checked */
+/* @param	a_cCharacter Character to be checked */
 /* @returns ETrue if a_cCharacter is white space, else EFalse */
 /* Checks a character against the contents of the white space list to see */
 /* if it is white space */
@@ -78,7 +79,7 @@ char *TLex::NextToken()
 }
 
 /* Written: Thursday 22-Nov-2012 6:12 am */
-/* @passed	A ptr to a variable into which to place the length of the token */
+/* @param	A ptr to a variable into which to place the length of the token */
 /* @return	The next token available in the TLex instance */
 /* Parses the string with which the TLex was initialised and returns a ptr to the */
 /* next available token in the string.  This token will NOT be NULL terminated but */
