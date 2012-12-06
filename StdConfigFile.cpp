@@ -3,6 +3,38 @@
 #include "Lex.h"
 #include "StdConfigFile.h"
 
+/***********************************************************/
+/* ConfigFile::OpenConfigFile will open a config file for  */
+/* reading.                                                */
+/* Written: Wednesday 22-Apr-1998 9:33 pm                  */
+/* Passed: pcConfigFileName => Name of config file to open */
+/* Returns: CFE_Ok if successful, else CFE_CouldntOpenFile */
+/***********************************************************/
+
+TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
+{
+	TInt RetVal;
+	TEntry Entry;
+
+	if (Utils::GetFileInfo(pcConfigFileName, &Entry) == KErrNone)
+	{
+		iBufferSize = Entry.iSize;
+
+		if ((pBuffer = new char[iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
+		{
+			if ((RetVal = fConfigFile.Open(pcConfigFileName, EFileRead)) == KErrNone)
+			{
+				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize) // TODO: CAW - Cast
+				{
+					bConfigFileOpen = TRUE;
+				} // TODO: CAW - Else
+			}
+		}
+	}
+
+	return(RetVal);
+}
+
 /**********************************************/
 /* ConfigFile::CloseConfigFile will close the */
 /* config file, if it is open                 */
@@ -195,37 +227,4 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
   {
     //THROW1(ConfigFileException, GetLastErrorString());
   }
-}
-
-/***********************************************************/
-/* ConfigFile::OpenConfigFile will open a config file for  */
-/* reading.                                                */
-/* Written: Wednesday 22-Apr-1998 9:33 pm                  */
-/* Passed: pcConfigFileName => Name of config file to open */
-/* Returns: CFE_Ok if successful, else CFE_CouldntOpenFile */
-/***********************************************************/
-
-// TODO: CAW - Ordering
-TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
-{
-	TInt RetVal;
-	TEntry Entry;
-
-	if (Utils::GetFileInfo(pcConfigFileName, &Entry) == KErrNone)
-	{
-		iBufferSize = Entry.iSize;
-
-		if ((pBuffer = new char[iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
-		{
-			if ((RetVal = fConfigFile.Open(pcConfigFileName, EFileRead)) == KErrNone)
-			{
-				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize) // TODO: CAW - Cast
-				{
-					bConfigFileOpen = TRUE;
-				} // TODO: CAW - Else
-			}
-		}
-	}
-
-	return(RetVal);
 }
