@@ -6,12 +6,14 @@
 
 class RConfigFile
 {
+  char *pBuffer;
+  TInt iBufferSize;
   RFile fConfigFile;     /* File class used for config file I/O */
   BOOL bConfigFileOpen; /* TRUE if the config file is open, else FALSE */
 
 public:
 
-  RConfigFile() { bConfigFileOpen = FALSE; }
+  RConfigFile() { pBuffer = NULL; bConfigFileOpen = FALSE; }
   ~RConfigFile() { CloseConfigFile(); }
   TInt OpenConfigFile(const char *);
   void CloseConfigFile(void);

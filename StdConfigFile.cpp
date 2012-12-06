@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "Lex.h"
 #include "StdConfigFile.h"
 
 /**********************************************/
@@ -12,7 +13,6 @@ void RConfigFile::CloseConfigFile()
 {
   if (bConfigFileOpen)
   {
-	IDOS->Printf("*** Closing config file\n");
 	fConfigFile.Close();
     bConfigFileOpen = FALSE;
   }
@@ -31,18 +31,21 @@ void RConfigFile::CloseConfigFile()
 /*********************************************************************/
 
 // TODO: CAW - What to do about SectionName?
-void RConfigFile::GetConfigInteger(const char *pcSectionName, const char *pcSubSectionName, const char *pcKeyName, int *piDestInt)
+void RConfigFile::GetConfigInteger(const char *pcSectionName, const char *pcSubSectionName,
+	const char *pcKeyName, int *piDestInt)
 {
-  //String sConfigString;
+  //String
+  char sConfigString[MAX_PATH];
 
-  //GetConfigString(pcSectionName, pcSubSectionName, pcKeyName, sConfigString);
+  GetConfigString(pcSectionName, pcSubSectionName, pcKeyName, sConfigString);
+  *piDestInt = atoi(sConfigString);
 
-	// TODO: CAW
-  /*if (!(Platform::atoi(sConfigString, piDestInt)))
+  // TODO: CAW
+  //if (!(Platform::atoi(sConfigString, piDestInt)))
   {
-    SetLastError(CFE_BadNumber);
-    THROW1(ConfigFileException, GetLastErrorString());
-  }*/
+    //SetLastError(CFE_BadNumber);
+    //THROW1(ConfigFileException, GetLastErrorString());
+  }
 }
 
 /***************************************************************************/
@@ -61,40 +64,58 @@ void RConfigFile::GetConfigInteger(const char *pcSectionName, const char *pcSubS
 /*          occurred by calling ConfigFile::GetLastErrorString()           */
 /***************************************************************************/
 
-void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSectionName, const char *pcKeyName, char *pcDestString)
+void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSectionName,
+	const char *pcKeyName, char *pcDestString)
 {
-  char acTempString[MAX_PATH];
-  ULONG ulEndIndex, ulIndex, ulLength;
+  char *Buffer;
+  const char *Token;
+  TInt BufferSize, Index, TokenLength;
   BOOL bDone, bFoundSection, bFoundSubSection;
 
   //SetLastError(CFE_KeyNotFound);
   bDone = bFoundSection = bFoundSubSection = FALSE;
 
-#if 0
-  try
+  Buffer = pBuffer;
+  BufferSize = iBufferSize;
+
+  //try // TODO: CAW - Check how this affects the size
   {
-    fConfigFile.SeekFile(0, FSEEK_SET);
-
-    while ((!(bDone)) && (ceLastError == CFE_KeyNotFound) && (!(fConfigFile.Eof())))
+    while ((!(bDone)))// && /*(ceLastError == CFE_KeyNotFound) &&*/ (!(fConfigFile.Eof())))
     {
-      if (fConfigFile.ReadLine(acTempString, sizeof(acTempString)))
+      for (Index = 0; Index < BufferSize; ++Index)
+	  {
+	    // TODO: CAW - Test for this causing problems with TLex
+		if (Buffer[Index] == '\r')
+		{
+		  Buffer[Index] = '\0';
+		}
+
+		if (Buffer[Index] == '\n')
+		{
+		  Buffer[Index] = '\0';
+
+          break;
+		}
+	  }
+
+	  TLex Lex(Buffer, Index);
+
+	  BufferSize -= Index;
+	  ++Index;
+	  Buffer += Index;
+
+	  if ((Token = Lex.NextToken(&TokenLength)) != NULL)
       {
-        ulIndex = 0;
-
-        while ((acTempString[ulIndex]) && (acTempString[ulIndex] == ' '))
+        if (Token[0] != ';')
         {
-          ++ulIndex;
-        }
-
-        if (acTempString[ulIndex] != ';')
-        {
-          if (acTempString[ulIndex] == '(')
+          if (Token[0] == '(')
           {
             if (!(bFoundSubSection))
             {
               if (!(bFoundSection))
               {
-                bFoundSection = (!(strnicmp(&acTempString[ulIndex + 1], pcSectionName, lstrlen(pcSectionName))));
+			    // TODO: CAW - This could run over the end of Token
+                bFoundSection = (!(strnicmp(&Token[1], pcSectionName, strlen(pcSectionName))));
                 bFoundSubSection = FALSE;
               }
               else
@@ -111,11 +132,12 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
           {
             if (bFoundSection)
             {
-              if (acTempString[ulIndex] == '[')
+              if (Token[0] == '[')
               {
                 if (!(bFoundSubSection))
                 {
-                  bFoundSubSection = (!(strnicmp(&acTempString[ulIndex + 1], pcSubSectionName, lstrlen(pcSubSectionName))));
+			      // TODO: CAW - This could run over the end of Token
+                  bFoundSubSection = (!(strnicmp(&Token[1], pcSubSectionName, strlen(pcSubSectionName))));
                 }
                 else
                 {
@@ -126,35 +148,23 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
               {
                 if (bFoundSubSection)
                 {
-                  ulLength = lstrlen(pcKeyName);
-
-                  if (!(strnicmp(&acTempString[ulIndex], pcKeyName, ulLength)))
+                  if (!(strnicmp(Token, pcKeyName, strlen(pcKeyName)))) // TODO: CAW - Slow, here and elsewhere
                   {
-                    /* Skip past any white space and the '=' operator */
+					Token = Lex.NextToken(&TokenLength);
 
-                    ulIndex += ulLength;
+					if ((Token) && (strncmp(Token, "=", 1) == 0))
+					{
+					Token = Lex.NextToken(&TokenLength);
 
-                    while ((acTempString[ulIndex]) && ((acTempString[ulIndex] == ' ') || (acTempString[ulIndex] == '=')))
-                    {
-                      ++ulIndex;
-                    }
-
-                    /* Scan to the end of the string and delete any CRLF found */
-
-                    ulEndIndex = ulIndex;
-
-                    while ((acTempString[ulEndIndex]) && (acTempString[ulEndIndex] != '\r') && (acTempString[ulEndIndex] != '\n'))
-                    {
-                      ++ulEndIndex;
-                    }
-
-                    acTempString[ulEndIndex] = '\0';
-
+					if (Token)
+					{
                     /* Copy the string into the dest buffer and signal success */
 
-                    rsDestString = &acTempString[ulIndex];
-                    SetLastError(CFE_Ok);
+                    memcpy(pcDestString, Token, TokenLength);
+  					pcDestString[TokenLength] = '\0'; // TODO: CAW - Can strncpy be used?
                     bDone = TRUE;
+					}
+					}
                   }
                 }
               }
@@ -164,7 +174,7 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
       }
     }
 
-    if (ceLastError != CFE_Ok)
+    /*if (ceLastError != CFE_Ok)
     {
       if (!(bFoundSection))
       {
@@ -174,18 +184,17 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
       {
         SetLastError(CFE_SubSectionNotFound);
       }
-    }
+    }*/
   }
-  catch(FileEx &)
+  //catch(FileEx &)
   {
-    SetLastError(CFE_FileIOError);
+    //SetLastError(CFE_FileIOError);
   }
 
-  if (ceLastError != CFE_Ok)
+  //if (ceLastError != CFE_Ok)
   {
-    THROW1(ConfigFileException, GetLastErrorString());
+    //THROW1(ConfigFileException, GetLastErrorString());
   }
-#endif
 }
 
 /***********************************************************/
@@ -200,15 +209,23 @@ void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSe
 TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
 {
 	TInt RetVal;
+	TEntry Entry;
 
-	IDOS->Printf("*** Opening config file\n");
-	if ((RetVal = fConfigFile.Open(pcConfigFileName, (EFileRead | EFileWrite))) == KErrNone)
+	if (Utils::GetFileInfo(pcConfigFileName, &Entry) == KErrNone)
 	{
-		IDOS->Printf("*** OK\n");
+		iBufferSize = Entry.iSize;
 
-		bConfigFileOpen = TRUE;
+		if ((pBuffer = new char[iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
+		{
+			if ((RetVal = fConfigFile.Open(pcConfigFileName, EFileRead)) == KErrNone)
+			{
+				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize) // TODO: CAW - Cast
+				{
+					bConfigFileOpen = TRUE;
+				} // TODO: CAW - Else
+			}
+		}
 	}
 
 	return(RetVal);
 }
-
