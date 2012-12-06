@@ -16,7 +16,7 @@ TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
 	TInt RetVal;
 	TEntry Entry;
 
-	if (Utils::GetFileInfo(pcConfigFileName, &Entry) == KErrNone)
+	if ((RetVal = Utils::GetFileInfo(pcConfigFileName, &Entry)) == KErrNone)
 	{
 		iBufferSize = Entry.iSize;
 
@@ -24,11 +24,21 @@ TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
 		{
 			if ((RetVal = fConfigFile.Open(pcConfigFileName, EFileRead)) == KErrNone)
 			{
-				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize) // TODO: CAW - Cast
+				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize)
 				{
+					RetVal = KErrNone;
+
 					bConfigFileOpen = TRUE;
-				} // TODO: CAW - Else
+				}
+				else
+				{
+					RetVal = KErrEof;
+				}
 			}
+		}
+		else
+		{
+			RetVal = KErrNoMemory;
 		}
 	}
 
