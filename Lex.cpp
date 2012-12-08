@@ -215,7 +215,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 /* Written: Tuesday 27-Nov-2012 5:52 am */
 /* Configures the TLex class such that it retains white space, quotes or both. */
 /* Note that if you use the destructive version of the TLex::NextToken() then */
-/* this function can cause incompatibilities with it, as the destructive NextToken()
+/* this function can cause incompatibilities with it, as the destructive NextToken() */
 /* depends on being able to write its NULL terminator into the white space.  If */
 /* you need to extract white space then you will need to use the non destructive */
 /* version of TLex::NextToken() */
