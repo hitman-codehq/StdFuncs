@@ -67,6 +67,11 @@ static void CheckList(TLex &a_roLex, const char *a_apccList[], TInt a_iListCount
 		Test.Printf("Index %d = %s\n", Index, a_apccList[Index]);
 		test(strcmp(Token, a_apccList[Index]) == 0);
 	}
+
+	/* All tokens extracted so ensure that the next call to TLex::NextToken() */
+	/* returns NULL as expected */
+
+	test(a_roLex.NextToken() == NULL);
 }
 
 /* Written: Wednesday 28-Nov-2012 6:32 pm, Vis à Vis Hotel, Lindau */
@@ -91,6 +96,11 @@ static void CheckListNonDestructive(TLex &a_roLex, const char *a_apccList[], TIn
 		Test.Printf("Index %d = %s\n", Index, a_apccList[Index]);
 		test(strncmp(Token, a_apccList[Index], strlen(a_apccList[Index])) == 0);
 	}
+
+	/* All tokens extracted so ensure that the next call to TLex::NextToken() */
+	/* returns NULL as expected */
+
+	test(a_roLex.NextToken(&Length) == NULL);
 }
 
 int main()
