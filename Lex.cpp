@@ -139,7 +139,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 				++Index;
 			}
 
-			/* Only skip the end " if we are not configured to keep it */
+			/* Only skip the end " if we are configured to keep it */
 
 			if (m_bKeepQuotes)
 			{
@@ -184,9 +184,12 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 		}
 
-		/* If this is an end quote then skip it */
+		/* If this is an end quote then skip it, but only if we are not keeping */
+		/* quotes.  Otherwise if two quote separated tokens are next to one */
+		/* another without whitespace, the start of the second token will be */
+		/* skipped instead */
 
-		else if ((*NextToken == '"') && (FoundQuotes))
+		else if ((*NextToken == '"') && (FoundQuotes) && (!(m_bKeepQuotes)))
 		{
 			++NextToken;
 			++Index;

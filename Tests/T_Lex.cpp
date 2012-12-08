@@ -32,6 +32,10 @@ static const char *g_apccQuotesListResults[] = { "\"One\"", "\"two\"", "\"three\
 #define SPACES_COUNT 7
 static const char *g_apccSpacesListResults[] = { "  ", "One", " ", "two", " ", "three", "  " };
 
+#define QUOTES_LIST_NO_WHITESPACE_COUNT 2
+static const char g_acQuotesListNoWhitespace[] = "\"one\"\"two\"";
+static const char *g_apccQuotesListNoWhitespaceResults[] = { "\"one\"", "\"two\"" };
+
 #define SEMICOLON_COUNT 7
 static char g_acSemiColonList[] = ";\"One\";;\"two\";;\"three\";";
 static const char *g_apccQuotesAndSpacesSemiColonListResults[] = { ";", "\"One\"", ";;", "\"two\"", ";;", "\"three\"", ";" };
@@ -124,7 +128,7 @@ int main()
 		test(strncmp(Token, g_apccNonDestructiveListResults[Index], strlen(g_apccNonDestructiveListResults[Index])) == 0);
 	}
 
-	/* Test #4: Test including spaces and quotes */
+	/* Test #4: Tests including spaces and quotes */
 
 	Test.Next("Test including spaces and quotes");
 
@@ -139,6 +143,10 @@ int main()
 	TLex Spaces(g_acQuotesAndSpaceList, strlen(g_acQuotesAndSpaceList));
 	Spaces.SetConfig(EFalse, ETrue);
 	CheckListNonDestructive(Spaces, g_apccSpacesListResults, SPACES_COUNT);
+
+	TLex QuotesNoWhitespace(g_acQuotesListNoWhitespace, strlen(g_acQuotesListNoWhitespace));
+	QuotesNoWhitespace.SetConfig(ETrue, EFalse);
+	CheckListNonDestructive(QuotesNoWhitespace, g_apccQuotesListNoWhitespaceResults, QUOTES_LIST_NO_WHITESPACE_COUNT);
 
 	/* Test #5: Test alternate white space separator */
 
