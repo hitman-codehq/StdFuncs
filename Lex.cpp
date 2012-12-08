@@ -80,11 +80,12 @@ char *TLex::NextToken()
 
 /* Written: Thursday 22-Nov-2012 6:12 am */
 /* @param	A ptr to a variable into which to place the length of the token */
-/* @return	The next token available in the TLex instance */
+/* @return	The next token available in the TLex instance, or NULL if there are none */
 /* Parses the string with which the TLex was initialised and returns a ptr to the */
 /* next available token in the string.  This token will NOT be NULL terminated but */
 /* its length will instead be returned in the variable pointed to by a_piLength. */
-/* This is a non destructive routine */
+/* In the case where no token is returned, the contents of a_piLength will not be */
+/* altered.  This is a non destructive routine */
 
 const char *TLex::NextToken(TInt *a_piLength)
 {
