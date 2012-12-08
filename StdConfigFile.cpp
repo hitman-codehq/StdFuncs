@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include <string.h>
 #include "File.h"
 #include "Lex.h"
 #include "StdConfigFile.h"

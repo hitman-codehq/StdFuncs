@@ -14,7 +14,7 @@
 #endif /* QT_GUI_LIB */
 
 /* Colours that can be printed by RFont::DrawColouredText().  This must match */
-/* NUM_FONT_COLOURS in StdFont.h */
+/* STDFONT_NUM_COLOURS in StdFont.h */
 
 static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
@@ -41,7 +41,7 @@ RFont::RFont(CWindow *a_poWindow)
 	/* This is better done here rather than in RFont::DrawColouredText() every */
 	/* time it is called */
 
-	for (Index = 0; Index < NUM_FONT_COLOURS; ++Index)
+	for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
 	{
 		Red = Utils::Red32(g_aoColours[Index] & 0xff0000);
 		Green = Utils::Green32(g_aoColours[Index] & 0xff00);
@@ -468,7 +468,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 		Length = *a_pcText++;
 		Colour = *a_pcText++;
-		ASSERTM((Colour < NUM_FONT_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
+		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Move to the position at which to print, taking into account the left and top border sizes, */
 		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */

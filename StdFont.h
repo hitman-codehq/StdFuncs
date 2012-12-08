@@ -33,7 +33,7 @@ private:
 
 #ifdef __amigaos4__
 
-	LONG		m_alPens[NUM_FONT_COLOURS];	/* Array of pens found using IGraphics->ObtainBestPen() */
+	LONG		m_alPens[STDFONT_NUM_COLOURS]; /* Array of pens found using IGraphics->ObtainBestPen() */
 
 #elif defined(QT_GUI_LIB)
 
