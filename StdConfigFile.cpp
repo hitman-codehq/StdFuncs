@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "File.h"
 #include "Lex.h"
 #include "StdConfigFile.h"
 
@@ -11,29 +12,31 @@
 /* Returns: CFE_Ok if successful, else CFE_CouldntOpenFile */
 /***********************************************************/
 
-TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
+TInt RConfigFile::Open(const char *a_pcFileName)
 {
 	TInt RetVal;
 	TEntry Entry;
 
-	if ((RetVal = Utils::GetFileInfo(pcConfigFileName, &Entry)) == KErrNone)
+	if ((RetVal = Utils::GetFileInfo(a_pcFileName, &Entry)) == KErrNone)
 	{
-		iBufferSize = Entry.iSize;
+		m_iBufferSize = Entry.iSize;
 
-		if ((pBuffer = new char[iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
+		if ((m_pcBuffer = new char[m_iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
 		{
-			if ((RetVal = fConfigFile.Open(pcConfigFileName, EFileRead)) == KErrNone)
+			RFile File;
+
+			if ((RetVal = File.Open(a_pcFileName, EFileRead)) == KErrNone)
 			{
-				if (fConfigFile.Read((unsigned char *) pBuffer, iBufferSize) == iBufferSize)
+				if (File.Read((unsigned char *) m_pcBuffer, m_iBufferSize) == m_iBufferSize)
 				{
 					RetVal = KErrNone;
-
-					bConfigFileOpen = TRUE;
 				}
 				else
 				{
 					RetVal = KErrEof;
 				}
+
+				File.Close();
 			}
 		}
 		else
@@ -51,13 +54,10 @@ TInt RConfigFile::OpenConfigFile(const char *pcConfigFileName)
 /* Written: Wednesday 22-Apr-1998 9:35 pm     */
 /**********************************************/
 
-void RConfigFile::CloseConfigFile()
+void RConfigFile::Close()
 {
-  if (bConfigFileOpen)
-  {
-	fConfigFile.Close();
-    bConfigFileOpen = FALSE;
-  }
+	delete [] m_pcBuffer;
+	m_pcBuffer = NULL;
 }
 
 /*********************************************************************/
@@ -72,22 +72,14 @@ void RConfigFile::CloseConfigFile()
 /* Returns: See ConfigFile::GetConfigString() for return details     */
 /*********************************************************************/
 
-// TODO: CAW - What to do about SectionName?
-void RConfigFile::GetConfigInteger(const char *pcSectionName, const char *pcSubSectionName,
-	const char *pcKeyName, int *piDestInt)
+// TODO: CAW - Check validity of returned integer (SetLastError(CFE_BadNumber)) and maximum length of sConfigString?
+void RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
+	const char *a_pccKeyName, int *a_piResult)
 {
-  //String
-  char sConfigString[MAX_PATH];
+	char ConfigString[MAX_PATH];
 
-  GetConfigString(pcSectionName, pcSubSectionName, pcKeyName, sConfigString);
-  *piDestInt = atoi(sConfigString);
-
-  // TODO: CAW
-  //if (!(Platform::atoi(sConfigString, piDestInt)))
-  {
-    //SetLastError(CFE_BadNumber);
-    //THROW1(ConfigFileException, GetLastErrorString());
-  }
+	GetString(a_pccSectionName, a_pccSubSectionName, a_pccKeyName, ConfigString);
+	*a_piResult= atoi(ConfigString);
 }
 
 /***************************************************************************/
@@ -106,135 +98,115 @@ void RConfigFile::GetConfigInteger(const char *pcSectionName, const char *pcSubS
 /*          occurred by calling ConfigFile::GetLastErrorString()           */
 /***************************************************************************/
 
-void RConfigFile::GetConfigString(const char *pcSectionName, const char *pcSubSectionName,
-	const char *pcKeyName, char *pcDestString)
+// TODO: CAW - Error handling: CFE_SectionNotFound, CFE_SubSectionNotFound, CFE_KeyNotFound
+void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
+	const char *a_pccKeyName, char *a_pcResult)
 {
-  char *Buffer;
-  const char *Token;
-  TInt BufferSize, Index, TokenLength;
-  BOOL bDone, bFoundSection, bFoundSubSection;
+	char *Buffer;
+	const char *Token;
+	TBool Done, FoundSection, FoundSubSection;
+	TInt BufferSize, Index, CRIndex, LFIndex, TokenLength;
 
-  //SetLastError(CFE_KeyNotFound);
-  bDone = bFoundSection = bFoundSubSection = FALSE;
+	*a_pcResult = '\0';
 
-  Buffer = pBuffer;
-  BufferSize = iBufferSize;
+	Done = FoundSection = FoundSubSection = EFalse;
 
-  //try // TODO: CAW - Check how this affects the size
-  {
-    while ((!(bDone)))// && /*(ceLastError == CFE_KeyNotFound) &&*/ (!(fConfigFile.Eof())))
-    {
-      for (Index = 0; Index < BufferSize; ++Index)
-	  {
-	    // TODO: CAW - Test for this causing problems with TLex
-		if (Buffer[Index] == '\r')
+	Buffer = m_pcBuffer;
+	BufferSize = m_iBufferSize;
+
+	while (BufferSize > 0)
+	{
+		CRIndex = LFIndex = 0;
+
+		for (Index = 0; Index < BufferSize; ++Index)
 		{
-		  Buffer[Index] = '\0';
+			if (Buffer[Index] == '\r')
+			{
+				CRIndex = Index;
+			}
+
+			if (Buffer[Index] == '\n')
+			{
+				LFIndex = Index;
+
+				break;
+			}
 		}
 
-		if (Buffer[Index] == '\n')
+		TLex Lex(Buffer, LFIndex);
+
+		++Index;
+		Buffer += Index;
+		BufferSize -= Index;
+
+		if ((Token = Lex.NextToken(&TokenLength)) != NULL)
 		{
-		  Buffer[Index] = '\0';
+			if (Token[0] != ';')
+			{
+				if (Token[0] == '(')
+				{
+					if (!(FoundSubSection))
+					{
+						if (!(FoundSection))
+						{
+							// TODO: CAW - This could run over the end of Token
+							FoundSection = (!(strnicmp(&Token[1], a_pccSectionName, strlen(a_pccSectionName))));
+							FoundSubSection = EFalse;
+						}
+						else
+						{
+							//Done = ETrue;
+						}
+					}
+					else
+					{
+						//Done = ETrue;
+					}
+				}
+				else
+				{
+					if (FoundSection)
+					{
+						if (Token[0] == '[')
+						{
+							if (!(FoundSubSection))
+							{
+								// TODO: CAW - This could run over the end of Token
+								FoundSubSection = (!(strnicmp(&Token[1], a_pccSubSectionName, strlen(a_pccSubSectionName))));
+							}
+							else
+							{
+								//Done = ETrue;
+							}
+						}
+						else
+						{
+							if (FoundSubSection)
+							{
+								if (!(strnicmp(Token, a_pccKeyName, strlen(a_pccKeyName)))) // TODO: CAW - Slow, here and elsewhere
+								{
+									Token = Lex.NextToken(&TokenLength);
 
-          break;
+									if ((Token) && (strncmp(Token, "=", 1) == 0))
+									{
+										Token = Lex.NextToken(&TokenLength);
+
+										if (Token)
+										{
+											/* Extract the token into the dest buffer and signal success */
+
+											memcpy(a_pcResult, Token, TokenLength);
+											a_pcResult[TokenLength] = '\0';
+
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-	  }
-
-	  TLex Lex(Buffer, Index);
-
-	  BufferSize -= Index;
-	  ++Index;
-	  Buffer += Index;
-
-	  if ((Token = Lex.NextToken(&TokenLength)) != NULL)
-      {
-        if (Token[0] != ';')
-        {
-          if (Token[0] == '(')
-          {
-            if (!(bFoundSubSection))
-            {
-              if (!(bFoundSection))
-              {
-			    // TODO: CAW - This could run over the end of Token
-                bFoundSection = (!(strnicmp(&Token[1], pcSectionName, strlen(pcSectionName))));
-                bFoundSubSection = FALSE;
-              }
-              else
-              {
-                bDone = TRUE;
-              }
-            }
-            else
-            {
-              bDone = TRUE;
-            }
-          }
-          else
-          {
-            if (bFoundSection)
-            {
-              if (Token[0] == '[')
-              {
-                if (!(bFoundSubSection))
-                {
-			      // TODO: CAW - This could run over the end of Token
-                  bFoundSubSection = (!(strnicmp(&Token[1], pcSubSectionName, strlen(pcSubSectionName))));
-                }
-                else
-                {
-                  bDone = TRUE;
-                }
-              }
-              else
-              {
-                if (bFoundSubSection)
-                {
-                  if (!(strnicmp(Token, pcKeyName, strlen(pcKeyName)))) // TODO: CAW - Slow, here and elsewhere
-                  {
-					Token = Lex.NextToken(&TokenLength);
-
-					if ((Token) && (strncmp(Token, "=", 1) == 0))
-					{
-					Token = Lex.NextToken(&TokenLength);
-
-					if (Token)
-					{
-                    /* Copy the string into the dest buffer and signal success */
-
-                    memcpy(pcDestString, Token, TokenLength);
-  					pcDestString[TokenLength] = '\0'; // TODO: CAW - Can strncpy be used?
-                    bDone = TRUE;
-					}
-					}
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    /*if (ceLastError != CFE_Ok)
-    {
-      if (!(bFoundSection))
-      {
-        SetLastError(CFE_SectionNotFound);
-      }
-      else if (!(bFoundSubSection))
-      {
-        SetLastError(CFE_SubSectionNotFound);
-      }
-    }*/
-  }
-  //catch(FileEx &)
-  {
-    //SetLastError(CFE_FileIOError);
-  }
-
-  //if (ceLastError != CFE_Ok)
-  {
-    //THROW1(ConfigFileException, GetLastErrorString());
-  }
+	}
 }
