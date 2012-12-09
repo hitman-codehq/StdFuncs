@@ -773,13 +773,18 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		a_iWidth = m_iInnerWidth;
 	}
 
-	CentralWidget = m_poWindow->centralWidget();
-	ASSERTM((CentralWidget != NULL), "CWindow::DrawNow() => Central widget has not been assigned to window");
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	/* And invalidate the vertical band.  Liken Windows, this will defer the dredrawing until l8r, */
-	/* possibly coalescing multiple redraws into one */
+	if (m_poWindow)
+	{
+		CentralWidget = m_poWindow->centralWidget();
+		ASSERTM((CentralWidget != NULL), "CWindow::DrawNow() => Central widget has not been assigned to window");
 
-	CentralWidget->update(a_iTop, 0, a_iWidth, a_iBottom);
+		/* And invalidate the vertical band.  Liken Windows, this will defer the dredrawing until l8r, */
+		/* possibly coalescing multiple redraws into one */
+
+		CentralWidget->update(a_iTop, 0, a_iWidth, a_iBottom);
+	}
 
 #elif defined(WIN32)
 
