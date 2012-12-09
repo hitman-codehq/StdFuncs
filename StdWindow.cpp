@@ -585,14 +585,19 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 
 #ifdef __amigaos4__
 
-	/* All window drawing operations are relative to the client area, so adjust the X and Y */
-	/* positions such that they point past the left and top borders */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	a_iX += m_poWindow->BorderLeft;
-	a_iY += m_poWindow->BorderTop;
+	if (m_poWindow)
+	{
+		/* All window drawing operations are relative to the client area, so adjust the X and Y */
+		/* positions such that they point past the left and top borders */
 
-	IIntuition->ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
-		LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+		a_iX += m_poWindow->BorderLeft;
+		a_iY += m_poWindow->BorderTop;
+
+		IIntuition->ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
+			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+	}
 
 #else /* ! __amigaos4__ */
 
@@ -733,29 +738,34 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	// TODO: CAW - Temporary until we sort out refreshing the screen
 	(void) a_iWidth;
 
-	/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
-	/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
-	/* the rect to draw.  We only fill the background if required to as client code can disable */
-	/* this functionality */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	//if (m_bFillBackground)
+	if (m_poWindow)
 	{
-		Top = (m_poWindow->BorderTop + a_iTop);
-		Bottom = (m_poWindow->BorderTop + a_iBottom);
+		/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
+		/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
+		/* the rect to draw.  We only fill the background if required to as client code can disable */
+		/* this functionality */
 
-		/* If the bottom line is off the bottom of the client area then clip it to the bottom line */
-		/* of the client area */
-
-		if (Bottom > (m_poWindow->BorderTop + m_iInnerHeight - 1))
+		if (m_bFillBackground)
 		{
-			Bottom = (m_poWindow->BorderTop + m_iInnerHeight - 1);
+			Top = (m_poWindow->BorderTop + a_iTop);
+			Bottom = (m_poWindow->BorderTop + a_iBottom);
+
+			/* If the bottom line is off the bottom of the client area then clip it to the bottom line */
+			/* of the client area */
+
+			if (Bottom > (m_poWindow->BorderTop + m_iInnerHeight - 1))
+			{
+				Bottom = (m_poWindow->BorderTop + m_iInnerHeight - 1);
+			}
+
+			/* Now fill in the background before drawing */
+
+			//IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
+			//	  (m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
+			//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 		}
-
-		/* Now fill in the background before drawing */
-
-		//IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
-		//	  (m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
-		//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 	}
 
 	/* And call the derived rendering function to perform a redraw immediately */

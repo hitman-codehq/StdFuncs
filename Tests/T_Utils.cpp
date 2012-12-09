@@ -179,15 +179,19 @@ int main()
 	/* Delete any old file hanging around from prior runs, then create a file and try */
 	/* to delete it while it is open for writing */
 
+Test.Printf("1\n");
 	Result = BaflUtils::DeleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
+Test.Printf("2\n");
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
+Test.Printf("3\n");
 	Result = BaflUtils::DeleteFile("File.txt");
 	test(Result == KErrInUse);
 
+Test.Printf("4\n");
 	File.Close();
 
 	/* Ensure the objects aren't hanging around from last run */

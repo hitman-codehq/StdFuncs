@@ -37,18 +37,23 @@ RFont::RFont(CWindow *a_poWindow)
 
 	m_iBaseline = 0;
 
-	/* Iterate through the colours and determine the best pen to use for each one. */
-	/* This is better done here rather than in RFont::DrawColouredText() every */
-	/* time it is called */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
+	if (m_poWindow->m_poWindow)
 	{
-		Red = Utils::Red32(g_aoColours[Index] & 0xff0000);
-		Green = Utils::Green32(g_aoColours[Index] & 0xff00);
-		Blue = Utils::Blue32(g_aoColours[Index] & 0xff);
+		/* Iterate through the colours and determine the best pen to use for each one. */
+		/* This is better done here rather than in RFont::DrawColouredText() every */
+		/* time it is called */
 
-		Pen	= IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
-		m_alPens[Index] = Pen;
+		for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
+		{
+			Red = Utils::Red32(g_aoColours[Index] & 0xff0000);
+			Green = Utils::Green32(g_aoColours[Index] & 0xff00);
+			Blue = Utils::Blue32(g_aoColours[Index] & 0xff);
+
+			Pen = IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
+			m_alPens[Index] = Pen;
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -88,11 +93,16 @@ TInt RFont::Open()
 
 	RetVal = KErrNone;
 
-	/* Determine the baseline, width & height of the font from the window */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	m_iBaseline = m_poWindow->m_poWindow->IFont->tf_Baseline;
-	m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
-	m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
+	if (m_poWindow->m_poWindow)
+	{
+		/* Determine the baseline, width & height of the font from the window */
+
+		m_iBaseline = m_poWindow->m_poWindow->IFont->tf_Baseline;
+		m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
+		m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -309,23 +319,28 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 	TInt X;
 
-	/* Calculate the position at which to draw the cursor */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
-
-	/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
-
-	if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+	if (m_poWindow->m_poWindow)
 	{
-		/* Move to the position at which to print, taking into account the left and top border sizes, */
-		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-		/* routine prints at the baseline position, not the top of the font */
+		/* Calculate the position at which to draw the cursor */
 
-		IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
 
-		/* And draw the cursor! */
+		/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
 
-		IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+		if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+		{
+			/* Move to the position at which to print, taking into account the left and top border sizes, */
+			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+			/* routine prints at the baseline position, not the top of the font */
+
+			IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+
+			/* And draw the cursor! */
+
+			IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -389,26 +404,31 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
 
-	/* Move to the position at which to print, taking into account the left and top border sizes, */
-	/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-	/* routine prints at the baseline position, not the top of the font */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
-		(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+	if (m_poWindow->m_poWindow)
+	{
+		/* Move to the position at which to print, taking into account the left and top border sizes, */
+		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+		/* routine prints at the baseline position, not the top of the font */
 
-	/* Calculate the maximum number of characters that can fit in the client area of the window, */
-	/* as text is not automatically clipped by the Amiga OS text drawing routine.  The text may */
-	/* not start at the very left of the screen so take this into account */
+		IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
+			(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
-	Width = (m_iClipWidth - (a_iX * m_iWidth));
-	Width = MAX(0, Width);
+		/* Calculate the maximum number of characters that can fit in the client area of the window, */
+		/* as text is not automatically clipped by the Amiga OS text drawing routine.  The text may */
+		/* not start at the very left of the screen so take this into account */
 
-	NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
-		Width, m_poWindow->InnerHeight());
+		Width = (m_iClipWidth - (a_iX * m_iWidth));
+		Width = MAX(0, Width);
 
-	/* And draw as much of the text passed in as will fit in the client area */
+		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
+			Width, m_poWindow->InnerHeight());
 
-	IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
+		/* And draw as much of the text passed in as will fit in the client area */
+
+		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -540,19 +560,26 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 void RFont::SetHighlight(TBool a_iHighlight)
 {
+	ASSERTM(m_poWindow, "RFont::SetHighlight() => Window handle not set");
+
 	/* Toggle the text highlight on or off as appropriate */
 
 #ifdef __amigaos4__
 
-	if (a_iHighlight)
+	/* Unit Test support: The Framework must be able to run without a real GUI */
+
+	if (m_poWindow->m_poWindow)
 	{
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
-		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
-	}
-	else
-	{
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
-		IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+		if (a_iHighlight)
+		{
+			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
+			IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
+		}
+		else
+		{
+			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
+			IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
