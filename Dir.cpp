@@ -834,81 +834,92 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	if (!(iSingleEntryOk))
 	{
-		QualifiedName = NULL;
+		/* Ensure that the directory has been opened for reading */
 
-		/* We must manually clear errno here, as it is not cleared by readdir() when successful */
-		/* and may result in bogus errors appearing if it was != 0 when this routine was entered! */
-
-		errno = 0;
-
-		/* Scan through the directory and fill the iEntries array with filenames */
-
-		while ((RetVal == KErrNone) && ((DirEnt = readdir(iDir)) != NULL))
+		if (iDir)
 		{
-			/* Append the entry to the entry list, but only if it doesn't represent the current or */
-			/* parent directory */
+			QualifiedName = NULL;
 
-			Append = EFalse;
+			/* We must manually clear errno here, as it is not cleared by readdir() when successful */
+			/* and may result in bogus errors appearing if it was != 0 when this routine was entered! */
 
-			if ((strcmp(DirEnt->d_name, ".")) && (strcmp(DirEnt->d_name, "..")))
+			errno = 0;
+
+			/* Scan through the directory and fill the iEntries array with filenames */
+
+			while ((RetVal == KErrNone) && ((DirEnt = readdir(iDir)) != NULL))
 			{
-				Append = ETrue;
+				/* Append the entry to the entry list, but only if it doesn't represent the current or */
+				/* parent directory */
 
-				/* If there is a wildcard then see if it matches and if not, don't append the entry */
+				Append = EFalse;
 
-				if (iPattern[0] != '\0')
+				if ((strcmp(DirEnt->d_name, ".")) && (strcmp(DirEnt->d_name, "..")))
 				{
-					if (fnmatch(iPattern, DirEnt->d_name, 0) != 0)
+					Append = ETrue;
+
+					/* If there is a wildcard then see if it matches and if not, don't append the entry */
+
+					if (iPattern[0] != '\0')
 					{
-						Append = EFalse;
+						if (fnmatch(iPattern, DirEnt->d_name, 0) != 0)
+						{
+							Append = EFalse;
+						}
 					}
 				}
-			}
 
-			/* Append the entry if it is was judged ok to do so */
+				/* Append the entry if it is was judged ok to do so */
  
-			if (Append)
-			{
-				if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
+				if (Append)
 				{
-					/* UNIX only returns the filename itself when scanning the directory so get all of */
-					/* the other details for the directory entry */
-
-					// TODO: CAW - Use a function for this and change the Amiga version to match it.  Amiga
-					//             version uses IDOS->AddPart()?
-					Length = (strlen(iPath) + 1 + 1 + strlen(DirEnt->d_name));
-
-					if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
+					if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
 					{
-						strcpy(QualifiedName, iPath);
-						Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
+						/* UNIX only returns the filename itself when scanning the directory so get all of */
+						/* the other details for the directory entry */
 
-						RetVal = Utils::GetFileInfo(QualifiedName, Entry);
+						// TODO: CAW - Use a function for this and change the Amiga version to match it.  Amiga
+						//             version uses IDOS->AddPart()?
+						Length = (strlen(iPath) + 1 + 1 + strlen(DirEnt->d_name));
+
+						if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
+						{
+							strcpy(QualifiedName, iPath);
+							Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
+
+							RetVal = Utils::GetFileInfo(QualifiedName, Entry);
+						}
+						else
+						{
+							RetVal = KErrNoMemory;
+						}
 					}
 					else
 					{
 						RetVal = KErrNoMemory;
+
+						break;
 					}
 				}
-				else
-				{
-					RetVal = KErrNoMemory;
+			}
 
-					break;
-				}
+			Utils::FreeTempBuffer(QualifiedName);
+
+			/* If DirEnt is NULL then we reached the end of the readdir() scan.  Check to see if this */
+			/* happened because we had scanned all files or if it is because there was an error.  We */
+			/* also have to take into account that RetVal may have been set during scanning due to */
+			/* another error occurring */
+
+			if ((RetVal == KErrNone) && (!(DirEnt)) && (errno != 0))
+			{
+				RetVal = KErrNotFound;
 			}
 		}
-
-		Utils::FreeTempBuffer(QualifiedName);
-
-		/* If DirEnt is NULL then we reached the end of the readdir() scan.  Check to see if this */
-		/* happened because we had scanned all files or if it is because there was an error.  We */
-		/* also have to take into account that RetVal may have been set during scanning due to */
-		/* another error occurring */
-
-		if ((RetVal == KErrNone) && (!(DirEnt)) && (errno != 0))
+		else
 		{
-			RetVal = KErrNotFound;
+			Utils::Info("RDir::Read() => Unable to scan an unopened directory");
+
+			RetVal = KErrGeneral;
 		}
 	}
 
@@ -920,6 +931,8 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	if (!(iSingleEntryOk))
 	{
+		/* Ensure that the directory has been opened for reading */
+
 		if (iHandle)
 		{
 			while (FindNextFile(iHandle, &FindData))
