@@ -43,7 +43,7 @@ protected:
 	TInt					m_iWidth;			/* Width of the gadget in pixels */
 	TInt					m_iHeight;			/* Height of the gadget in pixels */
 	TInt					m_iMinHeight;		/* Minimum height of the gadget in pixels */
-	CStdGadgetLayout		*m_poParentLayout;	// TODO: CAW
+	CStdGadgetLayout		*m_poParentLayout;	/* Ptr to CStdGadgetLayout that owns this gadget */
 	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
 	enum TStdGadgetType		m_iGadgetType;		/* Type of gadget */
 
