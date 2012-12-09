@@ -46,6 +46,13 @@ static const char *g_apccQuotesSemiColonListResults[] = { "\"One\"", "\"two\"", 
 #define SPACES_SEMICOLON_COUNT 7
 static const char *g_apccSpacesSemiColonListResults[] = { ";", "One", ";;", "two", ";;", "three", ";" };
 
+#define CRLF_AT_END_COUNT 1
+static const char g_acCRLFAtEndList[] = "One\r\n";
+static const char *g_apccCRLFAtEndListResults[] = { "One" };
+
+static const char g_acCRAtEndList[] = "One\r";
+static const char g_acLFAtEndList[] = "One\n";
+
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
 /*			a_apccList		Array of ptrs to strings containing the exepcted results */
@@ -176,6 +183,19 @@ int main()
 	SpacesSemiColon.SetConfig(EFalse, ETrue);
 	SpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(SpacesSemiColon, g_apccSpacesSemiColonListResults, SPACES_SEMICOLON_COUNT);
+
+	/* Test #5: Ensure that CR/LF terminators are ignored */
+
+	Test.Next("Ensure that CR/LF terminators are ignored");
+
+	TLex CRLFAtEnd(g_acCRLFAtEndList, strlen(g_acCRLFAtEndList));
+	CheckListNonDestructive(CRLFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
+
+	TLex CRAtEnd(g_acCRAtEndList, strlen(g_acCRAtEndList));
+	CheckListNonDestructive(CRAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
+
+	TLex LFAtEnd(g_acLFAtEndList, strlen(g_acLFAtEndList));
+	CheckListNonDestructive(LFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
 	Test.End();
 

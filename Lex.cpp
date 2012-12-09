@@ -23,7 +23,9 @@ TLex::TLex(char *a_pcString)
 /* @param	a_cCharacter Character to be checked */
 /* @returns ETrue if a_cCharacter is white space, else EFalse */
 /* Checks a character against the contents of the white space list to see */
-/* if it is white space */
+/* if it is white space.  This function uses an internal (and user definable) */
+/* list to define what white space is, but also treats CR and LF implicitly */
+/* as white space */
 
 TBool TLex::CheckWhitespace(char a_cCharacter)
 {
@@ -34,7 +36,7 @@ TBool TLex::CheckWhitespace(char a_cCharacter)
 
 	for (Index = 0; Index < m_iWhitespaceLength; ++Index)
 	{
-		if (a_cCharacter == m_pcWhitespace[Index])
+		if ((a_cCharacter == m_pcWhitespace[Index]) || (a_cCharacter == '\r') || (a_cCharacter == '\n'))
 		{
 			break;
 		}
