@@ -1,11 +1,6 @@
 
 #include "StdFuncs.h"
-
-#ifndef __linux__
-
 #include "StdWindow.h"
-
-#endif /* ! __linux__ */
 
 #ifdef __amigaos4__
 
