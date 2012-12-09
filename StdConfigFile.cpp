@@ -105,27 +105,22 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 {
 	char *Buffer;
 	const char *Token;
-	TBool Done, FoundSection, FoundSubSection;
-	TInt BufferSize, Index, CRIndex, LFIndex, TokenLength;
+	TBool FoundSection, FoundSubSection;
+	TInt BufferSize, Index, LFIndex, TokenLength;
 
 	*a_pcResult = '\0';
 
-	Done = FoundSection = FoundSubSection = EFalse;
+	FoundSection = FoundSubSection = EFalse;
 
 	Buffer = m_pcBuffer;
 	BufferSize = m_iBufferSize;
 
 	while (BufferSize > 0)
 	{
-		CRIndex = LFIndex = 0;
+		LFIndex = 0;
 
 		for (Index = 0; Index < BufferSize; ++Index)
 		{
-			if (Buffer[Index] == '\r')
-			{
-				CRIndex = Index;
-			}
-
 			if (Buffer[Index] == '\n')
 			{
 				LFIndex = Index;

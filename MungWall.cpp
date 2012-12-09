@@ -254,8 +254,7 @@ void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL b
 			else
 			{
 				Utils::Info(acInvalidBlock);
-				printf(acInvalidBlock);
-				printf("\n");
+				printf("%s\n", acInvalidBlock);
 			}
 		}
 	}

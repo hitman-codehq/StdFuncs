@@ -150,7 +150,8 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		{
 			/* Display the template a la Amiga OS and prompt the user for input */
 
-			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary
+			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary + gets() causes
+			//             warnings in Linux release build
 			char Buffer[1024];
 
 			Buffer[0] = '\0';
