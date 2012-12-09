@@ -19,11 +19,11 @@ static char g_acBasicListQuotes[] = "\"One\" two \"three\" four \"five\"";
 static const char *g_apccBasicListQuotesResults[BASIC_LIST_QUOTES_COUNT] = { "One", "two", "three", "four", "five" };
 
 #define NON_DESTRUCTIVE_LIST_COUNT 5
-static const char g_acNonDestructiveList[] = "One two three four five";
+static const char g_accNonDestructiveList[] = "One two three four five";
 static const char *g_apccNonDestructiveListResults[] = { "One", "two", "three", "four", "five" };
 
 #define QUOTES_AND_SPACE_COUNT 7
-static char g_acQuotesAndSpaceList[] = "  \"One\" \"two\" \"three\"  ";
+static const char g_accQuotesAndSpaceList[] = "  \"One\" \"two\" \"three\"  ";
 static const char *g_apccQuotesAndSpaceListResults[] = { "  ", "\"One\"", " ", "\"two\"", " ", "\"three\"", "  " };
 
 #define QUOTES_COUNT 3
@@ -33,11 +33,11 @@ static const char *g_apccQuotesListResults[] = { "\"One\"", "\"two\"", "\"three\
 static const char *g_apccSpacesListResults[] = { "  ", "One", " ", "two", " ", "three", "  " };
 
 #define QUOTES_LIST_NO_WHITESPACE_COUNT 2
-static const char g_acQuotesListNoWhitespace[] = "\"one\"\"two\"";
+static const char g_accQuotesListNoWhitespace[] = "\"one\"\"two\"";
 static const char *g_apccQuotesListNoWhitespaceResults[] = { "\"one\"", "\"two\"" };
 
 #define SEMICOLON_COUNT 7
-static char g_acSemiColonList[] = ";\"One\";;\"two\";;\"three\";";
+static const char g_accSemiColonList[] = ";\"One\";;\"two\";;\"three\";";
 static const char *g_apccQuotesAndSpacesSemiColonListResults[] = { ";", "\"One\"", ";;", "\"two\"", ";;", "\"three\"", ";" };
 
 #define QUOTES_SEMICOLON_COUNT 3
@@ -47,11 +47,11 @@ static const char *g_apccQuotesSemiColonListResults[] = { "\"One\"", "\"two\"", 
 static const char *g_apccSpacesSemiColonListResults[] = { ";", "One", ";;", "two", ";;", "three", ";" };
 
 #define CRLF_AT_END_COUNT 1
-static const char g_acCRLFAtEndList[] = "One\r\n";
+static const char g_accCRLFAtEndList[] = "One\r\n";
 static const char *g_apccCRLFAtEndListResults[] = { "One" };
 
-static const char g_acCRAtEndList[] = "One\r";
-static const char g_acLFAtEndList[] = "One\n";
+static const char g_accCRAtEndList[] = "One\r";
+static const char g_accLFAtEndList[] = "One\n";
 
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
@@ -135,7 +135,7 @@ int main()
 
 	Test.Next("Basic non destructive test");
 
-	TLex Lex(g_acNonDestructiveList, strlen(g_acNonDestructiveList));
+	TLex Lex(g_accNonDestructiveList, strlen(g_accNonDestructiveList));
 
 	for (Index = 0; Index < NON_DESTRUCTIVE_LIST_COUNT; ++Index)
 	{
@@ -149,19 +149,19 @@ int main()
 
 	Test.Next("Test including spaces and quotes");
 
-	TLex QuotesAndSpace(g_acQuotesAndSpaceList, strlen(g_acQuotesAndSpaceList));
+	TLex QuotesAndSpace(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
 	QuotesAndSpace.SetConfig(ETrue, ETrue);
 	CheckListNonDestructive(QuotesAndSpace, g_apccQuotesAndSpaceListResults, QUOTES_AND_SPACE_COUNT);
 
-	TLex Quotes(g_acQuotesAndSpaceList, strlen(g_acQuotesAndSpaceList));
+	TLex Quotes(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
 	Quotes.SetConfig(ETrue, EFalse);
 	CheckListNonDestructive(Quotes, g_apccQuotesListResults, QUOTES_COUNT);
 
-	TLex Spaces(g_acQuotesAndSpaceList, strlen(g_acQuotesAndSpaceList));
+	TLex Spaces(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
 	Spaces.SetConfig(EFalse, ETrue);
 	CheckListNonDestructive(Spaces, g_apccSpacesListResults, SPACES_COUNT);
 
-	TLex QuotesNoWhitespace(g_acQuotesListNoWhitespace, strlen(g_acQuotesListNoWhitespace));
+	TLex QuotesNoWhitespace(g_accQuotesListNoWhitespace, strlen(g_accQuotesListNoWhitespace));
 	QuotesNoWhitespace.SetConfig(ETrue, EFalse);
 	CheckListNonDestructive(QuotesNoWhitespace, g_apccQuotesListNoWhitespaceResults, QUOTES_LIST_NO_WHITESPACE_COUNT);
 
@@ -169,17 +169,17 @@ int main()
 
 	Test.Next("Test alternate white space separator");
 
-	TLex QuotesAndSpacesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	TLex QuotesAndSpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
 	QuotesAndSpacesSemiColon.SetConfig(ETrue, ETrue);
 	QuotesAndSpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesAndSpacesSemiColon, g_apccQuotesAndSpacesSemiColonListResults, SEMICOLON_COUNT);
 
-	TLex QuotesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	TLex QuotesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
 	QuotesSemiColon.SetConfig(ETrue, EFalse);
 	QuotesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesSemiColon, g_apccQuotesSemiColonListResults, QUOTES_SEMICOLON_COUNT);
 
-	TLex SpacesSemiColon(g_acSemiColonList, strlen(g_acSemiColonList));
+	TLex SpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
 	SpacesSemiColon.SetConfig(EFalse, ETrue);
 	SpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(SpacesSemiColon, g_apccSpacesSemiColonListResults, SPACES_SEMICOLON_COUNT);
@@ -188,13 +188,13 @@ int main()
 
 	Test.Next("Ensure that CR/LF terminators are ignored");
 
-	TLex CRLFAtEnd(g_acCRLFAtEndList, strlen(g_acCRLFAtEndList));
+	TLex CRLFAtEnd(g_accCRLFAtEndList, strlen(g_accCRLFAtEndList));
 	CheckListNonDestructive(CRLFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
-	TLex CRAtEnd(g_acCRAtEndList, strlen(g_acCRAtEndList));
+	TLex CRAtEnd(g_accCRAtEndList, strlen(g_accCRAtEndList));
 	CheckListNonDestructive(CRAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
-	TLex LFAtEnd(g_acLFAtEndList, strlen(g_acLFAtEndList));
+	TLex LFAtEnd(g_accLFAtEndList, strlen(g_accLFAtEndList));
 	CheckListNonDestructive(LFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
 	Test.End();
