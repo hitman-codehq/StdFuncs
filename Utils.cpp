@@ -1368,7 +1368,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
 	/* by dos.library's autodocs */
 
-	if ((RetVal = new char[MAX_NAME_FROM_LOCK_LENGTH ]) != NULL)
+	if ((RetVal = new char[MAX_NAME_FROM_LOCK_LENGTH]) != NULL)
 	{
 		/* Get a lock on the specified filename and convert it to a qualified filename */
 
@@ -1396,7 +1396,22 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 #elif defined(__linux__)
 
-// TODO: CAW - Implement
+	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
+	/* by the realpath() manpage */
+
+	if ((RetVal = new char[PATH_MAX]) != NULL)
+	{
+		/* Convert the filename into a fully qualified path and put it in the allocated buffer */
+
+		if ((RetVal = realpath(a_pccFileName, NULL)) == NULL)
+		{
+			Utils::Info("Utils::ResolveFileName() => Unable to determine full path of filename");
+		}
+	}
+	else
+	{
+		Utils::Info("Utils::ResolveFileName() => Out of memory");
+	}
 
 #else /* ! __linux__ */
 
