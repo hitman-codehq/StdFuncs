@@ -96,51 +96,60 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	TInt Flags;
 
-	Flags = (O_CREAT | O_EXCL | O_RDWR);
+	/* Opening wildcards are not supported by our API although UNIX allows it! */
 
-	/* Create a new file in read/write mode */
-
-	if ((m_oHandle = open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
+	if ((strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
 	{
-		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
-		/* multiple locks on individual files */
+		Flags = (O_CREAT | O_EXCL | O_RDWR);
 
-		if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+		/* Create a new file in read/write mode */
+
+		if ((m_oHandle = open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 		{
-			RetVal = KErrNone;
+			/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
+			/* multiple locks on individual files */
+
+			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+			{
+				RetVal = KErrNone;
+			}
+			else
+			{
+				Utils::Info("RFile::Create() => Unable to lock file for exclusive access");
+
+				RetVal = KErrGeneral;
+
+				Close();
+			}
 		}
 		else
 		{
-			Utils::Info("RFile::Create() => Unable to lock file for exclusive access");
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = KErrGeneral;
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 
-			Close();
+			/* For UNIX we need some special handling as trying to open a file for */
+			/* writing when it already exists will return EEXIST but we want to treat */
+			/* it as an EBUSY, thus returning KErrInUse as on the other platforms.  So try */
+			/* to open the file in read only mode, and if it returns KErrInUse then change */
+			/* the error.  Otherwise the error is valid so we want to retain it as it is */
+
+			if (RetVal == KErrAlreadyExists)
+			{
+				if (Open(a_pccFileName, EFileRead) == KErrInUse)
+				{
+					RetVal = KErrInUse;
+				}
+
+				/* Close the file as it may have been successfully opened by the above call */
+
+				Close();
+			}
 		}
 	}
 	else
 	{
-		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-		RetVal = Utils::MapLastFileError(a_pccFileName);
-
-		/* For UNIX we need some special handling as trying to open a file for */
-		/* writing when it already exists will return EEXIST but we want to treat */
-		/* it as an EBUSY, thus returning KErrInUse as on the other platforms.  So try */
-		/* to open the file in read only mode, and if it returns KErrInUse then change */
-		/* the error.  Otherwise the error is valid so we want to retain it as it is */
-
-		if (RetVal == KErrAlreadyExists)
-		{
-			if (Open(a_pccFileName, EFileRead) == KErrInUse)
-			{
-				RetVal = KErrInUse;
-			}
-
-			/* Close the file as it may have been successfully opened by the above call */
-
-			Close();
-		}
+		RetVal = KErrNotFound;
 	}
 
 #else /* ! __linux__ */
@@ -278,38 +287,46 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 	TInt Flags;
 
-	/* Open an existing file in read or read/write mode as requested */
+	/* Opening wildcards are not supported by our API although UNIX allows it! */
 
-	Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
-
-	if ((m_oHandle = open(a_pccFileName, Flags, 0)) != -1)
+	if ((strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
 	{
-		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
-		/* multiple locks on individual files */
+		/* Open an existing file in read or read/write mode as requested */
 
-		if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+		Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
+
+		if ((m_oHandle = open(a_pccFileName, Flags, 0)) != -1)
 		{
-			RetVal = KErrNone;
+			/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
+			/* multiple locks on individual files */
+
+			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+			{
+				RetVal = KErrNone;
+			}
+			else
+			{
+				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
+				/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
+				/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
+				/* in here rather than when open() fails */
+
+				RetVal = KErrInUse;
+
+				Close();
+			}
 		}
 		else
 		{
-			Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
-			/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
-			/* in here rather than when open() fails */
-
-			RetVal = KErrInUse;
-
-			Close();
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 	}
 	else
 	{
-		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-		RetVal = Utils::MapLastFileError(a_pccFileName);
-
+		RetVal = KErrNotFound;
 	}
 
 #else /* ! __linux__ */
