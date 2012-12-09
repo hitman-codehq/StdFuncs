@@ -145,8 +145,6 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __linux__ */
 
-	TInt Result;
-
 	/* Create a new file in read/write mode */
 
 	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
@@ -168,7 +166,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 		if (RetVal == KErrAlreadyExists)
 		{
-			if ((Result = Open(a_pccFileName, EFileRead)) == KErrInUse)
+			if (Open(a_pccFileName, EFileRead) == KErrInUse)
 			{
 				RetVal = KErrInUse;
 			}
