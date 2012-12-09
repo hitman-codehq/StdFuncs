@@ -2,11 +2,11 @@
 #include "StdFuncs.h"
 #include "StdFileRequester.h"
 #include "StdWindow.h"
+#include <string.h>
 
 #ifdef __amigaos4__
 
 #include <proto/asl.h>
-#include <string.h>
 
 #endif /* __amigaos4__ */
 
