@@ -41,6 +41,8 @@ RFile::RFile()
 /* @return	KErrNone if successful */
 /*			KErrAlreadyExists if the file already exists */
 /*			KErrPathNotFound if the path to the file does not exist */
+/*			KErrNotFound if the path is ok, but the file does not exist */
+/*			KErrInUse if the file is already open for writing */
 /*			KErrNotEnoughMemory if not enough memory was available */
 /*			KErrGeneral if some other unexpected error occurred */
 /* Creates a new file that can subsequently be used for writing operations.  If a file already */
@@ -121,6 +123,24 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
 		RetVal = Utils::MapLastFileError(a_pccFileName);
+
+		/* For UNIX we need some special handling as trying to open a file for */
+		/* writing when it already exists will return EEXIST but we want to treat */
+		/* it as an EBUSY, thus returning KErrInUse as on the other platforms.  So try */
+		/* to open the file in read only mode, and if it returns KErrInUse then change */
+		/* the error.  Otherwise the error is valid so we want to retain it as it is */
+
+		if (RetVal == KErrAlreadyExists)
+		{
+			if (Open(a_pccFileName, EFileRead) == KErrInUse)
+			{
+				RetVal = KErrInUse;
+			}
+
+			/* Close the file as it may have been successfully opened by the above call */
+
+			Close();
+		}
 	}
 
 #else /* ! __linux__ */
@@ -141,7 +161,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 		/* For Windows we need some special handling as trying to open a file for */
 		/* writing when it already exists will return ERROR_FILE_EXISTS but we want */
-		/* to treat it as a ERROR_SHARING_VIOLATION, thus returning KErrInUse as on */
+		/* to treat it as an ERROR_SHARING_VIOLATION, thus returning KErrInUse as on */
 		/* the other platforms.  So try to open the file in read only mode, and if */
 		/* it returns KErrInUse then change the error.  Otherwise the error is valid */
 		/* so we want to retain it as it is */
@@ -277,7 +297,11 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
 
-			RetVal = KErrGeneral;
+			/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
+			/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
+			/* in here rather than when open() fails */
+
+			RetVal = KErrInUse;
 
 			Close();
 		}
