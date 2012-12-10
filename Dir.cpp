@@ -525,7 +525,6 @@ TInt RDir::Open(const char *a_pccPattern)
 			/* UNIX will not scan a directory represented by an empty string so if this has */
 			/* been passed in then convert it to a "." for compatibility with the RDir API */
 
-			// TODO: CAW - Bodge
 			a_pccPattern = iPath;
 
 			if (*a_pccPattern == '\0')
@@ -542,7 +541,6 @@ TInt RDir::Open(const char *a_pccPattern)
 			}
 			else
 			{
-				//RetVal = KErrPathNotFound; // TODO: CAW - This is breaking the Linux version and really needs to be sorted!
 				RetVal = KErrNotFound;
 			}
 		}
@@ -878,9 +876,8 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 						/* UNIX only returns the filename itself when scanning the directory so get all of */
 						/* the other details for the directory entry */
 
-						// TODO: CAW - Use a function for this and change the Amiga version to match it.  Amiga
-						//             version uses IDOS->AddPart()?
-						Length = (strlen(iPath) + 1 + 1 + strlen(DirEnt->d_name));
+						// TODO: CAW - Change the Amiga version to use Utils::GetTempBuffer()
+						Length = (strlen(iPath) + 1 + strlen(DirEnt->d_name) + 1);
 
 						if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
 						{
@@ -902,6 +899,9 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 					}
 				}
 			}
+
+			/* Free the temporary buffer.  This is done outside the loop so that the originally allocated */
+			/* buffer can be reused if it is large enough */
 
 			Utils::FreeTempBuffer(QualifiedName);
 
