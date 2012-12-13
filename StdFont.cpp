@@ -525,11 +525,34 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	/* Iterate through the source text and display the runs of characters in the required colour */
 
-#else /* ! __linux__ */
+	while (*a_pcText)
+	{
+		/* Get the length of the run and the colour to display the run in */
+
+		Length = *a_pcText++;
+		Colour = *a_pcText++;
+		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
+
+		/* Display the text in the required colour, taking into account that QPainter::drawText() uses the */
+		/* Y position as the baseline of the font, not as the top */
+
+		QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
+		QByteArray String(a_pcText, Length);
+
+		m_oPainter.setPen(Pen);
+		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
+
+		/* And prepare for the next run to be displayed */
+
+		a_iX += Length;
+		a_pcText += Length;
+	}
+
+#else /* ! QT_GUI_LIB */
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
@@ -552,7 +575,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		a_pcText += Length;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
