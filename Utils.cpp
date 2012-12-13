@@ -749,12 +749,10 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 			/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
 
-			// TODO: CAW - This was wrong (tm_mon).  Why didn't the T_Utils test pick it up?
 			TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
 
 			/* Fill in the file's properties in the TEntry structure */
 
-			// TODO: CAW - This was wrong (st_mode).  Why didn't the T_Utils test pick it up?
 			a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
 			a_poEntry->iPlatformDate = Stat.st_mtime;
 
