@@ -24,7 +24,13 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
-	m_iHighlight = EFalse;
+#ifdef _DEBUG
+
+	m_bHighlight = EFalse;
+
+#endif /* _DEBUG */
+
+	m_bHighlight = EFalse;
 	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version and DrawColouredText() ignores this
 	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
@@ -269,6 +275,15 @@ TInt RFont::Begin()
 
 #endif /* QT_GUI_LIB */
 
+#ifdef _DEBUG
+
+	if (RetVal == KErrNone)
+	{
+		m_bBeginCalled = ETrue;
+	}
+
+#endif _DEBUG
+
 	return(RetVal);
 }
 
@@ -278,8 +293,13 @@ TInt RFont::Begin()
 
 void RFont::End()
 {
-	// TODO: CAW - Assert on Begin() having been called and also in Draw() functions
-	//             Also assert that Open() has been called in Begin(), Width() and Height()
+	ASSERTM(m_bBeginCalled, "RFont::End() => RFont::Begin() must be called before RFont::End()");
+
+#ifdef _DEBUG
+
+	m_bBeginCalled = EFalse;
+
+#endif /* _DEBUG */
 
 	/* Set the text and background colours back to their default as these are held by the */
 	/* operating system and will persist across instances of the RFont class */
@@ -301,6 +321,7 @@ void RFont::End()
 void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter)
 {
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
+	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
 
 	char Space[1] = { ' ' };
 	const char *Cursor;
@@ -309,7 +330,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
 	/* use ETrue and EFalse so that the cursor works within highlighted blocks of text as well */
 
-	SetHighlight(!(m_iHighlight));
+	SetHighlight(!(m_bHighlight));
 
 	/* Draw the text or a space instead as requested */
 
@@ -383,7 +404,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
 
-	SetHighlight(!(m_iHighlight));
+	SetHighlight(!(m_bHighlight));
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
@@ -398,6 +419,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 {
 	ASSERTM(a_pcText, "RFont::DrawText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
+	ASSERTM(m_bBeginCalled, "RFont::DrawText() => RFont::Begin() must be called before RFont::DrawText()");
 
 #ifdef __amigaos4__
 
@@ -440,8 +462,7 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 
 #elif defined(WIN32)
 
-	// TODO: CAW - Don't use 8, here and in DrawColouredText()
-	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
+	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
 
 #endif /* WIN32 */
 
@@ -468,6 +489,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 	ASSERTM(a_pcText, "RFont::DrawColouredText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
+	ASSERTM(m_bBeginCalled, "RFont::DrawColouredText() => RFont::Begin() must be called before RFont::DrawColouredText()");
 
 #ifdef __amigaos4__
 
@@ -567,7 +589,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* Display the text in the required colour */
 
 		SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * 8)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
 
 		/* And prepare for the next run to be displayed */
 
@@ -581,7 +603,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 /* Written: Saturday 21-Aug-2010 8:27 pm */
 
-void RFont::SetHighlight(TBool a_iHighlight)
+void RFont::SetHighlight(TBool a_bHighlight)
 {
 	ASSERTM(m_poWindow, "RFont::SetHighlight() => Window handle not set");
 
@@ -593,7 +615,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 	if (m_poWindow->m_poWindow)
 	{
-		if (a_iHighlight)
+		if (a_bHighlight)
 		{
 			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
 			IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
@@ -607,7 +629,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 #elif defined(QT_GUI_LIB)
 
-	if (a_iHighlight)
+	if (a_bHighlight)
 	{
 		m_oPainter.setBrush(m_oText);
 		m_oPainter.setPen(m_oBackground);
@@ -620,7 +642,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 #elif defined(WIN32)
 
-	if (a_iHighlight)
+	if (a_bHighlight)
 	{
 		SetBkColor(m_poWindow->m_poDC, m_oText);
 		SetTextColor(m_poWindow->m_poDC, m_oBackground);
@@ -635,7 +657,7 @@ void RFont::SetHighlight(TBool a_iHighlight)
 
 	/* And save the highlight state for l8r use */
 
-	m_iHighlight = a_iHighlight;
+	m_bHighlight = a_bHighlight;
 }
 
 /* Written: Wednesday 30-Nov-2011 5:49 am, Söflingen */

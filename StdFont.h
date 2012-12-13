@@ -52,7 +52,13 @@ private:
 
 #endif /* WIN32 */
 
-	TBool		m_iHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
+#ifdef _DEBUG
+
+	TBool		m_bBeginCalled;	/* ETrue if RFont::Begin() has been called */
+
+#endif /* _DEBUG */
+
+	TBool		m_bHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iClipWidth;	/* Number of pixels to draw horizontally before clipping */
 	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;		/* Height of a character in pixels */
@@ -88,7 +94,7 @@ public:
 		return(m_iHeight);
 	}
 
-	void SetHighlight(TBool a_iHighlight);
+	void SetHighlight(TBool a_bHighlight);
 
 	void SetClipWidth(TInt a_iClipWidth);
 
