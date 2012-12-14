@@ -23,9 +23,11 @@ public:
 
 	void Close();
 
-	void GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName, const char *a_pccKeyName, int *a_piResult);
+	void GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
+		const char *a_pccKeyName, int *a_piResult);
 
-	void GetString(const char *a_pccSectionName, const char *a_pccSubSectionName, const char *a_pccKeyName, char *a_pcResult);
+	void GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
+		const char *a_pccKeyName, char *&a_rpcResult);
 };
 
 #endif /* ! STDCONFIGFILE_H */

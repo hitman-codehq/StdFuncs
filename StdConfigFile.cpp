@@ -73,14 +73,24 @@ void RConfigFile::Close()
 /* Returns: See ConfigFile::GetConfigString() for return details     */
 /*********************************************************************/
 
-// TODO: CAW - Check validity of returned integer (SetLastError(CFE_BadNumber)) and maximum length of sConfigString?
+// TODO: CAW - Check validity of returned integer (SetLastError(CFE_BadNumber))
 void RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, int *a_piResult)
 {
-	char ConfigString[MAX_PATH];
+	char *ConfigString;
+
+	/* Get the string associated with the requested setting */
 
 	GetString(a_pccSectionName, a_pccSubSectionName, a_pccKeyName, ConfigString);
-	*a_piResult= atoi(ConfigString);
+
+	/* If the string was obtained successfully, convert it to an integer and */
+	/* and save it, and free the string */
+
+	if (ConfigString)
+	{
+		*a_piResult= atoi(ConfigString);
+		delete [] ConfigString;
+	}
 }
 
 /***************************************************************************/
@@ -99,16 +109,18 @@ void RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 /*          occurred by calling ConfigFile::GetLastErrorString()           */
 /***************************************************************************/
 
-// TODO: CAW - Error handling: CFE_SectionNotFound, CFE_SubSectionNotFound, CFE_KeyNotFound
+// TODO: CAW - Error handling: CFE_SectionNotFound, CFE_SubSectionNotFound, CFE_KeyNotFound, CFE_NoMemory
 void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
-	const char *a_pccKeyName, char *a_pcResult)
+	const char *a_pccKeyName, char *&a_rpcResult)
 {
 	char *Buffer;
 	const char *Token;
 	TBool FoundSection, FoundSubSection;
 	TInt BufferSize, Index, LFIndex, TokenLength;
 
-	*a_pcResult = '\0';
+	/* Assume failure */
+
+	a_rpcResult = NULL;
 
 	FoundSection = FoundSubSection = EFalse;
 
@@ -189,12 +201,23 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 										if (Token)
 										{
-											/* Extract the token into the dest buffer and signal success */
+											/* Allocate a buffer for the token */
 
-											memcpy(a_pcResult, Token, TokenLength);
-											a_pcResult[TokenLength] = '\0';
+											a_rpcResult = new char[TokenLength + 1];
 
-											break;
+											if (a_rpcResult)
+											{
+												/* And extract the token into */
+
+												memcpy(a_rpcResult, Token, TokenLength);
+												a_rpcResult[TokenLength] = '\0';
+
+												break;
+											}
+											else
+											{
+												Utils::Info("RConfigFile::GetString() => Not enough memory to allocate string");
+											}
 										}
 									}
 								}
