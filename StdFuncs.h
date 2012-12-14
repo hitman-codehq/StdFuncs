@@ -75,6 +75,21 @@ typedef int TBool;
 #define KErrWrite			-23
 #define KErrEof				-25
 
+/* Useful macros for the WinMain() and main() functions, enabling them to be used */
+/* without #ifdefs in portable code */
+
+#ifdef WIN32
+
+#define TFMain() int WINAPI WinMain(HINSTANCE /*a_hInstance*/, HINSTANCE /*a_hPrevInstance*/, char *a_pcCmdParam, int /*a_iCmdShow*/)
+#define TFArgs a_pcCmdParam
+
+#else /* ! WIN32 */
+
+#define TFMain() int main(int a_iArgC, const char *a_ppcArgV[])
+#define TFArgs a_ppcArgV, a_iArgC
+
+#endif /* ! WIN32 */
+
 /* Useful Amiga OS return value constants for main() */
 
 #ifndef __amigaos4__
