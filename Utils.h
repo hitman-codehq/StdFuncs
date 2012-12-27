@@ -86,7 +86,9 @@ public:
 
 	static void NormalisePath(char *a_pcPath);
 
-	static char *ResolveFileName(const char *a_pccPath);
+	static char *ResolveFileName(const char *a_pccFileName);
+
+	static char *ResolveProgName(const char *a_pccFileName);
 
 	static TBool ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData);
 

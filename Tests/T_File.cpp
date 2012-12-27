@@ -224,6 +224,15 @@ int main()
 
 #endif /* __amigaos4__ */
 
+	/* Test #6: Ensure that the PROGDIR: prefix works with RFile::Open() */
+
+	Test.Next("Ensure that the PROGDIR: prefix works with RFile::Open()");
+
+	Result = File.Open("PROGDIR:T_File.exe", EFileRead);
+	test(Result == KErrNone);
+
+	File.Close();
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("File.txt");

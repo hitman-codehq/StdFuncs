@@ -54,6 +54,12 @@ static const char *g_apccMonths[] =
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+/* Amiga style suffix that can be prepended to filenames to resolve */
+/* them to the directory of the executable that is using the file */
+
+static const char g_accProgDir[] = "PROGDIR:";
+#define PROGDIR_LENGTH 8
+
 #endif /* ! __amigaos4__ */
 
 /* ETrue if running a GUI based program */
@@ -772,6 +778,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 #else /* ! __linux__ */
 
+	char *ProgName;
 	HANDLE Handle;
 	SYSTEMTIME SystemTime;
 	WIN32_FIND_DATA FindData;
@@ -780,41 +787,59 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 	RetVal = KErrNotFound;
 
-	/* Open the file to determine its properties */
+	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-	if ((Handle = FindFirstFile(a_pccFileName, &FindData)) != INVALID_HANDLE_VALUE)
+	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
 	{
-		/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
+		/* Open the file to determine its properties */
 
-		if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
+		if ((Handle = FindFirstFile(ProgName, &FindData)) != INVALID_HANDLE_VALUE)
 		{
-			RetVal = KErrNone;
+			/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
 
-			/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
+			if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
+			{
+				RetVal = KErrNone;
 
-			TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
-				SystemTime.wSecond, 0);
+				/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
 
-			/* Fill in the file's properties in the TEntry structure */
+				TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
+					SystemTime.wSecond, 0);
 
-			a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
-				DateTime);
-			a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
+				/* Fill in the file's properties in the TEntry structure */
 
-			/* Copy the filename into the TEntry structure */
+				a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
+					DateTime);
+				a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
 
-			strcpy(a_poEntry->iName, FindData.cFileName);
+				/* Copy the filename into the TEntry structure */
+
+				strcpy(a_poEntry->iName, FindData.cFileName);
+			}
+			else
+			{
+				Utils::Info("Utils::GetFileInfo() => Unable to convert FILETIME to SYSTEMTIME");
+			}
+
+			FindClose(Handle);
 		}
 		else
 		{
-			Utils::Info("Utils::GetFileInfo() => Unable to convert FILETIME to SYSTEMTIME");
+			Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 		}
 
-		FindClose(Handle);
+		/* And free the resolved filename, but only if it contained the prefix */
+
+		if (ProgName != a_pccFileName)
+		{
+			delete [] ProgName;
+		}
 	}
 	else
 	{
-		Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
+		Utils::Info("Utils::GetFileInfo() => Unable to resolve program name for %s", a_pccFileName);
+
+		RetVal = KErrPathNotFound;
 	}
 
 #endif /* ! __linux__ */
@@ -1445,6 +1470,89 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	else
 	{
 		Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
+	}
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
+
+/* Written: Monday 17-Dec-2012 6:24 am, John & Sally's House */
+/* @param	a_pccFileName	Ptr to filename to be resolved */
+/* @return	Ptr to the fully qualified name of the filename passed in, */
+/*			if the filename passed in was suffixed with "PROGDIR:" */
+/*			Otherwise ptr to a_pccFileName if no suffix was present */
+/*			Otherwise NULL if the conversion of the path failed */
+/* Takes a filename that may or may not contain the Amiga style */
+/* "PROGDIR:" at the start and, if this prefix is found, returns a ptr */
+/* to a fully qualified path that can be used for opening the file. */
+/* It is the responsibility of the client to free the buffer containing */
+/* this path.  If the filename passed in does not contain this prefix, */
+/* a ptr to the filename passed passed in is returned */
+
+char *Utils::ResolveProgName(const char *a_pccFileName)
+{
+	char *RetVal;
+
+#ifdef __amigaos4__
+
+	RetVal = (char *) a_pccFileName;
+
+#elif defined(__linux__)
+
+#else /* ! __linux__ */
+
+	char *FileNamePart;
+
+	/* If the file being opened is prefixed with the magic "PROGDIR:" prefix */
+	/* then determine the path to the executable that is running this code */
+	/* and try to open the specified file in the same directory */
+
+	if (strncmp(a_pccFileName, g_accProgDir, PROGDIR_LENGTH) == 0)
+	{
+		/* Allocate a buffer large enough to hold the fully qualified filename, as */
+		/* specified by the GetModuleFileName() documentation */
+
+		if ((RetVal = new char[MAX_PATH]) != NULL)
+		{
+			/* Get the path to the executable running this code.  Unfortunately the */
+			/* API doesn't allow us to query for the length of the path like other */
+			/* Windows APIs so we have to use a fixed size buffer and hope for the best */
+
+			if (GetModuleFileName(NULL, RetVal, MAX_PATH) > 0)
+			{
+				/* Get a ptr to the name of the executable and remove it */
+
+				FileNamePart = (char *) Utils::FilePart(RetVal);
+				*FileNamePart = '\0';
+
+				/* Append the name of the file to be opened in the executable's directory */
+
+				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+			}
+
+			/* The path was too long so display a debug string and just let the */
+			/* RFile::Open() call fail */
+
+			else
+			{
+				Utils::Info("RFile::Open() => Cannot obtain path to executable");
+
+				delete [] RetVal;
+				RetVal = NULL;
+			}
+		}
+		else
+		{
+			Utils::Info("Utils::ResolvePathName() => Out of memory");
+		}
+	}
+
+	/* Nothing has been resolved so just return the original filename */
+
+	else
+	{
+		RetVal = (char *) a_pccFileName;
 	}
 
 #endif /* ! __linux__ */

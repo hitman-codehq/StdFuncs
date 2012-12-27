@@ -233,7 +233,8 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 /* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
 /* in the file mode EFileRead, EFileWrite, or a logical combination of them both.  If the file mode */
 /* EFileWrite is specified then the file will also be writeable.  The a_pccFileName parameter can */
-/* optionally specify a path to the file */
+/* optionally specify a path to the file and can also be prefixed with an Amiga OS style "PROGDIR:" */
+/* prefix */
 
 TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 {
@@ -331,24 +332,47 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __linux__ */
 
+	char *ProgName;
 	DWORD FileMode;
 
-	FileMode = GENERIC_READ;
+	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-	if (a_uiFileMode & EFileWrite)
+	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
 	{
-		FileMode |= GENERIC_WRITE;
-	}
+		/* Determine whether to open the file in read or write mode */
 
-	if ((m_oHandle = CreateFile(a_pccFileName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
-	{
-		RetVal = KErrNone;
+		FileMode = GENERIC_READ;
+
+		if (a_uiFileMode & EFileWrite)
+		{
+			FileMode |= GENERIC_WRITE;
+		}
+
+		/* And open the file */
+
+		if ((m_oHandle = CreateFile(ProgName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+		{
+			RetVal = KErrNone;
+		}
+		else
+		{
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+			RetVal = Utils::MapLastFileError(a_pccFileName);
+		}
+
+		/* And free the resolved filename, but only if it contained the prefix */
+
+		if (ProgName != a_pccFileName)
+		{
+			delete [] ProgName;
+		}
 	}
 	else
 	{
-		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+		Utils::Info("RFile::Open() => Unable to resolve program name for %s", a_pccFileName);
 
-		RetVal = Utils::MapLastFileError(a_pccFileName);
+		RetVal = KErrPathNotFound;
 	}
 
 #endif /* ! __linux__ */

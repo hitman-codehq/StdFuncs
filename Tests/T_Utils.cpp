@@ -235,6 +235,15 @@ int main()
 	Result = Utils::DeleteDirectory("UnknownDirectory/UnknownDirectory");
 	test(Result == KErrPathNotFound);
 
+	/* Test #6: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
+
+	Test.Next("Ensure that the PROGDIR: prefix works with Utils::GetFileInfo()");
+
+	Result = Utils::GetFileInfo("PROGDIR:T_Utils.exe", &Entry);
+	test(Result == KErrNone);
+
+	File.Close();
+
 	/* Clean up after ourselves */
 
 	Result = BaflUtils::DeleteFile("TimeFile.txt");
