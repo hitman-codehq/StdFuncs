@@ -195,7 +195,7 @@ int main()
 	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound) || (Result == KErrPathNotFound));
 
-	Result = BaflUtils::DeleteFile("InUseDirectory");
+	Result = Utils::DeleteDirectory("InUseDirectory");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	/* Create a directory and try to delete it while it is use */
