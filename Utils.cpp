@@ -784,7 +784,6 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 #else /* ! __linux__ */
 
-		char *ProgName;
 		HANDLE Handle;
 		SYSTEMTIME SystemTime;
 		WIN32_FIND_DATA FindData;
