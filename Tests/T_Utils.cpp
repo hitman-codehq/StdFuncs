@@ -11,7 +11,7 @@ static RTest Test("T_Utils");
 
 int main()
 {
-	char *ProgName;
+	char *ProgDirName;
 	const char *Extension, *FileName;
 	TInt Result;
 	RFile File;
@@ -271,15 +271,15 @@ int main()
 
 	delete [] FileName;
 
-	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::ResolveProgName() */
+	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
-	Test.Next("Ensure that the PROGDIR: prefix works with Utils::ResolveProgName()");
+	Test.Next("Ensure that the PROGDIR: prefix works with Utils::ResolveProgDirName()");
 
-	ProgName = Utils::ResolveProgName("PROGDIR:T_Utils");
-	test(ProgName != NULL);
-	Test.Printf("Resolved name is %s\n", ProgName);
+	ProgDirName = Utils::ResolveProgDirName("PROGDIR:T_Utils");
+	test(ProgDirName != NULL);
+	Test.Printf("Resolved name is %s\n", ProgDirName);
 
-	delete [] ProgName;
+	delete [] ProgDirName;
 
 	/* Test #13: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
 

@@ -238,25 +238,25 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 
 TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 {
-	char *ProgName;
+	char *ProgDirName;
 	TInt RetVal;
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
+	if ((ProgDirName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
 	{
 
 #ifdef __amigaos4__
 
 		/* Opening wildcards are not supported by our API although Amiga OS allows it! */
 
-		if ((strstr(ProgName, "#") == NULL) && (strstr(ProgName, "?") == NULL) && (strstr(ProgName, "*") == NULL))
+		if ((strstr(ProgDirName, "#") == NULL) && (strstr(ProgDirName, "?") == NULL) && (strstr(ProgDirName, "*") == NULL))
 		{
 			/* Open the existing file.  We want to open it as having an exclusive lock */
 			/* and being read only if EFileWrite is not specified but neither of */
 			/* these features are supported by Amiga OS so we will emulate them l8r */
 
-			if ((m_oHandle = IDOS->Open(ProgName, MODE_OLDFILE)) != 0)
+			if ((m_oHandle = IDOS->Open(ProgDirName, MODE_OLDFILE)) != 0)
 			{
 				/* And change the shared lock to an exclusive lock as our API only */
 				/* supports opening files exclusively */
@@ -296,13 +296,13 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		/* Opening wildcards are not supported by our API although UNIX allows it! */
 
-		if ((strstr(ProgName, "?") == NULL) && (strstr(ProgName, "*") == NULL))
+		if ((strstr(ProgDirName, "?") == NULL) && (strstr(ProgDirName, "*") == NULL))
 		{
 			/* Open an existing file in read or read/write mode as requested */
 
 			Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
 
-			if ((m_oHandle = open(ProgName, Flags, 0)) != -1)
+			if ((m_oHandle = open(ProgDirName, Flags, 0)) != -1)
 			{
 				/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
 				/* multiple locks on individual files */
@@ -351,7 +351,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		/* And open the file */
 
-		if ((m_oHandle = CreateFile(ProgName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+		if ((m_oHandle = CreateFile(ProgDirName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 		{
 			RetVal = KErrNone;
 		}
@@ -366,9 +366,9 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		/* And free the resolved filename, but only if it contained the prefix */
 
-		if (ProgName != a_pccFileName)
+		if (ProgDirName != a_pccFileName)
 		{
-			delete [] ProgName;
+			delete [] ProgDirName;
 		}
 	}
 	else

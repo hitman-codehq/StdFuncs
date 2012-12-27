@@ -696,12 +696,12 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
-	char *ProgName;
+	char *ProgDirName;
 	TInt RetVal;
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
+	if ((ProgDirName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
 	{
 
 #ifdef __amigaos4__
@@ -709,7 +709,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		struct ClockData ClockData;
 		struct ExamineData *ExamineData;
 
-		if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgName, TAG_DONE)) != NULL)
+		if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
 		{
 			RetVal = KErrNone;
 
@@ -753,7 +753,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		/* Obtain information about the file and convert its last modification time to the local time */
 
-		if (lstat(ProgName, &Stat) == 0)
+		if (lstat(ProgDirName, &Stat) == 0)
 		{
 			if ((Tm = localtime(&Stat.st_mtime)) != NULL)
 			{
@@ -794,7 +794,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		/* Open the file to determine its properties */
 
-		if ((Handle = FindFirstFile(ProgName, &FindData)) != INVALID_HANDLE_VALUE)
+		if ((Handle = FindFirstFile(ProgDirName, &FindData)) != INVALID_HANDLE_VALUE)
 		{
 			/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
 
@@ -833,9 +833,9 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		/* And free the resolved filename, but only if it contained the prefix */
 
-		if (ProgName != a_pccFileName)
+		if (ProgDirName != a_pccFileName)
 		{
-			delete [] ProgName;
+			delete [] ProgDirName;
 		}
 	}
 	else
@@ -1491,7 +1491,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 /* this path.  If the filename passed in does not contain this prefix, */
 /* a ptr to the filename passed passed in is returned */
 
-char *Utils::ResolveProgName(const char *a_pccFileName)
+char *Utils::ResolveProgDirName(const char *a_pccFileName)
 {
 	char *RetVal;
 
@@ -1523,7 +1523,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 				}
 				else
 				{
-					Utils::Info("Utils::ResolveProgName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+					Utils::Info("Utils::ResolveProgDirName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
 
 					delete [] RetVal;
 					RetVal = NULL;
@@ -1531,7 +1531,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 			}
 			else
 			{
-				Utils::Info("Utils::ResolveProgName() => Unable to obtain lock program directory");
+				Utils::Info("Utils::ResolveProgDirName() => Unable to obtain lock program directory");
 
 				delete [] RetVal;
 				RetVal = NULL;
@@ -1539,7 +1539,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveProgName() => Out of memory");
+			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
 #elif defined(__linux__)
@@ -1574,7 +1574,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 
 			else
 			{
-				Utils::Info("Utils::ResolveProgName() => Cannot obtain path to executable");
+				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
 
 				delete [] RetVal;
 				RetVal = NULL;
@@ -1614,7 +1614,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 
 			else
 			{
-				Utils::Info("Utils::ResolveProgName() => Cannot obtain path to executable");
+				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
 
 				delete [] RetVal;
 				RetVal = NULL;
@@ -1622,7 +1622,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveProgName() => Out of memory");
+			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
 #endif /* ! __linux__ */
