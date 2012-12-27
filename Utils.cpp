@@ -1427,7 +1427,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	{
 		/* Convert the filename into a fully qualified path and put it in the allocated buffer */
 
-		if ((RetVal = realpath(a_pccFileName, NULL)) == NULL)
+		if ((RetVal = realpath(a_pccFileName, NULL)) == NULL) // TODO: CAW - malloc problems!
 		{
 			Utils::Info("Utils::ResolveFileName() => Unable to determine full path of filename");
 		}
@@ -1544,6 +1544,47 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 
 #elif defined(__linux__)
 
+		TInt Result;
+		char *FileNamePart;
+
+		/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
+		/* by the realpath() manpage */
+
+		if ((RetVal = new char[PATH_MAX]) != NULL)
+		{
+			/* Get the path to the executable running this code.  Unfortunately the */
+			/* API doesn't allow us to query for the length of the path like some other */
+			/* APIs so we have to use a fixed size buffer and hope for the best */
+
+			if ((Result = readlink("/proc/self/exe", RetVal, PATH_MAX)) != -1)
+			{
+				RetVal[Result] = '\0';
+
+				/* Get a ptr to the name of the executable and remove it */
+
+				FileNamePart = (char *) Utils::FilePart(RetVal);
+				*FileNamePart = '\0';
+
+				/* Append the name of the file to be opened in the executable's directory */
+
+				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+			}
+
+			/* The path could not be obtained so display a debug string and just let the call fail */
+
+			else
+			{
+				Utils::Info("Utils::ResolveProgName() => Cannot obtain path to executable");
+
+				delete [] RetVal;
+				RetVal = NULL;
+			}
+		}
+		else
+		{
+			Utils::Info("Utils::ResolveFileName() => Out of memory");
+		}
+
 #else /* ! __linux__ */
 
 		char *FileNamePart;
@@ -1569,7 +1610,7 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
 			}
 
-			/* The path was too long so display a debug string and just let the call fail */
+			/* The path could not be obtained so display a debug string and just let the call fail */
 
 			else
 			{
@@ -1877,7 +1918,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 void Utils::TrimString(char *a_pcString)
 {
 	char *String, *Dest;
-	int Length;
+	TInt Length;
 
 	/* Firstly determine if there is any white space at the start of the string that needs to be trimmed */
 
