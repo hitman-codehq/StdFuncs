@@ -238,107 +238,108 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 
 TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 {
-	TInt RetVal;
-
-#ifdef __amigaos4__
-
-	/* Opening wildcards are not supported by our API although Amiga OS allows it! */
-
-	if ((strstr(a_pccFileName, "#") == NULL) && (strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
-	{
-		/* Open the existing file.  We want to open it as having an exclusive lock */
-		/* and being read only if EFileWrite is not specified but neither of */
-		/* these features are supported by Amiga OS so we will emulate them l8r */
-
-		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_OLDFILE)) != 0)
-		{
-			/* And change the shared lock to an exclusive lock as our API only */
-			/* supports opening files exclusively */
-
-			if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
-			{
-				RetVal = KErrNone;
-
-				/* Save the read/write mode for l8r use */
-
-				m_uiFileMode = a_uiFileMode;
-			}
-			else
-			{
-				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
-
-				RetVal = KErrGeneral;
-
-				Close();
-			}
-		}
-		else
-		{
-			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-			RetVal = Utils::MapLastFileError(a_pccFileName);
-		}
-	}
-	else
-	{
-		RetVal = KErrNotFound;
-	}
-
-#elif defined(__linux__)
-
-	TInt Flags;
-
-	/* Opening wildcards are not supported by our API although UNIX allows it! */
-
-	if ((strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
-	{
-		/* Open an existing file in read or read/write mode as requested */
-
-		Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
-
-		if ((m_oHandle = open(a_pccFileName, Flags, 0)) != -1)
-		{
-			/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
-			/* multiple locks on individual files */
-
-			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
-			{
-				RetVal = KErrNone;
-			}
-			else
-			{
-				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
-
-				/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
-				/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
-				/* in here rather than when open() fails */
-
-				RetVal = KErrInUse;
-
-				Close();
-			}
-		}
-		else
-		{
-			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-			RetVal = Utils::MapLastFileError(a_pccFileName);
-		}
-	}
-	else
-	{
-		RetVal = KErrNotFound;
-	}
-
-#else /* ! __linux__ */
-
 	char *ProgName;
-	DWORD FileMode;
+	TInt RetVal;
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
 	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
 	{
+
+#ifdef __amigaos4__
+
+		/* Opening wildcards are not supported by our API although Amiga OS allows it! */
+
+		if ((strstr(ProgName, "#") == NULL) && (strstr(ProgName, "?") == NULL) && (strstr(ProgName, "*") == NULL))
+		{
+			/* Open the existing file.  We want to open it as having an exclusive lock */
+			/* and being read only if EFileWrite is not specified but neither of */
+			/* these features are supported by Amiga OS so we will emulate them l8r */
+
+			if ((m_oHandle = IDOS->Open(ProgName, MODE_OLDFILE)) != 0)
+			{
+				/* And change the shared lock to an exclusive lock as our API only */
+				/* supports opening files exclusively */
+
+				if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+				{
+					RetVal = KErrNone;
+
+					/* Save the read/write mode for l8r use */
+
+					m_uiFileMode = a_uiFileMode;
+				}
+				else
+				{
+					Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
+					RetVal = KErrGeneral;
+
+					Close();
+				}
+			}
+			else
+			{
+				/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+				RetVal = Utils::MapLastFileError(a_pccFileName);
+			}
+		}
+		else
+		{
+			RetVal = KErrNotFound;
+		}
+
+#elif defined(__linux__)
+
+		TInt Flags;
+
+		/* Opening wildcards are not supported by our API although UNIX allows it! */
+
+		if ((strstr(ProgName, "?") == NULL) && (strstr(ProgName, "*") == NULL))
+		{
+			/* Open an existing file in read or read/write mode as requested */
+
+			Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
+
+			if ((m_oHandle = open(ProgName, Flags, 0)) != -1)
+			{
+				/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
+				/* multiple locks on individual files */
+
+				if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+				{
+					RetVal = KErrNone;
+				}
+				else
+				{
+					Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+
+					/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
+					/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
+					/* in here rather than when open() fails */
+
+					RetVal = KErrInUse;
+
+					Close();
+				}
+			}
+			else
+			{
+				/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+				RetVal = Utils::MapLastFileError(a_pccFileName);
+			}
+		}
+		else
+		{
+			RetVal = KErrNotFound;
+		}
+
+#else /* ! __linux__ */
+
+		DWORD FileMode;
+
 		/* Determine whether to open the file in read or write mode */
 
 		FileMode = GENERIC_READ;
@@ -361,6 +362,8 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 
+#endif /* ! __linux__ */
+
 		/* And free the resolved filename, but only if it contained the prefix */
 
 		if (ProgName != a_pccFileName)
@@ -374,8 +377,6 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		RetVal = KErrPathNotFound;
 	}
-
-#endif /* ! __linux__ */
 
 	return(RetVal);
 }

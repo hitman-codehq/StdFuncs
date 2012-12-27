@@ -228,8 +228,17 @@ int main()
 
 	Test.Next("Ensure that the PROGDIR: prefix works with RFile::Open()");
 
+#ifdef WIN32
+
 	Result = File.Open("PROGDIR:T_File.exe", EFileRead);
 	test(Result == KErrNone);
+
+#else /* ! WIN32 */
+
+	Result = File.Open("PROGDIR:T_File", EFileRead);
+	test(Result == KErrNone);
+
+#endif /* ! WIN32 */
 
 	File.Close();
 

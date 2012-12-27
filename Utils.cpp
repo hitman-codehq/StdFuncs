@@ -54,13 +54,13 @@ static const char *g_apccMonths[] =
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+#endif /* ! __amigaos4__ */
+
 /* Amiga style suffix that can be prepended to filenames to resolve */
 /* them to the directory of the executable that is using the file */
 
 static const char g_accProgDir[] = "PROGDIR:";
 #define PROGDIR_LENGTH 8
-
-#endif /* ! __amigaos4__ */
 
 /* ETrue if running a GUI based program */
 
@@ -696,101 +696,103 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
-	TInt RetVal;
-
-#ifdef __amigaos4__
-
-	struct ClockData ClockData;
-	struct ExamineData *ExamineData;
-
-	if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, a_pccFileName, TAG_DONE)) != NULL)
-	{
-		RetVal = KErrNone;
-
-		/* Convert the new style date structure into something more usable that also contains */
-		/* year, month and day information */
-
-		IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
-
-		/* Convert it so a Symbian style TDateTime structure */
-
-		TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
-			ClockData.min, ClockData.sec, 0);
-
-		/* And populate the new TEntry instance with information about the file or directory */
-
-		a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
-			ExamineData->Protection, DateTime);
-		a_poEntry->iPlatformDate = ExamineData->Date;
-
-		/* Copy the filename into the TEntry structure */
-
-		strcpy(a_poEntry->iName, ExamineData->Name);
-
-		IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
-	}
-	else
-	{
-		RetVal = KErrNotFound;
-
-		Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
-	}
-
-#elif defined(__linux__)
-
-	struct stat Stat;
-	struct tm *Tm;
-
-	/* Assume failure */
-
-	RetVal = KErrNotFound;
-
-	/* Obtain information about the file and convert its last modification time to the local time */
-
-	if (lstat(a_pccFileName, &Stat) == 0)
-	{
-		if ((Tm = localtime(&Stat.st_mtime)) != NULL)
-		{
-			RetVal = KErrNone;
-
-			/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
-
-			TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
-
-			/* Fill in the file's properties in the TEntry structure */
-
-			a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
-			a_poEntry->iPlatformDate = Stat.st_mtime;
-
-			/* Copy the filename into the TEntry structure */
-
-			strcpy(a_poEntry->iName, FilePart(a_pccFileName));
-		}
-		else
-		{
-			Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
-		}
-	}
-	else
-	{
-		Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
-	}
-
-#else /* ! __linux__ */
-
 	char *ProgName;
-	HANDLE Handle;
-	SYSTEMTIME SystemTime;
-	WIN32_FIND_DATA FindData;
-
-	/* Assume failure */
-
-	RetVal = KErrNotFound;
+	TInt RetVal;
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
 	if ((ProgName = Utils::ResolveProgName(a_pccFileName)) != NULL)
 	{
+
+#ifdef __amigaos4__
+
+		struct ClockData ClockData;
+		struct ExamineData *ExamineData;
+
+		if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgName, TAG_DONE)) != NULL)
+		{
+			RetVal = KErrNone;
+
+			/* Convert the new style date structure into something more usable that also contains */
+			/* year, month and day information */
+
+			IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
+
+			/* Convert it so a Symbian style TDateTime structure */
+
+			TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
+				ClockData.min, ClockData.sec, 0);
+
+			/* And populate the new TEntry instance with information about the file or directory */
+
+			a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
+				ExamineData->Protection, DateTime);
+			a_poEntry->iPlatformDate = ExamineData->Date;
+
+			/* Copy the filename into the TEntry structure */
+
+			strcpy(a_poEntry->iName, ExamineData->Name);
+
+			IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+		}
+		else
+		{
+			RetVal = KErrNotFound;
+
+			Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
+		}
+
+#elif defined(__linux__)
+
+		struct stat Stat;
+		struct tm *Tm;
+
+		/* Assume failure */
+
+		RetVal = KErrNotFound;
+
+		/* Obtain information about the file and convert its last modification time to the local time */
+
+		if (lstat(ProgName, &Stat) == 0)
+		{
+			if ((Tm = localtime(&Stat.st_mtime)) != NULL)
+			{
+				RetVal = KErrNone;
+
+				/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
+
+				TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
+
+				/* Fill in the file's properties in the TEntry structure */
+
+				a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
+				a_poEntry->iPlatformDate = Stat.st_mtime;
+
+				/* Copy the filename into the TEntry structure */
+
+				strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+			}
+			else
+			{
+				Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
+			}
+		}
+		else
+		{
+			Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
+		}
+
+#else /* ! __linux__ */
+
+		char *ProgName;
+		HANDLE Handle;
+		SYSTEMTIME SystemTime;
+		WIN32_FIND_DATA FindData;
+
+		/* Assume failure */
+
+		RetVal = KErrNotFound;
+
 		/* Open the file to determine its properties */
 
 		if ((Handle = FindFirstFile(ProgName, &FindData)) != INVALID_HANDLE_VALUE)
@@ -828,6 +830,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 			Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 		}
 
+#endif /* ! __linux__ */
+
 		/* And free the resolved filename, but only if it contained the prefix */
 
 		if (ProgName != a_pccFileName)
@@ -841,8 +845,6 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		RetVal = KErrPathNotFound;
 	}
-
-#endif /* ! __linux__ */
 
 	return(RetVal);
 }
@@ -1494,22 +1496,59 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 {
 	char *RetVal;
 
+	/* If the file being opened is prefixed with the magic "PROGDIR:" prefix */
+	/* then determine the path to the executable that is running this code */
+	/* and try to determine the specified file in the same directory */
+
+	if (strncmp(a_pccFileName, g_accProgDir, PROGDIR_LENGTH) == 0)
+	{
+
 #ifdef __amigaos4__
 
-	RetVal = (char *) a_pccFileName;
+		BPTR Lock;
+
+		/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
+		/* by dos.library's autodocs */
+
+		if ((RetVal = new char[MAX_NAME_FROM_LOCK_LENGTH]) != NULL)
+		{
+			/* Get a lock on the specified filename and convert it to a qualified filename */
+
+			if ((Lock = IDOS->GetProgramDir()) != 0)
+			{
+				if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH ) != 0)
+				{
+					/* Append the name of the file to be opened in the executable's directory */
+
+					Utils::AddPart(RetVal, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+				}
+				else
+				{
+					Utils::Info("Utils::ResolveProgName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+
+					delete [] RetVal;
+					RetVal = NULL;
+				}
+			}
+			else
+			{
+				Utils::Info("Utils::ResolveProgName() => Unable to obtain lock program directory");
+
+				delete [] RetVal;
+				RetVal = NULL;
+			}
+		}
+		else
+		{
+			Utils::Info("Utils::ResolveProgName() => Out of memory");
+		}
 
 #elif defined(__linux__)
 
 #else /* ! __linux__ */
 
-	char *FileNamePart;
+		char *FileNamePart;
 
-	/* If the file being opened is prefixed with the magic "PROGDIR:" prefix */
-	/* then determine the path to the executable that is running this code */
-	/* and try to open the specified file in the same directory */
-
-	if (strncmp(a_pccFileName, g_accProgDir, PROGDIR_LENGTH) == 0)
-	{
 		/* Allocate a buffer large enough to hold the fully qualified filename, as */
 		/* specified by the GetModuleFileName() documentation */
 
@@ -1531,12 +1570,11 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
 			}
 
-			/* The path was too long so display a debug string and just let the */
-			/* RFile::Open() call fail */
+			/* The path was too long so display a debug string and just let the call fail */
 
 			else
 			{
-				Utils::Info("RFile::Open() => Cannot obtain path to executable");
+				Utils::Info("Utils::ResolveProgName() => Cannot obtain path to executable");
 
 				delete [] RetVal;
 				RetVal = NULL;
@@ -1544,8 +1582,11 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 		}
 		else
 		{
-			Utils::Info("Utils::ResolvePathName() => Out of memory");
+			Utils::Info("Utils::ResolveProgName() => Out of memory");
 		}
+
+#endif /* ! __linux__ */
+
 	}
 
 	/* Nothing has been resolved so just return the original filename */
@@ -1554,8 +1595,6 @@ char *Utils::ResolveProgName(const char *a_pccFileName)
 	{
 		RetVal = (char *) a_pccFileName;
 	}
-
-#endif /* ! __linux__ */
 
 	return(RetVal);
 }

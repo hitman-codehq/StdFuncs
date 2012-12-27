@@ -239,8 +239,19 @@ int main()
 
 	Test.Next("Ensure that the PROGDIR: prefix works with Utils::GetFileInfo()");
 
+#ifdef WIN32
+
 	Result = Utils::GetFileInfo("PROGDIR:T_Utils.exe", &Entry);
+	test(strcmp(Entry.iName, "T_Utils.exe") == 0);
 	test(Result == KErrNone);
+
+#else /* ! WIN32 */
+
+	Result = Utils::GetFileInfo("PROGDIR:T_Utils", &Entry);
+	test(strcmp(Entry.iName, "T_Utils") == 0);
+	test(Result == KErrNone);
+
+#endif /* ! WIN32 */
 
 	File.Close();
 
