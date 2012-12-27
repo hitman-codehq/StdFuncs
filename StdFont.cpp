@@ -282,7 +282,7 @@ TInt RFont::Begin()
 		m_bBeginCalled = ETrue;
 	}
 
-#endif _DEBUG
+#endif /* _DEBUG */
 
 	return(RetVal);
 }
