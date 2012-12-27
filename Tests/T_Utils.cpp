@@ -11,6 +11,7 @@ static RTest Test("T_Utils");
 
 int main()
 {
+	char *ProgName;
 	const char *Extension, *FileName;
 	TInt Result;
 	RFile File;
@@ -235,7 +236,52 @@ int main()
 	Result = Utils::DeleteDirectory("UnknownDirectory/UnknownDirectory");
 	test(Result == KErrPathNotFound);
 
-	/* Test #6: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
+	/* Test #11: Ensure that Utils::ResolveFileName() works */
+
+	Test.Next("Ensure that Utils::ResolveFileName() works");
+
+#ifdef WIN32
+
+#ifdef _DEBUG
+
+	FileName = Utils::ResolveFileName("T_Utils_Debug/T_Utils.exe");
+
+#else /* ! _DEBUG */
+
+	FileName = Utils::ResolveFileName("T_Utils_Release/T_Utils.exe");
+
+#endif /* ! _DEBUG */
+
+#else /* ! WIN32 */
+
+#ifdef _DEBUG
+
+	FileName = Utils::ResolveFileName("Debug/T_Utils");
+
+#else /* ! _DEBUG */
+
+	FileName = Utils::ResolveFileName("Release/T_Utils");
+
+#endif /* ! _DEBUG */
+
+#endif /* ! WIN32 */
+
+	test(FileName != NULL);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] FileName;
+
+	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::ResolveProgName() */
+
+	Test.Next("Ensure that the PROGDIR: prefix works with Utils::ResolveProgName()");
+
+	ProgName = Utils::ResolveProgName("PROGDIR:T_Utils");
+	test(ProgName != NULL);
+	Test.Printf("Resolved name is %s\n", ProgName);
+
+	delete [] ProgName;
+
+	/* Test #13: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
 
 	Test.Next("Ensure that the PROGDIR: prefix works with Utils::GetFileInfo()");
 
@@ -252,8 +298,6 @@ int main()
 	test(Result == KErrNone);
 
 #endif /* ! WIN32 */
-
-	File.Close();
 
 	/* Clean up after ourselves */
 

@@ -1427,7 +1427,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	{
 		/* Convert the filename into a fully qualified path and put it in the allocated buffer */
 
-		if ((RetVal = realpath(a_pccFileName, NULL)) == NULL) // TODO: CAW - malloc problems!
+		if ((RetVal = realpath(a_pccFileName, RetVal)) == NULL)
 		{
 			Utils::Info("Utils::ResolveFileName() => Unable to determine full path of filename");
 		}
