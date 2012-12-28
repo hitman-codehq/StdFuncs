@@ -269,7 +269,7 @@ int main()
 	test(FileName != NULL);
 	Test.Printf("Resolved name is %s\n", FileName);
 
-	delete [] FileName;
+	delete [] (char *) FileName;
 
 	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
