@@ -199,12 +199,20 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 
 		if (NameOffset > 0)
 		{
+			/* Strip off the trailing '/' or '\\' but NOT the ':' as this is required */
+			/* for correct RAM disk handling on Amiga OS */
+
+			if (a_pccFileName[NameOffset - 1] != ':')
+			{
+				--NameOffset;
+			}
+
 			/* Allocate a buffer long enough to hold the path to the file */
 
 			if ((Name = new char[NameOffset + 1]) != NULL)
 			{
 				memcpy(Name, a_pccFileName, NameOffset);
-				Name[--NameOffset] = '\0';
+				Name[NameOffset] = '\0';
 
 				/* Now check for the existence of the file */
 

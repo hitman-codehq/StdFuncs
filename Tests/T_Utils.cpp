@@ -236,6 +236,19 @@ int main()
 	Result = Utils::DeleteDirectory("UnknownDirectory/UnknownDirectory");
 	test(Result == KErrPathNotFound);
 
+#ifdef __amigaos4__
+
+	/* Test some special Amiga cases that were causing BaflUtils::DeleteFile() to */
+	/* return incorrect return values sometimes */
+
+	Result = BaflUtils::DeleteFile("RAM:UnknownFile.txt");
+	test(Result == KErrNotFound);
+
+	Result = BaflUtils::DeleteFile("RAM:UnknownDirectory/UnknownFile.txt");
+	test(Result == KErrPathNotFound);
+
+#endif /* __amigaos4__ */
+
 	/* Test #11: Ensure that Utils::ResolveFileName() works */
 
 	Test.Next("Ensure that Utils::ResolveFileName() works");

@@ -175,10 +175,10 @@ int main()
 
 #ifdef __amigaos4__
 
-	/* Test #12: Test scanning Ram: to ensure that the Disk.info link is correct */
+	/* Test #12: Test scanning RAM: to ensure that the Disk.info link is correct */
 
-	Test.Next("Test scanning Ram: to ensure that the Disk.info link is correct");
-	TestScan("Ram:");
+	Test.Next("Test scanning RAM: to ensure that the Disk.info link is correct");
+	TestScan("RAM:");
 
 #else /* ! __amigaos4__ */
 
