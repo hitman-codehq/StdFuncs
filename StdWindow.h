@@ -96,7 +96,7 @@ public:
 
 	virtual ~CWindow();
 
-	TInt Open(const char *a_pccTitle, const char *a_pccScreenName);
+	TInt Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable);
 
 	virtual void Close();
 

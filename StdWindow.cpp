@@ -970,7 +970,7 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 
 /* Written: Monday 08-Feb-2010 7:13 am */
 
-TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
+TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
 {
 	TInt RetVal, ScreenWidth, ScreenHeight;
 
@@ -997,7 +997,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName)
 		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
 		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
 		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
-		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE,
+		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE, WA_SizeGadget, a_bResizeable,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
 
