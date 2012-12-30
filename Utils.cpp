@@ -1502,6 +1502,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 char *Utils::ResolveProgDirName(const char *a_pccFileName)
 {
 	char *RetVal;
+	TBool Ok;
 
 	/* If the file being opened is prefixed with the magic "PROGDIR:" prefix */
 	/* then determine the path to the executable that is running this code */
@@ -1509,6 +1510,10 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 	if (strncmp(a_pccFileName, g_accProgDir, PROGDIR_LENGTH) == 0)
 	{
+		/* Prepare for possible failure */
+
+		RetVal = NULL;
+		Ok = EFalse;
 
 #ifdef __amigaos4__
 
@@ -1527,22 +1532,16 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 				{
 					/* Append the name of the file to be opened in the executable's directory */
 
-					Utils::AddPart(RetVal, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+					Ok = Utils::AddPart(RetVal, &a_pccFileName[8], MAX_NAME_FROM_LOCK_LENGTH);
 				}
 				else
 				{
 					Utils::Info("Utils::ResolveProgDirName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
-
-					delete [] RetVal;
-					RetVal = NULL;
 				}
 			}
 			else
 			{
 				Utils::Info("Utils::ResolveProgDirName() => Unable to obtain lock program directory");
-
-				delete [] RetVal;
-				RetVal = NULL;
 			}
 		}
 		else
@@ -1575,7 +1574,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[8], PATH_MAX);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
@@ -1583,9 +1582,6 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			else
 			{
 				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
-
-				delete [] RetVal;
-				RetVal = NULL;
 			}
 		}
 		else
@@ -1615,7 +1611,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH); // TODO: CAW - Overrun
+				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
@@ -1623,9 +1619,6 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			else
 			{
 				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
-
-				delete [] RetVal;
-				RetVal = NULL;
 			}
 		}
 		else
@@ -1635,6 +1628,13 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 #endif /* ! __linux__ */
 
+		/* If anything failed then free the string the was allocated and indicate failure */
+
+		if (!(Ok))
+		{
+			delete [] RetVal;
+			RetVal = NULL;
+		}
 	}
 
 	/* Nothing has been resolved so just return the original filename */
@@ -1787,7 +1787,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 	/* Set both the access and modification time of the file to the time passed in */
 
 	Time.actime = Time.modtime = a_roEntry.iPlatformDate;
-	
+
 	if (utime(a_pccFileName, &Time) == 0)
 	{
 		RetVal = KErrNone;
