@@ -216,7 +216,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 	{
 		/* Allocate an array of ptrs to be used for storing the content of the parts */
 
-		if ((m_pccPartsText = new char *[a_iNumParts]) != NULL)
+		if ((m_ppcPartsText = new char *[a_iNumParts]) != NULL)
 		{
 			/* And attach the gadget */
 
@@ -256,14 +256,14 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 	/* Free the content of the parts, if allocated */
 
-	if (m_pccPartsText)
+	if (m_ppcPartsText)
 	{
 		for (Index = 0; Index < m_iNumParts; ++Index)
 		{
-			delete [] m_pccPartsText[Index];
+			Utils::FreeTempBuffer(m_ppcPartsText[Index]);
 		}
 
-		delete [] m_pccPartsText;
+		delete [] m_ppcPartsText;
 	}
 }
 
@@ -278,12 +278,12 @@ const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
 	const char *RetVal;
 
 	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::GetText() => Part # is out of range");
-	ASSERTM((m_pccPartsText != NULL), "CStdGadgetStatusBar::GetText() => Gadget not initialised");
+	ASSERTM((m_ppcPartsText != NULL), "CStdGadgetStatusBar::GetText() => Gadget not initialised");
 
 	/* Retrieve the text from our saved copy, rather than relying on the underlying */
 	/* operating system to give it to us */
 
-	RetVal = (m_pccPartsText[a_iPart]) ? m_pccPartsText[a_iPart] : "";
+	RetVal = (m_ppcPartsText[a_iPart]) ? m_ppcPartsText[a_iPart] : "";
 
 	return(RetVal);
 }
@@ -298,7 +298,7 @@ const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
 void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 {
 	ASSERTM((a_iPart < m_iNumParts), "CStdGadgetStatusBar::SetText() => Part # is out of range");
-	ASSERTM((m_pccPartsText != NULL), "CStdGadgetStatusBar::SetText() => Gadget not initialised");
+	ASSERTM((m_ppcPartsText != NULL), "CStdGadgetStatusBar::SetText() => Gadget not initialised");
 
 	/* Don't do anything if the content hasn't changed */
 
@@ -307,12 +307,9 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 		/* Save our own copy of the text so we don't have to depend on the underlying operating */
 		/* system if we want to retrieve it later */
 
-		// TODO: CAW - Use function written for Linux for resizable buffer
-		delete [] m_pccPartsText[a_iPart];
-
-		if ((m_pccPartsText[a_iPart] = new char[strlen(a_pccText) + 1]) != NULL)
+		if ((m_ppcPartsText[a_iPart] = (char *) Utils::GetTempBuffer(m_ppcPartsText[a_iPart], strlen(a_pccText) + 1)) != NULL)
 		{
-			strcpy(m_pccPartsText[a_iPart], a_pccText);
+			strcpy(m_ppcPartsText[a_iPart], a_pccText);
 		}
 
 #ifdef __amigaos4__

@@ -204,7 +204,7 @@ class CStdGadgetStatusBar : public CStdGadget
 {
 private:
 
-	char		**m_pccPartsText;				/* Ptr to an array of ptrs to text strings */
+	char		**m_ppcPartsText;				/* Ptr to an array of ptrs to text strings */
 	TInt		m_iNumParts;					/* # of parts within the gadget */
 
 #ifdef __amigaos4__
