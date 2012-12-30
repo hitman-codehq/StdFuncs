@@ -284,9 +284,9 @@ int main()
 
 	delete [] (char *) FileName;
 
-	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::ResolveProgDirName() */
+	/* Test #12: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
-	Test.Next("Ensure that the PROGDIR: prefix works with Utils::ResolveProgDirName()");
+	Test.Next("Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName()");
 
 	ProgDirName = Utils::ResolveProgDirName("PROGDIR:T_Utils");
 	test(ProgDirName != NULL);
