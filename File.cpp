@@ -480,7 +480,6 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - What if this returns < a_iLength?
 	RetVal = write(m_oHandle, a_pcucBuffer, a_iLength);
 
 	if (RetVal != a_iLength)
