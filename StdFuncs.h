@@ -20,9 +20,8 @@ typedef long LONG;
 typedef unsigned char UBYTE;
 typedef unsigned long ULONG;
 
-// TODO: CAW - Have to think about what to do about this & check these are really compatible.  Extra parameters!
-#define stricmp strcasecmp
-#define strnicmp(s1, s2, length) strncasecmp(s1, s2, length)
+#define stricmp(string1, string2) strcasecmp(string1, string2)
+#define strnicmp(string1, string2, length) strncasecmp(string1, string2, length)
 
 #else /* ! __linux__ */
 
