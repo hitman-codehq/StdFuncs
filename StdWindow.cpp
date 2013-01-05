@@ -241,7 +241,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			Window->Activated(!(a_oWParam == WA_INACTIVE));
 
 			/* And forget about the alt and ctrl keypresses as we won't get a WM_KEYUP for them now */
-			/* that swe no longer have focus */
+			/* that we no longer have focus */
 
 			m_bAltPressed = m_bCtrlPressed = EFalse;
 
