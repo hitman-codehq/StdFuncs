@@ -459,7 +459,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 	if (RetVal == KErrNone)
 	{
-		/* If the user wants the contents of get gadget as well then obtain them */
+		/* If the user wants the contents of the gadget as well then obtain them */
 
 		if (a_bGetText)
 		{
