@@ -124,10 +124,7 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
-	TBool CtrlPressed()
-	{
-		return(m_bCtrlPressed);
-	}
+	TBool CtrlPressed();
 
 	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
 

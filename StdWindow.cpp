@@ -578,6 +578,30 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
+/* Written: Saturday 05-Jan-2013 1:12 pm, CodeHQ Ehinger Tor */
+/* @returns	ETrue if the control key is pressed, else EFalse */
+/* Returns whether or not the control key is currently pressed */
+
+TBool CWindow::CtrlPressed()
+{
+
+#ifdef WIN32
+
+	/* Due to Windows using the control key to simulate usage of the ALT GR */
+	/* key, rather than using a dedicated keycode for ALT GR, we have to have */
+	/* a workaround to differentiate between control being pressed and ALT GR */
+	/* being pressed */
+
+	return((m_bCtrlPressed) && (!(m_bAltPressed)));
+
+#else /* ! WIN32 */
+
+	return(m_bCtrlPressed);
+
+#endif /* ! WIN32 */
+
+}
+
 /* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
 
 void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
