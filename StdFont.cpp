@@ -533,9 +533,14 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 			break;
 		}
 
-		/* Display the text in the required colour */
+		/* Display the text in the required colour.  If the highlight is set then */
+		/* the colours will already have been inversed so leave them as they are */
 
-		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
+		if (!(m_bHighlight))
+		{
+			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
+		}
+
 		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
 
 		/* And prepare for the next run to be displayed */
@@ -559,10 +564,15 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
-		/* Display the text in the required colour, taking into account that QPainter::drawText() uses the */
-		/* Y position as the baseline of the font, not as the top */
+		/* Display the text in the required colour, taking into account that QPainter::drawText() uses */
+		/* the Y position as the baseline of the font, not as the top.  If the highlight is set then */
+		/* the colours will already have been inversed so leave them as they are */
 
-		QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
+		if (!(m_bHighlight))
+		{
+			QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
+		}
+
 		QByteArray String(a_pccText, Length);
 
 		m_oPainter.setPen(Pen);
@@ -586,9 +596,14 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
-		/* Display the text in the required colour */
+		/* Display the text in the required colour.  If the highlight is set then */
+		/* the colours will already have been inversed so leave them as they are */
 
-		SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
+		if (!(m_bHighlight))
+		{
+			SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
+		}
+
 		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, Length);
 
 		/* And prepare for the next run to be displayed */
