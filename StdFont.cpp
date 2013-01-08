@@ -318,7 +318,7 @@ void RFont::End()
 
 /* Written: Tuesday 08-Jun-2010 6:22 am */
 
-void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter)
+void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter)
 {
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
@@ -334,7 +334,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 
 	/* Draw the text or a space instead as requested */
 
-	Cursor = (a_iDrawCharacter) ? &a_pcText[a_iX] : Space;
+	Cursor = (a_iDrawCharacter) ? &a_pccText[a_iX] : Space;
 
 #ifdef __amigaos4__
 
@@ -392,7 +392,7 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 	/* the window and the position at which the cursor is to be displayed, and use this and the */
 	/* font height to display the cursor in the correct position */
 
-	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pcText, a_iX, &Size))
+	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pccText, a_iX, &Size))
 	{
 		/* And draw the cursor! */
 
@@ -408,16 +408,16 @@ void RFont::DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDraw
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
-/* @param	a_pcText	Ptr to string to be drawn to the screen */
-/*			a_iLength	Length of the string pointed to by a_pcText */
+/* @param	a_pccText	Ptr to string to be drawn to the screen */
+/*			a_iLength	Length of the string pointed to by a_pccText */
 /*			a_iX		X position in the window at which to draw */
 /*			a_iY		Y position in the window at which to draw */
 /* Draws a string to the window the font is assigned to at the specified X and Y */
 /* positions */
 
-void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
+void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY)
 {
-	ASSERTM(a_pcText, "RFont::DrawText() => Text ptr must not be NULL");
+	ASSERTM(a_pccText, "RFont::DrawText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawText() => RFont::Begin() must be called before RFont::DrawText()");
 
@@ -444,12 +444,12 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 		Width = (m_iClipWidth - (a_iX * m_iWidth));
 		Width = MAX(0, Width);
 
-		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, a_iLength, &TextExtent, NULL, 1,
+		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iLength, &TextExtent, NULL, 1,
 			Width, m_poWindow->InnerHeight());
 
 		/* And draw as much of the text passed in as will fit in the client area */
 
-		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
+		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -457,19 +457,19 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 	/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 	/* the baseline of the font, not as the top */
 
-	QByteArray String(a_pcText, a_iLength);
+	QByteArray String(a_pccText, a_iLength);
 	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 #elif defined(WIN32)
 
-	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, a_iLength);
+	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iLength);
 
 #endif /* WIN32 */
 
 }
 
 /* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport awaiting flight EK 052 to Dubai */
-/* @param	a_pcText	Ptr to string to be drawn to the screen */
+/* @param	a_pccText	Ptr to string to be drawn to the screen */
 /*			a_iX		X position in the window at which to draw */
 /*			a_iY		Y position in the window at which to draw */
 /* Draws a string to the window the font is assigned to at the specified X and Y */
@@ -483,11 +483,11 @@ void RFont::DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY)
 /* the string.  The Colour byte specifies the colour in which to draw and following this are */
 /* Length bytes of the text itself.  After this, the sequence repeats or is terminated with 0 */
 
-void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
+void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 {
 	TInt Colour, Length;
 
-	ASSERTM(a_pcText, "RFont::DrawColouredText() => Text ptr must not be NULL");
+	ASSERTM(a_pccText, "RFont::DrawColouredText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawColouredText() => RFont::Begin() must be called before RFont::DrawColouredText()");
 
@@ -504,12 +504,12 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
-	while (*a_pcText)
+	while (*a_pccText)
 	{
 		/* Get the length of the run and the colour to display the run in */
 
-		Length = *a_pcText++;
-		Colour = *a_pcText++;
+		Length = *a_pccText++;
+		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Move to the position at which to print, taking into account the left and top border sizes, */
@@ -523,7 +523,7 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
 		/* clip width reduces as we print the parts of the string */
 
-		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pcText, Length, &TextExtent, NULL, 1,
+		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Length, &TextExtent, NULL, 1,
 			Width, m_poWindow->InnerHeight());
 
 		/* If nothing fits then we may as well break out of the loop */
@@ -536,12 +536,12 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* Display the text in the required colour */
 
 		IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
-		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pcText, NumChars);
+		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
 
 		/* And prepare for the next run to be displayed */
 
 		a_iX += Length;
-		a_pcText += Length;
+		a_pccText += Length;
 		Width -= TextExtent.te_Width;
 
 		ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
@@ -551,19 +551,19 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
-	while (*a_pcText)
+	while (*a_pccText)
 	{
 		/* Get the length of the run and the colour to display the run in */
 
-		Length = *a_pcText++;
-		Colour = *a_pcText++;
+		Length = *a_pccText++;
+		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Display the text in the required colour, taking into account that QPainter::drawText() uses the */
 		/* Y position as the baseline of the font, not as the top */
 
 		QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
-		QByteArray String(a_pcText, Length);
+		QByteArray String(a_pccText, Length);
 
 		m_oPainter.setPen(Pen);
 		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
@@ -571,30 +571,30 @@ void RFont::DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY)
 		/* And prepare for the next run to be displayed */
 
 		a_iX += Length;
-		a_pcText += Length;
+		a_pccText += Length;
 	}
 
 #else /* ! QT_GUI_LIB */
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
-	while (*a_pcText)
+	while (*a_pccText)
 	{
 		/* Get the length of the run and the colour to display the run in */
 
-		Length = *a_pcText++;
-		Colour = *a_pcText++;
+		Length = *a_pccText++;
+		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 		/* Display the text in the required colour */
 
 		SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pcText, Length);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, Length);
 
 		/* And prepare for the next run to be displayed */
 
 		a_iX += Length;
-		a_pcText += Length;
+		a_pccText += Length;
 	}
 
 #endif /* ! QT_GUI_LIB */

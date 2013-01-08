@@ -78,11 +78,11 @@ public:
 
 	void End();
 
-	void DrawCursor(const char *a_pcText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
+	void DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
 
-	void DrawText(const char *a_pcText, TInt a_iLength, TInt a_iX, TInt a_iY);
+	void DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY);
 
-	void DrawColouredText(const char *a_pcText, TInt a_iX, TInt a_iY);
+	void DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY);
 
 	TInt Width()
 	{
