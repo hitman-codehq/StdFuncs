@@ -86,8 +86,8 @@ char *TLex::NextToken()
 /* Parses the string with which the TLex was initialised and returns a ptr to the */
 /* next available token in the string.  This token will NOT be NULL terminated but */
 /* its length will instead be returned in the variable pointed to by a_piLength. */
-/* In the case where no token is returned, the contents of a_piLength will not be */
-/* altered.  This is a non destructive routine */
+/* In the case where no token is returned, the contents of a_piLength will be set */
+/* to 0.  This is a non destructive routine */
 
 const char *TLex::NextToken(TInt *a_piLength)
 {
@@ -203,6 +203,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	else
 	{
+		*a_piLength = 0;
 		RetVal = NULL;
 	}
 
@@ -212,6 +213,36 @@ const char *TLex::NextToken(TInt *a_piLength)
 	m_iLength -= Index;
 
 	return(RetVal);
+}
+
+/* Written: Tuesday 08-Jan-2013 6:34 am, Vis à Vis Hotel, Lindau */
+/* Moves the internal text ptr forwards by a certain number of characters. */
+/* This function should only be used if you really know what you are doing */
+/* as it is breaking C++ abstraction rules and is use-at-your-own-risk! */
+/* It is supplied only so that the Lex class can be used by more advanced */
+/* tokenising code */
+/* @param	a_iLength	Number of characters to skip */
+
+void TLex::MoveForwards(TInt a_iLength)
+{
+	m_pccString += a_iLength;
+	m_iLength -= a_iLength;
+
+	ASSERTM((m_iLength >= 0), "TLex::MoveForward() => Moved forward too far");
+}
+
+/* Written: Tuesday 08-Jan-2013 6:24 am, Vis à Vis Hotel, Lindau */
+/* Moves the internal text ptr backwards by a certain number of characters. */
+/* This function should only be used if you really know what you are doing */
+/* as it is breaking C++ abstraction rules and is use-at-your-own-risk! */
+/* It is supplied only so that the Lex class can be used by more advanced */
+/* tokenising code */
+/* @param	a_iLength	Number of characters to skip backwards */
+
+void TLex::MoveBackwards(TInt a_iLength)
+{
+	m_pccString -= a_iLength;
+	m_iLength += a_iLength;
 }
 
 /* Written: Tuesday 27-Nov-2012 5:52 am */

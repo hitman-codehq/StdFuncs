@@ -38,6 +38,10 @@ public:
 
 	const char *NextToken(TInt *a_piLength);
 
+	void MoveForwards(TInt a_iLength);
+
+	void MoveBackwards(TInt a_iLength);
+
 	void SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace);
 
 	void SetWhitespace(const char *a_pcWhitespace);
