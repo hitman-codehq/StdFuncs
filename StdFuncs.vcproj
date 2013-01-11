@@ -331,6 +331,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\StdConfigFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdDialog.cpp"
 				>
 				<FileConfiguration
@@ -491,6 +495,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\StdPool.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdTextFile.cpp"
 				>
 				<FileConfiguration
@@ -648,6 +656,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdConfigFile.h"
+				>
+			</File>
+			<File
 				RelativePath="StdDialog.h"
 				>
 			</File>
@@ -673,6 +685,10 @@
 			</File>
 			<File
 				RelativePath="StdList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StdPool.h"
 				>
 			</File>
 			<File
