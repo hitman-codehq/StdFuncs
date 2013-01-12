@@ -412,24 +412,37 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	const char *Text;
 	APTR Gadget;
 
-	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
-	/* its length */
+	/* If the text gadget is currently being edited then extract the information directly */
+	/* from the SGWork structure associated with the gadget.  It must be done like this as */
+	/* the STRINGA_TextVal attribute will not be updated until after the editing is complete */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((m_poEditHookData) && (m_poEditHookData->Gadget->GadgetID == a_iGadgetID))
 	{
-		if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
-		{
-			RetVal = KErrNone;
-			Length = (strlen(Text) + 1);
-		}
-		else
-		{
-			Utils::Info("CDialog::GetGadgetText() => Unable to obtain gadget text for gadget with ID %d", a_iGadgetID);
-		}
+		RetVal = KErrNone;
+		Length = (m_poEditHookData->NumChars + 1);
+		Text = m_poEditHookData->WorkBuffer;
 	}
 	else
 	{
-		Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
+		/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
+		/* its length */
+
+		if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+		{
+			if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
+			{
+				RetVal = KErrNone;
+				Length = (strlen(Text) + 1);
+			}
+			else
+			{
+				Utils::Info("CDialog::GetGadgetText() => Unable to obtain gadget text for gadget with ID %d", a_iGadgetID);
+			}
+		}
+		else
+		{
+			Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
+		}
 	}
 
 #elif defined(__linux__)
@@ -652,3 +665,68 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 #endif /* ! __linux__ */
 
 }
+
+#ifdef __amigaos4__
+
+/* Written: Saturday 12-Jan-2012 12:20 pm */
+/* @param	a_poHook	Ptr to a standard Amiga OS Hook structure, used by all hooks */
+/*			a_poWork	Ptr to a structure that contains the current state of the string gadget */
+/*			a_pulMessage	Ptr to a message indicating the editing command currently in progress */
+/* @returns	1 if the hook was handled, else 0 */
+/* Hook function called during the editing of text gadgets.  This is a static function that simply */
+/* finds the CDialog with which the gadget is associated and passes control to the dialog for */
+/* processing of the hook */
+
+TInt CDialog::StringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage)
+{
+	CDialog *Dialog;
+
+	/* Get a ptr to the dialog associated with the hook */
+
+	Dialog = (CDialog *) a_poHook->h_Data;
+
+	/* And call the edit function in that dialog */
+
+	return(Dialog->DoStringEditHook(a_poHook, a_poWork, a_pulMessage));
+}
+
+/* Written: Saturday 12-Jan-2012 12:21 pm */
+/* @param	a_poHook	Ptr to a standard Amiga OS Hook structure, used by all hooks */
+/*			a_poWork	Ptr to a structure that contains the current state of the string gadget */
+/*			a_pulMessage	Ptr to a message indicating the editing command currently in progress */
+/* @returns	1 if the hook was handled, else 0 */
+/* Hook function called during the editing of text gadgets.  This is required to provide real */
+/* time update events to client code of the framework.  If a key has been pressed then it will */
+/* save a ptr to the SGWork structure in case the client queries the value of the string gadget */
+/* (as the STRINGA_TextVal attribute has not yet been updated when this hook is called) and will */
+/* then notify the client code of the update */
+
+TInt CDialog::DoStringEditHook(struct Hook * /*a_poHook */,  struct SGWork *a_poWork, TUint *a_pulMessage)
+{
+	TInt RetVal;
+
+	/* Only process key presses */
+
+	if (*a_pulMessage == SGH_KEY)
+	{
+		/* Indicate that we processed the hook */
+
+		RetVal = 1;
+
+		/* Save the SGWork structure and notify the client code of the string gadget update */
+
+		m_poEditHookData = a_poWork;
+		HandleEvent(EStdEventChange, a_poWork->Gadget->GadgetID);
+		m_poEditHookData = NULL;
+	}
+	else
+	{
+		/* Indicate that we did not process the hook */
+
+		RetVal = 0;
+	}
+
+	return(RetVal);
+}
+
+#endif /*__amigaos4__ */

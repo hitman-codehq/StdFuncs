@@ -53,6 +53,7 @@ protected:
 
 #ifdef __amigaos4__
 
+	struct SGWork			*m_poEditHookData;		/* If non NULL, a string gadget is being edited */
 	Object					*m_poRootGadget;		/* Ptr to root layout gadget */
 
 #endif /* __amigaos4__ */
@@ -68,6 +69,14 @@ public:
 	}
 
 	virtual ~CDialog();
+
+#ifdef __amigaos4__
+
+	static TInt	StringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage);
+
+	TInt DoStringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage);
+
+#endif /* __amigaos4__ */
 
 	/* Functions can be implemented by client software */
 
