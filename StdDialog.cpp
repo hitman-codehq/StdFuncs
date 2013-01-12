@@ -597,12 +597,34 @@ void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 		Close(IDCANCEL);
 	}
 
+#ifdef __amigaos4__
+
+	APTR Gadget;
+	ULONG Disabled;
+
 	/* If they key is an enter key being released then simulate an IDOK event */
 
-	else if ((a_iKey == STD_KEY_ENTER) && (!(a_bKeyDown)))
+	if ((a_iKey == STD_KEY_ENTER) && (!(a_bKeyDown)))
 	{
-		HandleCommand(IDOK);
+		/* We only want to do this if there is an active IDOK gadget present so find */
+		/* a ptr to the BOOPSI gadget and if found then query its disable state */
+
+		if ((Gadget = GetBOOPSIGadget(IDOK)) != NULL)
+		{
+			if (IIntuition->GetAttr(GA_Disabled, (struct Gadget *) Gadget, &Disabled))
+			{
+				/* If is not disabled then send the fake IDOK command to the client */
+
+				if (!(Disabled))
+				{
+					HandleCommand(IDOK);
+				}
+			}
+		}
 	}
+
+#endif /* __amigaos4__ */
+
 }
 
 /* Written: Sunday 24-Oct-2010 5:21 pm */
