@@ -1395,6 +1395,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 #ifdef __amigaos4__
 
+	TBool LockedFile;
 	BPTR Lock;
 
 	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
@@ -1406,19 +1407,43 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 		if ((Lock = IDOS->Lock(a_pccFileName, SHARED_LOCK)) != 0)
 		{
-			if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH ) == 0)
-			{
-				Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
-
-				delete [] RetVal;
-				RetVal = NULL;
-			}
-
-			IDOS->UnLock(Lock);
+			LockedFile = ETrue;
 		}
 		else
 		{
+			/* Obtaining the lock failed, probably due to the file not existing, so get */
+			/* a lock on the current directory instead */
+
 			Utils::Info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
+
+			LockedFile = EFalse;
+			Lock = IDOS->GetCurrentDir();
+		}
+
+		/* Get the fully qualified name of the file (if the lock was obtained successfully) */
+		/* or the path of the current directory (if it wasn't) */
+
+		if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH) == 0)
+		{
+			Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+
+			delete [] RetVal;
+			RetVal = NULL;
+		}
+
+		/* If we obtained the directory name then append the filename to it */
+
+		if (!(LockedFile))
+		{
+			Utils::AddPart(RetVal, a_pccFileName, MAX_NAME_FROM_LOCK_LENGTH);
+		}
+
+		/* And unlock the lock on the file, if it was obtained successfully.  If it is a */
+		/* directory lock then it is just a copy of the lock, so don't unlock it */
+
+		if (LockedFile)
+		{
+			IDOS->UnLock(Lock);
 		}
 	}
 	else
