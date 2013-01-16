@@ -1022,16 +1022,18 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 /* be reallocated if the new buffer is larger than the old one.  The first */
 /* time you call this function you should pass in NULL as the buffer ptr.  */
 /* For subsequent calls, pass in the buffer returned by the previous call. */
-/* When done, use Utils::FreeTempBuffer() to free the allocated buffer */
+/* When done, use Utils::FreeTempBuffer() to free the allocated buffer.  If a */
+/* new buffer is allocated, the contents of the old one will be copied into it */
 
 void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 {
-	char *RetVal;
+	char *OldBuffer, *RetVal;
 	TInt Size;
 
 	/* Assume failure */
 
-	RetVal = NULL;
+	OldBuffer = RetVal = NULL;
+	Size = 0;
 
 	/* If the buffer has already been allocated then check to see if it is */
 	/* large enough to hold the newly requested size */
@@ -1050,11 +1052,11 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 			RetVal = a_pccBuffer;
 		}
 
-		/* Otherwise delete it and it will be reallocated */
+		/* Otherwise indicate that a new buffer is to be allocated */
 
 		else
 		{
-			delete [] (a_pccBuffer - 4);
+			OldBuffer = a_pccBuffer;
 			a_pccBuffer = NULL;
 		}
 	}
@@ -1071,6 +1073,15 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 
 		*(TInt *) RetVal = a_iSize;
 		RetVal += 4;
+
+		/* If the buffer was already allocated, copy the old contents into the new buffer */
+		/* and free the old buffer */
+
+		if (OldBuffer)
+		{
+			memcpy(RetVal, OldBuffer, Size);
+			delete [] (OldBuffer - 4);
+		}
 	}
 
 	return((void *) RetVal);
