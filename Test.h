@@ -2,7 +2,7 @@
 #ifndef TEST_H
 #define TEST_H
 
-#define test(x) Test(x, __LINE__, __FILE__)
+#define test(Assertion) Test(Assertion, __LINE__, __FILE__)
 
 class RTest
 {
