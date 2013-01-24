@@ -34,11 +34,8 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS 17
 
-#endif /* WIN32 */
-
-#ifdef WIN32
-
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
+CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 
 #endif /* WIN32 */
 
@@ -235,6 +232,28 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	{
 		case WM_ACTIVATE :
 		{
+			/* If there is an active dialog then check to see if the window was just activated */
+			/* by any other mechanism than a mouse click.  If so then this means that the */
+			/* application was switched away from and then back to so we want to re-activate */
+			/* the previously active dialog */
+
+			if (m_poActiveDialog)
+			{
+				if ((a_oWParam == WA_ACTIVE) && (m_poActiveDialog))
+				{
+					m_poActiveDialog->Activate();
+				}
+
+				/* Otherwise the window was clicked on so indicate that there is no longer an */
+				/* active dialog.  This must be done here and not in the dialog's WM_ACTIVATE */
+				/* as the dialog has no knowledge of how it is being deactivated */
+
+				else
+				{
+					m_poActiveDialog = NULL;
+				}
+			}
+
 			/* Window focus is changing so let the client know that the window is activating */
 			/* or deactivating */
 

@@ -69,8 +69,19 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 
 		case WM_ACTIVATE :
 		{
-			/* A dialog has been either activated or deactivated so notify the application of */
-			/* this so that it can handle dialog bound messages with IsDialogMessage() */
+			/* If the dialog is being activated then indicate this so that the framework */
+			/* can reactivate it if focus is switched away from the application and then */
+			/* back again */
+
+			if (a_oWParam)
+			{
+				CDialog::m_poActiveDialog = Dialog;
+			}
+
+			/* A dialog has been either activated or deactivated so notify the RApplication of */
+			/* this so that it can handle dialog bound messages with IsDialogMessage().  This */
+			/* is nothing to do with the above activation handling but is to do with crazy */
+			/* Windows message routing and is easier done separately */
 
 			Dialog->Application()->SetCurrentDialog((a_oWParam) ? a_poWindow : NULL);
 
@@ -214,6 +225,13 @@ void CDialog::Close(TInt a_iGadgetID)
 
 void CDialog::Close()
 {
+	/* If this is the active dialog then indicate that this is no longer the case */
+
+	if (m_poActiveDialog == this)
+	{
+		m_poActiveDialog = NULL;
+	}
+
 	/* Call the superclass close to actually close the dialog */
 
 	CWindow::Close();
