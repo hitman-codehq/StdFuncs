@@ -1130,6 +1130,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	WNDCLASS WndClass;
 
 	(void) a_pccScreenName;
+	(void) a_bResizeable;
 
 	/* Populate a WNDCLASS structure in preparation for registering the window class */
 
