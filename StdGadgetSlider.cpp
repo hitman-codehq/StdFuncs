@@ -117,22 +117,18 @@ TInt CStdGadgetSlider::Construct()
 CStdGadgetSlider::~CStdGadgetSlider()
 {
 
-#ifdef __amigaos4__
+#ifdef __linux__
 
 	// TODO: CAW - Implement
 
-#elif defined(__linux__)
-
-	// TODO: CAW - Implement
-
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 	if (m_poGadget)
 	{
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetSlider::~CStdGadgetSlider() => Cannot destroy native slider gadget");
 	}
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 }
 
@@ -271,7 +267,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	ScrollInfo.cbSize = sizeof(ScrollInfo);
 	ScrollInfo.fMask = SIF_POS;
 	ScrollInfo.nPos = a_iPosition;
-	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE); // TODO: CAW - Look into refreshing display
+	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 
 #endif /* ! __linux__ */
 
