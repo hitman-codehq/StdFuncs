@@ -571,11 +571,11 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 		if (!(m_bHighlight))
 		{
 			QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
+			m_oPainter.setPen(Pen);
 		}
 
 		QByteArray String(a_pccText, Length);
 
-		m_oPainter.setPen(Pen);
 		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
