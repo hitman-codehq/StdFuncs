@@ -515,6 +515,8 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
+	/* Add the new layout gadget to the window's list of gadgets */
+
 	m_oGadgets.AddTail(a_poLayoutGadget);
 
 #ifdef __amigaos4__
@@ -523,14 +525,16 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
 	{
-		// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+		/* Let the layout gadget know its new width and then calcuate its new height */
+
 		a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 		RethinkLayout();
 	}
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?
+	/* Let the layout gadget know its new width and then calcuate its new height */
+
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 	RethinkLayout();
 
@@ -1291,12 +1295,12 @@ void CWindow::RethinkLayout()
 
 				MinHeight = LayoutGadget->MinHeight();
 
-				LayoutGadget->m_iHeight = MinHeight; // TODO: CAW - Directly accessing
+				LayoutGadget->m_iHeight = MinHeight;
 				InnerHeight -= MinHeight;
 			}
 			else
 			{
-				LayoutGadget->m_iHeight = -1; // TODO: CAW - Directly accessing
+				LayoutGadget->m_iHeight = -1;
 			}
 
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
@@ -1309,7 +1313,6 @@ void CWindow::RethinkLayout()
 		while (LayoutGadget)
 		{
 			LayoutGadget->m_iY = Y;
-			// TODO: CAW - Directly accessing + what about SetGadgetPosition() & SetGadgetSize()?  What about height?
 			LayoutGadget->m_iWidth = m_iInnerWidth;
 
 			if (LayoutGadget->Weight() == 1)
