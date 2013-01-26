@@ -1198,8 +1198,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			/* Set the window to the size of the desktop and display it */
 
-			m_poWindow->resize(1600, 900); // TODO: CAW - Hard coded numbers
-			m_poWindow->show();
+			m_poWindow->showMaximized();
 
 			/* And save the size of the client area */
 
