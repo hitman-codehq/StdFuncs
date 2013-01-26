@@ -225,12 +225,17 @@ void CDialog::Close(TInt a_iGadgetID)
 
 void CDialog::Close()
 {
+
+#ifdef WIN32
+
 	/* If this is the active dialog then indicate that this is no longer the case */
 
 	if (m_poActiveDialog == this)
 	{
 		m_poActiveDialog = NULL;
 	}
+
+#endif /* WIN32 */
 
 	/* Call the superclass close to actually close the dialog */
 
