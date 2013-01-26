@@ -113,7 +113,7 @@ private:
 	MStdGadgetLayoutObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
 
-public: // TODO: CAW - I really don't like this but I'm fucked by templates.  What about public nonsense?
+public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;     /* Standard list node */
 
