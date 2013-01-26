@@ -850,7 +850,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		/* And invalidate the vertical band.  Liken Windows, this will defer the dredrawing until l8r, */
 		/* possibly coalescing multiple redraws into one */
 
-		CentralWidget->update(a_iTop, 0, a_iWidth, a_iBottom);
+		CentralWidget->update(0, a_iTop, a_iWidth, a_iBottom);
 	}
 
 #elif defined(WIN32)
