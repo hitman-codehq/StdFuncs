@@ -50,7 +50,11 @@ private:
 	struct Hook			m_oIDCMPHook;				/* IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootGadget;			/* layout.gadget containing the window's gadgets */
 
-#endif /* __amigaos4__ */
+#elif defined(WIN32)
+
+	ATOM				m_poWindowClass;			/* Window's class, returned from RegisterClass() */
+
+#endif /* WIN32 */
 
 protected:
 

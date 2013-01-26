@@ -674,10 +674,20 @@ void CWindow::Close()
 
 #else /* ! __linux__ */
 
+	/* If the window is open, close it and indicate that it is no longer open */
+
 	if (m_poWindow)
 	{
 		DEBUGCHECK((DestroyWindow(m_poWindow) != 0), "CWindow::Close() => Unable to destroy window");
 		m_poWindow = NULL;
+	}
+
+	/* If the window's class is registered, unregister it and indicate that it is no longer registered */
+
+	if (m_poWindowClass)
+	{
+		DEBUGCHECK((UnregisterClass((LPCTSTR) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::Close() => Unable to unregister window class");
+		m_poWindowClass = 0;
 	}
 
 #endif /* ! __linux__ */
@@ -1148,7 +1158,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	/* Register the window class and open the window */
 
-	if (RegisterClass(&WndClass))
+	if ((m_poWindowClass = RegisterClass(&WndClass)) != 0)
 	{
 		/* Determine the size of the desktop window so that we can open the window taking up the */
 		/* entire size of the screen, but minus that used by the system taskbar.  This is why we */
@@ -1211,7 +1221,6 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	else
 	{
-		// TODO: CAW - Unregister on error
 		Close();
 	}
 
