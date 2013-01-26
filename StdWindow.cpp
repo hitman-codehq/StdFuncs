@@ -18,6 +18,20 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QPaintEvent>
 
+/* Array of key mappings for mapping Windows keys onto standard keys */
+
+static const SKeyMapping g_aoKeyMap[] =
+{
+	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_CONTROL, Qt::Key_Shift }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
+	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
+	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
+	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },
+	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_F3, Qt::Key_F3 },
+	{ STD_KEY_F6, Qt::Key_F6 }, { STD_KEY_F12, Qt::Key_F12 }
+};
+
+#define NUM_KEYMAPPINGS 17
+
 #elif defined(WIN32)
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
@@ -52,11 +66,17 @@ private:
 
 	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
 
+private:
+
+	void HandleKeyEvent(QKeyEvent *a_poKeyEvent, TBool a_bKeyDown);
+
 protected:
 
 	/* From QMainWindow */
 
 	void keyPressEvent(QKeyEvent *a_poKeyEvent);
+
+	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);
 
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 
@@ -156,26 +176,86 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 #elif defined(QT_GUI_LIB)
 
+/* Written: Saturday 26-Jan-2013 11:49 am, Code HQ Ehinger Tor */
+/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
+/*			a_bKeyDown		ETrue if a key press is being handled, else EFalse for key a release */
+/* This is the internal function which handles both key presses and key releases under Qt */
+
+void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, TBool a_bKeyDown)
+{
+	TInt NativeKey, Index;
+
+	/* Scan through the key mappings and find the one that has just been pressed or released */
+
+	NativeKey = a_poKeyEvent->key();
+
+	for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+	{
+		if (g_aoKeyMap[Index].m_iNativeKey == NativeKey)
+		{
+			break;
+		}
+	}
+
+	/* If the key has a key mapping then send the standard key to the client */
+
+	if (Index < NUM_KEYMAPPINGS)
+	{
+		m_poWindow->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, a_bKeyDown);
+	}
+
+	/* Otherwise it is an ASCII key event so call the CWindow::OfferKeyEvent() function, passing in only */
+	/* valid ASCII characters */
+
+	else
+	{
+		QString String = a_poKeyEvent->text();
+
+		if (String.length() >= 1)
+		{
+			m_poWindow->OfferKeyEvent(String[0].toAscii(), a_bKeyDown);
+		}
+	}
+}
+
 /* Written: Friday 31-Aug-2012 3:02 pm */
 /* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
-/* This function is called whenever a keydown or keyup event occurs and will pass the */
-/* event along to the underlying framework window in the expected format, filtering */
-/* out any key events in which the framework is not interested */
+/* This function is called whenever a key down event occurs and will pass the event along */
+/* to the underlying framework window in the expected format, filtering out any key events */
+/* in which the framework is not interested */
 
 void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 {
-	QString String = a_poKeyEvent->text();
+	/* If this is a control key then indicate this in case the client queries about it */
 
-	/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+	if (a_poKeyEvent->key() == Qt::Key_Control)
+	{
+		m_poWindow->m_bCtrlPressed = ETrue;
+	}
 
-	if (String.length() >= 1)
+	/* Perform standard keyboard handling for the key down event */
+
+	HandleKeyEvent(a_poKeyEvent, ETrue);
+}
+
+/* Written: Saturday 26-Jan-2013 11:42 am, Code HQ Ehinger Tor */
+/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
+/* This function is called whenever a key up event occurs and will pass the event along */
+/* to the underlying framework window in the expected format, filtering out any key events */
+/* in which the framework is not interested */
+
+void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
+{
+	/* If this is a control key then indicate it is no longer pressed */
+
+	if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
-		m_poWindow->OfferKeyEvent(String[0].toAscii(), ETrue);
+		m_poWindow->m_bCtrlPressed = EFalse;
 	}
-	else
-	{
-		QMainWindow::keyPressEvent(a_poKeyEvent);
-	}
+
+	/* Perform standard keyboard handling for the key release event */
+
+	HandleKeyEvent(a_poKeyEvent, EFalse);
 }
 
 /* Written: Thursday 06-Sep-2012 1:35 pm */

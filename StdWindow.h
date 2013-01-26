@@ -207,6 +207,8 @@ protected:
 	CWindow() { }
 
 	void CompleteOpen();
+
+	friend class CQtWindow;
 };
 
 #endif /* ! STDWINDOW_H */
