@@ -63,9 +63,9 @@ protected:
 
 private:
 
-	void SetGadgetPosition(TInt a_iX, TInt a_iY);
+	void SetPosition(TInt a_iX, TInt a_iY);
 
-	void SetGadgetSize(TInt a_iWidth, TInt a_iHeight);
+	void SetSize(TInt a_iWidth, TInt a_iHeight);
 
 public:
 
@@ -144,7 +144,7 @@ public:
 
 	void RethinkLayout();
 
-	void SetGadgetWeight(TInt a_iWeight);
+	void SetWeight(TInt a_iWeight);
 
 	TInt Weight()
 	{

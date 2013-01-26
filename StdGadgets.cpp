@@ -104,14 +104,15 @@ void CStdGadget::SaveText(const char *a_pccText)
 /* function to adjust only the X or Y position without affecting the other. */
 /* This is an internal function and should not be used by client code. */
 
-void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
+void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 {
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Assert here as this is not used on Amiga OS - should these functions be private?
 	(void) a_iX;
 	(void) a_iY;
+
+	DEBUGFAILURE("CStdGadget::SetPosition() => Must not be called on Amiga OS");
 
 #elif defined(__linux__)
 
@@ -129,7 +130,7 @@ void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
 		a_iY = m_iY;
 	}
 
-	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetPosition() => Unable to set gadget position");
+	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetPosition() => Unable to set gadget position");
 
 #endif /* ! __linux__ */
 
@@ -144,15 +145,15 @@ void CStdGadget::SetGadgetPosition(TInt a_iX, TInt a_iY)
 /* affecting the other.  This is an internal function and should not be used */
 /* by client code. */
 
-// TODO: CAW - Remove Gadget from name, for this and SetGadgetPosition()?
-void CStdGadget::SetGadgetSize(TInt a_iWidth, TInt a_iHeight)
+void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 {
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Assert here as this is not used on Amiga OS - should these functions be private?
 	(void) a_iWidth;
 	(void) a_iHeight;
+
+	DEBUGFAILURE("CStdGadget::SetSize() => Must not be called on Amiga OS");
 
 #elif defined(__linux__)
 
@@ -170,7 +171,7 @@ void CStdGadget::SetGadgetSize(TInt a_iWidth, TInt a_iHeight)
 		a_iHeight = m_iHeight;
 	}
 
-	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetGadgetSize() => Unable to set gadget size");
+	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetSize() => Unable to set gadget size");
 
 #endif /* ! __linux__ */
 

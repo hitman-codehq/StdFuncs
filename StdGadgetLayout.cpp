@@ -218,7 +218,7 @@ void CStdGadgetLayout::RethinkLayout()
 	{
 		if (Gadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
-			Gadget->SetGadgetPosition((InnerWidth - Gadget->Width()), m_iY);
+			Gadget->SetPosition((InnerWidth - Gadget->Width()), m_iY);
 
 			Height = m_iHeight;
 
@@ -232,24 +232,24 @@ void CStdGadgetLayout::RethinkLayout()
 				Height -= StatusBarGadget->Height();
 			}
 
-			Gadget->SetGadgetSize(-1, Height);
+			Gadget->SetSize(-1, Height);
 		}
 		else if (Gadget->GadgetType() == EStdGadgetHorizontalSlider)
 		{
 			if (StatusBarGadget)
 			{
-				Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height() - StatusBarGadget->Height()));
+				Gadget->SetPosition(-1, (m_iY + m_iHeight - Gadget->Height() - StatusBarGadget->Height()));
 			}
 			else
 			{
-				Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
+				Gadget->SetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
 			}
 
-			Gadget->SetGadgetSize(InnerWidth, -1);
+			Gadget->SetSize(InnerWidth, -1);
 		}
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{
-			Gadget->SetGadgetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
+			Gadget->SetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
 		}
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
@@ -267,7 +267,7 @@ void CStdGadgetLayout::RethinkLayout()
 
 /* Written: Wednesday 23-Nov-2011 6:26 am, CodeHQ Söflingen */
 
-void CStdGadgetLayout::SetGadgetWeight(TInt a_iWeight)
+void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
 	/* Save the gadget's new weight */
 
