@@ -1275,11 +1275,9 @@ void CWindow::RethinkLayout()
 
 #else /* ! __amigaos4__ */
 
-	// TODO: CAW - This is potentially slow
-	TInt Count, InnerHeight, Height, Y;
+	TInt InnerHeight, Height, MinHeight, Y;
 
-	// TODO: CAW - Make a list Count() function?
-	Count = Y = 0;
+	Y = 0;
 	InnerHeight = m_iInnerHeight;
 	LayoutGadget = m_oGadgets.GetHead();
 
@@ -1289,19 +1287,22 @@ void CWindow::RethinkLayout()
 		{
 			if (LayoutGadget->Weight() == 1)
 			{
-				LayoutGadget->m_iHeight = LayoutGadget->MinHeight(); // TODO: CAW - Directly accessing
-				InnerHeight -= LayoutGadget->MinHeight(); // TODO: CAW - Slow?
+				/* CStdGadgetLayout::MinHeight() is expensive so cache the result */
+
+				MinHeight = LayoutGadget->MinHeight();
+
+				LayoutGadget->m_iHeight = MinHeight; // TODO: CAW - Directly accessing
+				InnerHeight -= MinHeight;
 			}
 			else
 			{
 				LayoutGadget->m_iHeight = -1; // TODO: CAW - Directly accessing
 			}
 
-			++Count;
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
 
-		Height = (m_iInnerHeight / Count); // TODO: CAW - What about remainder for last layout gadget?
+		Height = (m_iInnerHeight / m_oGadgets.Count()); // TODO: CAW - What about remainder for last layout gadget?
 
 		LayoutGadget = m_oGadgets.GetHead();
 
