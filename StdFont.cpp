@@ -379,11 +379,6 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	X = (m_iXOffset + (a_iX * m_iWidth));
 	Y = (m_iYOffset + (a_iY * m_iHeight));
 
-	/* Printing inverted text on Linux doesn't seem to work, so fill the cursor rectangle using the */
-	/* background colour */
-
-	m_oPainter.fillRect(X, Y, m_iWidth, m_iHeight, m_oText);
-
 	/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
 	/* uses the Y position as the baseline of the font, not as the top */
 
