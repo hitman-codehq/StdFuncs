@@ -3,8 +3,6 @@
 #include "StdFont.h"
 #include "StdWindow.h"
 
-#include <stdio.h>
-
 #ifdef __amigaos4__
 
 #include <proto/graphics.h>
