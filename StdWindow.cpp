@@ -1192,6 +1192,11 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 		{
 			RetVal = KErrNone;
 
+			/* Set the window's title to the one passed in */
+
+			QString Title(a_pccTitle);
+			m_poWindow->setWindowTitle(Title);
+
 			/* Assign the widget as the main window's central widget */
 
 			m_poWindow->setCentralWidget(CentralWidget);

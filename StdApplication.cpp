@@ -29,6 +29,17 @@ static const SKeyMapping g_aoKeyMap[] =
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 
+/* Fake arguments for the QApplication constructor, which must have them passed in.  We use our */
+/* own argument system so we don't use Qt's.  This makes our argument handling incompatible with */
+/* Qt's as programs written using The Framework won't respond to the standard Qt arguments passed */
+/* in, but that is the price to pay for using a framework within a framework!  The C++ standard */
+/* will (annoyingly) put string literals in the .text section, so we work around this with the */
+/* g_acBuffer variable, which is a binary representation of a string, but in the .bss section */
+
+static char g_acBuffer[2] = { '\0' };		/* Empty string in the .bss section */
+static char *g_acArgV[1] = { g_acBuffer };	/* Fake argv, which would usually be used for the main window's title */
+static TInt g_iArgC = 1;					/* Fake argc, which must be > 0 */
+
 #endif /* QT_GUI_LIB */
 
 /* Written: Saturday 26-Jun-2010 11:53 am */
@@ -204,14 +215,11 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 
 #ifdef QT_GUI_LIB
 
-	// TODO: CAW - Temporary + hanging backets below are not nice
-	static char *ArgV[1] = { "Hello" };
-	static int ArgC = 1;
+	/* Create an instance of the Qt application class, which is used to control the program */
+	/* under Qt.  We have our own argument handling so pass in fake argc and argv arguments */
 
-	m_poApplication = new QApplication(ArgC, ArgV);
+	m_poApplication = new QApplication(g_iArgC, g_acArgV);
 	RetVal = (m_poApplication != NULL) ? KErrNone : KErrNoMemory;
-
-	if (RetVal == KErrNone)
 
 #else /* ! QT_GUI_LIB */
 
@@ -221,6 +229,7 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 
 #endif /* ! QT_GUI_LIB */
 
+	if (RetVal == KErrNone)
 	{
 		/* Create the application's menu, if requested */
 
