@@ -3,6 +3,8 @@
 #include "StdFont.h"
 #include "StdWindow.h"
 
+#include <stdio.h>
+
 #ifdef __amigaos4__
 
 #include <proto/graphics.h>
@@ -132,7 +134,6 @@ TInt RFont::Open()
 		/* And assign the font to the window! */
 
 		m_poWindow->m_poWindow->setFont(*m_poFont);
-
 	}
 	else
 	{
@@ -265,6 +266,11 @@ TInt RFont::Begin()
 
 		m_oBackground = m_oPainter.background().color();
 		m_oText = m_oPainter.pen().color();
+
+		/* Make the background opaque as its colour cannot be changed when it is transparent, which */
+		/* is the default */
+
+		m_oPainter.setBackgroundMode(Qt::OpaqueMode);
 	}
 	else
 	{
@@ -646,12 +652,12 @@ void RFont::SetHighlight(TBool a_bHighlight)
 
 	if (a_bHighlight)
 	{
-		m_oPainter.setBrush(m_oText);
+		m_oPainter.setBackground(m_oText);
 		m_oPainter.setPen(m_oBackground);
 	}
 	else
 	{
-		m_oPainter.setBrush(m_oBackground);
+		m_oPainter.setBackground(m_oBackground);
 		m_oPainter.setPen(m_oText);
 	}
 
