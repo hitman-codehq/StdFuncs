@@ -109,25 +109,19 @@ public:
 	static ULONG Blue32(unsigned long a_ulColour);
 };
 
+/* Various assertion type macros which only do anything in debug builds */
+
 #ifdef _DEBUG
 
 #define ASSERTM(Expression, Message) if (!(Expression)) Utils::AssertionFailure(Message);
+#define DEBUGCHECK(Function, Message) if (!(Function)) Utils::AssertionFailure(Message);
+#define DEBUGFAILURE(Message) Utils::AssertionFailure(Message);
 
 #else /* ! _DEBUG */
 
 #define ASSERTM(Expression, Message)
-
-#endif /* _DEBUG */
-
-/* A macro to call a function and check its return value only in debug builds */
-
-#ifdef _DEBUG
-
-#define DEBUGCHECK(Function, Message) if (!(Function)) Utils::AssertionFailure(Message);
-
-#else /* ! _DEBUG */
-
 #define DEBUGCHECK(Function, Message) Function
+#define DEBUGFAILURE(Message)
 
 #endif /* ! _DEBUG */
 
