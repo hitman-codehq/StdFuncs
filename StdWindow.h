@@ -191,7 +191,11 @@ public:
 
 	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
 
-	// TODO: CAW - Document when this is called.  ie.  Can it be called if the window is not yet open?
+	/* This function is called by The Framework whenever the window is resized.  The */
+	/* behaviour can differ slightly between platforms in that some platforms will call */
+	/* it before the window is displayed and some platforms will call it only after the */
+	/* the window is displayed */
+
 	virtual void Resize(TInt /*a_iOldInnerWidth*/, TInt /*a_iOldInnerHeight*/) { }
 
 protected:
