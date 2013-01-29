@@ -87,6 +87,11 @@ public:
 
 	void RemoveWindow(CWindow *a_poWindow);
 
+	const struct SStdMenuItem *MenuItems()
+	{
+		return(m_pcoMenuItems);
+	}
+
 #ifdef __amigaos4__
 
 	struct Menu *Menus()
