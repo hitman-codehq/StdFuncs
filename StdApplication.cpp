@@ -72,6 +72,10 @@ RApplication::RApplication()
 
 TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 {
+	/* Save the ptr to the original menu item structures so they can be used for creating window */
+	/* specific menus l8r */
+
+	m_pcoMenuItems = a_pcoMenuItems;
 
 #ifdef __amigaos4__
 
@@ -96,11 +100,6 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 		++MenuItem;
 	}
 	while (MenuItem->m_eType != EStdMenuEnd);
-
-	/* Save the ptr to the original menu item structures as it can be used for menu item */
-	/* command translation later */
-
-	m_pcoMenuItems = a_pcoMenuItems;
 
 	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures, and */
 	/* another large enough to hold all of the menu ID mappings, and populate them with */
@@ -197,8 +196,6 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 	return(RetVal);
 
 #else /* ! __amigaos4__ */
-
-	(void) a_pcoMenuItems;
 
 	return(KErrNone);
 
