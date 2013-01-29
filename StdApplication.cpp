@@ -737,7 +737,7 @@ void RApplication::Exit()
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	m_poApplication->quit();
 
 #else /* ! __linux__ */
 
