@@ -687,7 +687,15 @@ TBool CWindow::CreateMenus()
 
 		if (MenuItem->m_eType == EStdMenuTitle)
 		{
-			if ((Menu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
+			/* We want each drop down menu to have a shortcut so insert the '&' shortcut character */
+			/* at the start of each menu name */
+
+			QString Label(MenuItem->m_pccLabel);
+			Label.insert(0, '&');
+
+			/* And add the new drop down menu to the window's menu bar */
+
+			if ((Menu = m_poWindow->menuBar()->addMenu(Label)) == NULL)
 			{
 				Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
 
@@ -705,11 +713,24 @@ TBool CWindow::CreateMenus()
 			// TODO: CAW - Why isn't this causing leaks in /var/log/syslog?
 			if ((Action = new CQtAction(MenuItem->m_iCommand, MenuItem->m_pccLabel, m_poWindow)) != NULL)
 			{
-				/* If this is a separator then adjust the look of the newly added menu item to reflect this */
+				/* If this is a checkable menu option or a separator then adjust the style of the newly */
+				/* added menu item to reflect this */
 
-				if (MenuItem->m_eType == EStdMenuSeparator)
+				if (MenuItem->m_eType == EStdMenuCheck)
+				{
+					Action->setCheckable(true);
+				}
+				else if (MenuItem->m_eType == EStdMenuSeparator)
 				{
 					Action->setSeparator(true);
+				}
+
+				/* If the menu item has a hotkey then generate a key sequence and assign it to the action */
+
+				if (MenuItem->m_pccHotKey)
+				{
+					QKeySequence keySequence(Qt::CTRL + *MenuItem->m_pccHotKey);
+					Action->setShortcut(keySequence);
 				}
 
 				/* And add the new menu item to the drop down menu */
