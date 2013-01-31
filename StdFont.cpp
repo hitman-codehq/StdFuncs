@@ -9,7 +9,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtGui/QMainWindow>
+#include <Qt/StdWindow.h>
 
 #endif /* QT_GUI_LIB */
 

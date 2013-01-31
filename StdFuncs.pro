@@ -10,3 +10,4 @@ SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
 	Time.cpp Utils.cpp
 
 HEADERS += StdFuncs.h
+HEADERS += Qt/StdWindow.h

@@ -16,7 +16,9 @@
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMenuBar>
 #include <QtGui/QPaintEvent>
+#include "Qt/StdWindow.h"
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
@@ -56,41 +58,6 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
 #ifdef QT_GUI_LIB
-
-/* This custom class is required to intercept certain required Qt messages such as paint */
-/* events etc. so that we can pass them onto our framework */
-
-class CQtWindow : public QMainWindow
-{
-private:
-
-	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
-
-private:
-
-	void HandleKeyEvent(QKeyEvent *a_poKeyEvent, TBool a_bKeyDown);
-
-protected:
-
-	/* From QMainWindow */
-
-	void keyPressEvent(QKeyEvent *a_poKeyEvent);
-
-	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);
-
-	void resizeEvent(QResizeEvent *a_poResizeEvent);
-
-public:
-
-	CQtWindow(CWindow *a_poWindow)
-	{
-		m_poWindow = a_poWindow;
-
-		/* Allow the window to accept keyboard input by default */
-
-		setFocusPolicy(Qt::StrongFocus);
-	}
-};
 
 /* Qt on UNIX requires that you have a QWidget derived object as the so-called "central widget" */
 /* and does not handle the window decoration offsets correctly if you don't.  We will therefore */
@@ -176,12 +143,21 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 #elif defined(QT_GUI_LIB)
 
+/* Written: Monday 28-Jan-2013 6:25 am */
+/* This function is called by Qt when a menu item is selected and will pass the message */
+/* onto The Framework and its underlying client */
+
+void CQtAction::actionTriggered()
+{
+	m_poWindow->Window()->HandleCommand(m_iCommand);
+}
+
 /* Written: Saturday 26-Jan-2013 11:49 am, Code HQ Ehinger Tor */
 /* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
-/*			a_bKeyDown		ETrue if a key press is being handled, else EFalse for key a release */
+/*			a_bKeyDown		true if a key press is being handled, else false for key a release */
 /* This is the internal function which handles both key presses and key releases under Qt */
 
-void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, TBool a_bKeyDown)
+void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 {
 	TInt NativeKey, Index;
 
@@ -679,6 +655,82 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #endif /* ! __linux__ */
 
+}
+
+/* Written: Sunday 05-Jan-2013 7:53 am, CodeHQ Ehinger Tor */
+/* @returns	ETrue if all menus were created successfully, else EFalse */
+/* Creates a set of menus specific to this window, using the list of SStdMenuItem structures */
+/* available from RApplication via RApplication::MenuItems().  The menus are created in here */
+/* rather than in RApplication as some platforms require a separate copy of the menus to be */
+/* created for each window opened, or they cannot create the menus at application creation time */
+
+TBool CWindow::CreateMenus()
+{
+	TBool RetVal;
+	const struct SStdMenuItem *MenuItem;
+	QAction *Action;
+	QMenu *Menu;
+
+	/* Assume success */
+
+	RetVal = ETrue;
+
+	/* Iterate through the list of menu structures passed in and create a menu item for each */
+	/* one as appropriate */
+
+	MenuItem = m_poApplication->MenuItems();
+	Menu = NULL;
+
+	do
+	{
+		/* If this is a title then create a new drop down menu to which to add menu items */
+
+		if (MenuItem->m_eType == EStdMenuTitle)
+		{
+			if ((Menu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
+			{
+				Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
+
+				RetVal = EFalse;
+
+				break;
+			}
+		}
+		else
+		{
+			ASSERTM((Menu != NULL), "CWindow::CreateMenus() => Menu bar must be created before a menu item can be added");
+
+			/* Otherwise create a new menu item and add it to the previously created drop down menu */
+
+			// TODO: CAW - Why isn't this causing leaks in /var/log/syslog?
+			if ((Action = new CQtAction(MenuItem->m_iCommand, MenuItem->m_pccLabel, m_poWindow)) != NULL)
+			{
+				/* If this is a separator then adjust the look of the newly added menu item to reflect this */
+
+				if (MenuItem->m_eType == EStdMenuSeparator)
+				{
+					Action->setSeparator(true);
+				}
+
+				/* And add the new menu item to the drop down menu */
+
+				Menu->addAction(Action);
+			}
+			else
+			{
+				Utils::Info("CWindow::CreateMenus() => Unable to create menu item");
+
+				RetVal = EFalse;
+
+				break;
+			}
+		}
+
+		++MenuItem;
+	}
+	while (MenuItem->m_eType != EStdMenuEnd);
+
+	return(RetVal);
 }
 
 /* Written: Saturday 05-Jan-2013 1:12 pm, CodeHQ Ehinger Tor */
@@ -1201,15 +1253,24 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			m_poWindow->setCentralWidget(CentralWidget);
 
-			/* Set the window to the size of the desktop and display it */
+			/* And create the menus specific to this window */
 
-			m_poWindow->showMaximized();
+			if (CreateMenus())
+			{
+				/* Set the window to the size of the desktop and display it */
 
-			/* And save the size of the client area */
+				m_poWindow->showMaximized();
 
-			QSize Size = m_poWindow->size();
-			m_iInnerWidth = Size.width();
-			m_iInnerHeight = Size.height();
+				/* And save the size of the client area */
+
+				QSize Size = m_poWindow->size();
+				m_iInnerWidth = Size.width();
+				m_iInnerHeight = Size.height();
+			}
+			else
+			{
+				Utils::Info("CWindow::Open() => Unable to create menus");
+			}
 		}
 		else
 		{

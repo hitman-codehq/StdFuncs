@@ -12,7 +12,7 @@
 
 /* Forward declarations to reduce the # of includes required */
 
-class QMainWindow;
+class CQtWindow;
 class RApplication;
 
 /* Mouse events that can be reported to the client */
@@ -80,7 +80,7 @@ public:
 
 #elif defined(__linux__)
 
-	QMainWindow			*m_poWindow;				/* Ptr to underlying Qt window */
+	CQtWindow			*m_poWindow;				/* Ptr to underlying Qt window */
 
 #else /* ! __linux__ */
 
@@ -90,6 +90,10 @@ public:
 	static CWindow		*m_poActiveDialog;			/* Ptr to currently active dialog, if any */
 
 #endif /* ! __linux__ */
+
+private:
+
+	TBool CreateMenus();
 
 public:
 
