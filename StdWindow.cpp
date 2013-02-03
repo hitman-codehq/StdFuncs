@@ -657,6 +657,8 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
+#ifdef QT_GUI_LIB
+
 /* Written: Sunday 05-Jan-2013 7:53 am, CodeHQ Ehinger Tor */
 /* @returns	ETrue if all menus were created successfully, else EFalse */
 /* Creates a set of menus specific to this window, using the list of SStdMenuItem structures */
@@ -753,6 +755,8 @@ TBool CWindow::CreateMenus()
 
 	return(RetVal);
 }
+
+#endif /* QT_GUI_LIB */
 
 /* Written: Saturday 05-Jan-2013 1:12 pm, CodeHQ Ehinger Tor */
 /* @returns	ETrue if the control key is pressed, else EFalse */
