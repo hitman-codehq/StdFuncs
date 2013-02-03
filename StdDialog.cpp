@@ -5,7 +5,7 @@
 #include "StdDialog.h"
 #include "StdReaction.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /* Written: Saturday 21-Aug-2010 12:21 pm */
 
@@ -128,7 +128,7 @@ static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPar
 	return(RetVal);
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /* Written: Saturday 13-Nov-2010 8:26 am */
 
@@ -168,11 +168,11 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 		(void) a_iResourceID;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 		// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 		CWindow *RootWindow;
 		HWND Window;
@@ -195,7 +195,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 		}
 		else
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 		{
 			RetVal = KErrGeneral;
@@ -226,7 +226,7 @@ void CDialog::Close(TInt a_iGadgetID)
 void CDialog::Close()
 {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	/* If this is the active dialog then indicate that this is no longer the case */
 
@@ -235,7 +235,7 @@ void CDialog::Close()
 		m_poActiveDialog = NULL;
 	}
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	/* Call the superclass close to actually close the dialog */
 
@@ -271,15 +271,15 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAw - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	CheckDlgButton(m_poWindow, a_iGadgetID, BST_CHECKED);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -303,11 +303,11 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	HWND DialogItem;
 
@@ -320,7 +320,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	EnableWindow(DialogItem, a_bEnable);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -385,12 +385,12 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 		DEBUGCHECK((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	RetVal = 0;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 #ifdef _DEBUG
 
@@ -405,7 +405,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 #endif /* ! _DEBUG */
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }
@@ -468,12 +468,12 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		}
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	Length = 0;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	HWND Gadget;
 
@@ -491,7 +491,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	if (RetVal == KErrNone)
 	{
@@ -532,11 +532,11 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 				strcpy(m_pcTextBuffer, Text);
 				RetVal = Length;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 				// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 				/* For Windows we still have to obtain the text itself */
 
@@ -549,7 +549,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 					RetVal = KErrNotFound;
 				}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 			}
 		}
@@ -595,16 +595,16 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	return(RetVal);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	return(EFalse);
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -670,15 +670,15 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((SetFocus(GetDlgItem(m_poWindow, a_iGadgetID)) != NULL), "CDialog::SetGadgetFocus() => Unable to activate control");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -699,15 +699,15 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 

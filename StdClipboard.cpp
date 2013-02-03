@@ -25,12 +25,12 @@ int RClipboard::Open(CWindow *a_poWindow)
 
 	RetVal = KErrNone;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement here and for Close()
 	RetVal = KErrGeneral;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	RetVal = (OpenClipboard(a_poWindow->m_poWindow)) ? KErrNone : KErrGeneral;
 
@@ -39,7 +39,7 @@ int RClipboard::Open(CWindow *a_poWindow)
 		Utils::Info("RClipboard::Open() => Unable to open clipboard");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }

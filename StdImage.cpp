@@ -117,11 +117,11 @@ void RStdImage::Close()
 		m_poBitMap = NULL;
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	/* If any bitmap object has been created, destroy it */
 
@@ -131,6 +131,6 @@ void RStdImage::Close()
 		m_poBitmap = NULL;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }

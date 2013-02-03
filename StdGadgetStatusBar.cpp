@@ -135,12 +135,12 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		}
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	RetVal = KErrNone;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	TInt Offset, ParentWidth;
 	INITCOMMONCONTROLSEX InitCommonControls;
@@ -207,7 +207,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to initialise common controls library");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	/* If the platform specific gadget was successfully created, finish the generic initialisation and */
 	/* attach it to the parent layout */

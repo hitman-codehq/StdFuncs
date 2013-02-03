@@ -64,12 +64,12 @@ TInt CStdGadgetSlider::Construct()
 	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
 		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	return(KErrNone);
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	DWORD Style;
 
@@ -96,7 +96,7 @@ TInt CStdGadgetSlider::Construct()
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, m_iX, m_iY, m_iWidth, m_iHeight,
 		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	if (m_poGadget)
 	{

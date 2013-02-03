@@ -25,11 +25,11 @@ class RFont
 {
 private:
 
-#ifndef WIN32
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
 
-#endif /* ! WIN32 */
+#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos4__
 

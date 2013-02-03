@@ -56,16 +56,16 @@ private:
 	struct SStdMenuMapping	*m_poMenuMappings;	/* Array of menu ID -> FULLMENUNUM mappings */
 	TInt					m_iNumMenuMappings;	/* # of entries in m_poMenuMappings */
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	QApplication	*m_poApplication;	/* Ptr to underlying Qt application */
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	HACCEL			m_poAccelerators;	/* Ptr to application's accelerator table, if any */
 	HWND			m_poCurrentDialog;	/* Ptr to window handle of currently active dialog, if any */
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	const struct SStdMenuItem *m_pcoMenuItems;	/* Ptr to a list of structures describing the application's menus */
 

@@ -189,12 +189,12 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		RetVal = KErrNoMemory;
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 	RetVal = KErrNoMemory;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	BOOL GotFileName;
 	CWindow *RootWindow;
@@ -253,7 +253,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		Utils::Info("RFileRequester::GetFileName() => Unable to obtain filename, error = %d", RetVal);
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }

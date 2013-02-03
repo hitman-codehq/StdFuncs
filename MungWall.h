@@ -4,13 +4,13 @@
 
 #include <stdlib.h>
 
-#ifdef WIN32
+#ifdef _MSC_VER
 
 /* Disable a bogus MSVC warning */
 
 #pragma warning(disable : 4291) /* no matching operator delete found */
 
-#endif /* WIN32 */
+#endif /* _MSC_VER */
 
 #ifdef _DEBUG
 

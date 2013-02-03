@@ -55,12 +55,12 @@ RApplication::RApplication()
 	m_iLastX = m_iLastY = m_iNumMenuMappings = 0;
 	m_poMenuMappings = NULL;
 
-#elif defined(WIN32)
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	m_poAccelerators = NULL;
 	m_poCurrentDialog = NULL;
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	m_poWindows = NULL;
 	m_pcoMenuItems = NULL;
@@ -717,14 +717,14 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 
 /* Written: Wednesday 27-Oct-2010 8:21 am */
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 void RApplication::SetCurrentDialog(HWND a_poDialog)
 {
 	m_poCurrentDialog = a_poDialog;
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
 

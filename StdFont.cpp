@@ -9,7 +9,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <Qt/StdWindow.h>
+#include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
 
@@ -203,7 +203,7 @@ TInt RFont::Open()
 void RFont::Close()
 {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	if (m_poOldFont)
 	{
@@ -223,11 +223,11 @@ void RFont::Close()
 		m_poDC = m_poWindow->m_poDC = NULL;
 	}
 
-#else /* ! WIN32 */
+#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	m_iBaseline = 0;
 
-#endif /* WIN32 */
+#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 

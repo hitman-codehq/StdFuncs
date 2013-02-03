@@ -1245,9 +1245,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-	/* UNIX does not at the moment support the GUI version of this library */
-
-#ifndef __linux__
+#ifndef QT_GUI_LIB
 
 	CWindow *RootWindow;
 
@@ -1256,7 +1254,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RootWindow = CWindow::RootWindow();
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 #ifdef __amigaos4__
 
@@ -1333,7 +1331,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 		PRINTF("%s: %s\n", a_pccTitle, Message);
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	(void) a_eMessageBoxType;
 
@@ -1342,7 +1340,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	PRINTF("%s: %s\n", a_pccTitle, Message);
 	RetVal = IDCANCEL;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	UINT Type;
 
@@ -1369,7 +1367,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }

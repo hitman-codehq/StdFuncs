@@ -556,11 +556,11 @@ void CWindow::Activate()
 	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
 	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
 
-#elif defined(WIN32)
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	DEBUGCHECK((SetActiveWindow(m_poWindow) != NULL), "CWindow::Activate() => Unable to activate window");
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -644,16 +644,16 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
 		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -761,7 +761,7 @@ TBool CWindow::CreateMenus()
 TBool CWindow::CtrlPressed()
 {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	/* Due to Windows using the control key to simulate usage of the ALT GR */
 	/* key, rather than using a dedicated keycode for ALT GR, we have to have */
@@ -770,11 +770,11 @@ TBool CWindow::CtrlPressed()
 
 	return((m_bCtrlPressed) && (!(m_bAltPressed)));
 
-#else /* ! WIN32 */
+#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	return(m_bCtrlPressed);
 
-#endif /* ! WIN32 */
+#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -825,11 +825,11 @@ void CWindow::Close()
 		m_poWindowObj = NULL;
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	/* If the window is open, close it and indicate that it is no longer open */
 
@@ -847,7 +847,7 @@ void CWindow::Close()
 		m_poWindowClass = 0;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
 	/* from the gadget list automatically */
@@ -900,11 +900,11 @@ void CWindow::DrawNow()
 
 	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight + 1));
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	DrawNow(0, (m_iInnerHeight + 1));
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	RECT Rect;
 
@@ -921,7 +921,7 @@ void CWindow::DrawNow()
 		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -1065,16 +1065,16 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 		Utils::Info("CWindow::EnableMenuItem() => Menu mapping not found");
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((::EnableMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_ENABLED : MF_DISABLED) != -1),
 		"CWindow::EnableMenuItem() => Unable to set menu item state");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 

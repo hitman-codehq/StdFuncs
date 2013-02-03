@@ -78,18 +78,18 @@ public:
 	Object				*m_poWindowObj;				/* Ptr to underlying Reaction window */
 	struct Window		*m_poWindow;				/* Ptr to underlying Intuition window */
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	CQtWindow			*m_poWindow;				/* Ptr to underlying Qt window */
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	HWND				m_poWindow;					/* Ptr to underlying Windows window */
 	HDC					m_poDC;						/* Device context and paint structure into which to */
 	PAINTSTRUCT			m_oPaintStruct;				/* render;  valid only during calls to CWindow::Draw() */
 	static CWindow		*m_poActiveDialog;			/* Ptr to currently active dialog, if any */
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 private:
 

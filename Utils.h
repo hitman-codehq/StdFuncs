@@ -5,13 +5,13 @@
 #include <stdarg.h>
 #include "Dir.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 
 /* Disable a bogus MSVC warning */
 
 #pragma warning(disable : 4710) /* Function not expanded */
 
-#endif /* WIN32 */
+#endif /* _MSC_VER */
 
 /* Forward declaration to avoid including Dir.h */
 
