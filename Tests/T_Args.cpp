@@ -74,7 +74,6 @@ static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/M/A";
 
 #define CHECK_ARG(a, b) Test.Printf("Checking \"%s\" against \"%s\"\n", a, b); test(strcmp(a, b) == 0);
 
-static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RTest Test("T_Args");	/* Class to use for testing and reporting results */
 
 int main()
