@@ -30,6 +30,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "T_ConfigFile"=.\T_ConfigFile.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name StdFuncs
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "T_Dir"=.\T_Dir.dsp - Package Owner=<4>
 
 Package=<5>
