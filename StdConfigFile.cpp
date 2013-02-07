@@ -5,20 +5,24 @@
 #include "Lex.h"
 #include "StdConfigFile.h"
 
-/***********************************************************/
-/* ConfigFile::OpenConfigFile will open a config file for  */
-/* reading.                                                */
-/* Written: Wednesday 22-Apr-1998 9:33 pm                  */
-/* Passed: pcConfigFileName => Name of config file to open */
-/* Returns: CFE_Ok if successful, else CFE_CouldntOpenFile */
-/***********************************************************/
+/* Written: Wednesday 22-Apr-1998 9:33 pm */
+/* @param	a_pccFileName	Name of config file to open */
+/* @returns	KErrNone if successful */
+/*			KErrNoMemory if there was not enough memory to read the file */
+/*			KErrEof if the file could be opened but not completely read */
+/*			Any error from Utils::GetFileInfo() */
+/*			Any error from RFile::Open() */
+/* Opens a config file and reads its contents into memory in preparation for parsing */
 
-TInt RConfigFile::Open(const char *a_pcFileName)
+TInt RConfigFile::Open(const char *a_pccFileName)
 {
 	TInt RetVal;
 	TEntry Entry;
 
-	if ((RetVal = Utils::GetFileInfo(a_pcFileName, &Entry)) == KErrNone)
+	/* Examine the file to determine its size and allocate a buffer large */
+	/* enough to hold it */
+
+	if ((RetVal = Utils::GetFileInfo(a_pccFileName, &Entry)) == KErrNone)
 	{
 		m_iBufferSize = Entry.iSize;
 
@@ -26,7 +30,9 @@ TInt RConfigFile::Open(const char *a_pcFileName)
 		{
 			RFile File;
 
-			if ((RetVal = File.Open(a_pcFileName, EFileRead)) == KErrNone)
+			/* And read the file in in its entirity */
+
+			if ((RetVal = File.Open(a_pccFileName, EFileRead)) == KErrNone)
 			{
 				if (File.Read((unsigned char *) m_pcBuffer, m_iBufferSize) == m_iBufferSize)
 				{
@@ -49,11 +55,8 @@ TInt RConfigFile::Open(const char *a_pcFileName)
 	return(RetVal);
 }
 
-/**********************************************/
-/* ConfigFile::CloseConfigFile will close the */
-/* config file, if it is open                 */
-/* Written: Wednesday 22-Apr-1998 9:35 pm     */
-/**********************************************/
+/* Written: Wednesday 22-Apr-1998 9:35 pm */
+/* Frees any resources associated with the config file */
 
 void RConfigFile::Close()
 {
@@ -61,23 +64,23 @@ void RConfigFile::Close()
 	m_pcBuffer = NULL;
 }
 
-/*********************************************************************/
-/* ConfigFile::GetConfigInteger will get the integer belonging to a  */
-/* user specified key, in a specified section and subsection.        */
-/* Written: Wednesday 29-Apr-1998 11:08 pm                           */
-/* Passed: pcSectionName => Ptr to name of section to check in       */
-/*         pcSubSectionName => Ptr to name of subsection to check in */
-/*         pcKeyName => Ptr to name of key to read string for        */
-/*         piDestInt => Ptr to integer variable into which to place  */
-/*                         the retrieved integer                     */
-/* Returns: See ConfigFile::GetConfigString() for return details     */
-/*********************************************************************/
+/* Written: Wednesday 29-Apr-1998 11:08 pm */
+/* @param	a_pccpcSectionName	Ptr to name of section the key is in */
+/*			a_pccSubSectionName	Ptr to name of subsection the key is in in */
+/*			a_pccKeyName		Ptr to name of key to read */
+/*			a_piResult			Ptr to integer variable into which to place */
+/*								the retrieved key value */
+/* @returns	KErrNone if successful */
+/*			KErrNotFound if a key with the specified name could not be found */
+/*			KErrCorrupt if the key was found but its value was not a valid number */
+/* Retrieves the value of an integer belonging to a user specified key, in a */
+/* specified section and subsection */
 
-// TODO: CAW - Check validity of returned integer (SetLastError(CFE_BadNumber))
-void RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
-	const char *a_pccKeyName, int *a_piResult)
+TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
+	const char *a_pccKeyName, TInt *a_piResult)
 {
-	char *ConfigString;
+	char Char, *ConfigString;
+	TInt Index, RetVal;
 
 	/* Get the string associated with the requested setting */
 
@@ -88,9 +91,44 @@ void RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 
 	if (ConfigString)
 	{
-		*a_piResult= atoi(ConfigString);
+		/* First, manually confirm that the string returned is a valid number, as atoi() does */
+		/* not differentiate between '0' and an invalid number - both return 0! */
+
+		Index = 0;
+
+		while ((Char = ConfigString[Index]) != '\0')
+		{
+			if ((Char < '0') || (Char > '9'))
+			{
+				break;
+			}
+
+			++Index;
+		}
+
+		/* If we made it to the end of the string then we have a valid number */
+
+		if (Char == '\0')
+		{
+			RetVal = KErrNone;
+
+			/* Convert the valid number to an integer and return it */
+
+			*a_piResult= atoi(ConfigString);
+		}
+		else
+		{
+			RetVal = KErrCorrupt;
+		}
+
 		delete [] ConfigString;
 	}
+	else
+	{
+		RetVal = KErrNotFound;
+	}
+
+	return(RetVal);
 }
 
 /***************************************************************************/
@@ -143,6 +181,8 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 		TLex Lex(Buffer, LFIndex);
 
+		Lex.SetWhitespace("\t =");
+
 		++Index;
 		Buffer += Index;
 		BufferSize -= Index;
@@ -193,9 +233,9 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 							{
 								if (!(strnicmp(Token, a_pccKeyName, strlen(a_pccKeyName)))) // TODO: CAW - Slow, here and elsewhere
 								{
-									Token = Lex.NextToken(&TokenLength);
+									//Token = Lex.NextToken(&TokenLength);
 
-									if ((Token) && (strncmp(Token, "=", 1) == 0))
+									//if ((Token) && (strncmp(Token, "=", 1) == 0))
 									{
 										Token = Lex.NextToken(&TokenLength);
 
