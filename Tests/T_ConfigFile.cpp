@@ -5,6 +5,12 @@
 
 static RTest Test("T_ConfigFile");	/* Class to use for testing and reporting results */
 
+/* Written: Friday 08-Feb-2013 6:55 am, Code HQ Ehinger Tor */
+/* @param	a_poConfigFile	Instance of RConfigFile from which to read the numbers */
+/*			a_pccKeyName	Name of the key to be read */
+/* Reads a specified integral key from the specified configuration file using */
+/* RConfigFile::GetInteger() and confirms that it matches the expected value */
+
 static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyName)
 {
 	TInt Result, IntegerValue;
@@ -17,6 +23,15 @@ static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyNam
 	Result = a_poConfigFile->GetInteger("ConfigFile", "General", a_pccKeyName, &IntegerValue);
 	test(Result == KErrNone);
 	test(IntegerValue == 42);
+}
+
+/* Written: Saturday 09-Feb-2013 1:13 pm, Code HQ Ehinger Tor */
+/* @param	a_poConfigFile	Instance of RConfigFile from which to read the numbers */
+/* Performs tests on the functions that enable more dynamic reading of the sections */
+/* present in the configuration file */
+
+static void TestDynamicReads(RConfigFile *a_poConfigFile)
+{
 }
 
 int main()
@@ -34,12 +49,21 @@ int main()
 
 	ConfigFile.Close();
 
-	/* Open and read in the .ini file */
+	/* Test #3: Ensure that Open() can handle an invalid filename being passed in */
+
+	Test.Next("Ensure that Open() can handle an invalid filename being passed in");
+
+	Result = ConfigFile.Open("UnknownFile.ini");
+	test(Result = KErrNotFound);
+
+	/* Test #4: Ensure that Open() can parse a mostly valid .ini file */
+
+	Test.Next("Ensure that Open() can parse a mostly valid .ini file");
 
 	Result = ConfigFile.Open("TestFiles/StdConfigFile.ini");
 	test(Result == KErrNone);
 
-	/* Test #3: Ensure invalid key reads fail and valid ones pass */
+	/* Test #5: Ensure invalid key reads fail and valid ones pass */
 
 	Test.Next("Ensure invalid key reads fail and valid ones pass");
 
@@ -108,7 +132,7 @@ int main()
 	Result = ConfigFile.GetString("ValidSection", "MalformedSubSection", "ValidKey", StringValue);
 	test(Result == KErrNotFound);
 
-	/* Test #4: Read a number in from a variety of formatted key = value pairs */
+	/* Test #6: Read a number in from a variety of formatted key = value pairs */
 
 	Test.Next("Read a number in from a variety of formatted key = value pairs");
 
@@ -117,6 +141,10 @@ int main()
 	ReadValidNumber(&ConfigFile, "ValidNumber3");
 	ReadValidNumber(&ConfigFile, "ValidNumber4");
 	ReadValidNumber(&ConfigFile, "ValidNumber5");
+
+	/* Now test the dynamic reading routines */
+
+	TestDynamicReads(&ConfigFile);
 
 	ConfigFile.Close();
 
