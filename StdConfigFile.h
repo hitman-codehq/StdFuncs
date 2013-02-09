@@ -30,7 +30,7 @@ public:
 	TInt GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
 		const char *a_pccKeyName, TInt *a_piResult);
 
-	void GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
+	TInt GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
 		const char *a_pccKeyName, char *&a_rpcResult);
 };
 

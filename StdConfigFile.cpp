@@ -7,7 +7,7 @@
 
 /* Written: Wednesday 22-Apr-1998 9:33 pm */
 /* @param	a_pccFileName	Name of config file to open */
-/* @returns	KErrNone if successful */
+/* @return	KErrNone if successful */
 /*			KErrNoMemory if there was not enough memory to read the file */
 /*			KErrEof if the file could be opened but not completely read */
 /*			Any error from Utils::GetFileInfo() */
@@ -26,7 +26,7 @@ TInt RConfigFile::Open(const char *a_pccFileName)
 	{
 		m_iBufferSize = Entry.iSize;
 
-		if ((m_pcBuffer = new char[m_iBufferSize]) != NULL) // TODO: CAW - +1?  What about NULL termination?
+		if ((m_pcBuffer = new char[m_iBufferSize]) != NULL)
 		{
 			RFile File;
 
@@ -70,11 +70,13 @@ void RConfigFile::Close()
 /*			a_pccKeyName		Ptr to name of key to read */
 /*			a_piResult			Ptr to integer variable into which to place */
 /*								the retrieved key value */
-/* @returns	KErrNone if successful */
+/* @return	KErrNone if successful */
+/*			KErrNoMemory if there was not enough memory to extract the key's value */
 /*			KErrNotFound if a key with the specified name could not be found */
 /*			KErrCorrupt if the key was found but its value was not a valid number */
 /* Retrieves the value of an integer belonging to a user specified key, in a */
-/* specified section and subsection */
+/* specified section and subsection.  Section, subsection and key names are case */
+/* insensitive */
 
 TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, TInt *a_piResult)
@@ -131,42 +133,52 @@ TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 	return(RetVal);
 }
 
-/***************************************************************************/
-/* ConfigFile::GetConfigString will get the string belonging to a user     */
-/* specified key, in a specified section and subsection.                   */
-/* Written: Wednesday 22-Apr-1998 9:31 pm                                  */
-/* Passed: pcSectionName => Ptr to name of section to check in             */
-/*         pcSubSectionName => Ptr to name of subsection to check in       */
-/*         pcKeyName => Ptr to name of key to read string for              */
-/*         rsDestString => Reference to String object into which to place  */
-/*                         the retrieved string                            */
-/* Returns: Nothing, although it will throw a ConfigFileException if there */
-/*          is a problem reading the configuration string.  In this case,  */
-/*          you can find the error that occurred bycalling                 */
-/*          ConfigFile::GetLastError() and the string of the error that    */
-/*          occurred by calling ConfigFile::GetLastErrorString()           */
-/***************************************************************************/
+/* Written: Wednesday 22-Apr-1998 9:31 pm */
+/* @param	a_pccSectionName	Name of section from which to read */
+/*			a_pccSubSectionName	Name of subsection from which to read */
+/*			a_pccKeyName		Name of key to be read */
+/*			a_rpcResult			Reference to ptr into which to place ptr to retrieved string */
+/* @return	KErrNone if successful */
+/*			KErrNoMemory if there was not enough memory to extract the key's value */
+/*			KErrNotFound if the key was not found due to the key being missing or */
+/*						 the requested section and/or subsection not being found */
+/* Retrieves the value of a string belonging to a user specified key, in a */
+/* specified section and subsection.  Section, subsection and key names are case */
+/* insensitive.  In the case where no key is found or an error occurs, the contents */
+/* of a_rpcResult will be set to NULL */
 
-// TODO: CAW - Error handling: CFE_SectionNotFound, CFE_SubSectionNotFound, CFE_KeyNotFound, CFE_NoMemory
-void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
+TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, char *&a_rpcResult)
 {
 	char *Buffer;
 	const char *Token;
 	TBool FoundSection, FoundSubSection;
-	TInt BufferSize, Index, LFIndex, TokenLength;
+	TInt BufferSize, Index, KeyNameLength, LFIndex, SectionNameLength, SubSectionNameLength, RetVal, TokenLength;
 
 	/* Assume failure */
 
 	a_rpcResult = NULL;
+	RetVal = KErrNotFound;
+
+	/* Setup some variables that point to the current position in the buffer and the */
+	/* state of the search */
 
 	FoundSection = FoundSubSection = EFalse;
-
 	Buffer = m_pcBuffer;
 	BufferSize = m_iBufferSize;
+	KeyNameLength = strlen(a_pccKeyName);
+	SectionNameLength = strlen(a_pccSectionName);
+	SubSectionNameLength = strlen(a_pccSubSectionName);
+
+	/* Iterate through the buffer containing the file and extract the key = value pairs */
+	/* until such time as we have found the desired key */
 
 	while (BufferSize > 0)
 	{
+		/* Find the index of the LF indicating the EOL as we only want to extract tokens */
+		/* up until that point.  If this is a DOS style file then the TLex class will */
+		/* automatically filter out the CR in the string to be parsed */
+
 		LFIndex = 0;
 
 		for (Index = 0; Index < BufferSize; ++Index)
@@ -179,87 +191,119 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 			}
 		}
 
+		/* Initialise a TLex to parse the current line for tokens and configure it to treat */
+		/* spaces, tabs and the = sign as white space.  This allows the user flexibility in */
+		/* how they layout the .ini file */
+
 		TLex Lex(Buffer, LFIndex);
 
 		Lex.SetWhitespace("\t =");
+
+		/* Update the buffer variables so they point to the start of the next line, for the */
+		/* next iteration of the loop */
 
 		++Index;
 		Buffer += Index;
 		BufferSize -= Index;
 
+		/* Get the first token from the line */
+
 		if ((Token = Lex.NextToken(&TokenLength)) != NULL)
 		{
+			/* If it is a comment then simply skip this entire line */
+
 			if (Token[0] != ';')
 			{
-				if (Token[0] == '(')
+				/* If this is a section marker then see if it is the one we are interested */
+				/* in.  If a section or subsection has already been found then abort processing */
+				/* as duplicate sections of the same name are not supported and we have not */
+				/* found the key we are looking for in the currently active section/subsection */
+
+				if ((Token[0] == '(') && (Token[TokenLength - 1] == ')'))
 				{
 					if (!(FoundSubSection))
 					{
 						if (!(FoundSection))
 						{
-							// TODO: CAW - This could run over the end of Token
-							FoundSection = (!(strnicmp(&Token[1], a_pccSectionName, strlen(a_pccSectionName))));
-							FoundSubSection = EFalse;
+							/* Is this the section we are after?  Only do a comparison if the token */
+							/* found is the same length as the section name (taking into account the */
+							/* '(' and ')' characters surrounding the token) */
+
+							if (SectionNameLength == (TokenLength - 2))
+							{
+								FoundSection = (strnicmp(&Token[1], a_pccSectionName, SectionNameLength) == 0);
+							}
 						}
 						else
 						{
-							//Done = ETrue;
+							break;
 						}
 					}
 					else
 					{
-						//Done = ETrue;
+						break;
 					}
 				}
-				else
+
+				/* If we have found the target section and this is a subsection marker then see if */
+				/* it is the one we are interested in.  Again, we abort processing if a subsection has */
+				/* already been found */
+
+				else if (FoundSection)
 				{
-					if (FoundSection)
+					if ((Token[0] == '[') && (Token[TokenLength - 1] == ']'))
 					{
-						if (Token[0] == '[')
+						if (!(FoundSubSection))
 						{
-							if (!(FoundSubSection))
+							/* Is this the subsection we are after?  Only do a comparison if the token */
+							/* found is the same length as the subsection name (taking into account the */
+							/* '[' and ']' characters surrounding the token) */
+
+							if (SubSectionNameLength == (TokenLength - 2))
 							{
-								// TODO: CAW - This could run over the end of Token
-								FoundSubSection = (!(strnicmp(&Token[1], a_pccSubSectionName, strlen(a_pccSubSectionName))));
-							}
-							else
-							{
-								//Done = ETrue;
+								FoundSubSection = (strnicmp(&Token[1], a_pccSubSectionName, SubSectionNameLength) == 0);
 							}
 						}
 						else
 						{
-							if (FoundSubSection)
+							break;
+						}
+					}
+
+					/* If we have found both the target section and the target subsection then see if */
+					/* this is the key we are interested in */
+
+					else if (FoundSubSection)
+					{
+						/* Is this the key we are after?  Only do a comparison if the token found is */
+						/* the same length as the target key, to avoid finding keys that are substrings */
+						/* of the token.  ie.  We don't want "Short" to match "ShortKey" */
+
+						if ((TokenLength == KeyNameLength) && (strnicmp(Token, a_pccKeyName, KeyNameLength) == 0))
+						{
+							/* Yep!  Ket the key's value, skipping over any whitespace and = signs */
+							/* between the key and its value */
+
+							if ((Token = Lex.NextToken(&TokenLength)) != NULL)
 							{
-								if (!(strnicmp(Token, a_pccKeyName, strlen(a_pccKeyName)))) // TODO: CAW - Slow, here and elsewhere
+								/* Allocate a buffer for the token */
+
+								if ((a_rpcResult = new char[TokenLength + 1]) != NULL)
 								{
-									//Token = Lex.NextToken(&TokenLength);
+									RetVal = KErrNone;
 
-									//if ((Token) && (strncmp(Token, "=", 1) == 0))
-									{
-										Token = Lex.NextToken(&TokenLength);
+									/* And extract the token into it */
 
-										if (Token)
-										{
-											/* Allocate a buffer for the token */
+									memcpy(a_rpcResult, Token, TokenLength);
+									a_rpcResult[TokenLength] = '\0';
 
-											a_rpcResult = new char[TokenLength + 1];
+									break;
+								}
+								else
+								{
+									Utils::Info("RConfigFile::GetString() => Not enough memory to allocate string");
 
-											if (a_rpcResult)
-											{
-												/* And extract the token into */
-
-												memcpy(a_rpcResult, Token, TokenLength);
-												a_rpcResult[TokenLength] = '\0';
-
-												break;
-											}
-											else
-											{
-												Utils::Info("RConfigFile::GetString() => Not enough memory to allocate string");
-											}
-										}
-									}
+									RetVal = KErrNoMemory;
 								}
 							}
 						}
@@ -268,4 +312,6 @@ void RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 			}
 		}
 	}
+
+	return(RetVal);
 }
