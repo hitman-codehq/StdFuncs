@@ -36,7 +36,7 @@ int main()
 
 	/* Open and read in the .ini file */
 
-	Result = ConfigFile.Open("StdConfigFile.ini");
+	Result = ConfigFile.Open("TestFiles/StdConfigFile.ini");
 	test(Result == KErrNone);
 
 	/* Test #3: Ensure invalid key reads fail and valid ones pass */
