@@ -6,7 +6,7 @@
 static RTest Test("T_ConfigFile");	/* Class to use for testing and reporting results */
 
 /* Written: Friday 08-Feb-2013 6:55 am, Code HQ Ehinger Tor */
-/* @param	a_poConfigFile	Instance of RConfigFile from which to read the numbers */
+/* @param	a_poConfigFile	Instance of RConfigFile from which to read the number */
 /*			a_pccKeyName	Name of the key to be read */
 /* Reads a specified integral key from the specified configuration file using */
 /* RConfigFile::GetInteger() and confirms that it matches the expected value */
@@ -25,6 +25,25 @@ static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyNam
 	test(IntegerValue == 42);
 }
 
+/* Written: Saturday 09-Feb-2013 1:43 pm, Code HQ Ehinger Tor */
+/* @param	a_poSection		Instance of CSection from which to read the number */
+/*			a_pccKeyName	Name of the key to be read */
+/* Reads a specified integral key from the already parsed configuration file using */
+/* CSection::FindKey() and confirms that it matches the expected value */
+
+static void ReadValidNumber(CSection *a_poSection, const char *a_pccKeyName)
+{
+	CKey *Key;
+
+	Test.Printf("Reading number from key %s\n", a_pccKeyName);
+
+	/* Search for the requested key and ensure that its value is as expected */
+
+	Key = a_poSection->FindKey(a_pccKeyName);
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, "42") == 0);
+}
+
 /* Written: Saturday 09-Feb-2013 1:13 pm, Code HQ Ehinger Tor */
 /* @param	a_poConfigFile	Instance of RConfigFile from which to read the numbers */
 /* Performs tests on the functions that enable more dynamic reading of the sections */
@@ -32,6 +51,86 @@ static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyNam
 
 static void TestDynamicReads(RConfigFile *a_poConfigFile)
 {
+	CKey *Key;
+	CSection *Group, *Section, *SubSection;
+
+	/* Test #7: Query for basic values in a particular subsection */
+
+	Test.Next("Query for basic values in a particular subsection");
+
+	/* First find the "General" subsection in the "ConfigFile" section */
+
+	Section = a_poConfigFile->FindSection("ConfigFile");
+	test(Section != NULL);
+
+	SubSection = Section->FindSection("General");
+	test(SubSection != NULL);
+
+	/* Now query for the keys we know are present (with various amounts of white space) */
+
+	ReadValidNumber(SubSection, "ValidNumber1");
+	ReadValidNumber(SubSection, "ValidNumber2");
+	ReadValidNumber(SubSection, "ValidNumber3");
+	ReadValidNumber(SubSection, "ValidNumber4");
+	ReadValidNumber(SubSection, "ValidNumber5");
+
+	/* Test #8: Query for known keys in a known section::subsection::group */
+
+	Test.Next("Query for known keys in a known section::subsection::group");
+
+	Section = a_poConfigFile->FindSection("ValidSection");
+	test(Section != NULL);
+
+	SubSection = Section->FindSection("SyntaxHighlighting");
+	test(SubSection != NULL);
+
+	Group = SubSection->FindSection("C/C++");
+	test(SubSection != NULL);
+
+	Key = Group->FindKey("SyntaxExtensions");
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, ".cpp;.c;.h") == 0);
+
+	Key = Group->FindKey("CommentDelimiters");
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, "//") == 0);
+
+	Key = Group->FindNextKey(Key, "CommentDelimiters");
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, "/*") == 0);
+
+	Key = Group->FindNextKey(Key, "CommentDelimiters");
+	test(Key == NULL);
+
+	Group = SubSection->FindSection("Python");
+	test(SubSection != NULL);
+
+	Key = Group->FindKey("CommentDelimiters");
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, "#") == 0);
+
+	Key = Group->FindNextKey(Key, "CommentDelimiters");
+	test(Key == NULL);
+
+	Key = Group->FindKey("SyntaxExtensions");
+	test(Key != NULL);
+	test(strcmp(Key->m_pcValue, ".py") == 0);
+
+	/* Test #8: Query for known keys in an unknown group (well we know it is there but only */
+	/* for the purposes of this test */
+
+	Test.Next("Query for known keys in an unknown group");
+
+	Group = SubSection->FindSection();
+	test(Group != NULL);
+	test(strcmp(Group->m_pcName, "C/C++") == 0);
+
+	Group = SubSection->FindNextSection(Group);
+	test(Group != NULL);
+	test(strcmp(Group->m_pcName, "Python") == 0);
+
+	Group = SubSection->FindNextSection(Group);
+	test(Group == NULL);
 }
 
 int main()
