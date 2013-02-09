@@ -598,7 +598,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 }
 
-/* Written: Tuesday 10-Apr-2012 7:07 am, CodeHQ Ehinger Tor */
+/* Written: Tuesday 10-Apr-2012 7:07 am, Code HQ Ehinger Tor */
 /* @param	a_iItemID	ID of the menu item to be checked or unchecked */
 /* @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it */
 /* This function will enable or disable the checkmark in a checkable menu item */
@@ -659,7 +659,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef QT_GUI_LIB
 
-/* Written: Sunday 05-Jan-2013 7:53 am, CodeHQ Ehinger Tor */
+/* Written: Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor */
 /* @returns	ETrue if all menus were created successfully, else EFalse */
 /* Creates a set of menus specific to this window, using the list of SStdMenuItem structures */
 /* available from RApplication via RApplication::MenuItems().  The menus are created in here */
@@ -758,7 +758,7 @@ TBool CWindow::CreateMenus()
 
 #endif /* QT_GUI_LIB */
 
-/* Written: Saturday 05-Jan-2013 1:12 pm, CodeHQ Ehinger Tor */
+/* Written: Saturday 05-Jan-2013 1:12 pm, Code HQ Ehinger Tor */
 /* @returns	ETrue if the control key is pressed, else EFalse */
 /* Returns whether or not the control key is currently pressed */
 
@@ -782,7 +782,7 @@ TBool CWindow::CtrlPressed()
 
 }
 
-/* Written: Wednesday 14-Jul-2011 6:14 am, CodeHQ-by-Thames */
+/* Written: Wednesday 14-Jul-2011 6:14 am, Code HQ-by-Thames */
 
 void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
 {
@@ -1037,7 +1037,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 }
 
-/* Written: Sunday 08-Apr-2011 8:50 am, CodeHQ Ehinger Tor */
+/* Written: Sunday 08-Apr-2011 8:50 am, Code HQ Ehinger Tor */
 /* @param	a_iItemID	ID of the menu item to be enabled or disabled */
 /* @param	a_bEnable	ETrue to enable the menu item, else EFalse to disable it */
 /* This function will enable or disable an item in the window's menu list */
@@ -1084,7 +1084,7 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-/* Written: Saturday 14-Apr-2012 8:02 am, CodeHQ Ehinger Tor */
+/* Written: Saturday 14-Apr-2012 8:02 am, Code HQ Ehinger Tor */
 /* @param	a_poMenuMappings	Ptr to array of menu mappings to search through */
 /*			a_poNumMenuMappings	Number of items in the menu mappings array */
 /*			a_iItemID			Item ID to be searched for */
@@ -1401,7 +1401,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	return(RetVal);
 }
 
-/* Written: Saturday 05-Nov-2011 9:03 am, CodeHQ Söflingen */
+/* Written: Saturday 05-Nov-2011 9:03 am, Code HQ Söflingen */
 
 void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 {
@@ -1425,7 +1425,7 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 	RethinkLayout();
 }
 
-/* Written: Saturday 05-Nov-2011 12:04 pm, CodeHQ Söflingen */
+/* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Söflingen */
 
 void CWindow::RethinkLayout()
 {

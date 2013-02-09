@@ -231,7 +231,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 	return(RetVal);
 }
 
-/* Written: Monday 02-May-2011 7:21 am, CodeHQ-by-Thames */
+/* Written: Monday 02-May-2011 7:21 am, Code HQ-by-Thames */
 
 CStdGadgetStatusBar::~CStdGadgetStatusBar()
 {

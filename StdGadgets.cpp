@@ -12,7 +12,7 @@ CStdGadget::~CStdGadget()
 	delete [] m_iText;
 }
 
-/* Written: Tuesday 13-Jul-2011 06:40 am, CodeHQ-by-Thames */
+/* Written: Tuesday 13-Jul-2011 06:40 am, Code HQ-by-Thames */
 
 TInt CStdGadget::X()
 {
@@ -26,7 +26,7 @@ TInt CStdGadget::X()
 	return(m_iX);
 }
 
-/* Written: Tuesday 13-Jul-2011 06:42 am, CodeHQ-by-Thames */
+/* Written: Tuesday 13-Jul-2011 06:42 am, Code HQ-by-Thames */
 
 TInt CStdGadget::Y()
 {
@@ -40,7 +40,7 @@ TInt CStdGadget::Y()
 	return(m_iY);
 }
 
-/* Written: Wednesday 11-May-2011 07:00 am, CodeHQ-by-Thames */
+/* Written: Wednesday 11-May-2011 07:00 am, Code HQ-by-Thames */
 
 TInt CStdGadget::Width()
 {
@@ -58,7 +58,7 @@ TInt CStdGadget::Width()
 	return(m_iWidth);
 }
 
-/* Written: Monday 09-May-2011 8:11 am, CodeHQ-by-Thames */
+/* Written: Monday 09-May-2011 8:11 am, Code HQ-by-Thames */
 
 TInt CStdGadget::Height()
 {
@@ -75,7 +75,7 @@ TInt CStdGadget::Height()
 	return(m_iHeight);
 }
 
-/* Written: Wednesday 23-Nov-2011 6:37 am, CodeHQ Söflingen */
+/* Written: Wednesday 23-Nov-2011 6:37 am, Code HQ Söflingen */
 
 TInt CStdGadget::MinHeight()
 {
@@ -95,7 +95,7 @@ void CStdGadget::SaveText(const char *a_pccText)
 	}
 }
 
-/* Written: Tuesday 06-Jul-2011 6:58 am, CodeHQ-by-Thames */
+/* Written: Tuesday 06-Jul-2011 6:58 am, Code HQ-by-Thames */
 /* @param	a_iX	X position to which to move gadget */
 /*			a_iY	Y position to which to move gadget */
 /* Sets the gadget to the X and Y positions specified, relative to the top left */
@@ -136,7 +136,7 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 
 }
 
-/* Written: Tuesday 06-Jul-2011 7:07 am, CodeHQ-by-Thames */
+/* Written: Tuesday 06-Jul-2011 7:07 am, Code HQ-by-Thames */
 /* @param	a_iWidth	Width of the gadget in pixels */
 /*			a_iHeight	Height of the gadget in pixels */
 /* Sets the width and height of the gadget in pixels.  If -1 is passed in for */

@@ -114,7 +114,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 }
 
-/* Written: Saturday 15-Oct-2011 2:46 pm, CodeHQ Söflingen */
+/* Written: Saturday 15-Oct-2011 2:46 pm, Code HQ Söflingen */
 /* @param	a_pvGadget	Ptr to the native gadget to be searched for */
 /* @return	A ptr to the standard gadget that contains the native gadget, */
 /*			if found, else NULL */
@@ -161,7 +161,7 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 	return(RetVal);
 }
 
-/* Written: Friday 01-Jun-2012 7:11 am, CodeHQ Ehinger Tor */
+/* Written: Friday 01-Jun-2012 7:11 am, Code HQ Ehinger Tor */
 /* @return	The amount of spacing, in pixels, used between gadgets */
 /* When a layout gadget is created, it can be instructed to layout the gadgets it */
 /* owns with padding between them, or to lay them out hard up against one another. */
@@ -183,7 +183,7 @@ TInt CStdGadgetLayout::GetSpacing()
 
 }
 
-/* Written: Saturday 15-Oct-2011 12:42 pm, CodeHQ Söflingen */
+/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Söflingen */
 
 void CStdGadgetLayout::RethinkLayout()
 {
@@ -265,7 +265,7 @@ void CStdGadgetLayout::RethinkLayout()
 	}
 }
 
-/* Written: Wednesday 23-Nov-2011 6:26 am, CodeHQ Söflingen */
+/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Söflingen */
 
 void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
@@ -300,7 +300,7 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 }
 
-/* Written: Thursday 31-May-2012 7:16 am, CodeHQ Ehinger Tor */
+/* Written: Thursday 31-May-2012 7:16 am, Code HQ Ehinger Tor */
 /* @return	The X position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
 /* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
@@ -318,7 +318,7 @@ TInt CStdGadgetLayout::X()
 	return(m_iX);
 }
 
-/* Written: Tuesday 18-Oct-2011 7:15 am, CodeHQ Söflingen */
+/* Written: Tuesday 18-Oct-2011 7:15 am, Code HQ Söflingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
 /* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
@@ -336,7 +336,7 @@ TInt CStdGadgetLayout::Y()
 	return(m_iY);
 }
 
-/* Written: Wednesday 23-Nov-2011 6:45 am, CodeHQ Söflingen */
+/* Written: Wednesday 23-Nov-2011 6:45 am, Code HQ Söflingen */
 
 TInt CStdGadgetLayout::MinHeight()
 {

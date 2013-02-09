@@ -685,7 +685,7 @@ void RFont::SetClipWidth(TInt a_iClipWidth)
 	m_iClipWidth = a_iClipWidth;
 }
 
-/* Written: Thursday 31-May-2012 7:20 am, CodeHQ Ehinger Tor */
+/* Written: Thursday 31-May-2012 7:20 am, Code HQ Ehinger Tor */
 /* @param	a_iXOffset	Offset from the left of the window in pixels */
 /* This function sets the offset from the left of the window at which text is output */
 /* by the RFont class.  This means that when clients call the text drawing functions */
@@ -697,7 +697,7 @@ void RFont::SetXOffset(TInt a_iXOffset)
 {
 	m_iXOffset = a_iXOffset;
 }
-/* Written: Friday 08-Jul-2010 7:42 am, CodeHQ-by-Thames */
+/* Written: Friday 08-Jul-2010 7:42 am, Code HQ-by-Thames */
 /* @param	a_iYOffset	Offset from the top of the window in pixels */
 /* This function sets the offset from the top of the window at which text is output */
 /* by the RFont class.  This means that when clients call the text drawing functions */

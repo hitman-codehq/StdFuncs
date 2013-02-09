@@ -48,7 +48,7 @@ public:
 		return(m_iCount);
 	}
 
-	/* Written: Friday 10-Aug-2012 6:53 am, CodeHQ Ehinger Tor */
+	/* Written: Friday 10-Aug-2012 6:53 am, Code HQ Ehinger Tor */
 
 	void Insert(T *a_poNode, T *a_poAfter)
 	{
@@ -62,7 +62,7 @@ public:
 		++m_iCount;
 	}
 
-	/* Written: Friday 10-Aug-2012 7:42 am, CodeHQ Ehinger Tor */
+	/* Written: Friday 10-Aug-2012 7:42 am, Code HQ Ehinger Tor */
 
 	bool IsOnList(T *a_poNode) const
 	{

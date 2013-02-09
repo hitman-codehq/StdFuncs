@@ -112,7 +112,7 @@ TInt CStdGadgetSlider::Construct()
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
 }
 
-/* Written: Monday 05-Nov-2011 9:20 am, CodeHQ Söflingen */
+/* Written: Monday 05-Nov-2011 9:20 am, Code HQ Söflingen */
 
 CStdGadgetSlider::~CStdGadgetSlider()
 {
