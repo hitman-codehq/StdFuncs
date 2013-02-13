@@ -595,10 +595,17 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 }
 
 /* Written: Saturday 09-Feb-2013 11:00 am, Code HQ Ehinger Tor */
+/* @return	KErrNone if successful */
+/*			KErrNoMemory if there wasn't enough memory to allocate all nodes */
+/* This function iterates through a configuration file that has already been loaded into memory */
+/* by RConfigFile::Open() and creates a tree in memory that represents all of the sections, */
+/* subsections, groups and key = value pairs that are present in the file.  After this, client */
+/* code is able to call functions such as RConfigFile::FindSection() and RConfigFile::FindKey() */
+/* to search for desired key = value pairs */
 
 TInt RConfigFile::Parse()
 {
-	char *Buffer, Message[256]; // TODO: CAW - Temporary
+	char *Buffer;
 	const char *Token, *ValueToken;
 	TInt BufferSize, Index, LFIndex, RetVal, TokenLength, ValueTokenLength;
 	CKey *Key;
@@ -688,11 +695,11 @@ TInt RConfigFile::Parse()
 
 				else if ((Token[0] == '[') && (Token[TokenLength - 1] == ']'))
 				{
-					/* Only use the subsection if it is within a section */
-
-					if (Section)
+					if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
 					{
-						if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
+						/* Only use the subsection if it is within a section */
+
+						if (Section)
 						{
 							/* Indicate that this is now the currently active subsection and that */
 							/* there is no longer an active group */
@@ -704,19 +711,19 @@ TInt RConfigFile::Parse()
 
 							Section->m_oSections.AddTail(NewSection);
 						}
+
+						/* Otherwise the subsection is invalid so discard it and display a warning */
+
 						else
 						{
-							break;
+							Utils::Info("Discarding orphan subsection %s", NewSection->m_pcName);
+
+							delete NewSection;
 						}
 					}
-
-					/* Otherwise the subsection is invalid so discard it and display a warning */
-
 					else
 					{
-						memcpy(Message, &Token[1], (TokenLength - 2));
-						Message[TokenLength - 2] = '\0';
-						Utils::Info("Discarding orphan subsection %s", Message);
+						break;
 					}
 				}
 
@@ -725,11 +732,11 @@ TInt RConfigFile::Parse()
 
 				else if ((Token[0] == '{') && (Token[TokenLength - 1] == '}'))
 				{
-					/* Only use the subsection if it is within a subsection */
-
-					if (SubSection)
+					if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
 					{
-						if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
+						/* Only use the subsection if it is within a subsection */
+
+						if (SubSection)
 						{
 							/* Indicate that this is now the currently active group */
 
@@ -739,19 +746,19 @@ TInt RConfigFile::Parse()
 
 							SubSection->m_oSections.AddTail(NewSection);
 						}
+
+						/* Otherwise the group is invalid so discard it and display a warning */
+
 						else
 						{
-							break;
+							Utils::Info("Discarding orphan group %s", NewSection->m_pcName);
+
+							delete NewSection;
 						}
 					}
-
-					/* Otherwise the group is invalid so discard it and display a warning */
-
 					else
 					{
-						memcpy(Message, &Token[1], (TokenLength - 2));
-						Message[TokenLength - 2] = '\0';
-						Utils::Info("Discarding orphan group %s", Message);
+						break;
 					}
 				}
 
@@ -759,11 +766,11 @@ TInt RConfigFile::Parse()
 
 				else if ((ValueToken = Lex.NextToken(&ValueTokenLength)) != NULL)
 				{
-					/* Only use the key and value if it is within a subsection or a group */
-
-					if ((SubSection) || (Group))
+					if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
 					{
-						if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
+						/* Only use the key and value if it is within a subsection or a group */
+
+						if ((SubSection) || (Group))
 						{
 							/* Add the new key to the current group, if there is one.  Otherwise add */
 							/* it to the current subsection */
@@ -777,19 +784,19 @@ TInt RConfigFile::Parse()
 								SubSection->m_oKeys.AddTail(Key);
 							}
 						}
+
+						/* Otherwise the key is invalid so discard it and display a warning */
+
 						else
 						{
-							break;
+							Utils::Info("Discarding orphan key %s", Key->m_pcName);
+
+							delete Key;
 						}
 					}
-
-					/* Otherwise the key is invalid so discard it and display a warning */
-
 					else
 					{
-						memcpy(Message, Token, TokenLength);
-						Message[TokenLength] = '\0';
-						Utils::Info("Discarding orphan key %s", Message);
+						break;
 					}
 				}
 			}
