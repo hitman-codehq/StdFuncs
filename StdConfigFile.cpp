@@ -24,24 +24,13 @@ CKey *CKey::New(const char *a_pccKey, TInt a_iKeyLength, const char *a_pccValue,
 
 	if ((RetVal = new CKey) != NULL)
 	{
-		RetVal->m_pcName = new char[a_iKeyLength + 1];
-		RetVal->m_pcValue = new char[a_iValueLength + 1];
+		RetVal->m_pcName = Utils::DuplicateString(a_pccKey, a_iKeyLength);
+		RetVal->m_pcValue = Utils::DuplicateString(a_pccValue, a_iValueLength);
 
-		/* If both strings have been allocated successfully then copy their contents */
-		/* into the newly allocated memory */
+		/* If either string was not allocated successfully then free up whatever has been */
+		/* allocated and return failure */
 
-		if ((RetVal->m_pcName) && (RetVal->m_pcValue))
-		{
-			memcpy(RetVal->m_pcName, a_pccKey, a_iKeyLength);
-			RetVal->m_pcName[a_iKeyLength] = '\0';
-
-			memcpy(RetVal->m_pcValue, a_pccValue, a_iValueLength);
-			RetVal->m_pcValue[a_iValueLength] = '\0';
-		}
-
-		/* Otherwise free up whatever has been allocated and return failure */
-
-		else
+		if ((!(RetVal->m_pcName)) || (!(RetVal->m_pcValue)))
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -67,17 +56,7 @@ CSection *CSection::New(const char *a_pccName, TInt a_iLength)
 
 	if ((RetVal = new CSection) != NULL)
 	{
-		if ((RetVal->m_pcName = new char[a_iLength + 1]) != NULL)
-		{
-			/* Copy the contents of the name into the newly allocated memory */
-
-			memcpy(RetVal->m_pcName, a_pccName, a_iLength);
-			RetVal->m_pcName[a_iLength] = '\0';
-		}
-
-		/* On failure, free up whatever has been allocated and return failure */
-
-		else
+		if ((RetVal->m_pcName = Utils::DuplicateString(a_pccName, a_iLength)) == NULL)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -564,16 +543,11 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 							if ((Token = Lex.NextToken(&TokenLength)) != NULL)
 							{
-								/* Allocate a buffer for the token */
+								/* Duplicate the token into an allocated buffer */
 
-								if ((a_rpcResult = new char[TokenLength + 1]) != NULL)
+								if ((a_rpcResult = Utils::DuplicateString(Token, TokenLength)) != NULL)
 								{
 									RetVal = KErrNone;
-
-									/* And extract the token into it */
-
-									memcpy(a_rpcResult, Token, TokenLength);
-									a_rpcResult[TokenLength] = '\0';
 
 									break;
 								}

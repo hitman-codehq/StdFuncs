@@ -571,6 +571,42 @@ TInt Utils::Detach()
 	return(RetVal);
 }
 
+/* Written: Wednesday 13-Feb-2013 6:48 am, Code HQ Ehinger Tor */
+/* @param	a_pccString	Ptr to the string to be duplicated */
+/*			a_iLength	Length of the string, not including NULL terminator, or -1 */
+/* @returns	Ptr to an allocated buffer containing the duplicated string if successful, */
+/*			else NULL */
+/* Allocates a buffer large enough to hold the string passed in and its NULL terminator */
+/* and copies the string into said buffer.  If a length is passed in (and 0 is a valid */
+/* length) then it is assumed the string passed in is not NULL terminated and that length */
+/* is used as the string's length.  Otherwise if the length is -1 then the string's length */
+/* is determined with strlen().  The string returned by this function should be freed with */
+/* delete [] */
+
+char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
+{
+	char *RetVal;
+
+	ASSERTM((a_pccString != NULL), "Utils::DuplicateString() => Ptr to string passed in must not be NULL");
+
+	/* If no length has been passed in then determine the length of the string */
+
+	if (a_iLength == -1)
+	{
+		a_iLength = strlen(a_pccString);
+	}
+
+	/* Allocate a buffer large enough to hold the string and copy the string */
+
+	if ((RetVal = new char[a_iLength + 1]) != NULL)
+	{
+		memcpy(RetVal, a_pccString, a_iLength);
+		RetVal[a_iLength] ='\0';
+	}
+
+	return(RetVal);
+}
+
 /* Written: Saturday 11-Jul-2009 08:56 am */
 
 void Utils::Error(const char *a_pccMessage, ...)

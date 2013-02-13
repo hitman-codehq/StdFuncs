@@ -44,6 +44,8 @@ public:
 
 	static TInt Detach();
 
+	static char *DuplicateString(const char *a_pccString, TInt a_iLength);
+
 	static void Error(const char *a_pccMessage, ...);
 
 	static const char *Extension(const char *a_pccFileName);
