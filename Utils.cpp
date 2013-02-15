@@ -312,6 +312,16 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 		PRINTF("Assertion Failure: %s\n", a_pccMessage);
 	}
 
+#ifndef __amigaos4__
+
+	/* When an assertion happens we want to exit the system as if we allow execution */
+	/* to continue then it is likely to crash anyway.  We will do this on all platforms */
+	/* besides Amiga as the non protected Amiga OS isn't so good at handling this! */
+
+	exit(1);
+
+#endif /* ! __amigaos4__ */
+
 	va_end(Args);
 }
 
