@@ -1296,7 +1296,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-#ifndef __linux__
+#if !defined(__linux__) || defined(QT_GUI_LIB)
 
 	CWindow *RootWindow;
 
@@ -1305,7 +1305,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RootWindow = CWindow::RootWindow();
 
-#endif /* ! __linux__ */
+#endif /* !defined(__linux__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos4__
 
