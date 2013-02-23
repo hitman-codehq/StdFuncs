@@ -4,14 +4,19 @@ TEMPLATE = lib
 CONFIG += debug_and_release staticlib warn_on
 
 build_pass:CONFIG(debug, debug|release) {
-	DESTDIR = Debug_Qt
-	OBJECTS_DIR = Debug_Qt
+	DESTDIR = DebugQt
 }
 
 build_pass:CONFIG(release, debug|release) {
-	DESTDIR = Release_Qt
-	OBJECTS_DIR = Release_Qt
+	DESTDIR = ReleaseQt
 }
+
+# Ensure that all temporary files are generated in the correct location as setting DESTDIR
+# by itself is not enough.  The second line is also a workaround to prevent qmake from
+# generating empty "debug" and "release" directories
+
+OBJECTS_DIR = $$DESTDIR
+MOC_DIR = $$OBJECTS_DIR
 
 DEFINES -= UNICODE
 
