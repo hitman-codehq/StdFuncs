@@ -257,10 +257,12 @@ void CQtCanvas::paintEvent(QPaintEvent *a_poPaintEvent)
 /* This function is called whenever Qt performs a resize of the window and will pass */
 /* the event along to the generic CWindow::Resize() function, to notify client code */
 
-void CQtWindow::resizeEvent(QResizeEvent *a_poResizeEvent)
+void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 {
-	QSize Size = a_poResizeEvent->size();
+	/* The size passed in the QResizeEvent is the size of the window itself.  We need to */
+	/* use the size of the central widget as we want to exclude the height of the menu bar */
 
+	QSize Size = centralWidget()->size();
 	m_poWindow->InternalResize(Size.width(), Size.height());
 }
 
@@ -1252,6 +1254,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	}
 
 #elif defined(QT_GUI_LIB)
+
+	(void) a_pccScreenName;
 
 	QWidget *CentralWidget;
 
