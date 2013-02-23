@@ -1310,7 +1310,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				/* And save the size of the client area */
 
-				QSize Size = m_poWindow->size();
+				QSize Size = CentralWidget->size();
 				m_iInnerWidth = Size.width();
 				m_iInnerHeight = Size.height();
 			}
