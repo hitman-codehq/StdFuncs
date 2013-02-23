@@ -28,6 +28,8 @@ protected:
 
 	/* From QMainWindow */
 
+	void closeEvent(QCloseEvent *a_poCloseEvent);
+
 	void keyPressEvent(QKeyEvent *a_poKeyEvent);
 
 	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);

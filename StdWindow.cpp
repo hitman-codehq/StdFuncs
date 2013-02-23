@@ -194,6 +194,24 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 	}
 }
 
+/* Written: Saturday 23-Feb-2013 1:38 pm */
+/* @param	a_poCloseEvent	Ptr to structure containing information for handling the event */
+/* This function is called whenever the main window is about to be closed due to the close */
+/* button or <alt-f4> being pressed.  It cancels that event, thus preventing the window */
+/* from closing, and sends a message to the client so that it can handle the close event as */
+/* it wishes (for example by prompting the user whether they wish to quit) */
+
+void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
+{
+	/* Cancel the close event */
+
+	a_poCloseEvent->ignore();
+
+	/* Allow the client window itself to handle the close */
+
+	m_poWindow->HandleCommand(IDCANCEL);
+}
+
 /* Written: Friday 31-Aug-2012 3:02 pm */
 /* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
 /* This function is called whenever a key down event occurs and will pass the event along */
