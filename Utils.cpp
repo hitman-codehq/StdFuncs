@@ -9,6 +9,11 @@
 #include <proto/utility.h>
 #include <workbench/startup.h>
 
+#elif defined(QT_GUI_LIB)
+
+#include <QtGui/QMessageBox>
+#include "Qt/StdWindow.h"
+
 #elif defined(__linux__)
 
 #include <errno.h>
@@ -1291,7 +1296,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-#ifndef QT_GUI_LIB
+#ifndef __linux__
 
 	CWindow *RootWindow;
 
@@ -1300,7 +1305,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RootWindow = CWindow::RootWindow();
 
-#endif /* ! QT_GUI_LIB */
+#endif /* ! __linux__ */
 
 #ifdef __amigaos4__
 
@@ -1379,14 +1384,69 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 #elif defined(QT_GUI_LIB)
 
-	(void) a_eMessageBoxType;
+	QWidget *ParentWindow;
+	QMessageBox::StandardButtons Buttons;
+	QMessageBox::StandardButton Result;
 
-	/* No GUI support in the UNIX version yet so just print the message */
+	/* Determine the type of Qt message box to display, based on the type passed in */
 
-	PRINTF("%s: %s\n", a_pccTitle, Message);
-	RetVal = IDCANCEL;
+	if (a_eMessageBoxType == EMBTOk)
+	{
+		Buttons = QMessageBox::Ok;
+	}
+	else if (a_eMessageBoxType == EMBTOkCancel)
+	{
+		Buttons = (QMessageBox::Ok | QMessageBox::Cancel);
+	}
+	else if (a_eMessageBoxType == EMBTYesNo)
+	{
+		Buttons = (QMessageBox::Yes | QMessageBox::No);
+	}
+	else
+	{
+		Buttons = (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+	}
 
-#else /* ! QT_GUI_LIB */
+	/* Display the appropriate message box for the message box type passed in */
+
+	ParentWindow = (RootWindow) ? (QWidget *) RootWindow->m_poWindow : NULL;
+
+	if (a_eMessageBoxType == EMBTOk)
+	{
+		Result = QMessageBox::information(ParentWindow, a_pccTitle, Message, Buttons);
+	}
+	else
+	{
+		Result = QMessageBox::question(ParentWindow, a_pccTitle, Message, Buttons);
+	}
+
+	/* And convert the result to one of the standard return values */
+
+	if (a_eMessageBoxType == EMBTOk)
+	{
+		RetVal = IDOK;
+	}
+	else if (a_eMessageBoxType == EMBTOkCancel)
+	{
+		RetVal = (Result == QMessageBox::Cancel) ? IDCANCEL : IDOK;
+	}
+	else if (a_eMessageBoxType == EMBTYesNo)
+	{
+		RetVal = (Result == QMessageBox::No) ? IDNO : IDYES;
+	}
+	else
+	{
+		if (Result == QMessageBox::Cancel)
+		{
+			RetVal = IDCANCEL;
+		}
+		else
+		{
+			RetVal = (Result == QMessageBox::No) ? IDNO : IDYES;
+		}
+	}
+
+#elif defined(WIN32)
 
 	UINT Type;
 
@@ -1413,7 +1473,15 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RetVal = ::MessageBox((RootWindow) ? RootWindow->m_poWindow : NULL, Message, a_pccTitle, Type);
 
-#endif /* ! QT_GUI_LIB */
+#else /* ! defined(WIN32) */
+
+	(void) a_eMessageBoxType;
+
+	/* Using a non GUI version of The Framework so just print the message */
+
+	PRINTF("%s: %s\n", a_pccTitle, Message);
+
+#endif /* ! WIN32 */
 
 	return(RetVal);
 }
