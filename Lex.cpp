@@ -228,7 +228,7 @@ void TLex::MoveForwards(TInt a_iLength)
 	m_pccString += a_iLength;
 	m_iLength -= a_iLength;
 
-	ASSERTM((m_iLength >= 0), "TLex::MoveForward() => Moved forward too far");
+	ASSERTM((m_iLength >= 0), "TLex::MoveForwards() => Moved forwards too far");
 }
 
 /* Written: Tuesday 08-Jan-2013 6:24 am, Vis à Vis Hotel, Lindau */
