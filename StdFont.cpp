@@ -569,7 +569,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 		if (!(m_bHighlight))
 		{
-			QPen Pen(QColor((g_aoColours[Colour] >> 26), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
+			QPen Pen(QColor((g_aoColours[Colour] >> 16), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] & 0xff)));
 			m_oPainter.setPen(Pen);
 		}
 
