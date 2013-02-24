@@ -1461,19 +1461,19 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	if (a_eMessageBoxType == EMBTOk)
 	{
-		Type = MB_OK;
+		Type = (MB_OK | MB_ICONINFORMATION);
 	}
 	else if (a_eMessageBoxType == EMBTOkCancel)
 	{
-		Type = MB_OKCANCEL;
+		Type = (MB_OKCANCEL | MB_ICONQUESTION);
 	}
 	else if (a_eMessageBoxType == EMBTYesNo)
 	{
-		Type = MB_YESNO;
+		Type = (MB_YESNO | MB_ICONQUESTION);
 	}
 	else
 	{
-		Type = MB_YESNOCANCEL;
+		Type = (MB_YESNOCANCEL | MB_ICONQUESTION);
 	}
 
 	/* Display the message box and return the standard Windows return code */
