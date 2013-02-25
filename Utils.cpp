@@ -336,7 +336,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 /* Written: Friday 04-Jun-2010 7:58 am */
 /**
-   Parses a string to determine how many tokens it contains.  
+   Parses a string to determine how many tokens it contains.
    Parses a string, identifying tokens and keeping track of a count of how many it finds.
    A token is either a single word delimited by white space (spaces or tabs), or multiple
    words in a quoted string.
@@ -1380,7 +1380,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 			}
 			else
 			{
-				RetVal = (Result == 1) ? IDYES : IDNO;
+				RetVal = (Result == 2) ? IDNO : IDYES;
 			}
 		}
 	}
