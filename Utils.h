@@ -109,6 +109,8 @@ public:
 	static ULONG Green32(unsigned long a_ulColour);
 
 	static ULONG Blue32(unsigned long a_ulColour);
+
+	static ULONG ReverseRGB(unsigned long a_ulColour);
 };
 
 /* Various assertion type macros which only do anything in debug builds */

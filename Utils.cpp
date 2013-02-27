@@ -2161,3 +2161,21 @@ ULONG Utils::Blue32(unsigned long a_ulColour)
 
 	return((Blue << 24) | (Blue << 16) | (Blue << 8) | Blue);
 }
+
+/* Written: Wednesday 27-Feb-2013 7:11 am */
+/* @param	a_ulColour	RGB colour to be reversed */
+/* @return	The colour passed in with the red & blue components reversed */
+/* This function takes the 24 bit RGB value passed in and swaps the red and blue components. */
+/* These components are not interpreted in any way, just swapped, so it can be used both to */
+/* change an RGB value to BGR and vice versa */
+
+ULONG Utils::ReverseRGB(unsigned long a_ulColour)
+{
+	ULONG RetVal;
+
+	RetVal = (a_ulColour & 0xff00);
+	RetVal |= ((a_ulColour & 0xff0000) >> 16);
+	RetVal |= ((a_ulColour & 0xff) << 16);
+
+	return(RetVal);
+}
