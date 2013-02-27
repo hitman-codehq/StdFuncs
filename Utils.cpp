@@ -2135,7 +2135,7 @@ ULONG Utils::Red32(unsigned long a_ulColour)
 {
 	ULONG Red;
 
-	Red = ((a_ulColour & 0xff0000) >> 16);
+	Red = (a_ulColour & 0xff);
 
 	return((Red << 24) | (Red << 16) | (Red << 8) | Red);
 }
@@ -2157,7 +2157,7 @@ ULONG Utils::Blue32(unsigned long a_ulColour)
 {
 	ULONG Blue;
 
-	Blue = (a_ulColour & 0xff);
+	Blue = ((a_ulColour & 0xff0000) >> 16);
 
 	return((Blue << 24) | (Blue << 16) | (Blue << 8) | Blue);
 }

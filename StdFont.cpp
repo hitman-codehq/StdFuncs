@@ -53,9 +53,9 @@ RFont::RFont(CWindow *a_poWindow)
 
 		for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
 		{
-			Red = Utils::Red32(g_aoColours[Index] & 0xff0000);
+			Red = Utils::Red32(g_aoColours[Index] & 0xff);
 			Green = Utils::Green32(g_aoColours[Index] & 0xff00);
-			Blue = Utils::Blue32(g_aoColours[Index] & 0xff);
+			Blue = Utils::Blue32(g_aoColours[Index] & 0xff0000);
 
 			Pen = IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
 			m_alPens[Index] = Pen;
