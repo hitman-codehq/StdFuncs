@@ -6,15 +6,19 @@
 #include "StdList.h"
 #include "StdConfigFile.h"
 
-/* Written: Saturday 09-Feb-2013 12:19 pm, Code HQ Ehinger Tor */
-/* @param	a_pccKey		Ptr to the name of the key to be created */
-/*			a_iKeyLength	Length of the string in a_pccKey */
-/*			a_pccValue		Ptr to the value of the key to be created */
-/*			a_iValueLength	Length of the string in a_pccValue */
-/* @return	Ptr to the newly created key, if successful, else NULL */
-/* Creates an instance of the CKey class and copies the specified key and value */
-/* into it.  Memory will be allocated for these strings - they do not need to be */
-/* in persistent storage */
+/**
+ * Creates an instance of the CKey class
+ * Creates an instance of the CKey class and copies the specified key and value
+ * into it.  Memory will be allocated for these strings - they do not need to be
+ * in persistent storage.
+ *
+ * @date	Saturday 09-Feb-2013 12:19 pm, Code HQ Ehinger Tor
+ * @param	a_pccKey		Ptr to the name of the key to be created
+ * @param	a_iKeyLength	Length of the string in a_pccKey
+ * @param	a_pccValue		Ptr to the value of the key to be created
+ * @param	a_iValueLength	Length of the string in a_pccValue
+ * @return	Ptr to the newly created key, if successful, else NULL
+ */
 
 CKey *CKey::New(const char *a_pccKey, TInt a_iKeyLength, const char *a_pccValue, TInt a_iValueLength)
 {
@@ -40,13 +44,17 @@ CKey *CKey::New(const char *a_pccKey, TInt a_iKeyLength, const char *a_pccValue,
 	return(RetVal);
 }
 
-/* Written: Saturday 09-Feb-2013 11:21 am, Code HQ Ehinger Tor */
-/* @param	a_pccName		Ptr to the name of the section to be created */
-/*			a_iLength		Length of the string in a_pccName */
-/* @return	Ptr to the newly created section, if successful, else NULL */
-/* Creates an instance of the CSection class and copies the specified name into */
-/* it.  Memory will be allocated for this string - it does not need to be in */
-/* persistent storage */
+/**
+ * Creates an instance of the CSection class
+ * Creates an instance of the CSection class and copies the specified name into
+ * it.  Memory will be allocated for this string - it does not need to be in
+ * persistent storage.
+ *
+ * @date	Saturday 09-Feb-2013 11:21 am, Code HQ Ehinger Tor
+ * @param	a_pccName		Ptr to the name of the section to be created
+ * @param	a_iLength		Length of the string in a_pccName
+ * @return	Ptr to the newly created section, if successful, else NULL
+ */
 
 CSection *CSection::New(const char *a_pccName, TInt a_iLength)
 {
@@ -66,9 +74,13 @@ CSection *CSection::New(const char *a_pccName, TInt a_iLength)
 	return(RetVal);
 }
 
-/* Written: Saturday 09-Feb-2013 12:18 pm, Code HQ Ehinger Tor */
-/* Frees up any resources associated with the section, including the list of embedded */
-/* subsections and keys */
+/**
+ * Destructor for the CSection class
+ * Frees up any resources associated with the section, including the list of embedded
+ * subsections and keys.
+ *
+ * @date	Saturday 09-Feb-2013 12:18 pm, Code HQ Ehinger Tor
+ */
 
 CSection::~CSection()
 {
@@ -92,24 +104,32 @@ CSection::~CSection()
 	}
 }
 
-/* Written: Saturday 09-Feb-2013 2:05 pm, Code HQ Ehinger Tor */
-/* @return	The first subsection belonging to this section, or NULL */
-/*			if there are no sections in the list */
-/* Finds the first subsection instance within this section.  No kind of */
-/* matching is performed - whatever is first in the subsection list is what */
-/* is returned */
+/**
+ * Finds the first subsection belonging to this section.
+ * Finds the first subsection within this section.  No kind of matching
+ * is performed - whatever is first in the subsection list is what is
+ * returned.
+ *
+ * @date	Saturday 09-Feb-2013 2:05 pm, Code HQ Ehinger Tor
+ * @return	The first subsection belonging to this section, or NULL
+ *			if there are no sections in the list
+ */
 
 CSection *CSection::FindSection()
 {
 	return(m_oSections.GetHead());
 }
 
-/* Written: Saturday 09-Feb-2013 1:10 pm, Code HQ Ehinger Tor */
-/* @param	a_pccName	Ptr to the name of the section for which to search */
-/* @return	The first subsection that matches the name passed in, or NULL */
-/*			if there are no matching sections in the list */
-/* Finds the first subsection instance within this section that matches the */
-/* name passed in */
+/**
+ * Finds the first subsection of a given name belonging to this section.
+ * Finds the first subsection within this section that matches the name
+ * passed in.
+ *
+ * @date	Saturday 09-Feb-2013 1:10 pm, Code HQ Ehinger Tor
+ * @param	a_pccName	Ptr to the name of the section for which to search
+ * @return	The first subsection that matches the name passed in, or NULL
+ *			if there are no matching sections in the list
+ */
 
 CSection *CSection::FindSection(const char *a_pccName)
 {
@@ -138,24 +158,32 @@ CSection *CSection::FindSection(const char *a_pccName)
 	return(RetVal);
 }
 
-/* Written: Saturday 09-Feb-2013 2:12 pm, Code HQ Ehinger Tor */
-/* @param	a_poSection	Ptr to the section from which to search */
-/* @return	The next subsection after the one specified, or NULL */
-/*			if there are no more sections in the list */
-/* Finds the next subsection instance after the one passed in.  No kind of */
-/* matching is performed - whatever is next in the subsection list is what */
-/* is returned */
+/**
+ * Finds the next subsection belonging to this section.
+ * Finds the next subsection after the one passed in.  No kind of
+ * matching is performed - whatever is next in the subsection list is what
+ * is returned.
+ *
+ * @date	Saturday 09-Feb-2013 2:12 pm, Code HQ Ehinger Tor
+ * @param	a_poSection	Ptr to the section from which to search
+ * @return	The next subsection after the one specified, or NULL
+ *			if there are no more sections in the list
+ */
 
 CSection *CSection::FindNextSection(CSection *a_poSection)
 {
 	return(m_oSections.GetSucc(a_poSection));
 }
 
-/* Written: Saturday 09-Feb-2013 1:36 pm, Code HQ Ehinger Tor */
-/* @param	a_pccName	Ptr to the name of the key for which to search */
-/* @return	The first key that matches the name passed in, or NULL if */
-/*			there are no matching sections in the list */
-/* Finds the first key within this section that matches the name passed in */
+/**
+ * Finds the first key of a given name belonging to this section.
+ * Finds the first key within this section that matches the name passed in.
+ *
+ * @date	Saturday 09-Feb-2013 1:36 pm, Code HQ Ehinger Tor
+ * @param	a_pccName	Ptr to the name of the key for which to search
+ * @return	The first key that matches the name passed in, or NULL if
+ *			there are no matching sections in the list
+ */
 
 CKey *CSection::FindKey(const char *a_pccName)
 {
@@ -184,15 +212,19 @@ CKey *CSection::FindKey(const char *a_pccName)
 	return(RetVal);
 }
 
-/* Written: Saturday 09-Feb-2013 1:54 pm, Code HQ Ehinger Tor */
-/* @param	a_poKey		Ptr to the key from which to search */
-/*			a_pccName	Ptr to the name of the key for which to search */
-/* @return	The next key that matches the name passed in, or NULL if */
-/*			there are no matching sections in the list */
-/* Finds the next key within this section that matches the name passed in. */
-/* The search begins with the next key after the one passed in.  By using */
-/* CSection::FindKey() in conjunction with this function it is possible to */
-/* iterate through all of the keys of a given name that are present */
+/**
+ * Finds the next key belonging to this section.
+ * Finds the next key within this section that matches the name passed in.
+ * The search begins with the next key after the one passed in.  By using
+ * CSection::FindKey() in conjunction with this function it is possible to
+ * iterate through all of the keys of a given name that are present
+ *
+ * @date	Saturday 09-Feb-2013 1:54 pm, Code HQ Ehinger Tor
+ * @param	a_poKey		Ptr to the key from which to search
+ * @param	a_pccName	Ptr to the name of the key for which to search
+ * @return	The next key that matches the name passed in, or NULL if
+ *			there are no matching sections in the list
+ */
 
 CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
 {
@@ -216,14 +248,19 @@ CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
 	return(RetVal);
 }
 
-/* Written: Wednesday 22-Apr-1998 9:33 pm */
-/* @param	a_pccFileName	Name of configuration file to open */
-/* @return	KErrNone if successful */
-/*			KErrNoMemory if there was not enough memory to read the file */
-/*			KErrEof if the file could be opened but not completely read */
-/*			Any error from Utils::GetFileInfo() */
-/*			Any error from RFile::Open() */
-/* Opens a configuration file and reads its contents into memory in preparation for parsing */
+/**
+ * Opens a configuration file for parsing.
+ * Opens a configuration file, reads its contents into memory and parses it in preparation
+ * for querying by the section, group and key querying functions.
+ *
+ * @date	Wednesday 22-Apr-1998 9:33 pm
+ * @param	a_pccFileName	Name of configuration file to open
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if there was not enough memory to read the file
+ * @return	KErrEof if the file could be opened but not completely read
+ * @return	Any error from Utils::GetFileInfo()
+ * @return	Any error from RFile::Open()
+ */
 
 TInt RConfigFile::Open(const char *a_pccFileName)
 {
@@ -275,8 +312,13 @@ TInt RConfigFile::Open(const char *a_pccFileName)
 	return(RetVal);
 }
 
-/* Written: Wednesday 22-Apr-1998 9:35 pm */
-/* Frees any resources associated with the configuration file */
+/**
+ * Closes a configuration file.
+ * Frees any resources associated with the configuration file.  Because this class is
+ * an "R" class, this function must be explicitly called as there is no destructor.
+ *
+ * @date	Wednesday 22-Apr-1998 9:35 pm
+ */
 
 void RConfigFile::Close()
 {
@@ -293,12 +335,17 @@ void RConfigFile::Close()
 	}
 }
 
-/* Written: Saturday 09-Feb-2013 1:04 pm, Code HQ Ehinger Tor */
-/* @param	a_pccName	Ptr to the name of the section for which to search */
-/* @return	The first section that matches the name passed in, or NULL */
-/*			if there are no matching sections in the configuration file */
-/* Finds the first top level section instance within this configuration file that matches */
-/* the name passed in */
+/**
+ * Searches for the first section of the given name.
+ * Finds the first top level section within this configuration file that matches the name
+ * the name passed in.  The returned CSection instance can then be used for searching for
+ * subsections, groups and key::value pairs.
+ *
+ * @date	Saturday 09-Feb-2013 1:04 pm, Code HQ Ehinger Tor
+ * @param	a_pccName	Ptr to the name of the section for which to search
+ * @return	The first section that matches the name passed in, or NULL
+ *			if there are no matching sections in the configuration file
+ */
 
 CSection *RConfigFile::FindSection(const char *a_pccName)
 {
@@ -321,19 +368,25 @@ CSection *RConfigFile::FindSection(const char *a_pccName)
 	return(RetVal);
 }
 
-/* Written: Wednesday 29-Apr-1998 11:08 pm */
-/* @param	a_pccpcSectionName	Ptr to name of section the key is in */
-/*			a_pccSubSectionName	Ptr to name of subsection the key is in in */
-/*			a_pccKeyName		Ptr to name of key to read */
-/*			a_piResult			Ptr to integer variable into which to place */
-/*								the retrieved key value */
-/* @return	KErrNone if successful */
-/*			KErrNoMemory if there was not enough memory to extract the key's value */
-/*			KErrNotFound if a key with the specified name could not be found */
-/*			KErrCorrupt if the key was found but its value was not a valid number */
-/* Retrieves the value of an integer belonging to a user specified key, in a */
-/* specified section and subsection.  Section, subsection and key names are case */
-/* insensitive */
+/**
+ * Finds an integral key::value pair in a specified section::subsection.
+ * Retrieves the value of an integer belonging to a user specified key, in a
+ * specified section and subsection.  Section, subsection and key names are case
+ * insensitive.  This is a convenience function that can be used when you know
+ * the name of the key and the section::subsection in which it resides, and do
+ * not wish or need to search through sections or groups to retrieve it.
+ *
+ * @date	Wednesday 29-Apr-1998 11:08 pm
+ * @param	a_pccSectionName	Ptr to name of section the key is in
+ * @param	a_pccSubSectionName	Ptr to name of subsection the key is in in
+ * @param	a_pccKeyName		Ptr to name of key to read
+ * @param	a_piResult			Ptr to integer variable into which to place
+ *								the retrieved key value
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if there was not enough memory to extract the key's value
+ * @return	KErrNotFound if a key with the specified name could not be found
+ * @return	KErrCorrupt if the key was found but its value was not a valid number
+ */
 
 TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, TInt *a_piResult)
@@ -390,19 +443,25 @@ TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 	return(RetVal);
 }
 
-/* Written: Wednesday 22-Apr-1998 9:31 pm */
-/* @param	a_pccSectionName	Name of section from which to read */
-/*			a_pccSubSectionName	Name of subsection from which to read */
-/*			a_pccKeyName		Name of key to be read */
-/*			a_rpcResult			Reference to ptr into which to place ptr to retrieved string */
-/* @return	KErrNone if successful */
-/*			KErrNoMemory if there was not enough memory to extract the key's value */
-/*			KErrNotFound if the key was not found due to the key being missing or */
-/*						 the requested section and/or subsection not being found */
-/* Retrieves the value of a string belonging to a user specified key, in a */
-/* specified section and subsection.  Section, subsection and key names are case */
-/* insensitive.  In the case where no key is found or an error occurs, the contents */
-/* of a_rpcResult will be set to NULL */
+/**
+ * Finds a string key::value pair in a specified section::subsection.
+ * Retrieves the value of a string belonging to a user specified key, in a
+ * specified section and subsection.  Section, subsection and key names are case
+ * insensitive.  In the case where no key is found or an error occurs, the contents
+ * of a_rpcResult will be set to NULL.  This is a convenience function that can be
+ * used when you know the name of the key and the section::subsection in which it
+ * resides, and do not wish or need to search through sections or groups to retrieve it.
+ *
+ * @date	Wednesday 22-Apr-1998 9:31 pm
+ * @param	a_pccSectionName	Name of section from which to read
+ * @param	a_pccSubSectionName	Name of subsection from which to read
+ * @param	a_pccKeyName		Name of key to be read
+ * @param	a_rpcResult			Reference to ptr into which to place ptr to retrieved string
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if there was not enough memory to extract the key's value
+ * @return	KErrNotFound if the key was not found due to the key being missing or
+ *						 the requested section and/or subsection not being found
+ */
 
 TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, char *&a_rpcResult)
@@ -568,14 +627,18 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 	return(RetVal);
 }
 
-/* Written: Saturday 09-Feb-2013 11:00 am, Code HQ Ehinger Tor */
-/* @return	KErrNone if successful */
-/*			KErrNoMemory if there wasn't enough memory to allocate all nodes */
-/* This function iterates through a configuration file that has already been loaded into memory */
-/* by RConfigFile::Open() and creates a tree in memory that represents all of the sections, */
-/* subsections, groups and key = value pairs that are present in the file.  After this, client */
-/* code is able to call functions such as RConfigFile::FindSection() and RConfigFile::FindKey() */
-/* to search for desired key = value pairs */
+/**
+ * Parses the sections, subsections, groups and key::value pairs in a configuration file.
+ * This function iterates through a configuration file that has already been loaded into memory
+ * by RConfigFile::Open() and creates a tree in memory that represents all of the sections,
+ * subsections, groups and key = value pairs that are present in the file.  After this, client
+ * code is able to call functions such as RConfigFile::FindSection() and RConfigFile::FindKey()
+ * to search for desired key = value pairs
+ *
+ * @date	Saturday 09-Feb-2013 11:00 am, Code HQ Ehinger Tor
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if there wasn't enough memory to allocate all nodes
+ */
 
 TInt RConfigFile::Parse()
 {

@@ -334,15 +334,15 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 #endif /* _DEBUG */
 
-/* Written: Friday 04-Jun-2010 7:58 am */
 /**
-   Parses a string to determine how many tokens it contains.
-   Parses a string, identifying tokens and keeping track of a count of how many it finds.
-   A token is either a single word delimited by white space (spaces or tabs), or multiple
-   words in a quoted string.
-
-   @param	a_pccBuffer	Ptr to buffer to parse for tokens
-   @return	The number of tokens found in the string
+ *	Parses a string to determine how many tokens it contains.
+ *	Parses a string, identifying tokens and keeping track of a count of how many it finds.
+ *	A token is either a single word delimited by white space (spaces or tabs), or multiple
+ *	words in a quoted string.
+ *
+ *	@date	Friday 04-Jun-2010 7:58 am
+ *	@param	a_pccBuffer	Ptr to buffer to parse for tokens
+ *	@return	The number of tokens found in the string
  */
 
 TInt Utils::CountTokens(const char *a_pccBuffer)
