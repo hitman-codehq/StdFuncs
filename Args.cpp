@@ -140,7 +140,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 #else /* ! __amigaos4__ */
 
-		const char **ArgV;
+		const char **ArgV, *BufferPtr;
 		TInt ArgC;
 
 		/* If the user has requested to display the template then do so and request input and parse that instead */
@@ -148,35 +148,42 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
-			/* Display the template a la Amiga OS and prompt the user for input */
+			/* Display the template à la Amiga OS and prompt the user for input */
 
-			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary + gets() causes
-			//             warnings in Linux release build
+			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary + input buffer?
 			char Buffer[1024];
 
 			Buffer[0] = '\0';
 			printf("%s\n", a_pccTemplate);
-			gets(Buffer);
 
-			/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
-			/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
-			/* adds an extra entry for the executable name as the first argument.  This */
-			/* is required so that when we call Open() it will ignore this first argument, */
-			/* for compatibility with argument lists passed into main(), which also have */
-			/* the executable name in argv[0]! */
+			/* Obtain the input from the user */
 
-			if ((ArgV = ExtractArguments(Buffer, &ArgC)) != NULL)
+			if ((BufferPtr = gets(Buffer)) != NULL)
 			{
-				/* Command line has been input so put the executable's name in the first argument slot and parse */
-				/* it for arguments */
+				/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
+				/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
+				/* adds an extra entry for the executable name as the first argument.  This */
+				/* is required so that when we call Open() it will ignore this first argument, */
+				/* for compatibility with argument lists passed into main(), which also have */
+				/* the executable name in argv[0]! */
 
-				ArgV[0] = a_pccArgV[0];
-				RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
-				delete [] ArgV;
+				if ((ArgV = ExtractArguments(Buffer, &ArgC)) != NULL)
+				{
+					/* Command line has been input so put the executable's name in the first argument slot and parse */
+					/* it for arguments */
+
+					ArgV[0] = a_pccArgV[0];
+					RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+					delete [] ArgV;
+				}
+				else
+				{
+					RetVal = KErrNoMemory;
+				}
 			}
 			else
 			{
-				RetVal = KErrNoMemory;
+				RetVal = KErrGeneral;
 			}
 		}
 		else
