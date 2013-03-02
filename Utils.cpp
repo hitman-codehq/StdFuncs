@@ -1484,9 +1484,11 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	(void) a_eMessageBoxType;
 
-	/* Using a non GUI version of The Framework so just print the message */
+	/* Using a non GUI version of The Framework so just print the message and indicate that the */
+	/* message box could not be opened */
 
 	PRINTF("%s: %s\n", a_pccTitle, Message);
+	RetVal = 0;
 
 #endif /* ! WIN32 */
 
