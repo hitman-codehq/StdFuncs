@@ -31,10 +31,11 @@ struct SStdMenuMapping
 
 struct SStdMenuItem
 {
-	TStdMenuItemType	m_eType;		/* Type of menu or menu item to be created */
-	const char			*m_pccLabel;	/* Menu item's label to be displayed */
-	const char			*m_pccHotKey;	/* Shortcut key to be displayed, if non NULL */
-	TInt				m_iCommand;		/* Command to send when menu is selected */
+	TStdMenuItemType	m_eType;			/**< Type of menu or menu item to be created */
+	const char			*m_pccLabel;		/**< Menu item's label to be displayed */
+	const char			*m_pccHotKey;		/**< Shortcut key to be displayed, if non NULL */
+	TInt				m_iHotKeyModifier;	/**< Modifier for hotkey, such as STD_KEY_CONTROL */
+	TInt				m_iCommand;			/**< Command to send when menu is selected */
 };
 
 class RApplication

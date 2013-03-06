@@ -692,6 +692,7 @@ TBool CWindow::CreateMenus()
 	const struct SStdMenuItem *MenuItem;
 	QAction *Action;
 	QMenu *Menu;
+	QString Shortcut;
 
 	/* Assume success */
 
@@ -709,15 +710,9 @@ TBool CWindow::CreateMenus()
 
 		if (MenuItem->m_eType == EStdMenuTitle)
 		{
-			/* We want each drop down menu to have a shortcut so insert the '&' shortcut character */
-			/* at the start of each menu name */
-
-			QString Label(MenuItem->m_pccLabel);
-			Label.insert(0, '&');
-
 			/* And add the new drop down menu to the window's menu bar */
 
-			if ((Menu = m_poWindow->menuBar()->addMenu(Label)) == NULL)
+			if ((Menu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
 			{
 				Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
 
@@ -751,8 +746,35 @@ TBool CWindow::CreateMenus()
 
 				if (MenuItem->m_pccHotKey)
 				{
-					QKeySequence keySequence(Qt::CTRL + *MenuItem->m_pccHotKey);
-					Action->setShortcut(keySequence);
+					/* The most convenient type of QKeySequence to use for our purposes is */
+					/* a fully text based one, so start by converting the modifier keys to */
+					/* a textual prefix */
+
+					if (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+					{
+						Shortcut = "Ctrl+";
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_ALT)
+					{
+						Shortcut = "Alt+";
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+					{
+						Shortcut = "Shift+";
+					}
+
+					/* There is no modifier.  However, by default a QString really is empty */
+					/* and cannot be appended to, so we must populate it with an empty string */
+
+					else
+					{
+						Shortcut = "";
+					}
+
+					/* Append the hotkey name to the prefix and add the shortcut to the action */
+
+					Shortcut.append(MenuItem->m_pccHotKey);
+					Action->setShortcut(Shortcut);
 				}
 
 				/* And add the new menu item to the drop down menu */

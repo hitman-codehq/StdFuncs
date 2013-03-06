@@ -119,22 +119,23 @@ typedef unsigned long COLORREF;
 
 #define STD_KEY_SHIFT 256
 #define STD_KEY_CONTROL 257
-#define STD_KEY_BACKSPACE 258
-#define STD_KEY_ENTER 259
-#define STD_KEY_UP 260
-#define STD_KEY_DOWN 261
-#define STD_KEY_LEFT 262
-#define STD_KEY_RIGHT 263
-#define STD_KEY_HOME 264
-#define STD_KEY_END 265
-#define STD_KEY_PGUP 266
-#define STD_KEY_PGDN 267
-#define STD_KEY_DELETE 268
-#define STD_KEY_TAB 269
-#define STD_KEY_ESC 270
-#define STD_KEY_F3 280
-#define STD_KEY_F6 283
-#define STD_KEY_F12 289
+#define STD_KEY_ALT 258
+#define STD_KEY_BACKSPACE 259
+#define STD_KEY_ENTER 260
+#define STD_KEY_UP 261
+#define STD_KEY_DOWN 262
+#define STD_KEY_LEFT 263
+#define STD_KEY_RIGHT 264
+#define STD_KEY_HOME 265
+#define STD_KEY_END 266
+#define STD_KEY_PGUP 267
+#define STD_KEY_PGDN 268
+#define STD_KEY_DELETE 269
+#define STD_KEY_TAB 270
+#define STD_KEY_ESC 271
+#define STD_KEY_F3 272
+#define STD_KEY_F6 273
+#define STD_KEY_F12 274
 
 /* Structure used for mapping standard keycodes onto native keycodes */
 
