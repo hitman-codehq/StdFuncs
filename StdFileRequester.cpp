@@ -231,8 +231,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
         /* Save the filename (which is fully qualified) for l8r use */
 
-        ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name obtained is too long");
-        strcpy(m_acFileName, File.toAscii());
+        strcpy(m_acFileName, File.toAscii()); // TODO: CAW - Length + strange copy/assert above?
     }
     else
     {
