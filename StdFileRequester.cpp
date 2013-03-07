@@ -10,7 +10,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtGui/QFileDialog.h>
+#include <QtGui/QFileDialog>
 #include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
