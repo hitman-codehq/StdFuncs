@@ -14,6 +14,7 @@ class CStdGadgetLayout;
 class CWindow;
 class MStdGadgetLayoutObserver;
 class MStdGadgetSliderObserver;
+class QLabel;
 
 /* Types of gadgets that can be created */
 
@@ -210,6 +211,10 @@ private:
 #ifdef __amigaos4__
 
 	Object		**m_poPartsGadgets;				/* Ptr to an array of ptrs to parts labels */
+
+#elif defined(QT_GUI_LIB)
+
+	QLabel		**m_poPartsGadgets;				/* Ptr to an array of ptrs to parts labels */
 
 #endif /*__amigaos4__ */
 

@@ -5,7 +5,13 @@
 #include "StdReaction.h"
 #include "StdWindow.h"
 
-#ifdef WIN32
+#ifdef QT_GUI_LIB
+
+#include <QtGui/QLabel>
+#include <QtGui/QStatusBar>
+#include "Qt/StdWindow.h"
+
+#elif defined(WIN32)
 
 #include <commctrl.h>
 
@@ -137,8 +143,62 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
-	RetVal = KErrNone;
+	/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
+	/* to access them l8r on, and create a part label for each slot in the array */
+
+	if ((m_poPartsGadgets = new QLabel *[a_iNumParts]) != NULL)
+	{
+		/* Create a QLabel gadget for each part requested by the user */
+
+		for (Index = 0; Index < a_iNumParts; ++Index)
+		{
+			m_poPartsGadgets[Index] = new QLabel(m_poParentWindow->m_poWindow);
+
+			if (m_poPartsGadgets[Index])
+			{
+				/* Add the QLabel gadget to the QStatusBar belonging to the window */
+
+				m_poParentWindow->m_poWindow->statusBar()->addWidget(m_poPartsGadgets[Index], a_piPartsOffsets[Index]);
+			}
+			else
+			{
+				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar label gadget");
+
+				break;
+			}
+		}
+
+		/* If all parts labels were created ok then indicate success */
+
+		if (Index == a_iNumParts)
+		{
+			RetVal = KErrNone;
+			m_iNumParts = a_iNumParts;
+		}
+
+		/* Otherwise destroy whatever labels were created */
+
+		else
+		{
+			// TODO: CAW - I don't like any error handling for Qt and Amiga OS versions
+			while (--Index >= 0)
+			{
+				//IIntuition->DisposeObject(m_poPartsGadgets[Index]);
+			}
+		}
+	}
+	else
+	{
+		Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
+	}
+
+	/* If anything went wrong then clean up whatever was successfully allocated */
+
+	if (RetVal != KErrNone)
+	{
+		delete [] m_poPartsGadgets;
+		m_poPartsGadgets = NULL;
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -241,18 +301,18 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 
 	delete [] m_poPartsGadgets;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	delete [] m_poPartsGadgets;
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	if (m_poGadget)
 	{
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetStatusBar::~CStdGadgetStatusBar() => Cannot destroy native status bar gadget");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 	/* Free the content of the parts, if allocated */
 
@@ -317,15 +377,15 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
 			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-		// TODO: CAW - Implement
+		m_poPartsGadgets[a_iPart]->setText(a_pccText);
 
-#else /* ! __linux__ */
+#elif defined(WIN32)
 
 		DEBUGCHECK((SendMessage(m_poGadget, SB_SETTEXT, a_iPart, (LPARAM) a_pccText) != FALSE), "CStdGadgetStatusBar::SetText() => Unable to set status bar text");
 
-#endif /* ! __linux__ */
+#endif /* WIN32 */
 
 	}
 }
