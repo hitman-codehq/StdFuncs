@@ -114,11 +114,11 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 
 	DEBUGFAILURE("CStdGadget::SetPosition() => Must not be called on Amiga OS");
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	if (a_iX == -1)
 	{
@@ -132,7 +132,7 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetPosition() => Unable to set gadget position");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -155,11 +155,11 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 
 	DEBUGFAILURE("CStdGadget::SetSize() => Must not be called on Amiga OS");
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	if (a_iWidth == -1)
 	{
@@ -173,6 +173,6 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetSize() => Unable to set gadget size");
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
