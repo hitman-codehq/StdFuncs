@@ -12,8 +12,6 @@ class CWindow;
 
 class CQtWindow : public QMainWindow
 {
-public:
-
 	Q_OBJECT;
 
 private:
