@@ -15,9 +15,7 @@
 #elif defined(QT_GUI_LIB)
 
 #include <QtGui/QKeyEvent>
-#include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
-#include <QtGui/QPaintEvent>
 #include "Qt/StdWindow.h"
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
@@ -56,33 +54,6 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 #endif /* WIN32 */
 
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
-
-#ifdef QT_GUI_LIB
-
-/* Qt on UNIX requires that you have a QWidget derived object as the so-called "central widget" */
-/* and does not handle the window decoration offsets correctly if you don't.  We will therefore */
-/* render into this widget rather than directly into the QMainWindow (which still works, but gets */
-/* the offsets of the client area wrong) */
-
-class CQtCanvas : public QWidget
-{
-	CWindow		*m_poWindow;
-
-protected:
-
-	/* From QWidget */
-
-	void paintEvent(QPaintEvent *a_poPaintEvent);
-
-public:
-
-	CQtCanvas(CWindow *a_poWindow) : QWidget(a_poWindow->m_poWindow)
-	{
-		m_poWindow = a_poWindow;
-	}
-};
-
-#endif /* QT_GUI_LIB */
 
 #ifdef __amigaos4__
 
@@ -150,6 +121,20 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 void CQtAction::actionTriggered()
 {
 	m_poWindow->Window()->HandleCommand(m_iCommand);
+}
+
+/**
+ * Constructor for CQtCentralWidget class.
+ * Simply initialisaes the central widget with a ptr to the generic framework
+ * window that owns it.
+ *
+ * @date	Friday 08-Mar-2013 9:13, Leo's house in Vienna
+ * @param	a_poWindow	Ptr to parent framework window ptr to be saved
+ */
+
+CQtCentralWidget::CQtCentralWidget(CWindow *a_poWindow) : QWidget(a_poWindow->m_poWindow)
+{
+	m_poWindow = a_poWindow;
 }
 
 /* Written: Saturday 26-Jan-2013 11:49 am, Code HQ Ehinger Tor */
@@ -258,7 +243,7 @@ void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 /* the event along to the generic CWindow::Draw() function, so that client code can */
 /* perform its custom drawing */
 
-void CQtCanvas::paintEvent(QPaintEvent *a_poPaintEvent)
+void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
 {
 	QRect Rect = a_poPaintEvent->rect();
 
@@ -607,14 +592,23 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		RethinkLayout();
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	/* For Qt there is no need to attach the layout gadget to the window as it is */
+	/* done automatically when the layout gadget is created.  So simply let the layout */
+	/* gadget know its new width and then calcuate its new height */
+
+	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+	RethinkLayout();
+
+#else /* ! QT_GUI_LIB */
 
 	/* Let the layout gadget know its new width and then calcuate its new height */
 
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 	RethinkLayout();
 
-#endif /* ! __amigaos4__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -1297,8 +1291,6 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	(void) a_pccScreenName;
 
-	QWidget *CentralWidget;
-
 	/* Assume failure */
 
 	RetVal = KErrNoMemory;
@@ -1309,7 +1301,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	{
 		/* We also need a QWidget based class to use as the so-called "central widget" */
 
-		if ((CentralWidget = new CQtCanvas(this)) != NULL)
+		if ((m_poCentralWidget = new CQtCentralWidget(this)) != NULL)
 		{
 			RetVal = KErrNone;
 
@@ -1320,7 +1312,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			/* Assign the widget as the main window's central widget */
 
-			m_poWindow->setCentralWidget(CentralWidget);
+			m_poWindow->setCentralWidget(m_poCentralWidget);
 
 			/* And create the menus specific to this window */
 
@@ -1332,7 +1324,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				/* And save the size of the client area */
 
-				QSize Size = CentralWidget->size();
+				QSize Size = m_poCentralWidget->size();
 				m_iInnerWidth = Size.width();
 				m_iInnerHeight = Size.height();
 			}

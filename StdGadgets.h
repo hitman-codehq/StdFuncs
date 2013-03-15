@@ -6,7 +6,11 @@
 
 #include <intuition/classes.h>
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+#include "Qt/StdGadgetSlider.h"
+
+#endif /* QT_GUI_LIB */
 
 /* Forward declaration to reduce the # of includes required */
 
@@ -14,7 +18,9 @@ class CStdGadgetLayout;
 class CWindow;
 class MStdGadgetLayoutObserver;
 class MStdGadgetSliderObserver;
+class QGridLayout;
 class QLabel;
+class QWidget;
 
 /* Types of gadgets that can be created */
 
@@ -52,15 +58,15 @@ protected:
 
 	Object					*m_poGadget;		/* Ptr to underlying BOOPSI gadget */
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	int						*m_poGadget;		// TODO: CAW - Placeholder to make compiling easier
+	QWidget					*m_poGadget;		/* Ptr to underlying Qt widget */
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	HWND					m_poGadget;			/* Ptr to the underlying Windows control */
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 private:
 
@@ -113,6 +119,14 @@ private:
 	TInt					m_iWeight;			/* Weight of the layout gadget */
 	MStdGadgetLayoutObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
+
+#ifdef QT_GUI_LIB
+
+	QGridLayout				*m_poLayout;		/* Ptr to underlying Qt widget.  Usually this is */
+												/* stored in m_poGadget but unfortunately QLayout */
+												/* derived objects do not derive from QWidget */
+
+#endif /* QT_GUI_LIB */
 
 public:
 
@@ -171,9 +185,25 @@ private:
 	TInt		m_iPageSize;					/* Number of characters/lines/pixels per page */
 	MStdGadgetSliderObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
 
+#ifdef QT_GUI_LIB
+
+	CQtSlider	m_oSlider;						/* Underlying Qt slider widget */
+
+#endif /* QT_GUI_LIB */
+
 private:
 
+#ifdef QT_GUI_LIB
+
 	CStdGadgetSlider(TBool a_bVertical, CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+		: m_oSlider(this)
+
+#else /* ! QT_GUI_LIB */
+
+	CStdGadgetSlider(TBool a_bVertical, CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+
+#endif /* ! QT_GUI_LIB */
+
 	{
 		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalSlider : EStdGadgetHorizontalSlider;
 		m_poParentWindow = a_poParentWindow;

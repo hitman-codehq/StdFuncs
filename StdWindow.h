@@ -12,6 +12,7 @@
 
 /* Forward declarations to reduce the # of includes required */
 
+class CQtCentralWidget;
 class CQtWindow;
 class RApplication;
 
@@ -81,6 +82,7 @@ public:
 #elif defined(QT_GUI_LIB)
 
 	CQtWindow			*m_poWindow;				/* Ptr to underlying Qt window */
+	CQtCentralWidget	*m_poCentralWidget;			/* Ptr to underlying Qt central widget */
 
 #elif defined(WIN32)
 

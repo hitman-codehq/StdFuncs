@@ -31,4 +31,5 @@ HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdCl
 	StdImage.h StdList.h StdPool.h StdReaction.h StdTextFile.h StdWildcard.h StdWindow.h \
 	Test.h Time.h Utils.h
 
+HEADERS += Qt/StdGadgetSlider.h
 HEADERS += Qt/StdWindow.h

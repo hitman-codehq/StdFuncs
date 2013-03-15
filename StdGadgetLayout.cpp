@@ -4,6 +4,13 @@
 #include "StdReaction.h"
 #include "StdWindow.h"
 
+#ifdef QT_GUI_LIB
+
+#include <QtGui/QGridLayout>
+#include "Qt/StdWindow.h"
+
+#endif /* QT_GUI_LIB */
+
 /* The LAYOUT_InnerSpacing attribute cannot be queried so we need to know it, so we */
 /* explicitly set it to a value and use that value in CStdGadgetLayout::GetSpacing() */
 
@@ -55,16 +62,21 @@ TInt CStdGadgetLayout::Construct()
 
 	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_InnerSpacing, INNER_SPACING, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
 	{
-		//m_poParentWindow->Attach(this);
-
 		RetVal = KErrNone;
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	if ((m_poLayout = new QGridLayout(m_poParentWindow->m_poCentralWidget)) != NULL)
+	{
+		RetVal = KErrNone;
+	}
+
+#else /* ! QT_GUI_LIB */
 
 	RetVal = KErrNone;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }
@@ -106,11 +118,27 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		RethinkLayout();
 	}
 
-#else /* ! __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	/* Add the new Qt gadget to the layout.  To simulate the behaviour of the Amiga version */
+	/* we add vertical sliders on the right of the layout and any other gadgets to the bottom */
+
+	if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
+	{
+		m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1);
+	}
+	else
+	{
+		m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0);
+	}
 
 	RethinkLayout();
 
-#endif /* ! __amigaos4__ */
+#else /* ! QT_GUI_LIB */
+
+	RethinkLayout();
+
+#endif /* ! QT_GUI_LIB */
 
 }
 

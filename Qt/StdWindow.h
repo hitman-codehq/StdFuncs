@@ -88,4 +88,29 @@ public slots:
 	void actionTriggered();
 };
 
+/**
+ * Qt helper class that represents a window's central widget.
+ * Qt requires that you have a QWidget derived object as the so-called "central widget"
+ * and does not handle the window decoration offsets correctly if you don't.  This custom
+ * central widget class is used for rendering into, for listening for paint events and for
+ * attaching QLayout derived widgets to assist with widget layout.
+ */
+
+class CQtCentralWidget : public QWidget
+{
+private:
+
+	CWindow		*m_poWindow;	/* Ptr to the Framework window that uses this widget */
+
+protected:
+
+	/* From QWidget */
+
+	void paintEvent(QPaintEvent *a_poPaintEvent);
+
+public:
+
+	CQtCentralWidget(CWindow *a_poWindow);
+};
+
 #endif /* ! QTSTDWINDOW_H */

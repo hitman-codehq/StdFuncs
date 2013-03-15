@@ -8,7 +8,26 @@
 
 #include <intuition/icclass.h>
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+#include <QtGui/QScrollBar>
+#include "Qt/StdWindow.h"
+
+/**
+ * Notifies the generic framework slider of slider events.
+ * Called by the Qt framework whenever a Qt slider's value is changed.  This
+ * function simply calls the generic framework slider that owns this instance.
+ *
+ * @date	Saturday 09-Mar-2013 9:13, Leo's house in Vienna
+ * @param	a_iValue	The position of the slider
+ */
+
+void CQtSlider::valueChanged(TInt a_iValue)
+{
+	m_poParentSlider->Updated(a_iValue);
+}
+
+#endif /* QT_GUI_LIB */
 
 /* Written: Sunday 01-May-2011 7:41 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
@@ -66,8 +85,33 @@ TInt CStdGadgetSlider::Construct()
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
-	return(KErrNone);
+	QScrollBar *ScrollBar;
+	Qt::Orientation Orientation;
+
+	/* Decide whether to create a vertical or horizontal scrollbar */
+
+	Orientation = (m_iGadgetType == EStdGadgetVerticalSlider) ? Qt::Vertical : Qt::Horizontal;
+
+	/* Create the underlying Qt widget */
+
+	if ((m_poGadget = ScrollBar = new QScrollBar(Orientation, m_poParentWindow->m_poCentralWidget)) != NULL)
+	{
+		/* And connect the valueChanged() signal to it so that we know when the slider is moved */
+
+		QObject::connect(ScrollBar, SIGNAL(valueChanged(int)), &m_oSlider, SLOT(valueChanged(int)));
+
+		/* Save the scrollbar's height for l8r use.  Its height will depend on whether it is */
+		/* a horizontal or vertical scrollbar */
+
+		if (m_iGadgetType == EStdGadgetVerticalSlider)
+		{
+			m_iHeight = m_poParentLayout->Height();
+		}
+		else
+		{
+			m_iHeight = ScrollBar->height();
+		}
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -117,7 +161,7 @@ TInt CStdGadgetSlider::Construct()
 CStdGadgetSlider::~CStdGadgetSlider()
 {
 
-#ifdef __linux__
+#ifdef QT_GUI_LIB
 
 	// TODO: CAW - Implement
 
@@ -134,7 +178,8 @@ CStdGadgetSlider::~CStdGadgetSlider()
 
 /* Written: Sunday 21-Nov-2010 11:01 am */
 /* @param	a_ulData	For Amiga OS this is not used.  For Windows it is the type of update */
-/*						this is, such as SB_THUMBTRACK etc. */
+/*						this is, such as SB_THUMBTRACK etc.  For Qt, it is the position of */
+/*						the scrollbar */
 /* Determines the current position of the slider gadget and notifies client code about it */
 
 void CStdGadgetSlider::Updated(ULONG a_ulData)
@@ -156,11 +201,16 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 		m_poClient->SliderUpdated(this, (Result + 1));
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	/* If there is a client interested in getting updates, pass the message along to it */
 
-#else /* ! __linux__ */
+	if (m_poClient)
+	{
+		m_poClient->SliderUpdated(this, a_ulData);
+	}
+
+#else /* ! QT_GUI_LIB */
 
 	TInt Position;
 	SCROLLINFO ScrollInfo;
@@ -233,7 +283,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 		}
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -256,11 +306,11 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	((QScrollBar *) m_poGadget)->setValue(a_iPosition);
 
-#else /* ! __linux__ */
+#else /* ! QT_GUI_LIB */
 
 	SCROLLINFO ScrollInfo;
 
@@ -269,7 +319,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	ScrollInfo.nPos = a_iPosition;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -295,9 +345,12 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-#else /* ! __linux__ */
+	// TODO: CAW - Implement
+	((QScrollBar *) m_poGadget)->setRange(0, a_iMaxRange);
+
+#else /* ! QT_GUI_LIB */
 
 	SCROLLINFO ScrollInfo;
 
@@ -308,6 +361,6 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ScrollInfo.nMax = a_iMaxRange;
 	SetScrollInfo(m_poGadget, SB_CTL, &ScrollInfo, TRUE);
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
