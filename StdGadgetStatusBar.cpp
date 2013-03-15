@@ -174,6 +174,10 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		{
 			RetVal = KErrNone;
 			m_iNumParts = a_iNumParts;
+
+			/* And save the dimensions of the widget for l8r */
+
+			m_iHeight = m_poParentWindow->m_poWindow->statusBar()->height();
 		}
 
 		/* Otherwise destroy whatever labels were created */
