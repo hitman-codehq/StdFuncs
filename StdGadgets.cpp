@@ -107,18 +107,14 @@ void CStdGadget::SaveText(const char *a_pccText)
 void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 {
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	(void) a_iX;
 	(void) a_iY;
 
-	DEBUGFAILURE("CStdGadget::SetPosition() => Must not be called on Amiga OS");
+	DEBUGFAILURE("CStdGadget::SetPosition() => Must not be called on this platform");
 
-#elif defined(QT_GUI_LIB)
-
-	// TODO: CAW - Implement
-
-#else /* ! QT_GUI_LIB */
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	if (a_iX == -1)
 	{
@@ -132,7 +128,7 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetPosition() => Unable to set gadget position");
 
-#endif /* ! QT_GUI_LIB */
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 }
 
@@ -148,18 +144,14 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 {
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	(void) a_iWidth;
 	(void) a_iHeight;
 
-	DEBUGFAILURE("CStdGadget::SetSize() => Must not be called on Amiga OS");
+	DEBUGFAILURE("CStdGadget::SetSize() => Must not be called on this platform");
 
-#elif defined(QT_GUI_LIB)
-
-	// TODO: CAW - Implement
-
-#else /* ! QT_GUI_LIB */
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	if (a_iWidth == -1)
 	{
@@ -173,6 +165,6 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetSize() => Unable to set gadget size");
 
-#endif /* ! QT_GUI_LIB */
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 }
