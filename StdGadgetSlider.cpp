@@ -24,7 +24,10 @@
 
 void CQtSlider::valueChanged(TInt a_iValue)
 {
-	m_poParentSlider->Updated(a_iValue);
+	/* The CStdGadgetSlider class works with a range from 1 - maxrange but Qt works */
+	/* from 0 - maxrange, so take this into account when calling the client code */
+
+	m_poParentSlider->Updated(a_iValue + 1);
 }
 
 #endif /* QT_GUI_LIB */
@@ -308,7 +311,10 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #elif defined(QT_GUI_LIB)
 
-	((QScrollBar *) m_poGadget)->setValue(a_iPosition);
+	/* Qt sliders start from 0, whereas the CStdGadgetSlider gadget starts from 1 so */
+	/* take this into account */
+
+	((QScrollBar *) m_poGadget)->setValue(a_iPosition - 1);
 
 #else /* ! QT_GUI_LIB */
 
@@ -328,7 +334,8 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 /*						down when the page up and page down section of the slider is clicked */
 /*			a_iMaxRange	The maximum number of lines that can be displayed */
 /* Sets the range of the slider so that when it moves up and down it matches the top and bottom of the */
-/* data being displayed on screen. */
+/* data being displayed on screen.  The range passed in is from 1 - a_iMaxRange so some adjustment */
+/* may be required for particular GUI targets */
 
 void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 {
@@ -347,8 +354,16 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
-	((QScrollBar *) m_poGadget)->setRange(0, a_iMaxRange);
+	/* Qt does not take the page size into account automatically so we have to reduce */
+	/* the range to account for this.  We do not want the slider to return values greater */
+	/* than (maxrange - pagesize) */
+
+	m_iMaxRange -= a_iPageSize;
+
+	/* Now let Qt know the page size and range to be used */
+
+	((QScrollBar *) m_poGadget)->setPageStep(a_iPageSize);
+	((QScrollBar *) m_poGadget)->setRange(0, m_iMaxRange);
 
 #else /* ! QT_GUI_LIB */
 
