@@ -2,6 +2,12 @@
 #ifndef STDCLIPBOARD_H
 #define STDCLIPBOARD_H
 
+#ifdef QT_GUI_LIB
+
+#include <QtCore/QByteArray>
+
+#endif /* QT_GUI_LIB */
+
 /* Forward declaration to reduce the # of includes required */
 
 class CWindow;
@@ -17,15 +23,23 @@ private:
 	const char	*m_pccCurrentGetData;	/* Ptr to current line of clipboard data being read */
 	char		*m_pcSetData;			/* Ptr to buffer containing data to be written */
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	int			m_iDataSize;			/* Size of buffer to be written */
 
-#elif defined(WIN32)
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	HANDLE		m_poHandle;				/* Handle to data to be written */
 
-#endif /* WIN32 */
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+
+#ifdef QT_GUI_LIB
+
+	QByteArray	m_oGetData;				/* Data returned by QClipboard::text() and pointed to */
+										/* by m_pccGetData.  This must remain persistent and hence */
+										/* must be stored here */
+
+#endif /* QT_GUI_LIB */
 
 public:
 
@@ -34,11 +48,11 @@ public:
 		m_pccGetData = m_pccCurrentGetData = NULL;
 		m_pcSetData = NULL;
 
-#ifdef WIN32
+#if !defined(__amigaos4__) && !defined(QT_GUI_LIB)
 
 		m_poHandle = NULL;
 
-#endif /* WIN32 */
+#endif /* !defined(__amigaos4__) && !defined(QT_GUI_LIB) */
 
 	}
 

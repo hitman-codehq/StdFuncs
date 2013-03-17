@@ -8,7 +8,12 @@
 
 #include <proto/textclip.h>
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
+
+#endif /* QT_GUI_LIB */
 
 /* Written: Tuesday 06-Jul-2010 7:42 am */
 
@@ -19,18 +24,13 @@ int RClipboard::Open(CWindow *a_poWindow)
 	ASSERTM((a_poWindow != NULL), "RClipboard::Open() => Window passed in is not open");
 	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::Open() => Native window passed in is not open");
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	(void) a_poWindow;
 
 	RetVal = KErrNone;
 
-#elif defined(QT_GUI_LIB)
-
-	// TODO: CAW - Implement here and for Close()
-	RetVal = KErrGeneral;
-
-#else /* ! QT_GUI_LIB */
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	RetVal = (OpenClipboard(a_poWindow->m_poWindow)) ? KErrNone : KErrGeneral;
 
@@ -39,7 +39,7 @@ int RClipboard::Open(CWindow *a_poWindow)
 		Utils::Info("RClipboard::Open() => Unable to open clipboard");
 	}
 
-#endif /* ! QT_GUI_LIB */
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	return(RetVal);
 }
@@ -49,11 +49,11 @@ int RClipboard::Open(CWindow *a_poWindow)
 void RClipboard::Close()
 {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	DEBUGCHECK(CloseClipboard(), "RClipboard::Close() => Unable to close clipboard");
 
-#endif /* WIN32 */
+#endif /* if defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -118,21 +118,22 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 
 	RetVal = KErrNoMemory;
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
 	/* Allocate a temporary buffer into which the client can write its data */
 
-	if ((m_pcSetData = new char[a_iMaxLength]) != NULL)
+	if ((m_pcSetData = new char[a_iMaxLength + 1]) != NULL)
 	{
 		RetVal = KErrNone;
 		m_iDataSize = a_iMaxLength;
+
+		/* Qt needs char * strings to be NULL terminated in order to convert them */
+		/* into a QString so we allocate an extra byte and terminate it here */
+
+		m_pcSetData[m_iDataSize] = '\0';
 	}
 
-#elif defined(__linux__)
-
-	// TODO: CAW - Implement
-
-#else /* ! __linux__ */
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
 
@@ -168,7 +169,7 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 		Utils::Info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	return(RetVal);
 }
@@ -199,11 +200,20 @@ void RClipboard::SetDataEnd()
 	delete [] m_pcSetData;
 	m_pcSetData = NULL;
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	ASSERTM((m_pcSetData[m_iDataSize] == '\0'), "RClipboard::SetDataEnd() => End of clipboard buffer has been overwritten");
 
-#else /* ! __linux__ */
+	/* Write the block of data to the clipboard */
+
+	QApplication::clipboard()->setText(m_pcSetData);
+
+	/* And free the temporary buffer */
+
+	delete [] m_pcSetData;
+	m_pcSetData = NULL;
+
+#else /* ! QT_GUI_LIB */
 
 	ASSERTM((m_poHandle != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
 
@@ -222,7 +232,7 @@ void RClipboard::SetDataEnd()
 		Utils::Info("RClipboard::SetDataEnd() => Unable to set clipboard data");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -244,14 +254,21 @@ const char *RClipboard::GetDataStart()
 
 	if (ITextClip->ReadClipVector((STRPTR *) &RetVal, &Size))
 	{
-		m_pccGetData = m_pccCurrentGetData = (const char *) RetVal;
+		m_pccGetData = m_pccCurrentGetData = RetVal;
 	}
 
-#elif defined(__linux__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	/* The data returned by clipboard()->text() needs to be persistent for the life */
+	/* of the RClipboard class, so copy it into a temporary QByteArray */
 
-#else /* ! __linux__ */
+	m_oGetData = QApplication::clipboard()->text().toAscii();
+
+	/* Now return a ptr to the start of the clipboard data */
+
+	m_pccGetData = m_pccCurrentGetData = RetVal = m_oGetData.constData();
+
+#else /* ! QT_GUI_LIB */
 
 	HANDLE Handle;
 
@@ -293,15 +310,11 @@ void RClipboard::GetDataEnd()
 
 	ITextClip->DisposeClipVector((STRPTR) m_pccGetData);
 
-#elif defined(__linux__)
-
-	// TODO: CAW - Implement
-
-#else /* ! __linux__ */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	GlobalUnlock((void *) m_pccGetData);
 
-#endif /* ! __linux__ */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	m_pccGetData = NULL;
 }
