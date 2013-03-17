@@ -164,18 +164,14 @@ TInt CStdGadgetSlider::Construct()
 CStdGadgetSlider::~CStdGadgetSlider()
 {
 
-#ifdef QT_GUI_LIB
-
-	// TODO: CAW - Implement
-
-#elif defined(WIN32)
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	if (m_poGadget)
 	{
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetSlider::~CStdGadgetSlider() => Cannot destroy native slider gadget");
 	}
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 

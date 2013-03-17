@@ -251,7 +251,6 @@ void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
 	/* will return the inclusive bottom pixel but our framework works with exclusive pixel */
 	/* positions.  We therefore need to calculate that position using QRect::height() */
 
-	// TODO: CAW - Check other ports and document this
 	m_poWindow->Draw(Rect.top(), (Rect.top() + Rect.height()));
 }
 
