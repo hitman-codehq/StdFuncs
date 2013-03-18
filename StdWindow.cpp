@@ -1106,7 +1106,47 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	TInt MenuIndex, MenuItemIndex;
+	CQtAction *QtAction;
+	QAction *Action;
+	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
+	QMenu *Menu;
+
+	/* Qt has a rather odd way of storing its menu items.  In theory you can call */
+	/* QObject::findChildren<QMenu>() on the menu bar and get a list of QMenu objects */
+	/* (one for each drop down menu) and you can then call findChildren() again on */
+	/* each of these to find the QMenu items attached to those drop down menus.  However */
+	/* in practice this doesn't seem to work, and so we have to query the menu bar for */
+	/* its actions, convert the actions into QMenu ptrs and then query those for their */
+	/* actions, which we can then use to enable or disable the menu items.  This seems */
+	/* a rather odd way of doing things but it works.  Start by iterating through the */
+	/* list of drop down menus */
+
+	for (MenuIndex = 0; MenuIndex < Menus.count(); ++MenuIndex)
+	{
+		if ((Menu = Menus.at(MenuIndex)->menu()) != NULL)
+		{
+			/* Now get the list of actions associated with the drop down menu and */
+			/* iterate through those */
+
+			QList<QAction *> MenuItems = Menu->actions();
+
+			for (MenuItemIndex = 0; MenuItemIndex < MenuItems.count(); ++MenuItemIndex)
+			{
+				/* Get the action and convert it to our derived CQtAction class */
+
+				Action = MenuItems.at(MenuItemIndex);
+				QtAction = (CQtAction *) Action;
+
+				/* If it is the menu item we are interested in then enable or disable it */
+
+				if (QtAction->Command() == a_iItemID)
+				{
+					Action->setEnabled(a_bEnable);
+				}
+			}
+		}
+	}
 
 #else /* ! QT_GUI_LIB */
 
