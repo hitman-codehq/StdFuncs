@@ -130,7 +130,7 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 					++Item;
 				}
 
-				/* Now populate the NewMenu structure */
+				/* Now populate the SStdMenuMapping structure */
 
 				m_poMenuMappings[Index].m_iID = a_pcoMenuItems[Index].m_iCommand;
 				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
