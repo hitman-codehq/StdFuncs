@@ -12,6 +12,7 @@
 
 /* Forward declarations to reduce the # of includes required */
 
+class CQtAction;
 class CQtCentralWidget;
 class CQtWindow;
 class RApplication;
@@ -137,8 +138,6 @@ public:
 
 	TBool CtrlPressed();
 
-	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
-
 	/* This function is *internal* and must not be used.  Unfortunately making it private */
 	/* would require exposing too much of the internals of the CWindow class so it is */
 	/* public with a warning instead.  Sometimes C++ can be a right nuisance! */
@@ -159,7 +158,13 @@ public:
 
 	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
 
+	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
+
 	ULONG GetSignal();
+
+#elif defined(QT_GUI_LIB)
+
+	CQtAction *FindMenuItem(TInt a_iItemID);
 
 #elif defined(WIN32)
 
