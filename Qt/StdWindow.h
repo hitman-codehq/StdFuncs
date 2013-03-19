@@ -16,6 +16,7 @@ class CQtWindow : public QMainWindow
 
 private:
 
+	bool		m_bClosing;		/* true if in the window is in the process of being closed */
 	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
 
 private:
@@ -48,6 +49,11 @@ public:
 	CWindow *Window()
 	{
 		return(m_poWindow);
+	}
+
+	void setClosing(bool a_bClosing)
+	{
+		m_bClosing = a_bClosing;
 	}
 };
 

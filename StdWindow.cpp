@@ -188,13 +188,19 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 {
-	/* Cancel the close event */
+	/* If we are in the process of closing then we want to accept the close event. */
+	/* Otherwise ignore it and send it onto the client window for processing */
 
-	a_poCloseEvent->ignore();
+	if (!(m_bClosing))
+	{
+		/* Cancel the close event */
 
-	/* Allow the client window itself to handle the close */
+		a_poCloseEvent->ignore();
 
-	m_poWindow->HandleCommand(IDCANCEL);
+		/* Allow the client window itself to handle the close */
+
+		m_poWindow->HandleCommand(IDCANCEL);
+	}
 }
 
 /* Written: Friday 31-Aug-2012 3:02 pm */
@@ -875,7 +881,19 @@ void CWindow::Close()
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	/* Let the window know that it is in the process if closing so that it */
+	/* accepts the close event in closeEvent() */
+
+	m_poWindow->setClosing(true);
+
+	/* Ensure that the QMainWindow instance is actually freed when it is closed */
+
+	m_poWindow->setAttribute(Qt::WA_DeleteOnClose);
+
+	/* And close the window */
+
+	DEBUGCHECK((m_poWindow->close() != false), "CWindow::Close() => Unable to close window");
+	m_poWindow = NULL;
 
 #else /* ! QT_GUI_LIB */
 
