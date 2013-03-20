@@ -1054,7 +1054,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	/* If no width was passed in then we want to redraw the entire width of the client area */
 
-	if (a_iWidth != -1)
+	if (a_iWidth == -1)
 	{
 		a_iWidth = m_iInnerWidth;
 	}
