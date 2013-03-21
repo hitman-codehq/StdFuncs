@@ -216,7 +216,7 @@ TInt CStdGadgetLayout::GetSpacing()
 void CStdGadgetLayout::RethinkLayout()
 {
 
-#ifndef __amigaos4__
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	// TODO: CAW - A VERY temporary solution
 	TInt Height, InnerWidth;
@@ -283,7 +283,7 @@ void CStdGadgetLayout::RethinkLayout()
 		Gadget = m_oGadgets.GetSucc(Gadget);
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	/* If there is a client interested in getting updates, let it know that the layout gadget has been resized */
 
