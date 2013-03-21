@@ -18,7 +18,7 @@
 #include <QtGui/QMenuBar>
 #include "Qt/StdWindow.h"
 
-/* Array of key mappings for mapping Windows keys onto standard keys */
+/* Array of key mappings for mapping Qt keys onto standard keys */
 
 static const SKeyMapping g_aoKeyMap[] =
 {
@@ -685,7 +685,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
-#ifdef QT_GUI_LIB
+#ifdef WIN32
 
 /* Written: Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor */
 /* @returns	ETrue if all menus were created successfully, else EFalse */
@@ -698,9 +698,18 @@ TBool CWindow::CreateMenus()
 {
 	TBool RetVal;
 	const struct SStdMenuItem *MenuItem;
+
+#ifdef QT_GUI_LIB
+
 	QAction *Action;
 	QMenu *Menu;
 	QString Shortcut;
+
+#else /* ! QT_GUI_LIB */
+
+	HMENU Menu, DropdownMenu;
+
+#endif /* ! QT_GUI_LIB */
 
 	/* Assume success */
 
@@ -710,6 +719,9 @@ TBool CWindow::CreateMenus()
 	/* one as appropriate */
 
 	MenuItem = m_poApplication->MenuItems();
+
+#ifdef QT_GUI_LIB
+
 	Menu = NULL;
 
 	do
@@ -802,10 +814,59 @@ TBool CWindow::CreateMenus()
 	}
 	while (MenuItem->m_eType != EStdMenuEnd);
 
+#else /* ! QT_GUI_LIB */
+
+	/* Create a top level menubar to which drop down menus can be attached */
+
+	if ((Menu = CreateMenu()) != NULL)
+	{
+		DropdownMenu = NULL;
+
+		do
+		{
+			/* If this is a title then create a new drop down menu to which to add menu items */
+
+			if (MenuItem->m_eType == EStdMenuTitle)
+			{
+				if ((DropdownMenu = CreatePopupMenu()) != NULL)
+				{
+					DEBUGCHECK((AppendMenu(Menu, MF_POPUP, (UINT_PTR) DropdownMenu, MenuItem->m_pccLabel) != FALSE),
+						"CWindow::CreateMenus() => Unable to append new menu");
+				}
+				else
+				{
+					Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
+
+					RetVal = EFalse;
+
+					break;
+				}
+			}
+			else
+			{
+				ASSERTM((DropdownMenu != NULL), "CWindow::CreateMenus() => Menu bar must be created before a menu item can be added");
+
+				/* Otherwise create a new menu item and add it to the previously created drop down menu */
+
+				DEBUGCHECK((AppendMenu(DropdownMenu, 0, MenuItem->m_iCommand, MenuItem->m_pccLabel) != FALSE),
+					"CWindow::CreateMenus() =>  Unable to append new menu item");
+			}
+
+			++MenuItem;
+		}
+		while (MenuItem->m_eType != EStdMenuEnd);
+
+		/* Now add the top level menubar to the window */
+
+		DEBUGCHECK((SetMenu(m_poWindow, Menu) != FALSE), "CWindow::CreateMenus() => Unable to assign menu to window");
+	}
+
+#endif /* ! QT_GUI_LIB */
+
 	return(RetVal);
 }
 
-#endif /* QT_GUI_LIB */
+#endif /* WIN32 */
 
 /* Written: Saturday 05-Jan-2013 1:12 pm, Code HQ Ehinger Tor */
 /* @returns	ETrue if the control key is pressed, else EFalse */
@@ -1485,24 +1546,33 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
 
-				/* And display the window on the screen, maximised */
+				/* And create the menus specific to this window */
 
-				ShowWindow(m_poWindow, SW_MAXIMIZE);
-
-				if (GetClientRect(m_poWindow, &Rect))
+				if (CreateMenus())
 				{
-					/* Indicate success */
+					/* And display the window on the screen, maximised */
 
-					RetVal = KErrNone;
+					ShowWindow(m_poWindow, SW_MAXIMIZE);
 
-					/* And save the size of the client area */
+					if (GetClientRect(m_poWindow, &Rect))
+					{
+						/* Indicate success */
 
-					m_iInnerWidth = (Rect.right - Rect.left);
-					m_iInnerHeight = (Rect.bottom - Rect.top);
+						RetVal = KErrNone;
+
+						/* And save the size of the client area */
+
+						m_iInnerWidth = (Rect.right - Rect.left);
+						m_iInnerHeight = (Rect.bottom - Rect.top);
+					}
+					else
+					{
+						Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
+					}
 				}
 				else
 				{
-					Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
+					Utils::Info("CWindow::Open() => Unable to create menus for window");
 				}
 			}
 			else
