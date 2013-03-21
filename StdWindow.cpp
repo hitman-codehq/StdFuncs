@@ -735,7 +735,6 @@ TBool CWindow::CreateMenus()
 
 			/* Otherwise create a new menu item and add it to the previously created drop down menu */
 
-			// TODO: CAW - Why isn't this causing leaks in /var/log/syslog?
 			if ((Action = new CQtAction(MenuItem->m_iCommand, MenuItem->m_pccLabel, m_poWindow)) != NULL)
 			{
 				/* If this is a checkable menu option or a separator then adjust the style of the newly */
