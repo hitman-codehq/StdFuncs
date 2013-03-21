@@ -4,6 +4,7 @@ TEMPLATE = lib
 CONFIG += debug_and_release staticlib warn_on
 
 build_pass:CONFIG(debug, debug|release) {
+	DEFINES += _DEBUG
 	DESTDIR = DebugQt
 }
 
