@@ -12,7 +12,7 @@
 
 #endif /* _MSC_VER */
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 #ifdef __cplusplus
 
@@ -73,6 +73,6 @@ void DebugFreeMem(APTR apBlock, char *pcSourceFile, int iSourceLine, ULONG ulSiz
 #define free(pvBlock) DebugFree(pvBlock, __FILE__, __LINE__)
 #define new new(__FILE__, __LINE__)
 
-#endif /* _DEBUG */
+#endif /* defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 #endif /* ! MUNGWALL_H */

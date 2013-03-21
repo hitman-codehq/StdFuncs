@@ -18,7 +18,7 @@
 #undef AllocMem
 #undef FreeMem
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 class MungWall oMungWall;
 
@@ -450,7 +450,7 @@ void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine)
 	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
 }
 
-#endif /* _DEBUG */
+#endif /* defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 /**************************************************************************/
 /* new will intercept all global news done and will call the New method   */
@@ -463,11 +463,11 @@ void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine)
 void *operator new(size_t stSize)
 {
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 	return(oMungWall.New(stSize, "Anonymous", 0));
 
-#else /* ! _DEBUG */
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 	void *pvRetVal;
 
@@ -478,7 +478,7 @@ void *operator new(size_t stSize)
 
 	return(pvRetVal);
 
-#endif /* ! _DEBUG */
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -493,11 +493,11 @@ void *operator new(size_t stSize)
 void *operator new [](size_t stSize)
 {
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 	return(oMungWall.New(stSize, "Anonymous", 0));
 
-#else /* ! _DEBUG */
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 	void *pvRetVal;
 
@@ -508,7 +508,7 @@ void *operator new [](size_t stSize)
 
 	return(pvRetVal);
 
-#endif /* ! _DEBUG */
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -522,15 +522,15 @@ void *operator new [](size_t stSize)
 void operator delete(void *pvBlock)
 {
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 	oMungWall.Delete(pvBlock);
 
-#else /* ! _DEBUG */
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 	free(pvBlock);
 
-#endif /* ! _DEBUG */
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -544,14 +544,14 @@ void operator delete(void *pvBlock)
 void operator delete [](void *pvBlock)
 {
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 	oMungWall.Delete(pvBlock);
 
-#else /* ! _DEBUG */
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 	free(pvBlock);
 
-#endif /* ! _DEBUG */
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 }
