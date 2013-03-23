@@ -87,6 +87,7 @@ public:
 
 #elif defined(WIN32)
 
+	HACCEL				m_poAccelerators;			/* Ptr to application's accelerator table, if any */
 	HWND				m_poWindow;					/* Ptr to underlying Windows window */
 	HDC					m_poDC;						/* Device context and paint structure into which to */
 	PAINTSTRUCT			m_oPaintStruct;				/* render;  valid only during calls to CWindow::Draw() */

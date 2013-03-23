@@ -57,7 +57,6 @@ RApplication::RApplication()
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
-	m_poAccelerators = NULL;
 	m_poCurrentDialog = NULL;
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
@@ -530,12 +529,6 @@ int RApplication::Main()
 
 	MSG Msg;
 
-	/* Try to load the default accelerator table.  If this is not found then this is not an error; */
-	/* just continue without accelerators */
-
-	// TODO: CAW - Hard coded.  What about elsewhere?
-	m_poAccelerators = LoadAccelerators(GetModuleHandle(NULL), MAKEINTRESOURCE(103));
-
 	/* Standard Windows message loop with accelerator handling */
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
@@ -550,7 +543,7 @@ int RApplication::Main()
 			/* No accelerator or dialog message was found so try to translate the accelerator; */
 			/* Windows will handle m_poAccelerators being NULL */
 
-			if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poAccelerators, &Msg)))
+			if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poWindows->m_poAccelerators, &Msg)))
 			{
 				/* Otherwise just perform the standard translation and despatch processing */
 
@@ -558,13 +551,6 @@ int RApplication::Main()
 				DispatchMessage(&Msg);
 			}
 		}
-	}
-
-	/* Destroy the accelerators if they have been loaded */
-
-	if (m_poAccelerators)
-	{
-		DestroyAcceleratorTable(m_poAccelerators);
 	}
 
 #endif /* WIN32 */

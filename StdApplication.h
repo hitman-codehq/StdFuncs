@@ -63,7 +63,6 @@ private:
 
 #else /* ! QT_GUI_LIB */
 
-	HACCEL			m_poAccelerators;	/* Ptr to application's accelerator table, if any */
 	HWND			m_poCurrentDialog;	/* Ptr to window handle of currently active dialog, if any */
 
 #endif /* ! QT_GUI_LIB */

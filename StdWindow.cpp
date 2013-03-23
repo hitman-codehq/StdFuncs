@@ -707,6 +707,9 @@ TBool CWindow::CreateMenus()
 
 #else /* ! QT_GUI_LIB */
 
+	char *Label;
+	TInt FunctionKey, Index, Length, NumAccelerators;
+	ACCEL *Accelerators;
 	HMENU Menu, DropdownMenu;
 
 #endif /* ! QT_GUI_LIB */
@@ -816,6 +819,9 @@ TBool CWindow::CreateMenus()
 
 #else /* ! QT_GUI_LIB */
 
+	Label = NULL;
+	Length = NumAccelerators = 0;
+
 	/* Create a top level menubar to which drop down menus can be attached */
 
 	if ((Menu = CreateMenu()) != NULL)
@@ -842,14 +848,85 @@ TBool CWindow::CreateMenus()
 					break;
 				}
 			}
+
+			/* If it is a separator then create a separator menu item and add it to the previously */
+			/* created drop down menu */
+
+			else if (MenuItem->m_eType == EStdMenuSeparator)
+			{
+				DEBUGCHECK((AppendMenu(DropdownMenu, MF_SEPARATOR, MenuItem->m_iCommand, NULL) != FALSE),
+					"CWindow::CreateMenus() =>  Unable to append separator menu item");
+			}
+
+			/* Otherwise it is a "normal" menu item so create a menu item for it.  This will involve */
+			/* also interpreting the requested hotkey and adding a textual string representing said */
+			/* hotkey to the menu */
+
 			else
 			{
 				ASSERTM((DropdownMenu != NULL), "CWindow::CreateMenus() => Menu bar must be created before a menu item can be added");
+				ASSERTM((MenuItem->m_pccLabel != NULL), "CWindow::CreateMenus() => All menu items must have a name");
 
-				/* Otherwise create a new menu item and add it to the previously created drop down menu */
+				/* Determine the length required for the menu item label.  This will be the length of the */
+				/* base label plus a tab, the length of the qualifier (maximum 6 for "shift+"), the length */
+				/* of the hotkey shortcut as a string and a NULL terminator */
 
-				DEBUGCHECK((AppendMenu(DropdownMenu, 0, MenuItem->m_iCommand, MenuItem->m_pccLabel) != FALSE),
-					"CWindow::CreateMenus() =>  Unable to append new menu item");
+				Length = (strlen(MenuItem->m_pccLabel) + 8);
+
+				if (MenuItem->m_pccHotKey)
+				{
+					Length += strlen(MenuItem->m_pccHotKey);
+				}
+
+				/* Allocate a temporary buffer in which to build the menu item's label */
+
+				if ((Label = (char *) Utils::GetTempBuffer(Label,  Length)) != NULL)
+				{
+					/* Now build the menu item's label as a composite of the label's base name, a */
+					/* tab, a modifier key and the textual name of the shortcut key */
+
+					strcpy(Label, MenuItem->m_pccLabel);
+					strcat(Label, "\t");
+
+					if (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+					{
+						strcat(Label, "Ctrl+");
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_ALT)
+					{
+						strcat(Label, "Alt+");
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+					{
+						strcat(Label, "Shift+");
+					}
+
+					if (MenuItem->m_pccHotKey)
+					{
+						strcat(Label, MenuItem->m_pccHotKey);
+					}
+
+					/* Any create a new menu item using the newly constructed label and add it to the */
+					/* previously created drop down menu */
+
+					DEBUGCHECK((AppendMenu(DropdownMenu, 0, MenuItem->m_iCommand, Label) != FALSE),
+						"CWindow::CreateMenus() =>  Unable to append new menu item");
+				}
+				else
+				{
+					Utils::Info("CWindow::CreateMenus() => Unable to allocate memory for menu item label");
+
+					RetVal = EFalse;
+
+					break;
+				}
+
+				/* If this menu item contains a hotkey then increment the accelerator count for l8r use */
+
+				if (MenuItem->m_pccHotKey)
+				{
+					++NumAccelerators;
+				}
 			}
 
 			++MenuItem;
@@ -859,6 +936,104 @@ TBool CWindow::CreateMenus()
 		/* Now add the top level menubar to the window */
 
 		DEBUGCHECK((SetMenu(m_poWindow, Menu) != FALSE), "CWindow::CreateMenus() => Unable to assign menu to window");
+
+		/* And free the temporary buffer used for the menu item labels */
+
+		Utils::FreeTempBuffer(Label);
+	}
+	else
+	{
+		RetVal = EFalse;
+
+		Utils::Info("CWindow::CreateMenus() => Unable to create top level menubar");
+	}
+
+	/* If the menus were all built successfully then create some accelerators for the */
+	/* requested hotkeys */
+
+	if (RetVal)
+	{
+		/* First allocate an array of ACCEL structures of the number required to hold all */
+		/* of the requested hotkeys */
+
+		if ((Accelerators = new ACCEL[NumAccelerators]) != NULL)
+		{
+			/* Now iterate through the user's menu structures and for each that contains a */
+			/* hotkey, initialise a matching ACCEL structure */
+
+			Index = 0;
+			MenuItem = m_poApplication->MenuItems();
+
+			do
+			{
+				/* Does this entry have a hotkey? */
+
+				if (MenuItem->m_pccHotKey)
+				{
+					/* Yes it does.  Initialise an entry to be a shortcut to the hotkey and */
+					/* command specified, using the character codes passed in by the user */
+
+					Accelerators[Index].fVirt = 0;
+					Accelerators[Index].key = *MenuItem->m_pccHotKey;
+					Accelerators[Index].cmd = (WORD) MenuItem->m_iCommand;
+
+					/* If the hotkey also has a qualifier then add this to the ACCEL structure. */
+					/* This get a little complex here because some qualifiers (control and shift) */
+					/* require the shortcut key to be specified as a virtual keycode while others */
+					/* allow a character code to be used.  Character codes for letters map to the */
+					/* same value as their corresponding virtual keycodes.  Strings used for function */
+					/* key (such as "F3") need to be manually converted into a virtual keycode.  We */
+					/* only translate a subset of the range of keys passed in (because I don't want to */
+					/* spend hours writing a comprehensive conversion routine) meaning that this function */
+					/* may have to get extended in the future */
+
+					if (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+					{
+						Accelerators[Index].fVirt = (FCONTROL | FVIRTKEY);
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_ALT)
+					{
+						Accelerators[Index].fVirt |= FALT;
+					}
+					else if (MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+					{
+						Accelerators[Index].fVirt |= FSHIFT;
+					}
+
+					/* For function keys such as "F3" we need to convert the textual value passed in */
+					/* to a virtual keycode.  The use of these function keys is currently only supported */
+					/* by themselves or with a shift qualifier */
+
+					if ((MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT) || (MenuItem->m_iHotKeyModifier == 0))
+					{
+						/* See if we have a valid function key in the range of F1 - F9 */
+
+						if (strlen(MenuItem->m_pccHotKey) == 2)
+						{
+							if ((MenuItem->m_pccHotKey[0] == 'F') && (MenuItem->m_pccHotKey[1] >= '1') &&
+								(MenuItem->m_pccHotKey[1] <= '9'))
+							{
+								/* Yes we do.  Convert it to a virtual keycode */
+
+								FunctionKey = (VK_F1 + (MenuItem->m_pccHotKey[1] - '1'));
+								Accelerators[Index].key = (WORD) FunctionKey;
+								Accelerators[Index].fVirt = FVIRTKEY;
+							}
+						}
+					}
+
+					++Index;
+				}
+
+				++MenuItem;
+			}
+			while (MenuItem->m_eType != EStdMenuEnd);
+
+			/* Create an accelerator table for the window */
+
+			m_poAccelerators = CreateAcceleratorTable(Accelerators, NumAccelerators);
+			delete [] Accelerators;
+		}
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -956,6 +1131,14 @@ void CWindow::Close()
 	m_poWindow = NULL;
 
 #else /* ! QT_GUI_LIB */
+
+	/* Destroy the accelerators, if they have been created */
+
+	if (m_poAccelerators)
+	{
+		DestroyAcceleratorTable(m_poAccelerators);
+		m_poAccelerators = NULL;
+	}
 
 	/* If the window is open, close it and indicate that it is no longer open */
 
