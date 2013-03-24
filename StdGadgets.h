@@ -62,11 +62,11 @@ protected:
 
 	QWidget					*m_poGadget;		/* Ptr to underlying Qt widget */
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	HWND					m_poGadget;			/* Ptr to the underlying Windows control */
 
-#endif /* ! QT_GUI_LIB */
+#endif /* WIN32 */
 
 private:
 
