@@ -133,9 +133,18 @@ typedef unsigned long COLORREF;
 #define STD_KEY_DELETE 269
 #define STD_KEY_TAB 270
 #define STD_KEY_ESC 271
-#define STD_KEY_F3 272
-#define STD_KEY_F6 273
-#define STD_KEY_F12 274
+#define STD_KEY_F1 272
+#define STD_KEY_F2 273
+#define STD_KEY_F3 274
+#define STD_KEY_F4 275
+#define STD_KEY_F5 276
+#define STD_KEY_F6 277
+#define STD_KEY_F7 278
+#define STD_KEY_F8 279
+#define STD_KEY_F9 280
+#define STD_KEY_F10 281
+#define STD_KEY_F11 282
+#define STD_KEY_F12 283
 
 /* Structure used for mapping standard keycodes onto native keycodes */
 
