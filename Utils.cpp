@@ -2036,6 +2036,59 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 	return(RetVal);
 }
 
+/**
+ * Converts a numeric string to an integer.
+ * Converts a numeric string to an integer and validates that the string to be returned
+ * actually contains a valid integer, consisting of only characters between 0 and 9.
+ *
+ * @date	Tuesday 26-Mar-20013 06:15 am, Code HQ Ehinger Tor
+ * @param	a_pccString		Ptr to numeric string to be converted
+ * @param	a_piResult		Ptr to an integer into which to place the result
+ * @return	KErrNone if the string was converted successfully
+ * @return	KErrCorrupt if the string did not contain a valid number
+ */
+
+TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
+{
+	char Char;
+	TInt Index, RetVal;
+
+	ASSERTM((a_pccString != NULL), "Utils::StringToInt() => Ptr to string to convert must be passed in");
+	ASSERTM((a_piResult != NULL), "Utils::StringToInt() => Ptr to destination integer must be passed in");
+
+	/* First, manually confirm that the string is a valid number, as atoi() does */
+	/* not differentiate between '0' and an invalid number - both return 0! */
+
+	Index = 0;
+
+	while ((Char = a_pccString[Index]) != '\0')
+	{
+		if ((Char < '0') || (Char > '9'))
+		{
+			break;
+		}
+
+		++Index;
+	}
+
+	/* If we made it to the end of the string then we have a valid number */
+
+	if (Char == '\0')
+	{
+		RetVal = KErrNone;
+
+		/* Convert the valid number to an integer and return it */
+
+		*a_piResult= atoi(a_pccString);
+	}
+	else
+	{
+		RetVal = KErrCorrupt;
+	}
+
+	return(RetVal);
+}
+
 /* Written: Saturday 23-Jul-2009 06:58 am */
 
 TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
