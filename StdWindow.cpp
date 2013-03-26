@@ -1011,18 +1011,32 @@ TBool CWindow::CreateMenus()
 
 					if ((MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT) || (MenuItem->m_iHotKeyModifier == 0))
 					{
-						/* See if we have a valid function key in the range of F1 - F9 */
+						/* See if we have a valid function key in the range of F1 - F12 */
 
-						if (strlen(MenuItem->m_pccHotKey) == 2)
+						if (strlen(MenuItem->m_pccHotKey) >= 2)
 						{
-							if ((MenuItem->m_pccHotKey[0] == 'F') && (MenuItem->m_pccHotKey[1] >= '1') &&
-								(MenuItem->m_pccHotKey[1] <= '9'))
-							{
-								/* Yes we do.  Convert it to a virtual keycode */
+							/* Is it a function key with a numeric value following it? */
 
-								FunctionKey = (VK_F1 + (MenuItem->m_pccHotKey[1] - '1'));
-								Accelerators[Index].key = (WORD) FunctionKey;
-								Accelerators[Index].fVirt = FVIRTKEY;
+							if ((toupper(MenuItem->m_pccHotKey[0]) == 'F') && (Utils::StringToInt(&MenuItem->m_pccHotKey[1], &FunctionKey) == KErrNone))
+							{
+								/* Does the numeric value represent a valid function key? */
+
+								if ((FunctionKey >= 1) && (FunctionKey <= 12))
+								{
+									/* Everything is valid.  Convert the key to a virtual keycode and add */
+									/* it to the accelerator list */
+
+									FunctionKey += (VK_F1 - 1);
+									Accelerators[Index].key = (WORD) FunctionKey;
+									Accelerators[Index].fVirt = FVIRTKEY;
+
+									/* And finally apply the shift modifier, if required */
+
+									if (MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+									{
+										Accelerators[Index].fVirt |= FSHIFT;
+									}
+								}
 							}
 						}
 					}
