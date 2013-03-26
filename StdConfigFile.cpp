@@ -7,7 +7,7 @@
 #include "StdConfigFile.h"
 
 /**
- * Creates an instance of the CKey class
+ * Creates an instance of the CKey class.
  * Creates an instance of the CKey class and copies the specified key and value
  * into it.  Memory will be allocated for these strings - they do not need to be
  * in persistent storage.
@@ -45,7 +45,7 @@ CKey *CKey::New(const char *a_pccKey, TInt a_iKeyLength, const char *a_pccValue,
 }
 
 /**
- * Creates an instance of the CSection class
+ * Creates an instance of the CSection class.
  * Creates an instance of the CSection class and copies the specified name into
  * it.  Memory will be allocated for this string - it does not need to be in
  * persistent storage.
@@ -75,7 +75,7 @@ CSection *CSection::New(const char *a_pccName, TInt a_iLength)
 }
 
 /**
- * Destructor for the CSection class
+ * Destructor for the CSection class.
  * Frees up any resources associated with the section, including the list of embedded
  * subsections and keys.
  *
@@ -391,8 +391,8 @@ CSection *RConfigFile::FindSection(const char *a_pccName)
 TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, TInt *a_piResult)
 {
-	char Char, *ConfigString;
-	TInt Index, RetVal;
+	char *ConfigString;
+	TInt RetVal;
 
 	/* Get the string associated with the requested setting */
 
@@ -403,35 +403,7 @@ TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 
 	if (ConfigString)
 	{
-		/* First, manually confirm that the string returned is a valid number, as atoi() does */
-		/* not differentiate between '0' and an invalid number - both return 0! */
-
-		Index = 0;
-
-		while ((Char = ConfigString[Index]) != '\0')
-		{
-			if ((Char < '0') || (Char > '9'))
-			{
-				break;
-			}
-
-			++Index;
-		}
-
-		/* If we made it to the end of the string then we have a valid number */
-
-		if (Char == '\0')
-		{
-			RetVal = KErrNone;
-
-			/* Convert the valid number to an integer and return it */
-
-			*a_piResult= atoi(ConfigString);
-		}
-		else
-		{
-			RetVal = KErrCorrupt;
-		}
+		RetVal = Utils::StringToInt(ConfigString, a_piResult);
 
 		delete [] ConfigString;
 	}
