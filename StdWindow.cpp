@@ -26,11 +26,14 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
 	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
 	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },
-	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_F3, Qt::Key_F3 },
-	{ STD_KEY_F6, Qt::Key_F6 }, { STD_KEY_F12, Qt::Key_F12 }
+	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_F1, Qt::Key_F1 },
+	{ STD_KEY_F2, Qt::Key_F2 }, { STD_KEY_F3, Qt::Key_F3 }, { STD_KEY_F4, Qt::Key_F4 },
+	{ STD_KEY_F5, Qt::Key_F5 }, { STD_KEY_F6, Qt::Key_F6 }, { STD_KEY_F7, Qt::Key_F7 },
+	{ STD_KEY_F8, Qt::Key_F8 }, { STD_KEY_F9, Qt::Key_F9 }, { STD_KEY_F10, Qt::Key_F10 },
+	{ STD_KEY_F11, Qt::Key_F11 },	{ STD_KEY_F12, Qt::Key_F12 }
 };
 
-#define NUM_KEYMAPPINGS 17
+#define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
 #elif defined(WIN32)
 
@@ -42,11 +45,13 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_ENTER, VK_RETURN }, { STD_KEY_UP, VK_UP }, { STD_KEY_DOWN, VK_DOWN },
 	{ STD_KEY_LEFT, VK_LEFT }, { STD_KEY_RIGHT, VK_RIGHT }, { STD_KEY_HOME, VK_HOME },
 	{ STD_KEY_END, VK_END }, { STD_KEY_PGUP, VK_PRIOR }, { STD_KEY_PGDN, VK_NEXT },
-	{ STD_KEY_DELETE, VK_DELETE }, { STD_KEY_TAB, VK_TAB }, { STD_KEY_F3, VK_F3 },
-	{ STD_KEY_F6, VK_F6 }, { STD_KEY_F12, VK_F12 }
+	{ STD_KEY_DELETE, VK_DELETE }, { STD_KEY_TAB, VK_TAB }, { STD_KEY_F1, VK_F1 }, { STD_KEY_F2, VK_F2 },
+	{ STD_KEY_F3, VK_F3 }, { STD_KEY_F4, VK_F4 }, { STD_KEY_F5, VK_F5 }, { STD_KEY_F6, VK_F6 },
+	{ STD_KEY_F7, VK_F7 }, { STD_KEY_F8, VK_F8 }, { STD_KEY_F9, VK_F9 }, { STD_KEY_F10, VK_F10 },
+	{ STD_KEY_F11, VK_F11 }, { STD_KEY_F12, VK_F12 }
 };
 
-#define NUM_KEYMAPPINGS 17
+#define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
@@ -150,7 +155,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 	NativeKey = a_poKeyEvent->key();
 
-	for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+	for (Index = 0; Index < (int) NUM_KEYMAPPINGS; ++Index)
 	{
 		if (g_aoKeyMap[Index].m_iNativeKey == NativeKey)
 		{
@@ -160,7 +165,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 	/* If the key has a key mapping then send the standard key to the client */
 
-	if (Index < NUM_KEYMAPPINGS)
+	if (Index < (int) NUM_KEYMAPPINGS)
 	{
 		m_poWindow->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, a_bKeyDown);
 	}
