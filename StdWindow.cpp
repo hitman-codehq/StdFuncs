@@ -1135,19 +1135,22 @@ void CWindow::Close()
 
 #elif defined(QT_GUI_LIB)
 
-	/* Let the window know that it is in the process if closing so that it */
-	/* accepts the close event in closeEvent() */
+	if (m_poWindow)
+	{
+		/* Let the window know that it is in the process if closing so that it */
+		/* accepts the close event in closeEvent() */
 
-	m_poWindow->setClosing(true);
+		m_poWindow->setClosing(true);
 
-	/* Ensure that the QMainWindow instance is actually freed when it is closed */
+		/* Ensure that the QMainWindow instance is actually freed when it is closed */
 
-	m_poWindow->setAttribute(Qt::WA_DeleteOnClose);
+		m_poWindow->setAttribute(Qt::WA_DeleteOnClose);
 
-	/* And close the window */
+		/* And close the window */
 
-	DEBUGCHECK((m_poWindow->close() != false), "CWindow::Close() => Unable to close window");
-	m_poWindow = NULL;
+		DEBUGCHECK((m_poWindow->close() != false), "CWindow::Close() => Unable to close window");
+		m_poWindow = NULL;
+	}
 
 #else /* ! QT_GUI_LIB */
 
