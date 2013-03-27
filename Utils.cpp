@@ -2071,9 +2071,9 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
 		++Index;
 	}
 
-	/* If we made it to the end of the string then we have a valid number */
+	/* If we made it to the end of the string and the string is not empty then we have a valid number */
 
-	if (Char == '\0')
+	if ((Index > 0) && (Char == '\0'))
 	{
 		RetVal = KErrNone;
 

@@ -13,7 +13,7 @@ int main()
 {
 	char *ProgDirName;
 	const char *Extension, *FileName;
-	TInt Result;
+	TInt Result, Value;
 	RFile File;
 	TEntry Entry, OldEntry, NewEntry;
 
@@ -311,6 +311,20 @@ int main()
 	test(Result == KErrNone);
 
 #endif /* ! WIN32 */
+
+	/* Test #14: Basic Utils::StringToInt() tests */
+
+	Test.Next("Basic Utils::StringToInt() tests");
+
+	Result = Utils::StringToInt("1", &Value);
+	test(Result == KErrNone);
+	test(Value == 1);
+
+	Result = Utils::StringToInt("a", &Value);
+	test(Result == KErrCorrupt);
+
+	Result = Utils::StringToInt("", &Value);
+	test(Result == KErrCorrupt);
 
 	/* Clean up after ourselves */
 
