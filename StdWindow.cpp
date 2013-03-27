@@ -690,7 +690,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(QT_GUI_LIB)
 
 /* Written: Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor */
 /* @returns	ETrue if all menus were created successfully, else EFalse */
@@ -1060,7 +1060,7 @@ TBool CWindow::CreateMenus()
 	return(RetVal);
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) || defined(QT_GUI_LIB) */
 
 /* Written: Saturday 05-Jan-2013 1:12 pm, Code HQ Ehinger Tor */
 /* @returns	ETrue if the control key is pressed, else EFalse */
