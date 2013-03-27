@@ -24,15 +24,23 @@
 
 #endif /* ! __linux__ */
 
-/* Written: Wednesday 01-Jul-2009 7:54 pm */
-/* @param	a_pccFileName	Name of the file to be deleted */
-/* @return	KErrNone if successful */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrNotFound if the path is ok, but the file does not exist */
-/*			KErrInUse if the file is open for use */
-/*			KErrGeneral if some other unexpected error occurred */
-/* This function will delete a file.  The file in question must not be */
-/* open for use in any way */
+/**
+ * Deletes a file from the file system.
+ * The operation of this function unfortunately varies across operating systems.
+ * For most operating systems, the file in question must not be open for use in any
+ * way or the function will fail.  However, on UNIX based systems, if the file is
+ * open for use at the point at which this function is called, the function will
+ * succeed and the file will be flagged for deletion when the client process quits.
+ * Thus in this case KErrNone will be returned, even though the file will continue
+ * to exist for the duration of the lifetime of the client process.
+ * @date	Wednesday 01-Jul-2009 7:54 pm
+ * @param	a_pccFileName	Name of the file to be deleted
+ * @return	KErrNone if successful
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrInUse if the file is open for use
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 {
