@@ -187,7 +187,7 @@ int main()
 	test(Result == KErrNone);
 
 	Result = BaflUtils::DeleteFile("File.txt");
-	test(Result == KErrInUse);
+	test((Result == KErrNone) || (Result == KErrInUse));
 
 	File.Close();
 
@@ -332,7 +332,7 @@ int main()
 	test(Result == KErrNone);
 
 	Result = BaflUtils::DeleteFile("File.txt");
-	test(Result == KErrNone);
+	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Test.End();
 
