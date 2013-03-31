@@ -286,6 +286,7 @@ void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	int Index;
+	TBool Handled;
 	LRESULT RetVal;
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
@@ -369,6 +370,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		}
 
 		case WM_CHAR :
+		case WM_SYSCHAR :
 		{
 			/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII, */
 			/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
@@ -382,8 +384,36 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if ((a_oWParam >= 32) && (a_oWParam <= 254) && (a_oWParam != 127))
 			{
-				Window->OfferKeyEvent(a_oWParam, ETrue);
+				Handled = Window->OfferKeyEvent(a_oWParam, ETrue);
+
+				/* For WM_SYSCHAR we have some special processing to allow client code to override */
+				/* alt+x key combinations while still allowing menu shortcuts to work.  If the client */
+				/* returns ETrue then it has consumed the keypress - that is it has performed some action */
+				/* on it such as a shortcut.  In this case we don't want to pass the keypress onto the */
+				/* system as it would activate menu items with the same keycode.  If the keypress was not */
+				/* consumed then set RetVal to 1 to pass the kepress onto the system using DefWindowProc() */
+
+				if ((a_uiMessage == WM_SYSCHAR) && (!(Handled)))
+				{
+					RetVal = 1;
+				}
 			}
+
+			break;
+		}
+
+		case WM_SYSKEYDOWN :
+		{
+			/* If the ALT key was pressed then save its state for l8r use */
+
+			if (a_oWParam == VK_MENU)
+			{
+				m_bAltPressed = ETrue;
+			}
+
+			/* And indicate that we want to pass the keypress onto the system */
+
+			RetVal = 1;
 
 			break;
 		}
@@ -542,10 +572,17 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		default :
 		{
-			RetVal = DefWindowProc(a_poWindow, a_uiMessage, a_oWParam, a_oLParam);
+			RetVal = 1;
 
 			break;
 		}
+	}
+
+	/* If the event was not handled then call the system's default window proce */
+
+	if (RetVal != 0)
+	{
+		RetVal = DefWindowProc(a_poWindow, a_uiMessage, a_oWParam, a_oLParam);
 	}
 
 	return(RetVal);

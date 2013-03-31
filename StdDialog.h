@@ -84,7 +84,7 @@ public:
 
 	virtual void InitDialog() { }
 
-	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/);
+	virtual TBool OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/);
 
 protected:
 

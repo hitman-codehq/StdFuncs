@@ -610,7 +610,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 /* Written: Sunday 24-Oct-2010 5:30 pm */
 
-void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
+TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 {
 	/* If the key is the escape key being pressed down then simulate an IDCANCEL event so that */
 	/* clients can close the dialog if desired */
@@ -648,6 +648,7 @@ void CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 #endif /* __amigaos4__ */
 
+	return(EFalse);
 }
 
 /* Written: Sunday 24-Oct-2010 5:21 pm */

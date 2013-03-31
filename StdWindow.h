@@ -137,6 +137,11 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
+	TBool AltPressed()
+	{
+		return(m_bAltPressed);
+	}
+
 	TBool CtrlPressed();
 
 	/* This function is *internal* and must not be used.  Unfortunately making it private */
@@ -205,7 +210,7 @@ public:
 
 	virtual void HandleWheelEvent(TInt /*a_iDelta*/) { }
 
-	virtual void OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
+	virtual TBool OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { return(EFalse); }
 
 	/* This function is called by The Framework whenever the window is resized.  The */
 	/* behaviour can differ slightly between platforms in that some platforms will call */
