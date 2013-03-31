@@ -578,7 +578,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		}
 	}
 
-	/* If the event was not handled then call the system's default window proce */
+	/* If the event was not handled then call the system's default window procedure */
 
 	if (RetVal != 0)
 	{
