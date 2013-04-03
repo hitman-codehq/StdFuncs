@@ -53,11 +53,11 @@ static const SKeyMapping g_aoKeyMap[] =
 
 #define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
-TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 
 #endif /* WIN32 */
 
+TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
 
 #ifdef __amigaos4__
@@ -216,9 +216,13 @@ void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 
 void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 {
-	/* If this is a control key then indicate this in case the client queries about it */
+	/* If this is an ALT or control key then indicate this in case the client queries about it */
 
-	if (a_poKeyEvent->key() == Qt::Key_Control)
+	if (a_poKeyEvent->key() == Qt::Key_Alt)
+	{
+		m_poWindow->m_bAltPressed = ETrue;
+	}
+	else if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
 		m_poWindow->m_bCtrlPressed = ETrue;
 	}
@@ -236,9 +240,13 @@ void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 
 void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 {
-	/* If this is a control key then indicate it is no longer pressed */
+	/* If this is an ALT or control key then indicate it is no longer pressed */
 
-	if (a_poKeyEvent->key() == Qt::Key_Control)
+	if (a_poKeyEvent->key() == Qt::Key_Alt)
+	{
+		m_poWindow->m_bAltPressed = EFalse;
+	}
+	else if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
 		m_poWindow->m_bCtrlPressed = EFalse;
 	}
