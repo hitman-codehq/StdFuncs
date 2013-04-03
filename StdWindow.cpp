@@ -1099,9 +1099,45 @@ TBool CWindow::CreateMenus()
 
 #endif /* defined(WIN32) || defined(QT_GUI_LIB) */
 
-/* Written: Saturday 05-Jan-2013 1:12 pm, Code HQ Ehinger Tor */
-/* @returns	ETrue if the control key is pressed, else EFalse */
-/* Returns whether or not the control key is currently pressed */
+/**
+ * Returns whether the ALT key is currently pressed.
+ * Allows client code to query whether the ALT key is currently pressed, in order
+ * to use that key in shortcut sequences.  Note that this function specifically
+ * refers to the ALT key and not the ALT GR key, which, despite its name, is a
+ * completely different key!
+ *
+ * @date	Wednesday 03-Apr-2013 7:2 am, Code HQ Ehinger Tor
+ * @return	ETrue if the ALT key is pressed, else EFalse
+ */
+
+TBool CWindow::AltPressed()
+{
+
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	/* Due to Windows using the control key to simulate usage of the ALT GR */
+	/* key, rather than using a dedicated keycode for ALT GR, we have to have */
+	/* a workaround to differentiate between ALT being pressed and ALT GR */
+	/* being pressed */
+
+	return((m_bAltPressed) && (!(m_bCtrlPressed)));
+
+#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+
+	return(m_bAltPressed);
+
+#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+
+}
+
+/**
+ * Returns whether the control key is currently pressed.
+ * Allows client code to query whether the control key is currently pressed, in
+ * order to use that key in shortcut sequences.
+ *
+ * @date	Saturday 05-Jan-2013 1:12 pm, Code HQ Ehinger Tor
+ * @return	ETrue if the control key is pressed, else EFalse
+ */
 
 TBool CWindow::CtrlPressed()
 {

@@ -137,10 +137,7 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
-	TBool AltPressed()
-	{
-		return(m_bAltPressed);
-	}
+	TBool AltPressed();
 
 	TBool CtrlPressed();
 
