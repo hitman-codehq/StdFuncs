@@ -22,7 +22,7 @@
 
 static const SKeyMapping g_aoKeyMap[] =
 {
-	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_CONTROL, Qt::Key_Shift }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
+	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_CONTROL, Qt::Key_Control }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
 	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
 	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
 	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },
@@ -149,7 +149,7 @@ CQtCentralWidget::CQtCentralWidget(CWindow *a_poWindow) : QWidget(a_poWindow->m_
 
 void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 {
-	TInt NativeKey, Index;
+	TInt Key, NativeKey, Index;
 
 	/* Scan through the key mappings and find the one that has just been pressed or released */
 
@@ -177,9 +177,30 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 	{
 		QString String = a_poKeyEvent->text();
 
+		/* See if we have a key available */
+
 		if (String.length() >= 1)
 		{
-			m_poWindow->OfferKeyEvent(String[0].toAscii(), a_bKeyDown);
+			Key = String[0].toAscii();
+
+			/* It seems that Qt keyboard handling is just as complex as Windows.  :-( */
+			/* We have to take care of a complex combination of key presses that come in, */
+			/* including keys that are available from both the text() and key() functions */
+			/* but which have different values.  The code below was arrived at by trial */
+			/* and error and manages to pass all plain ASCII values to the client, as well */
+			/* as keys prefixed with ctrl, alt and the ever-easy-to-lose alt-gr key! */
+			/* Almost all ASCII keys are handled by the first OfferKeyEvent() while those */
+			/* that are pressed while ctrl is held down are processed by the second one. */
+			/* In this case text() returns an incorrect keycode so we use key() instead */
+
+			if ((Key >= 32) && (Key <= 254))
+			{
+				m_poWindow->OfferKeyEvent(Key, a_bKeyDown);
+			}
+			else if ((a_poKeyEvent->key() != 0) && (a_poKeyEvent->key() != Qt::Key_unknown))
+			{
+				m_poWindow->OfferKeyEvent(a_poKeyEvent->key(), a_bKeyDown);
+			}
 		}
 	}
 }
@@ -390,7 +411,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
-			if ((a_oWParam >= 32) && (a_oWParam <= 254) && (a_oWParam != 127))
+			if ((a_oWParam >= 32) && (a_oWParam <= 254))
 			{
 				Handled = Window->OfferKeyEvent(a_oWParam, ETrue);
 
@@ -1121,7 +1142,7 @@ TBool CWindow::CreateMenus()
 TBool CWindow::AltPressed()
 {
 
-#if defined(WIN32) && !defined(QT_GUI_LIB)
+#ifdef WIN32
 
 	/* Due to Windows using the control key to simulate usage of the ALT GR */
 	/* key, rather than using a dedicated keycode for ALT GR, we have to have */
@@ -1130,11 +1151,11 @@ TBool CWindow::AltPressed()
 
 	return((m_bAltPressed) && (!(m_bCtrlPressed)));
 
-#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+#else /* ! WIN32 */
 
 	return(m_bAltPressed);
 
-#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+#endif /* ! WIN32 */
 
 }
 
@@ -1150,7 +1171,7 @@ TBool CWindow::AltPressed()
 TBool CWindow::CtrlPressed()
 {
 
-#if defined(WIN32) && !defined(QT_GUI_LIB)
+#ifdef WIN32
 
 	/* Due to Windows using the control key to simulate usage of the ALT GR */
 	/* key, rather than using a dedicated keycode for ALT GR, we have to have */
@@ -1159,11 +1180,11 @@ TBool CWindow::CtrlPressed()
 
 	return((m_bCtrlPressed) && (!(m_bAltPressed)));
 
-#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+#else /* ! WIN32 */
 
 	return(m_bCtrlPressed);
 
-#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+#endif /* ! WIN32 */
 
 }
 
