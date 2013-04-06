@@ -18,11 +18,13 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_DOWN, 0x4d }, { STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e },
 	{ STD_KEY_HOME, 0x70 }, { STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 },
 	{ STD_KEY_PGDN, 0x49 }, { STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 },
-	{ STD_KEY_ESC, 0x45 }, { STD_KEY_F3, 0x52 }, { STD_KEY_F6, 0x55 },
+	{ STD_KEY_ESC, 0x45 }, { STD_KEY_F1, 0x50 }, { STD_KEY_F2, 0x51 }, { STD_KEY_F3, 0x52 },
+	{ STD_KEY_F4, 0x53 }, { STD_KEY_F5, 0x54 }, { STD_KEY_F6, 0x55 }, { STD_KEY_F7, 0x56 },
+	{ STD_KEY_F8, 0x57 }, { STD_KEY_F9, 0x58 }, { STD_KEY_F10, 0x59 }, { STD_KEY_F11, 0x4b },
 	{ STD_KEY_F12, 0x6f }
 };
 
-#define NUM_KEYMAPPINGS 19
+#define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
 #elif defined(QT_GUI_LIB)
 
@@ -246,7 +248,7 @@ int RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	int InnerWidth, InnerHeight, Index, NumChars, X, Y;
+	TInt InnerWidth, InnerHeight, Index, NumChars, X, Y;
 	TBool DoubleClicked, KeyDown, KeyHandled;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
@@ -428,7 +430,7 @@ int RApplication::Main()
 
 							/* Scan through the key mappings and find the one that has just been pressed */
 
-							for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+							for (Index = 0; Index < (TInt) NUM_KEYMAPPINGS; ++Index)
 							{
 								if (g_aoKeyMap[Index].m_iNativeKey == Code)
 								{
@@ -439,7 +441,7 @@ int RApplication::Main()
 							/* If it was a known key then convert it to the standard value and pass it to the */
 							/* CWindow::OfferKeyEvent() function */
 
-							if (Index < NUM_KEYMAPPINGS)
+							if (Index < (TInt) NUM_KEYMAPPINGS)
 							{
 								Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
 
