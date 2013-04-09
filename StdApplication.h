@@ -49,6 +49,7 @@ private:
 	ULONG			m_ulWindowSignals;	/* Signals representing all currently open windows */
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
 	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
+	struct NewMenu	*m_poNewMenus;		/* Array of NewMenu structures used for creating menus */
 	TBool			m_bMenuStripSet;	/* ETrue if menus have been added to the main window */
 	TInt			m_iLastX;			/* X and Y positions of the mouse the last time the */
 	TInt			m_iLastY;			/* LMB was clicked or released */

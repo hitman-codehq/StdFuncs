@@ -3,6 +3,7 @@
 #include "StdApplication.h"
 #include "StdReaction.h"
 #include "StdWindow.h"
+#include <string.h>
 
 #ifdef __amigaos4__
 
@@ -23,6 +24,8 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_F8, 0x57 }, { STD_KEY_F9, 0x58 }, { STD_KEY_F10, 0x59 }, { STD_KEY_F11, 0x4b },
 	{ STD_KEY_F12, 0x6f }
 };
+
+static const char *g_pccEmptyString = "";	/* Empty string used for creating menu items */
 
 #define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
@@ -53,6 +56,7 @@ RApplication::RApplication()
 
 	m_bDone = m_bMenuStripSet = EFalse;
 	m_poMenus = NULL;
+	m_poNewMenus = NULL;
 	m_ulMainSeconds = m_ulMainMicros = 0;
 	m_iLastX = m_iLastY = m_iNumMenuMappings = 0;
 	m_poMenuMappings = NULL;
@@ -80,7 +84,9 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 #ifdef __amigaos4__
 
-	TInt Index, Menu, Item, NumMenuItems, RetVal;
+	const char *Label;
+	char *NewLabel;
+	TInt DestIndex, SourceIndex, Index, Length, Menu, Item, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
 	struct NewMenu *NewMenus;
 	struct Screen *Screen;
@@ -110,7 +116,7 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 	{
 		m_iNumMenuMappings = NumMenuItems;
 
-		if ((NewMenus = new NewMenu[NumMenuItems]) != NULL)
+		if ((m_poNewMenus = NewMenus = new NewMenu[NumMenuItems]) != NULL)
 		{
 			Menu = -1;
 			Item = 0;
@@ -158,10 +164,61 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 				}
 				else
 				{
-					NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
+					/* If there is a label for the menu item present then it will have the '&' shortcut */
+					/* key modifier embedded in it for Windows & Qt.  We need to make a copy of the label */
+					/* and remove this modifier, which doesn't have any effect on Amiga OS */
+
+					Label = NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
+
+					if (Label)
+					{
+						/* Find out the length of the label, including the NULL terminator, and allocate */
+						/* a buffer for it */
+
+						Length = (strlen(Label) + 1);
+						NewMenus[Index].nm_Label = NewLabel = new char[Length];
+
+						if (NewLabel)
+						{
+							/* Copy the label into the newly allocated buffer, removing the '&' as we go */
+
+							DestIndex = 0;
+
+							for (SourceIndex = 0; SourceIndex < Length; ++SourceIndex)
+							{
+								if (Label[SourceIndex] != '&')
+								{
+									NewLabel[DestIndex++] = Label[SourceIndex];
+								}
+							}
+						}
+
+						/* If we cannot allocate a new label then we need to use *something* and cannot just */
+						/* use a NULL string.  So use a globally allocated empty string and Close() will skip */
+						/* freeing this */
+
+						else
+						{
+							NewMenus[Index].nm_Label = g_pccEmptyString;
+						}
+					}
 				}
 
-				NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
+				/* Amiga OS is a little limited in terms of the modifiers and strings that can be */
+				/* used for the menu items' shortcut keys, so only use the hotkey if the STD_KEY_CONTROL */
+				/* (which maps to ramiga) modifier is used and if the length of the shortcut string */
+				/* is only one character long */
+
+				NewMenus[Index].nm_CommKey = NULL;
+
+				if (a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_CONTROL)
+				{
+					if ((a_pcoMenuItems[Index].m_pccHotKey) && (strlen(a_pcoMenuItems[Index].m_pccHotKey) == 1))
+					{
+						NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
+					}
+				}
+
 				NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
 			}
 
@@ -187,10 +244,6 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 				IIntuition->UnlockPubScreen(NULL, Screen);
 			}
-
-			/* The NewMenu structures are no longer required */
-
-			delete [] NewMenus;
 		}
 	}
 
@@ -462,8 +515,6 @@ int RApplication::Main()
 
 							else
 							{
-								KeyDown = (!(Code & IECODE_UP_PREFIX));
-
 								if (KeyDown)
 								{
 									if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
@@ -567,6 +618,9 @@ void RApplication::Close()
 
 #ifdef __amigaos4__
 
+	const char *Label;
+	TInt Index;
+
 	/* If the menus have been created then destroy them */
 
 	if (m_poMenus)
@@ -579,6 +633,31 @@ void RApplication::Close()
 		}
 
 		IGadTools->FreeMenus(m_poMenus);
+	}
+
+	/* The label strings used by the menus are no longer required so destroy them */
+
+	if (m_poNewMenus)
+	{
+		/* First delete the temporary menu labels previously allocated */
+
+		for (Index = 0; Index < m_iNumMenuMappings; ++Index)
+		{
+			Label = m_poNewMenus[Index].nm_Label;
+
+			/* If the label was allocated and is not a predefined separator constant or the */
+			/* global empty string then free it */
+
+			if ((Label) && (Label != NM_BARLABEL) && (Label != g_pccEmptyString))
+			{
+				delete [] Label;
+			}
+		}
+
+		/* And now delete the NewMenu structures themselves */
+
+		delete [] m_poNewMenus;
+		m_poNewMenus = NULL;
 	}
 
 	/* And free the menu mapping structures */
