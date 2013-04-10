@@ -180,14 +180,16 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 			m_iHeight = m_poParentWindow->m_poWindow->statusBar()->height();
 		}
 
-		/* Otherwise destroy whatever labels were created */
+		/* Otherwise destroy whatever labels were created.  The labels belong to the */
+		/* window's status bar and will be disposed of when it is destroyed, but we don't */
+		/* want them left attached because if a new CStdGadgetStatusBar gadget is l8r on */
+		/* created successfully then the window will also contain these old QLabel objects */
 
 		else
 		{
-			// TODO: CAW - I don't like any error handling for Qt and Amiga OS versions
 			while (--Index >= 0)
 			{
-				//IIntuition->DisposeObject(m_poPartsGadgets[Index]);
+				delete m_poPartsGadgets[Index];
 			}
 		}
 	}
