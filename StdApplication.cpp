@@ -206,12 +206,12 @@ TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
 
 				/* Amiga OS is a little limited in terms of the modifiers and strings that can be */
 				/* used for the menu items' shortcut keys, so only use the hotkey if the STD_KEY_CONTROL */
-				/* (which maps to ramiga) modifier is used and if the length of the shortcut string */
-				/* is only one character long */
+				/* or STD_KEY_ALT (which both map to ramiga) modifier is used and if the length of the */
+				/* shortcut string is only one character long */
 
 				NewMenus[Index].nm_CommKey = NULL;
 
-				if (a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_CONTROL)
+				if ((a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_CONTROL) || (a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_ALT))
 				{
 					if ((a_pcoMenuItems[Index].m_pccHotKey) && (strlen(a_pcoMenuItems[Index].m_pccHotKey) == 1))
 					{
