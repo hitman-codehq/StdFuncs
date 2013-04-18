@@ -63,12 +63,13 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 #ifdef __amigaos4__
 
+	/* Use the Layout gadget's weighting system to make the String gadgets as small as possible */
+
 	struct TagItem TagItem[] = { { CHILD_WeightedWidth, 0 }, { TAG_DONE, 0 } };
 
 	/* Create a horizontal layout group into which can be placed the parts labels */
 
-	// TODO: CAW - These tags are a bit bodgey
-	if ((m_poGadget = (Object *) HGroupObject, LAYOUT_FixedVert, FALSE, LAYOUT_DeferLayout, TRUE, EndGroup) != NULL)
+	if ((m_poGadget = (Object *) HGroupObject, LAYOUT_FixedVert, FALSE, EndGroup) != NULL)
 	{
 		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
 		/* to access them l8r on, and create a part label for each slot in the array */
@@ -96,22 +97,15 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 				}
 			}
 
-			/* If all parts labels were created ok then indicate success */
+			/* If all parts labels were created ok then indicate success.  On failure the individual */
+			/* String gadgets used for the parts do not need to be destroyed as they have been added */
+			/* to the Layout gadget representing the status bar and will be automatically destroyed */
+			/* when the Layout gadget is destroyed below */
 
 			if (Index == a_iNumParts)
 			{
 				RetVal = KErrNone;
 				m_iNumParts = a_iNumParts;
-			}
-
-			/* Otherwise destroy whatever labels were created */
-
-			else
-			{
-				while (--Index >= 0)
-				{
-					IIntuition->DisposeObject(m_poPartsGadgets[Index]);
-				}
 			}
 		}
 		else
