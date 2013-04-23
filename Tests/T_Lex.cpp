@@ -94,6 +94,12 @@ static void CheckListNonDestructive(TLex &a_roLex, const char *a_apccList[], TIn
 	const char *Token;
 	TInt Index, Length;
 
+	/* First check that the list contains the expected number of tokens.  The TLex.Count() */
+	/* routine will reinitialise the TLex's instance data after this so we can iterate */
+	/* through its entries */
+
+	test(a_roLex.Count() == a_iListCount);
+
 	/* Iterate through all tokens and ensure they are as expected */
 
 	for (Index = 0; Index < a_iListCount; ++Index)

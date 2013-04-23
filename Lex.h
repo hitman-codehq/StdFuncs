@@ -9,11 +9,13 @@ class TLex
 private:
 
 	const char	*m_pccString;		/* Ptr to string to be parsed by non destructive routine */
+	const char	*m_pccOriginalString; /* Cached copy of m_pccString */
 	char		*m_pcString;		/* Ptr to string to be parsed by destructive routine */
 	const char	*m_pcWhitespace;	/* Whitespace characters for which to check */
 	TBool		m_bKeepQuotes;		/* ETrue to keep the quote marks around strings */
 	TBool		m_bKeepWhiteSpace;	/* ETrue to treat white space as a token */
 	TInt		m_iLength;			/* Length of the string to be parsed */
+	TInt		m_iOriginalLength;	/* Cached copy of m_iLength */
 	TInt		m_iWhitespaceLength;/* # of characters of white space to be checked */
 
 public:
@@ -22,10 +24,10 @@ public:
 	{
 		/* Remember to set these in the other constructor as well */
 
-		m_pccString = a_pccString;
+		m_pccString = m_pccOriginalString = a_pccString;
 		m_pcString = NULL;
 		m_pcWhitespace = " \t";
-		m_iLength = a_iLength;
+		m_iLength = m_iOriginalLength = a_iLength;
 		m_iWhitespaceLength = 2;
 		m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
 	}
@@ -33,6 +35,8 @@ public:
 	TLex(char *a_pcString);
 
 	TBool CheckWhitespace(char a_cCharacter);
+
+	TInt Count();
 
 	char *NextToken();
 

@@ -11,10 +11,10 @@ TLex::TLex(char *a_pcString)
 {
 	/* Remember to set these in the other constructor as well */
 
-	m_pccString = NULL;
+	m_pccString = m_pccOriginalString = NULL;
 	m_pcString = a_pcString;
 	m_pcWhitespace = " \t";
-	m_iLength = strlen(a_pcString);
+	m_iLength = m_iOriginalLength = strlen(a_pcString);
 	m_iWhitespaceLength = 2;
 	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
 }
@@ -43,6 +43,51 @@ TBool TLex::CheckWhitespace(char a_cCharacter)
 	}
 
 	return(Index < m_iWhitespaceLength);
+}
+
+/**
+ * Counts the number of tokens contained in the TLex instance.
+ * Iterates through the data loaded into the TLex instance and parses the tokens
+ * without extracting them, in order to count how many there are.  When doing so,
+ * this routine respects any whitespace settings that have been applied to the
+ * instance.  Note that this is an expensive routine as it must dynamically parse
+ * the contents of the TLex instance, and it will affect the state of the TLex
+ * instance as it goes through the tokens, so it should not be used for such things
+ * as the counter for a for loop, but its value should be instead be cached.
+ * Note that this function can only operate on TLex instances that have been
+ * initialised in non destructive mode.
+ *
+ * @date	Tuesday 23-04-2013 7:19 am
+ * @return	Number of tokens contained in the TLex instance
+ */
+
+TInt TLex::Count()
+{
+	const char *Token;
+	TInt Length, RetVal;
+
+	ASSERTM((m_pccString != NULL), "TLex::Count() => Function operates only in non destructive mode");
+
+	RetVal = 0;
+
+	/* Reinitialise the instance data so that scanning starts at the beginning */
+
+	m_pccString = m_pccOriginalString;
+	m_iLength = m_iOriginalLength;
+
+	/* Determine how many tokens are present */
+
+	while ((Token = NextToken(&Length)) != NULL)
+	{
+		++RetVal;
+	}
+
+	/* Reinitialise the instance data so that future scanning starts at the beginning */
+
+	m_pccString = m_pccOriginalString;
+	m_iLength = m_iOriginalLength;
+
+	return(RetVal);
 }
 
 /* Written: Monday 21-Jun-2010 6:51 am */
