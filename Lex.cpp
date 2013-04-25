@@ -3,9 +3,18 @@
 #include <string.h>
 #include "Lex.h"
 
-/* Written: Saturday 24-Nov-2012 9:34 am */
-/* Initialises the TLex class for destructive extraction of tokens */
-/* @param a_pcString Ptr to string to be parsed for tokens */
+/**
+ * Initialises the TLex class for destructive extraction of tokens.
+ * When initialising the TLex instance with this constructor, subsequent parsing
+ * of the tokens will be destructive in nature.  That is, the parsing can only be
+ * done once and the contents of the string will be altered.  This method of
+ * parsing is less flexible than non destructive parsing but is useful in situations
+ * where one wishes to extract a simple series of white space separated tokens
+ * without needing to allocate memory into which to place the tokens after extraction.
+ *
+ * @date	Saturday 24-Nov-2012 9:34 am
+ * @param	a_pcString Ptr to string to be parsed for tokens
+ */
 
 TLex::TLex(char *a_pcString)
 {
@@ -19,13 +28,41 @@ TLex::TLex(char *a_pcString)
 	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
 }
 
-/* Written: Wednesday 05-Dec-2012 5:37 am */
-/* @param	a_cCharacter Character to be checked */
-/* @returns ETrue if a_cCharacter is white space, else EFalse */
-/* Checks a character against the contents of the white space list to see */
-/* if it is white space.  This function uses an internal (and user definable) */
-/* list to define what white space is, but also treats CR and LF implicitly */
-/* as white space */
+/**
+ * Initialises the TLex class for non destructive extraction of tokens.
+ * When initialising the TLex instance with this constructor, subsequent parsing
+ * of the tokens will be non destructive in nature.  That is, the parsing can be
+ * done as many times desired and the contents of the string will not be altered.
+ * This method of parsing is more flexible than destructive parsing but requires
+ * the caller to subsequently store the extracted tokens somewhere.
+ *
+ * @date	Saturday 24-Nov-2012 9:30 am
+ * @param	a_pcString Ptr to string to be parsed for tokens
+ */
+
+TLex::TLex(const char *a_pccString, TInt a_iLength)
+{
+	/* Remember to set these in the other constructor as well */
+
+	m_pccString = m_pccOriginalString = a_pccString;
+	m_pcString = NULL;
+	m_pcWhitespace = " \t";
+	m_iLength = m_iOriginalLength = a_iLength;
+	m_iWhitespaceLength = 2;
+	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
+}
+
+/**
+ * Checks to see if a character is white space.
+ * Checks a character against the contents of the white space list to see
+ * if it is white space.  This function uses an internal (and user definable)
+ * list to define what white space is, but also treats CR and LF implicitly
+ * as white space.
+ *
+ * @date	Wednesday 05-Dec-2012 5:37 am
+ * @param	a_cCharacter Character to be checked
+ * @return	ETrue if a_cCharacter is white space, else EFalse
+ */
 
 TBool TLex::CheckWhitespace(char a_cCharacter)
 {
@@ -90,14 +127,18 @@ TInt TLex::Count()
 	return(RetVal);
 }
 
-/* Written: Monday 21-Jun-2010 6:51 am */
-/* @return	The next token available in the TLex instance */
-/* Parses the string with which the TLex was initialised and returns a ptr to the */
-/* next available token in the string.  This token will be NULL terminated.  the */
-/* first call to this routine will return the first token in the string and successive */
-/* calls will return successive tokens.  This is a destructive routine in that it */
-/* "destroys" the string passed in by writing NULL terminators into it, moving */
-/* through the source string as tokens are extraced */
+/**
+ * Extracts the next available token from the string.
+ * Parses the string with which the TLex was initialised and returns a ptr to the
+ * next available token in the string.  This token will be NULL terminated.  The
+ * first call to this routine will return the first token in the string and successive
+ * calls will return successive tokens.  This is a destructive routine in that it
+ * "destroys" the string passed in by writing NULL terminators into it, moving
+ * through the source string as tokens are extracted.
+ *
+ * @date	Monday 21-Jun-2010 6:51 am
+ * @return	The next token available in the TLex instance
+ */
 
 char *TLex::NextToken()
 {
@@ -125,14 +166,18 @@ char *TLex::NextToken()
 	return(RetVal);
 }
 
-/* Written: Thursday 22-Nov-2012 6:12 am */
-/* @param	A ptr to a variable into which to place the length of the token */
-/* @return	The next token available in the TLex instance, or NULL if there are none */
-/* Parses the string with which the TLex was initialised and returns a ptr to the */
-/* next available token in the string.  This token will NOT be NULL terminated but */
-/* its length will instead be returned in the variable pointed to by a_piLength. */
-/* In the case where no token is returned, the contents of a_piLength will be set */
-/* to 0.  This is a non destructive routine */
+/**
+ * Extracts the next available token from the string.
+ * Parses the string with which the TLex was initialised and returns a ptr to the
+ * next available token in the string.  This token will NOT be NULL terminated but
+ * its length will instead be returned in the variable pointed to by a_piLength.
+ * In the case where no token is returned, the contents of a_piLength will be set
+ * to 0.  This is a non destructive routine.
+ *
+ * @date	Thursday 22-Nov-2012 6:12 am
+ * @param	A ptr to a variable into which to place the length of the token
+ * @return	The next token available in the TLex instance, or NULL if there are none
+ */
 
 const char *TLex::NextToken(TInt *a_piLength)
 {
@@ -260,13 +305,16 @@ const char *TLex::NextToken(TInt *a_piLength)
 	return(RetVal);
 }
 
-/* Written: Tuesday 08-Jan-2013 6:34 am, Vis à Vis Hotel, Lindau */
-/* Moves the internal text ptr forwards by a certain number of characters. */
-/* This function should only be used if you really know what you are doing */
-/* as it is breaking C++ abstraction rules and is use-at-your-own-risk! */
-/* It is supplied only so that the Lex class can be used by more advanced */
-/* tokenising code */
-/* @param	a_iLength	Number of characters to skip */
+/**
+ * Moves the internal text ptr forwards by a certain number of characters.
+ * This function should only be used if you really know what you are doing
+ * as it is breaking C++ abstraction rules and is use-at-your-own-risk!
+ * It is supplied only so that the Lex class can be used by more advanced
+ * tokenising code.
+ *
+ * @date	Tuesday 08-Jan-2013 6:34 am, Vis à Vis Hotel, Lindau
+ * @param	a_iLength	Number of characters to skip
+ */
 
 void TLex::MoveForwards(TInt a_iLength)
 {
@@ -276,13 +324,16 @@ void TLex::MoveForwards(TInt a_iLength)
 	ASSERTM((m_iLength >= 0), "TLex::MoveForwards() => Moved forwards too far");
 }
 
-/* Written: Tuesday 08-Jan-2013 6:24 am, Vis à Vis Hotel, Lindau */
-/* Moves the internal text ptr backwards by a certain number of characters. */
-/* This function should only be used if you really know what you are doing */
-/* as it is breaking C++ abstraction rules and is use-at-your-own-risk! */
-/* It is supplied only so that the Lex class can be used by more advanced */
-/* tokenising code */
-/* @param	a_iLength	Number of characters to skip backwards */
+/**
+ * Moves the internal text ptr backwards by a certain number of characters.
+ * This function should only be used if you really know what you are doing
+ * as it is breaking C++ abstraction rules and is use-at-your-own-risk!
+ * It is supplied only so that the Lex class can be used by more advanced
+ * tokenising code.
+ *
+ * @date	Tuesday 08-Jan-2013 6:24 am, Vis à Vis Hotel, Lindau
+ * @param	a_iLength	Number of characters to skip backwards
+ */
 
 void TLex::MoveBackwards(TInt a_iLength)
 {
@@ -290,15 +341,18 @@ void TLex::MoveBackwards(TInt a_iLength)
 	m_iLength += a_iLength;
 }
 
-/* Written: Tuesday 27-Nov-2012 5:52 am */
-/* Configures the TLex class such that it retains white space, quotes or both. */
-/* Note that if you use the destructive version of the TLex::NextToken() then */
-/* this function can cause incompatibilities with it, as the destructive NextToken() */
-/* depends on being able to write its NULL terminator into the white space.  If */
-/* you need to extract white space then you will need to use the non destructive */
-/* version of TLex::NextToken() */
-/* @param a_bKeepQuotes     ETrue to retain the " quotation marks in extracted strings */
-/*        a_bKeepWhiteSpace ETrue to return white space as a token */
+/**
+ * Configures the TLex class such that it retains white space, quotes or both.
+ * Note that if you use the destructive version of the TLex::NextToken() then
+ * this function can cause incompatibilities with it, as the destructive NextToken()
+ * depends on being able to write its NULL terminator into the white space.  If
+ * you need to extract white space then you will need to use the non destructive
+ * version of TLex::NextToken().
+ *
+ * @date	Tuesday 27-Nov-2012 5:52 am
+ * @param	a_bKeepQuotes     ETrue to retain the " quotation marks in extracted strings
+ *			a_bKeepWhiteSpace ETrue to return white space as a token
+ */
 
 void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
 {
@@ -306,14 +360,18 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
 	m_bKeepWhiteSpace = a_bKeepWhiteSpace;
 }
 
-/* Written: Wednesday 05-Dec-2012 5:30 am */
-/* @param a_pcWhitespace	Ptr to string containing the new white space characters */
-/*							Contents must be valid for the duration of the class's use */
-/* Sets the white space character list so that other characters can be treated as */
-/* white space.  For example, to parse the string ".cpp;.c;.h" into its separate */
-/* tokens you would use a white space string of ";".  Note that white space is */
-/* treated specially by the destructive extraction routines and thus setting the */
-/* white space separator is only allowed for the non destructive routines */
+/**
+ * Sets the user definable white space character list.
+ * Sets the white space character list so that other characters can be treated as
+ * white space.  For example, to parse the string ".cpp;.c;.h" into its separate
+ * tokens you would use a white space string of ";".  Note that white space is
+ * treated specially by the destructive extraction routines and thus setting the
+ * white space separator is only allowed for the non destructive routines.
+ *
+ * @date	Wednesday 05-Dec-2012 5:30 am
+ * @param	a_pcWhitespace	Ptr to string containing the new white space characters
+ *							Contents must be valid for the duration of the class's use
+ */
 
 void TLex::SetWhitespace(const char *a_pcWhitespace)
 {

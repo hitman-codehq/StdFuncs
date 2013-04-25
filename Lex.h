@@ -20,17 +20,7 @@ private:
 
 public:
 
-	TLex(const char *a_pccString, TInt a_iLength)
-	{
-		/* Remember to set these in the other constructor as well */
-
-		m_pccString = m_pccOriginalString = a_pccString;
-		m_pcString = NULL;
-		m_pcWhitespace = " \t";
-		m_iLength = m_iOriginalLength = a_iLength;
-		m_iWhitespaceLength = 2;
-		m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
-	}
+	TLex(const char *a_pccString, TInt a_iLength);
 
 	TLex(char *a_pcString);
 
