@@ -569,7 +569,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 		if (!(m_bHighlight))
 		{
-            QPen Pen(QColor((g_aoColours[Colour] & 0xff), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] >> 16)));
+			QPen Pen(QColor((g_aoColours[Colour] & 0xff), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] >> 16)));
 			m_oPainter.setPen(Pen);
 		}
 
@@ -675,7 +675,7 @@ void RFont::SetHighlight(TBool a_bHighlight)
 }
 
 /* Written: Wednesday 30-Nov-2011 5:49 am, Söflingen */
-/* @param	a_iClipWidth    Number of pixels to draw horizontally before clipping */
+/* @param	a_iClipWidth	Number of pixels to draw horizontally before clipping */
 /* Sets the clipping width of the area into which the font will draw.  This is the */
 /* number of pixels starting at the value passed into RFont::SetXOffset() - it is */
 /* an offset, not an absolute value! */

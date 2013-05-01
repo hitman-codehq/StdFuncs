@@ -723,7 +723,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 /* finds the CDialog with which the gadget is associated and passes control to the dialog for */
 /* processing of the hook */
 
-TInt CDialog::StringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage)
+TInt CDialog::StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage)
 {
 	CDialog *Dialog;
 
@@ -747,7 +747,7 @@ TInt CDialog::StringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TU
 /* (as the STRINGA_TextVal attribute has not yet been updated when this hook is called) and will */
 /* then notify the client code of the update */
 
-TInt CDialog::DoStringEditHook(struct Hook * /*a_poHook */,  struct SGWork *a_poWork, TUint *a_pulMessage)
+TInt CDialog::DoStringEditHook(struct Hook * /*a_poHook */, struct SGWork *a_poWork, TUint *a_pulMessage)
 {
 	TInt RetVal;
 

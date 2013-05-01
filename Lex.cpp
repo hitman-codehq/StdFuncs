@@ -350,8 +350,8 @@ void TLex::MoveBackwards(TInt a_iLength)
  * version of TLex::NextToken().
  *
  * @date	Tuesday 27-Nov-2012 5:52 am
- * @param	a_bKeepQuotes     ETrue to retain the " quotation marks in extracted strings
- *			a_bKeepWhiteSpace ETrue to return white space as a token
+ * @param	a_bKeepQuotes		ETrue to retain the " quotation marks in extracted strings
+ *			a_bKeepWhiteSpace	ETrue to return white space as a token
  */
 
 void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)

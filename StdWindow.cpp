@@ -58,7 +58,7 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 #endif /* WIN32 */
 
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
-TBool CWindow::m_bCtrlPressed;      /* ETrue if ctrl is currently pressed */
+TBool CWindow::m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
 
 #ifdef __amigaos4__
 
@@ -926,7 +926,7 @@ TBool CWindow::CreateMenus()
 			else if (MenuItem->m_eType == EStdMenuSeparator)
 			{
 				DEBUGCHECK((AppendMenu(DropdownMenu, MF_SEPARATOR, MenuItem->m_iCommand, NULL) != FALSE),
-					"CWindow::CreateMenus() =>  Unable to append separator menu item");
+					"CWindow::CreateMenus() => Unable to append separator menu item");
 			}
 
 			/* Otherwise it is a "normal" menu item so create a menu item for it.  This will involve */
@@ -981,7 +981,7 @@ TBool CWindow::CreateMenus()
 					/* previously created drop down menu */
 
 					DEBUGCHECK((AppendMenu(DropdownMenu, 0, MenuItem->m_iCommand, Label) != FALSE),
-						"CWindow::CreateMenus() =>  Unable to append new menu item");
+						"CWindow::CreateMenus() => Unable to append new menu item");
 				}
 				else
 				{

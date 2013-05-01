@@ -99,7 +99,7 @@ public:
 	CWindow(RApplication *a_poApplication)
 	{
 		m_bFillBackground = ETrue;
-		m_poApplication  = a_poApplication;
+		m_poApplication = a_poApplication;
 	}
 
 	virtual ~CWindow();

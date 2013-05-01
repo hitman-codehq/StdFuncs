@@ -12,10 +12,10 @@ class QApplication;
 
 enum TStdMenuItemType
 {
-	EStdMenuEnd,
+	EStdMenuEnd,						/* Marker to indicate the end of the menu list */
 	EStdMenuTitle,						/* A menu */
 	EStdMenuItem,						/* An item on a menu */
-	EStdMenuCheck,					    /* A checked menu item */
+	EStdMenuCheck,						/* A checked menu item */
 	EStdMenuSeparator					/* A separator bar */
 };
 

@@ -39,14 +39,14 @@ void RFileRequester::Close()
  * The a_pccFileName parameter can be a directory, in which case the file requester is opened
  * pointing to this directory, or a fully qualified filename, in which case the filename is split
  * and both parts are used in choosing the directory in which to open the requester
- * @date    Saturday 26-Jun-2010 2:48 pm
+ * @date	Saturday 26-Jun-2010 2:48 pm
  * @param	a_pccFileName	Ptr to fully qualified filename with which to initialise the file
  *							open requester.  May be NULL
  * @param	a_bSaveAs		ETrue to prompt for a file to save, else EFalse for a file to open
  * @return	KErrNone if a filename was requested successfully
- * @return  KErrCancel if the user clicked cancel without selecting a file
- * @return  KErrNoMemory if not enough memory was available
- * @return  KErrGeneral if another error occurred obtaining the file
+ * @return	KErrCancel if the user clicked cancel without selecting a file
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if another error occurred obtaining the file
  */
 
 TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
@@ -108,7 +108,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 						DirectoryName = m_pcDirectoryName;
 					}
 
-                    /* Display the filename part in the requester */
+					/* Display the filename part in the requester */
 
 					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
 					strcpy(m_acFileName, FileName);
@@ -209,12 +209,12 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	Parent = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
-    /* If a directory name has been included in the path passed in then try to open the */
-    /* requester in that directory */
+ 	/* If a directory name has been included in the path passed in then try to open the */
+	/* requester in that directory */
 
-    Directory = (DirectoryName) ? DirectoryName : "";
+	Directory = (DirectoryName) ? DirectoryName : "";
 
-    /* Request a filename from the user using the open or save requester as appropriate */
+	/* Request a filename from the user using the open or save requester as appropriate */
 
 	if (a_bSaveAs)
 	{
@@ -225,18 +225,18 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		File = QFileDialog::getOpenFileName(Parent, g_accOpenText, Directory, "*");
 	}
 
-    if (File.length() > 0)
-    {
-        RetVal = KErrNone;
+	if (File.length() > 0)
+	{
+		RetVal = KErrNone;
 
-        /* Save the filename (which is fully qualified) for l8r use */
+		/* Save the filename (which is fully qualified) for l8r use */
 
-        strcpy(m_acFileName, File.toAscii()); // TODO: CAW - Length + strange copy/assert above?
-    }
-    else
-    {
-        RetVal = KErrCancel;
-    }
+		strcpy(m_acFileName, File.toAscii()); // TODO: CAW - Length + strange copy/assert above?
+	}
+ 	else
+	{
+		RetVal = KErrCancel;
+	}
 
 #else /* ! QT_GUI_LIB */
 

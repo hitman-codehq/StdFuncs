@@ -72,9 +72,9 @@ public:
 
 #ifdef __amigaos4__
 
-	static TInt	StringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage);
+	static TInt	StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
 
-	TInt DoStringEditHook(struct Hook *a_poHook,  struct SGWork *a_poWork, TUint *a_pulMessage);
+	TInt DoStringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
 
 #endif /* __amigaos4__ */
 

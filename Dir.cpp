@@ -868,7 +868,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 				}
 
 				/* Append the entry if it is was judged ok to do so */
- 
+
 				if (Append)
 				{
 					if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
@@ -945,7 +945,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 			/* Determine whether we ran out of files to scan or an error occurred when scanning */
 
-			if (GetLastError() !=  ERROR_NO_MORE_FILES)
+			if (GetLastError() != ERROR_NO_MORE_FILES)
 			{
 				RetVal = KErrGeneral;
 			}

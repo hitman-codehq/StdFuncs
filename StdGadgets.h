@@ -68,6 +68,10 @@ protected:
 
 #endif /* WIN32 */
 
+public:
+
+	StdListNode<CStdGadget>	m_oStdListNode;		/* Standard list node */
+
 private:
 
 	void SetPosition(TInt a_iX, TInt a_iY);
@@ -77,8 +81,6 @@ private:
 public:
 
 	virtual ~CStdGadget();
-
-	StdListNode<CStdGadget>	m_oStdListNode;     /* Standard list node */
 
 	TInt GadgetID()
 	{
@@ -130,7 +132,7 @@ private:
 
 public:
 
-	StdListNode<CStdGadgetLayout>	m_oStdListNode;     /* Standard list node */
+	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/* Standard list node */
 
 private:
 
