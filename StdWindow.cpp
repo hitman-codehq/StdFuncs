@@ -1688,7 +1688,25 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 	Resize(OldInnerWidth, OldInnerHeight);
 }
 
-/* Written: Monday 08-Feb-2010 7:13 am */
+/**
+ * Opens a window suitable for use as the application's main window.
+ * Creates and opens a window that is suitable for use as the primary window of an
+ * application.  This function takes into account the differences between supported
+ * platforms and attempts to choose a best set of attributes for the window opened.
+ * Of course these attributes reflect the opinion of the author of what constitutes a
+ * good set of window attributes and so you may not agree with them.  ;-)  For example,
+ * all windows are opened full screen by default.
+ *
+ * @date	Monday 08-Feb-2010 7:13 am
+ * @a_pccTitle		Ptr to a string to be placed into the title bar of the window
+ * @a_pccScreenName	Ptr to the name of the screen on which to open the window.  Amiga
+ *					OS only - this is ignored on other platforms
+ * @a_bResizeable	ETrue to enable resizing of the window.  Amiga OS only - on other
+ *					platforms windows are always resizeable
+ * @return			KErrNone if the window was opened successfully
+ * @return			KErrNoMemory if there was not enough memory to open the window
+ * @return			KErrGeneral if an operating system specific error occurred
+ */
 
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
 {
@@ -1703,6 +1721,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	Utils::GetScreenSize(&ScreenWidth, &ScreenHeight);
 
 #ifdef __amigaos4__
+
+	ASSERTM((a_poScreenName != NULL), "CWindow::Open() => Screen name must be specified");
 
 	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
 	/* provided by Reaction, such as the movement of proportional gadgets */
@@ -1760,6 +1780,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 #elif defined(QT_GUI_LIB)
 
 	(void) a_pccScreenName;
+	(void) a_bResizeable;
 
 	/* Assume failure */
 
