@@ -1722,7 +1722,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 #ifdef __amigaos4__
 
-	ASSERTM((a_poScreenName != NULL), "CWindow::Open() => Screen name must be specified");
+	ASSERTM((a_pccScreenName != NULL), "CWindow::Open() => Screen name must be specified");
 
 	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
 	/* provided by Reaction, such as the movement of proportional gadgets */
