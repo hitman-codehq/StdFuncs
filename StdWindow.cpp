@@ -314,9 +314,11 @@ void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 
 LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
-	int Index;
+	TBool Checked;
+	TInt Command, Index;
 	TBool Handled;
 	LRESULT RetVal;
+	const struct SStdMenuItem *MenuItem;
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
@@ -391,9 +393,37 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_COMMAND :
 		{
+			/* Get the ID of the command received */
+
+			Command = LOWORD(a_oWParam);
+
+			/* In Windows, all menu items are checkable, but we only want to toggle the checkmark */
+			/* on menu items of type EStdMenuCheck.  So we must search our own menu list fo the */
+			/* menu item to determine whether it is checkable */
+
+			MenuItem = Window->m_poApplication->MenuItems();
+
+			do
+			{
+				/* Is this the menu item for which we are searching and is it checkable? */
+
+				if ((MenuItem->m_iCommand == Command) && (MenuItem->m_eType == EStdMenuCheck))
+				{
+					/* Yes, got it!  Get its current check state and toggle it */
+
+					Checked = Window->MenuItemChecked(Command);
+					Window->CheckMenuItem(Command, (!(Checked)));
+
+					break;
+				}
+
+				++MenuItem;
+			}
+			while (MenuItem->m_eType != EStdMenuEnd);
+
 			/* Call the CWindow::HandleCommand() function so the client can process the message */
 
-			Window->HandleCommand(LOWORD(a_oWParam));
+			Window->HandleCommand(Command);
 
 			break;
 		}
@@ -688,10 +718,17 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 }
 
-/* Written: Tuesday 10-Apr-2012 7:07 am, Code HQ Ehinger Tor */
-/* @param	a_iItemID	ID of the menu item to be checked or unchecked */
-/* @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it */
-/* This function will enable or disable the checkmark in a checkable menu item */
+/**
+ * Enables or disables the checkmark on a checkable menu item.
+ * Finds a menu item that has a command ID matching that passed in enables or
+ * disables its checkmark.  For a menu item to be checked it must have been
+ * created with the type EStdMenuCheck.  It is safe to call this function on a
+ * menu item that is not of this type;  in thise case it will simply do nothing.
+ *
+ * @date	Tuesday 10-Apr-2012 7:07 am, Code HQ Ehinger Tor
+ * @param	a_iItemID	ID of the menu item to be checked or unchecked
+ * @param	a_bEnable	ETrue to check the menu item, else EFalse to uncheck it
+ */
 
 void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 {
@@ -781,7 +818,7 @@ TBool CWindow::CreateMenus()
 	char *Label;
 	TInt FunctionKey, Index, Length, NumAccelerators;
 	ACCEL *Accelerators;
-	HMENU Menu, DropdownMenu;
+	HMENU DropdownMenu;
 
 #endif /* ! QT_GUI_LIB */
 
@@ -895,7 +932,7 @@ TBool CWindow::CreateMenus()
 
 	/* Create a top level menubar to which drop down menus can be attached */
 
-	if ((Menu = CreateMenu()) != NULL)
+	if ((m_poMenu = CreateMenu()) != NULL)
 	{
 		DropdownMenu = NULL;
 
@@ -907,7 +944,7 @@ TBool CWindow::CreateMenus()
 			{
 				if ((DropdownMenu = CreatePopupMenu()) != NULL)
 				{
-					DEBUGCHECK((AppendMenu(Menu, MF_POPUP, (UINT_PTR) DropdownMenu, MenuItem->m_pccLabel) != FALSE),
+					DEBUGCHECK((AppendMenu(m_poMenu, MF_POPUP, (UINT_PTR) DropdownMenu, MenuItem->m_pccLabel) != FALSE),
 						"CWindow::CreateMenus() => Unable to append new menu");
 				}
 				else
@@ -1006,7 +1043,7 @@ TBool CWindow::CreateMenus()
 
 		/* Now add the top level menubar to the window */
 
-		DEBUGCHECK((SetMenu(m_poWindow, Menu) != FALSE), "CWindow::CreateMenus() => Unable to assign menu to window");
+		DEBUGCHECK((SetMenu(m_poWindow, m_poMenu) != FALSE), "CWindow::CreateMenus() => Unable to assign menu to window");
 
 		/* And free the temporary buffer used for the menu item labels */
 
@@ -1686,6 +1723,66 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 	/* Now let the derived window class know that the window's size has changed */
 
 	Resize(OldInnerWidth, OldInnerHeight);
+}
+
+/**
+ * Determines whether a menu item is checked.
+ * Finds a menu item that has a command ID matching that passed in and returns
+ * whether or not it is checked.  For a menu item to be checked it must have been
+ * created with the type EStdMenuCheck.  It is safe to call this function on a
+ * menu item that is not of this type;  in thise case it will always return EFalse.
+ *
+ * @date	Sunday 05-May-2013 8:25 am, Code HQ Ehinger Tor
+ * @param	a_iItemID	ID of the menu item to be queried
+ * @return	ETrue if the item is checked, else EFalse
+ */
+
+TBool CWindow::MenuItemChecked(TInt a_iItemID)
+{
+	TBool RetVal;
+
+	/* Assume the menu item is not checked */
+
+	RetVal = EFalse;
+
+#ifdef __amigaos4__
+
+#elif defined(QT_GUI_LIB)
+
+	CQtAction *QtAction;
+
+	/* Map the menu item's ID onto a CQtAction object the can be used by Qt */
+
+	if ((QtAction = FindMenuItem(a_iItemID)) != 0)
+	{
+		/* And determine whether the menu item is checked */
+
+		RetVal = QtAction->isChecked();
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	MENUITEMINFO MenuItemInfo;
+
+	/* Query the checkmark state of the menu item */
+
+	memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
+	MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+	MenuItemInfo.fMask = (MIIM_CHECKMARKS | MIIM_STATE);
+
+	if (GetMenuItemInfo(m_poMenu, a_iItemID, FALSE, &MenuItemInfo))
+	{
+		/* And determine whether the menu item is checked */
+
+		if (MenuItemInfo.fState & MFS_CHECKED)
+		{
+			RetVal = ETrue;
+		}
+	}
+
+#endif /* ! QT_GUI_LIB */
+
+	return(RetVal);
 }
 
 /**

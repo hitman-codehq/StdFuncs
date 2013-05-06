@@ -55,6 +55,7 @@ private:
 #elif defined(WIN32)
 
 	ATOM				m_poWindowClass;			/* Window's class, returned from RegisterClass() */
+	HMENU				m_poMenu;					/* Handle to window's menu bar */
 
 #endif /* WIN32 */
 
@@ -174,6 +175,8 @@ public:
 	{
 		g_poRootWindow = this;
 	}
+
+	TBool MenuItemChecked(TInt a_iItemID);
 
 	static CWindow *RootWindow()
 	{
