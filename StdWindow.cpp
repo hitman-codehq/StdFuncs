@@ -1747,13 +1747,33 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 
 #ifdef __amigaos4__
 
+	ULONG FullMenuNum;
+	struct MenuItem *MenuItem;
+
+	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
+
+	if ((FullMenuNum = FindMenuMapping(m_poApplication->MenuMappings(), m_poApplication->NumMenuMappings(), a_iItemID)) != 0)
+	{
+		/* Now use the result to find the actual menu in the menu strip */
+
+		if ((MenuItem = IIntuition->ItemAddress(m_poApplication->Menus(), FullMenuNum)) != NULL)
+		{
+			/* And determine whether the menu item is checked */
+
+			if (MenuItem->Flags & CHECKED)
+			{
+				RetVal = ETrue;
+			}
+		}
+	}
+
 #elif defined(QT_GUI_LIB)
 
 	CQtAction *QtAction;
 
 	/* Map the menu item's ID onto a CQtAction object the can be used by Qt */
 
-	if ((QtAction = FindMenuItem(a_iItemID)) != 0)
+	if ((QtAction = FindMenuItem(a_iItemID)) != NULL)
 	{
 		/* And determine whether the menu item is checked */
 
