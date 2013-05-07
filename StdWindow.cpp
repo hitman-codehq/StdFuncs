@@ -462,12 +462,22 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		}
 
 		case WM_SYSKEYDOWN :
+		case WM_SYSKEYUP :
 		{
-			/* If the ALT key was pressed then save its state for l8r use */
+			/* Intercept the menu activation key (F10 or alt+x key combination) so that we can keep track */
+			/* of the state of the alt and ctrl keys.  This is to allow activation of menus in the normal */
+			/* manner while also allowing the client to override the menu activation key for other tasks */
 
 			if (a_oWParam == VK_MENU)
 			{
-				m_bAltPressed = ETrue;
+				if (a_uiMessage == WM_SYSKEYDOWN)
+				{
+					m_bAltPressed = ETrue;
+				}
+				else
+				{
+					m_bAltPressed = m_bCtrlPressed = EFalse;
+				}
 			}
 
 			/* And indicate that we want to pass the keypress onto the system */
