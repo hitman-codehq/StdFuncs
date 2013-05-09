@@ -1141,9 +1141,13 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContent
 		/* If the buffer was already allocated, copy the old contents into the new buffer */
 		/* if requested, and free the old buffer */
 
-		if ((OldBuffer) && (a_bCopyContents))
+		if (OldBuffer)
 		{
-			memcpy(RetVal, OldBuffer, Size);
+			if (a_bCopyContents)
+			{
+				memcpy(RetVal, OldBuffer, Size);
+			}
+
 			delete [] (OldBuffer - 4);
 		}
 	}
