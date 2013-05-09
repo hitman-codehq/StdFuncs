@@ -1069,21 +1069,27 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 	return(RetVal);
 }
 
-/* Written: Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor */
-/* @param	a_pccBuffer	Ptr to the currently allocated buffer */
-/*			a_iSize		Size in bytes of the new buffer to be allocated */
-/* @return	A Ptr to the allocated buffer if successful, else NULL */
-/* This function is useful if you have a situation that calls for a temporary */
-/* buffer of an unknown and varying size (thus preventing the use of a satic */
-/* buffer) and do not want to dynamically allocate and delete the buffer every */
-/* time you use it.  If you use this function instead then the buffer will only */
-/* be reallocated if the new buffer is larger than the old one.  The first */
-/* time you call this function you should pass in NULL as the buffer ptr.  */
-/* For subsequent calls, pass in the buffer returned by the previous call. */
-/* When done, use Utils::FreeTempBuffer() to free the allocated buffer.  If a */
-/* new buffer is allocated, the contents of the old one will be copied into it */
+/**
+ * Allocates or reallocates a temporary buffer.
+ * This function is useful if you have a situation that calls for a temporary
+ * buffer of an unknown and varying size (thus preventing the use of a satic
+ * buffer) and do not want to dynamically allocate and delete the buffer every
+ * time you use it.  If you use this function instead then the buffer will only
+ * be reallocated if the new buffer is larger than the old one.  The first
+ * time you call this function you should pass in NULL as the buffer ptr.
+ * For subsequent calls, pass in the buffer returned by the previous call.
+ * When done, use Utils::FreeTempBuffer() to free the allocated buffer.  If a
+ * new buffer is allocated, the contents of the old one can be copied into it
+ * if desired (this is done by default).
+ *
+ * @date	Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor
+ * @param	a_pccBuffer	Ptr to the currently allocated buffer
+ *			a_iSize		Size in bytes of the new buffer to be allocated
+ *			a_bCopyContents	ETrue to copy the contents of the old buffer
+ * @return	A Ptr to the allocated buffer if successful, else NULL
+ */
 
-void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
+void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContents)
 {
 	char *OldBuffer, *RetVal;
 	TInt Size;
@@ -1133,9 +1139,9 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize)
 		RetVal += 4;
 
 		/* If the buffer was already allocated, copy the old contents into the new buffer */
-		/* and free the old buffer */
+		/* if requested, and free the old buffer */
 
-		if (OldBuffer)
+		if ((OldBuffer) && (a_bCopyContents))
 		{
 			memcpy(RetVal, OldBuffer, Size);
 			delete [] (OldBuffer - 4);
