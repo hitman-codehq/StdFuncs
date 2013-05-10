@@ -367,7 +367,7 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 		/* Save our own copy of the text so we don't have to depend on the underlying operating */
 		/* system if we want to retrieve it later */
 
-		if ((m_ppcPartsText[a_iPart] = (char *) Utils::GetTempBuffer(m_ppcPartsText[a_iPart], strlen(a_pccText) + 1)) != NULL)
+		if ((m_ppcPartsText[a_iPart] = (char *) Utils::GetTempBuffer(m_ppcPartsText[a_iPart], strlen(a_pccText) + 1), EFalse) != NULL)
 		{
 			strcpy(m_ppcPartsText[a_iPart], a_pccText);
 		}

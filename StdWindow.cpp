@@ -998,7 +998,7 @@ TBool CWindow::CreateMenus()
 
 				/* Allocate a temporary buffer in which to build the menu item's label */
 
-				if ((Label = (char *) Utils::GetTempBuffer(Label,  Length)) != NULL)
+				if ((Label = (char *) Utils::GetTempBuffer(Label,  Length, EFalse)) != NULL)
 				{
 					/* Now build the menu item's label as a composite of the label's base name, a */
 					/* tab, a modifier key and the textual name of the shortcut key */
