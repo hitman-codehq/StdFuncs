@@ -264,11 +264,6 @@ TInt RFont::Begin()
 
 		m_oBackground = m_oPainter.background().color();
 		m_oText = m_oPainter.pen().color();
-
-		/* Make the background opaque as its colour cannot be changed when it is transparent, which */
-		/* is the default */
-
-		m_oPainter.setBackgroundMode(Qt::OpaqueMode);
 	}
 	else
 	{
@@ -377,11 +372,20 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	X = (m_iXOffset + (a_iX * m_iWidth));
 	Y = (m_iYOffset + (a_iY * m_iHeight));
 
+	/* Set the background mode to opaque, as we want to forcibly draw the cursor over the top of the background */
+
+	m_oPainter.setBackgroundMode(Qt::OpaqueMode);
+
 	/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
 	/* uses the Y position as the baseline of the font, not as the top */
 
 	QByteArray String(Cursor, 1);
 	m_oPainter.drawText(X, (Y + m_iBaseline), String);
+
+	/* Set the background mode back to transparent so that if there is a pretty transparent background or a */
+	/* gradient in the background it is displayed correctly */
+
+	m_oPainter.setBackgroundMode(Qt::TransparentMode);
 
 #elif defined(WIN32)
 
