@@ -232,9 +232,9 @@ const char *TLex::NextToken(TInt *a_piLength)
 				++Index;
 			}
 
-			/* Only skip the end " if we are configured to keep it */
+			/* Only skip the end " if we are configured to keep it and if it actually exists */
 
-			if (m_bKeepQuotes)
+			if ((m_bKeepQuotes) && (*NextToken == '"'))
 			{
 				++NextToken;
 				++Index;

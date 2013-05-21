@@ -53,6 +53,17 @@ static const char *g_apccCRLFAtEndListResults[] = { "One" };
 static const char g_accCRAtEndList[] = "One\r";
 static const char g_accLFAtEndList[] = "One\n";
 
+#define SINGLE_QUOTE_COUNT 1
+static const char g_accSingleQuote[] = "\"";
+static const char *g_accSingleQuoteResults[] = { "\"" };
+
+#define DOUBLE_QUOTE_COUNT 1
+static const char g_accDoubleQuote[] = "\"\"";
+static const char *g_accDoubleQuoteResults[] = { "\"\"" };
+
+#define SINGLE_QUOTE_SKIP_COUNT 0
+#define DOUBLE_QUOTE_SKIP_COUNT 0
+
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
 /*			a_apccList		Array of ptrs to strings containing the exepcted results */
@@ -202,6 +213,29 @@ int main()
 
 	TLex LFAtEnd(g_accLFAtEndList, strlen(g_accLFAtEndList));
 	CheckListNonDestructive(LFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
+
+	/* Test #6: Ensure that quotes without content are handled sanely */
+
+	Test.Next("Ensure that quotes without content are handled sanely");
+
+	/* Parsing a string with a single quote has caused problems in the past so ensure that it is */
+	/* handled precisely as expected */
+
+	TLex SingleQuote(g_accSingleQuote, strlen(g_accSingleQuote));
+	SingleQuote.SetConfig(ETrue, ETrue);
+	CheckListNonDestructive(SingleQuote, g_accSingleQuoteResults, SINGLE_QUOTE_COUNT);
+
+	TLex SingleQuoteSkip(g_accSingleQuote, strlen(g_accSingleQuote));
+	CheckListNonDestructive(SingleQuoteSkip, g_accSingleQuoteResults, SINGLE_QUOTE_SKIP_COUNT);
+
+	/* Also check that double quotes by themselves are handled as expected */
+
+	TLex DoubleQuote(g_accDoubleQuote, strlen(g_accDoubleQuote));
+	DoubleQuote.SetConfig(ETrue, ETrue);
+	CheckListNonDestructive(DoubleQuote, g_accDoubleQuoteResults, DOUBLE_QUOTE_COUNT);
+
+	TLex DoubleQuoteSkip(g_accDoubleQuote, strlen(g_accDoubleQuote));
+	CheckListNonDestructive(DoubleQuoteSkip, g_accDoubleQuoteResults, DOUBLE_QUOTE_SKIP_COUNT);
 
 	Test.End();
 
