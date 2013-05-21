@@ -80,9 +80,21 @@ TBool g_bUsingGUI;
 
 CWindow	*g_poRootWindow;
 
-/* Written: Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor */
-/* Internal function that takes the OS specific error from the last function call and maps */
-/* it onto the appropriate Symbian return code */
+/**
+ * 
+ * Maps the OS's last error onto one of The Framework's standard errors.
+ * This function will determine the last error reported by the OS and to map it
+ * onto a standard error.
+ *
+ * @date	Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor
+ * @return	KErrNone if the last OS operation was successful
+ * @return	KErrAlreadyExists if the file already exists
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt Utils::MapLastError()
 {
@@ -94,7 +106,11 @@ TInt Utils::MapLastError()
 
 	Result = IDOS->IoErr();
 
-	if (Result == ERROR_OBJECT_NOT_FOUND)
+	if (Result == ERROR_OBJECT_EXISTS)
+	{
+		Result = KErrAlreadyExists;
+	}
+	else if (Result == ERROR_OBJECT_NOT_FOUND)
 	{
 		RetVal = KErrNotFound;
 	}
@@ -162,18 +178,30 @@ TInt Utils::MapLastError()
 	return(RetVal);
 }
 
-/* Written: Monday 09-Oct-2012 5:47 am */
-/* @param	a_pccFileName		Ptr to the name of the file to be checked */
-/* @return	KErrNone if successful */
-/*			KErrAlreadyExists if the file already exists */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrNotFound if the path is ok, but the file does not exist */
-/*			KErrNotEnoughMemory if not enough memory was available */
-/*			KErrGeneral if some other unexpected error occurred */
-/* Maps the last error that occurred from a UNIX error to a Symbian style error. */
-/* This will also handle the case where a file was not found, by checking to see */
-/* if its path exists, thus differentiating between the file not existing and the */
-/* path to that file not existing */
+/**
+ * Maps the OS's last error onto one of The Framework's standard errors.
+ * This function is an extension to Utils::MapLastError().  It uses that function to
+ * determine the last error reported by the OS and to map it onto a standard error,
+ * but then performs some extra file related checking on some operating systems to
+ * perhaps change the error returned.  This is because different operating systems
+ * handle errors slightly differently and thus without this function the results
+ * returned by The Framework's file I/O related functions would be different on
+ * different platforms.
+ *
+ * This function should only be used in functions that perform file or directory I/O.
+ * All other functions should use Utils::MapLastError() directly to do their error
+ * mapping.
+ *
+ * @date	Monday 09-Oct-2012 5:47 am
+ * @param	a_pccFileName		Ptr to the name of the file to be checked
+ * @return	KErrNone if successful
+ * @return	KErrAlreadyExists if the file already exists
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt Utils::MapLastFileError(const char *a_pccFileName)
 {
@@ -193,7 +221,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 	TInt NameOffset;
 	struct TEntry Entry;
 
-	/* Unfortunately UNIX doesn't have an error that can be mapped onto KErrPathNotFound */
+	/* Unfortunately UNIX and Amiga OS don't have an error that can be mapped onto KErrPathNotFound */
 	/* so we must do a little extra work here.  Amiga OS needs a little help too */
 
 	if (RetVal == KErrNotFound)
@@ -454,15 +482,19 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 	return(RetVal);
 }
 
-/* Written: Friday 27-Jul-2012 10:27 am */
-/* @param	a_pccDirectoryName	Name of the directory to be deleted */
-/* @return	KErrNone if successful */
-/*			KErrPathNotFound if the path to the directory does not exist */
-/*			KErrNotFound if the path is ok, but the directory does not exist */
-/*			KErrInUse if the directory is open for use */
-/*			KErrGeneral if some other unexpected error occurred */
-/* This function will delete a directory.  The directory in question must not be */
-/* open for use in any way and must be empty */
+/**
+ * Deletes a directory from the file system.
+ * This function will delete a directory.  The directory in question must not be
+ * open for use in any way and must be empty.
+ *
+ * @date	Friday 27-Jul-2012 10:27 am
+ * @param	a_pccDirectoryName	Name of the directory to be deleted
+ * @return	KErrNone if successful
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 {

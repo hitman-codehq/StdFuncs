@@ -34,20 +34,25 @@ RFile::RFile()
 
 }
 
-/* Written: Friday 02-Jan-2009 8:54 pm */
-/* @param	a_pccFileName	Ptr to the name of the file to be created */
-/*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
-/*							API and is ignored (but should be EFileWrite for consistency) */
-/* @return	KErrNone if successful */
-/*			KErrAlreadyExists if the file already exists */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrNotFound if the path is ok, but the file does not exist */
-/*			KErrInUse if the file is already open for writing */
-/*			KErrNotEnoughMemory if not enough memory was available */
-/*			KErrGeneral if some other unexpected error occurred */
-/* Creates a new file that can subsequently be used for writing operations.  If a file already */
-/* exists with the same name then the function will fail.  The a_pccFileName parameter can specify */
-/* a path to the file but the path must already exist */
+/**
+ * Creates a new file for writing.
+ * Creates a new file that can subsequently be used for writing operations.  If a file already
+ * exists with the same name then the function will fail.  The a_pccFileName parameter can additionally
+ * include a path to the file but the path must already exist.  It will not be created if it does
+ * not already exist.
+ *
+ * @date	Friday 02-Jan-2009 8:54 pm
+ * @param	a_pccFileName	Ptr to the name of the file to be created
+ * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
+ *							API and is ignored (but should be EFileWrite for consistency)
+ * @return	KErrNone if successful
+ * @return	KErrAlreadyExists if the file already exists
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 {
@@ -191,17 +196,24 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	return(RetVal);
 }
 
-/* Written: Monday 19-Apr-2010 6:26 am */
-/* @param	a_pccFileName	Ptr to the name of the file to be created */
-/*			a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian */
-/*							API and is ignored (but should be EFileWrite for consistency) */
-/* @return	KErrNone if successful */
-/*			KErrAlreadyExists if the file already exists */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrGeneral if some other unexpected error occurred */
-/* Creates a new file that can subsequently be used for writing operations.  If a file already */
-/* exists with the same name then the function will replace it.  The a_pccFileName parameter can specify */
-/* a path to the file but the path must already exist */
+/**
+ * Creates a new file for writing, deleting any that previously exists.
+ * Creates a new file that can subsequently be used for writing operations.  If a file
+ * already exists with the same name then the function will replace it.  This function is
+ * a convenience wrapper around RFile::Create();  see that function for further details.
+ *
+ * @date	Monday 19-Apr-2010 6:26 am
+ * @param	a_pccFileName	Ptr to the name of the file to be created
+ * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
+ *							API and is ignored (but should be EFileWrite for consistency)
+ * @return	KErrNone if successful
+ * @return	KErrAlreadyExists if the file already exists
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 {
@@ -221,20 +233,26 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 	return(RetVal);
 }
 
-/* Written: Friday 02-Jan-2009 8:57 pm */
-/* @param	a_pccFileName	Ptr to the name of the file to be opened */
-/*			a_uiFileMode	Mode in which to open the file */
-/* @return	KErrNone if successful */
-/*			KErrPathNotFound if the path to the file does not exist */
-/*			KErrNotFound if the path is ok, but the file does not exist */
-/*			KErrInUse if the file is already open for writing */
-/*			KErrNotEnoughMemory if not enough memory was available */
-/*			KErrGeneral if some other unexpected error occurred */
-/* Opens an existing file that can subsequently be used for reading operations.  The file can be opened */
-/* in the file mode EFileRead, EFileWrite, or a logical combination of them both.  If the file mode */
-/* EFileWrite is specified then the file will also be writeable.  The a_pccFileName parameter can */
-/* optionally specify a path to the file and can also be prefixed with an Amiga OS style "PROGDIR:" */
-/* prefix */
+/**
+ * Opens an existing file for reading and/or writing.
+ * Opens an existing file that can subsequently be used for reading or writing operations,
+ * or both.  The file can be opened using the file mode flags EFileRead, EFileWrite, or a
+ * logical combination of them both to elicit the desired behaviour.  If the file mode
+ * EFileWrite is specified then the file will also be writeable.  The a_pccFileName parameter can
+ * optionally specify a path to the file and can also be prefixed with an Amiga OS style "PROGDIR:"
+ * prefix.
+ *
+ * @date	Friday 02-Jan-2009 8:57 pm
+ * @param	a_pccFileName	Ptr to the name of the file to be opened
+ * @pram	a_uiFileMode	Mode in which to open the file
+ * @return	KErrNone if successful
+ * @return	KErrAlreadyExists if the file already exists
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the path is ok, but the file does not exist
+ * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
 
 TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 {

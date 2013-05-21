@@ -36,9 +36,10 @@
  * @date	Wednesday 01-Jul-2009 7:54 pm
  * @param	a_pccFileName	Name of the file to be deleted
  * @return	KErrNone if successful
- * @return	KErrPathNotFound if the path to the file does not exist
+ * @return	KErrInUse if the file or directory is in use
+ * @return	KErrNoMemory if not enough memory was available
  * @return	KErrNotFound if the path is ok, but the file does not exist
- * @return	KErrInUse if the file is open for use
+ * @return	KErrPathNotFound if the path to the file does not exist
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
