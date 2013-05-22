@@ -81,7 +81,7 @@ TBool g_bUsingGUI;
 CWindow	*g_poRootWindow;
 
 /**
- * 
+ *
  * Maps the OS's last error onto one of The Framework's standard errors.
  * This function will determine the last error reported by the OS and to map it
  * onto a standard error.
@@ -628,7 +628,7 @@ TInt Utils::Detach()
 /* Written: Wednesday 13-Feb-2013 6:48 am, Code HQ Ehinger Tor */
 /* @param	a_pccString	Ptr to the string to be duplicated */
 /*			a_iLength	Length of the string, not including NULL terminator, or -1 */
-/* @returns	Ptr to an allocated buffer containing the duplicated string if successful, */
+/* @return	Ptr to an allocated buffer containing the duplicated string if successful, */
 /*			else NULL */
 /* Allocates a buffer large enough to hold the string passed in and its NULL terminator */
 /* and copies the string into said buffer.  If a length is passed in (and 0 is a valid */

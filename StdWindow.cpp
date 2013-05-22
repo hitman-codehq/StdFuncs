@@ -806,7 +806,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 #if defined(WIN32) || defined(QT_GUI_LIB)
 
 /* Written: Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor */
-/* @returns	ETrue if all menus were created successfully, else EFalse */
+/* @return	ETrue if all menus were created successfully, else EFalse */
 /* Creates a set of menus specific to this window, using the list of SStdMenuItem structures */
 /* available from RApplication via RApplication::MenuItems().  The menus are created in here */
 /* rather than in RApplication as some platforms require a separate copy of the menus to be */

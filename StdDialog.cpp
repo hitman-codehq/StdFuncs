@@ -718,7 +718,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 /* @param	a_poHook	Ptr to a standard Amiga OS Hook structure, used by all hooks */
 /*			a_poWork	Ptr to a structure that contains the current state of the string gadget */
 /*			a_pulMessage	Ptr to a message indicating the editing command currently in progress */
-/* @returns	1 if the hook was handled, else 0 */
+/* @return	1 if the hook was handled, else 0 */
 /* Hook function called during the editing of text gadgets.  This is a static function that simply */
 /* finds the CDialog with which the gadget is associated and passes control to the dialog for */
 /* processing of the hook */
@@ -740,7 +740,7 @@ TInt CDialog::StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUi
 /* @param	a_poHook	Ptr to a standard Amiga OS Hook structure, used by all hooks */
 /*			a_poWork	Ptr to a structure that contains the current state of the string gadget */
 /*			a_pulMessage	Ptr to a message indicating the editing command currently in progress */
-/* @returns	1 if the hook was handled, else 0 */
+/* @return	1 if the hook was handled, else 0 */
 /* Hook function called during the editing of text gadgets.  This is required to provide real */
 /* time update events to client code of the framework.  If a key has been pressed then it will */
 /* save a ptr to the SGWork structure in case the client queries the value of the string gadget */
