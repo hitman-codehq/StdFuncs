@@ -108,7 +108,7 @@ TInt Utils::MapLastError()
 
 	if (Result == ERROR_OBJECT_EXISTS)
 	{
-		Result = KErrAlreadyExists;
+		RetVal = KErrAlreadyExists;
 	}
 	else if (Result == ERROR_OBJECT_NOT_FOUND)
 	{
