@@ -5,6 +5,12 @@
 #include "StdReaction.h"
 #include "StdWindow.h"
 
+#ifdef QT_GUI_LIB
+
+#include <QtGui/QWidget>
+
+#endif /* QT_GUI_LIB */
+
 /* Written: Wednesday 21-Mar-2011 6:25 am, Hilton Košice */
 
 CStdGadget::~CStdGadget()
@@ -40,39 +46,120 @@ TInt CStdGadget::Y()
 	return(m_iY);
 }
 
-/* Written: Wednesday 11-May-2011 07:00 am, Code HQ-by-Thames */
+/**
+ * Returns the width of the gadget in pixels.
+ * Returns the width of the gadget, taking into account whether or not the gadget
+ * is visible.  Hidden gadgets return a width of zero.
+ *
+ * @date	Wednesday 11-May-2011 07:00 am, Code HQ-by-Thames
+ * @return	The width of the gadget in pixels
+ */
 
 TInt CStdGadget::Width()
 {
+	TInt RetVal;
 
 #ifdef __amigaos4__
 
 	// TODO: CAW - Assert on gadget being added to the screen, here and below
-	/* Query the gadget for its width, which is set dynamically and can only */
-	/* be queried after the gadget has been layed out onto the screen */
+	/* If the gadget is not hidden then query it for its width, which is set */
+	/* dynamically and can only be queried after the gadget has been layed out */
+	/* onto the screen */
 
-	IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
+	if (!(m_bHidden))
+	{
+		IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
+		RetVal = m_iWidth;
+	}
+	else
+	{
+		RetVal = 0;
+	}
 
-#endif /* __amigaos4__ */
+#else /* ! __amigaos4__ */
 
-	return(m_iWidth);
+	RetVal = (m_bHidden) ? 0 : m_iWidth;
+
+#endif /* ! __amigaos4__ */
+
+	return(RetVal);
 }
 
-/* Written: Monday 09-May-2011 8:11 am, Code HQ-by-Thames */
+/**
+ * Hides the gadget.
+ * This function will set the associated gadget to hidden and will redraw the
+ * display to reflect this new state.  It also keeps track of the hidden state
+ * internally so that if the gadget's size is queried it will return that it is
+ * zero pixels high and zero pixels wide.  The gadget remains on the window's
+ * list of gadgets but is now invisible to the eye.
+ *
+ * @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Würzburg
+ */
 
-TInt CStdGadget::Height()
+void CStdGadget::Hide()
 {
+	/* Keep track of the state of the gadget ourselves as some systems make */
+	/* querying this information difficult (I'm lookin' at you Qt!) */
+
+	m_bHidden = ETrue;
+
+	/* And hide the underlying OS specific gadget */
 
 #ifdef __amigaos4__
 
-	/* Query the gadget for its height, which is set dynamically and can only */
-	/* be queried after the gadget has been layed out onto the screen */
+	// TODO: CAW - Implement
 
-	IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+#elif defined(QT_GUI_LIB)
 
-#endif /* __amigaos4__ */
+	if (m_poGadget)
+	{
+		m_poGadget->hide();
+	}
 
-	return(m_iHeight);
+#else /* ! QT_GUI_LIB */
+
+	DEBUGCHECK((ShowWindow(m_poGadget, SW_HIDE) != FALSE), "CStdGadget::Hide() => Unable to hide gadget");
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
+/**
+ * Returns the height of the gadget in pixels.
+ * Returns the height of the gadget, taking into account whether or not the gadget
+ * is visible.  Hidden gadgets return a height of zero.
+ *
+ * @date	Monday 09-May-2011 8:11 am, Code HQ-by-Thames
+ * @return	The height of the gadget in pixels
+ */
+
+TInt CStdGadget::Height()
+{
+	TInt RetVal;
+
+#ifdef __amigaos4__
+
+	/* If the gadget is not hidden then query it for its height, which is set */
+	/* dynamically and can only be queried after the gadget has been layed out */
+	/* onto the screen */
+
+	if (!(m_bHidden))
+	{
+		IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+		RetVal = m_iHeight;
+	}
+	else
+	{
+		RetVal = 0;
+	}
+
+#else /* ! __amigaos4__ */
+
+	RetVal = (m_bHidden) ? 0 : m_iHeight;
+
+#endif /* ! __amigaos4__ */
+
+	return(RetVal);
 }
 
 /* Written: Wednesday 23-Nov-2011 6:37 am, Code HQ Söflingen */

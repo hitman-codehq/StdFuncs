@@ -125,11 +125,11 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 	if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
 	{
-		m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1);
+		m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, Qt::AlignRight);
 	}
 	else
 	{
-		m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0);
+		m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, Qt::AlignBottom);
 	}
 
 	RethinkLayout();
