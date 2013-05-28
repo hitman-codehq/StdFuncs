@@ -111,6 +111,8 @@ public:
 
 	void Activate();
 
+	void AddMenuItem(const char *a_pccLabel, TInt a_iCommand, TInt a_iOrdinal);
+
 	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 
 	RApplication *Application()

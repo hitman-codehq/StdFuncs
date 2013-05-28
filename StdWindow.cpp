@@ -685,6 +685,79 @@ void CWindow::Activate()
 
 }
 
+/**
+ * Adds a menu item to an already existing dropdown menu.
+ * This function appends a new menu item to a dropdown menu.  The label passed in can contain
+ * a character preceded by a '&' character, in which case that character will be used as the
+ * menu item's shortcut.  If no label is passed in then a separator will be added to the menu.
+ *
+ * The dropdown menu to which to add the menu item is specified as an ordinal starting from
+ * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
+ *
+ * @date	22-May-2013 6:23 pm Frankfurt am Main Airport awaiting flight TAP TODO to Lisbon
+ * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
+ * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
+ * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
+ */
+
+void CWindow::AddMenuItem(const char *a_pccLabel, TInt a_iCommand, TInt a_iOrdinal)
+{
+
+#ifdef __amigaos4__
+
+#elif defined(QT_GUI_LIB)
+
+	QAction *Action;
+	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
+	QMenu *DropdownMenu;
+
+	/* Get a ptr to the dropdown menu to which to add the new menu item */
+
+	if ((DropdownMenu = Menus.at(a_iOrdinal)->menu()) != NULL)
+	{
+		/* Create an menu item containing the label, which will be added to the dropdown menu */
+
+		if ((Action = new CQtAction(a_iCommand, a_pccLabel, m_poWindow)) != NULL)
+		{
+			/* Set the menu item to be a separator if requested */
+
+			if (!(a_pccLabel))
+			{
+				Action->setSeparator(true);
+			}
+
+			/* And add it to the dropdown menu */
+
+			DropdownMenu->addAction(Action);
+		}
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	HMENU DropdownMenu;
+
+	/* Get a handle to the dropdown menu to which to add the new menu item */
+
+	if ((DropdownMenu = GetSubMenu(m_poMenu, a_iOrdinal)) != NULL)
+	{
+		/* Depending on whether a label was passed in, add either a new menu item or a separator */
+
+		if (a_pccLabel)
+		{
+			DEBUGCHECK((AppendMenu(DropdownMenu, 0, a_iCommand, a_pccLabel) != FALSE),
+				"CWindow::AddMenuItem() => Unable to append new menu item");
+		}
+		else
+		{
+			DEBUGCHECK((AppendMenu(DropdownMenu, MF_SEPARATOR, a_iCommand, NULL) != FALSE),
+				"CWindow::AddMenuItem() => Unable to append separator menu item");
+		}
+	}
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
 /* Written: Monday 11-Jul-2011 6:16 am */
 
 void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
