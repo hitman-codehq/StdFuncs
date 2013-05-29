@@ -694,7 +694,7 @@ void CWindow::Activate()
  * The dropdown menu to which to add the menu item is specified as an ordinal starting from
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
- * @date	22-May-2013 6:23 pm Frankfurt am Main Airport awaiting flight TAP TODO to Lisbon
+ * @date	Wednesday 22-May-2013 6:23 pm Frankfurt am Main Airport awaiting flight TP 579 to Lisbon
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
@@ -2159,6 +2159,71 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 	/* And rethink the layout to reflect the change */
 
 	RethinkLayout();
+}
+
+/**
+ * Removes a menu item from a dropdown menu.
+ * This function removes a menu item from a dropdown menu.  The dropdown menu from which to remove the
+ * menu item is specified as an ordinal starting from zero, where zero is the leftmost dropdown menu
+ * and (NumMenus - 1) is the rightmost.
+ *
+ * @date	Wednesday 29-May-2013 6:50 am Code Ehinger Tor
+ * @param	a_iCommand	Command ID of the menu item to be removed
+ * @param	a_iOrdinal	Ordinal offset of the dropdown menu from which to remove the menu item
+ */
+
+void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
+{
+
+#ifdef __amigaos4__
+
+#elif defined(QT_GUI_LIB)
+
+	TInt Index;
+	CQtAction *Action;
+	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
+	QMenu *DropdownMenu;
+
+	/* Get a ptr to the dropdown menu from which to remove the menu item */
+
+	if ((DropdownMenu = Menus.at(a_iOrdinal)->menu()) != NULL)
+	{
+		QList<QAction *> Actions = DropdownMenu->actions();
+
+		/* Iterate through the list of actions attached to the dropdown menu and */
+		/* find the specified command ID */
+
+		for (Index = 0; Index < Actions.count(); ++Index)
+		{
+			if ((Action = (CQtAction *) Actions.at(Index)) != NULL)
+			{
+				/* Got it!  Remove the menu item and delete it */
+
+				if (Action->Command() == a_iCommand)
+				{
+					DropdownMenu->removeAction(Action);
+					delete Action;
+
+					break;
+				}
+			}
+		}
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	HMENU DropdownMenu;
+
+	/* Get a handle to the dropdown menu from which to remove the menu item */
+
+	if ((DropdownMenu = GetSubMenu(m_poMenu, a_iOrdinal)) != NULL)
+	{
+		DEBUGCHECK((RemoveMenu(DropdownMenu, a_iCommand, MF_BYCOMMAND) != FALSE),
+			"CWindow::RemoveMenuItem() => Unable to remove menu item");
+	}
+
+#endif /* ! QT_GUI_LIB */
+
 }
 
 /* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Söflingen */

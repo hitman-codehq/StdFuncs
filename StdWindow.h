@@ -193,6 +193,8 @@ public:
 
 	void Remove(CStdGadgetLayout *a_poLayoutGadget);
 
+	void RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal);
+
 	void RethinkLayout();
 
 	/* Functions can be implemented by client software */
