@@ -93,7 +93,17 @@ public:
 
 private:
 
+	TInt AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDropdownMenu);
+
 	TBool CreateMenus();
+
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	TInt AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem);
+
+	void InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMenuItem *a_pcoMenuItem);
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 public:
 
@@ -111,7 +121,7 @@ public:
 
 	void Activate();
 
-	void AddMenuItem(const char *a_pccLabel, TInt a_iCommand, TInt a_iOrdinal);
+	void AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal);
 
 	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 
