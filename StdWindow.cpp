@@ -913,6 +913,10 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 			DEBUGCHECK((AppendMenu(DropdownMenu, 0, a_pcoMenuItem->m_iCommand, Label) != FALSE),
 				"CWindow::AddMenuItem() => Unable to append new menu item");
+
+			/* And free the temporary buffer used for the menu item labels */
+
+			Utils::FreeTempBuffer(Label);
 		}
 		else
 		{
