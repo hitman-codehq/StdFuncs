@@ -505,54 +505,59 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 	Width = (m_iClipWidth - (a_iX * m_iWidth));
 	Width = MAX(0, Width);
 
-	/* Iterate through the source text and display the runs of characters in the required colour */
+	/* Unit Test support: The Framework must be able to run without a real GUI */
 
-	while (*a_pccText)
+	if (m_poWindow->m_poWindow)
 	{
-		/* Get the length of the run and the colour to display the run in */
+		/* Iterate through the source text and display the runs of characters in the required colour */
 
-		Length = *a_pccText++;
-		Colour = *a_pccText++;
-		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
-
-		/* Move to the position at which to print, taking into account the left and top border sizes, */
-		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-		/* routine prints at the baseline position, not the top of the font */
-
-		IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
-			(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
-
-		/* Calculate the maximum number of characters that can fit in the client area of the window, */
-		/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
-		/* clip width reduces as we print the parts of the string */
-
-		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Length, &TextExtent, NULL, 1,
-			Width, m_poWindow->InnerHeight());
-
-		/* If nothing fits then we may as well break out of the loop */
-
-		if (NumChars == 0)
+		while (*a_pccText)
 		{
-			break;
+			/* Get the length of the run and the colour to display the run in */
+
+			Length = *a_pccText++;
+			Colour = *a_pccText++;
+			ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
+
+			/* Move to the position at which to print, taking into account the left and top border sizes, */
+			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+			/* routine prints at the baseline position, not the top of the font */
+
+			IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
+				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+
+			/* Calculate the maximum number of characters that can fit in the client area of the window, */
+			/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
+			/* clip width reduces as we print the parts of the string */
+
+			NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Length, &TextExtent, NULL, 1,
+				Width, m_poWindow->InnerHeight());
+
+			/* If nothing fits then we may as well break out of the loop */
+
+			if (NumChars == 0)
+			{
+				break;
+			}
+
+			/* Display the text in the required colour.  If the highlight is set then */
+			/* the colours will already have been inversed so leave them as they are */
+
+			if (!(m_bHighlight))
+			{
+				IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
+			}
+
+			IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
+
+			/* And prepare for the next run to be displayed */
+
+			a_iX += Length;
+			a_pccText += Length;
+			Width -= TextExtent.te_Width;
+
+			ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
 		}
-
-		/* Display the text in the required colour.  If the highlight is set then */
-		/* the colours will already have been inversed so leave them as they are */
-
-		if (!(m_bHighlight))
-		{
-			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
-		}
-
-		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
-
-		/* And prepare for the next run to be displayed */
-
-		a_iX += Length;
-		a_pccText += Length;
-		Width -= TextExtent.te_Width;
-
-		ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
 	}
 
 #elif defined(QT_GUI_LIB)
