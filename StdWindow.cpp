@@ -888,23 +888,26 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 			/* tab, a modifier key and the textual name of the shortcut key */
 
 			strcpy(Label, a_pcoMenuItem->m_pccLabel);
-			strcat(Label, "\t");
 
-			if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
-			{
-				strcat(Label, "Ctrl+");
-			}
-			else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_ALT)
-			{
-				strcat(Label, "Alt+");
-			}
-			else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
-			{
-				strcat(Label, "Shift+");
-			}
+			/* If the menu item has a hotkey then generate a key sequence and append it to the label */
 
 			if (a_pcoMenuItem->m_pccHotKey)
 			{
+				strcat(Label, "\t");
+
+				if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+				{
+					strcat(Label, "Ctrl+");
+				}
+				else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_ALT)
+				{
+					strcat(Label, "Alt+");
+				}
+				else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+				{
+					strcat(Label, "Shift+");
+				}
+
 				strcat(Label, a_pcoMenuItem->m_pccHotKey);
 			}
 
