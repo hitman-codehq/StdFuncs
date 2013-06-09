@@ -694,6 +694,8 @@ void CWindow::Activate()
  *
  * @date	Wednesday 05-Jun-2013 6:36 am Code HQ Ehinger Tor
  * @param	a_pcoMenuItem	Ptr to the SStdMenuItem structure representing the accelerator
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if not enough memory was available to allocate the accelerator
  */
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
@@ -758,6 +760,7 @@ TInt CWindow::AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem)
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
+// TODO: CAW - Better error checking in here (rather than using DEBUGCHECK)
 TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDropdownMenu)
 {
 	TInt RetVal;
@@ -948,10 +951,15 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
  * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
+ * @return	KErrNone if successful
+ * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
+ * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-void CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
+TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
 {
+	TInt RetVal;
+
 	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand }; // TODO: CAW - alt ok?
 
 #ifdef __amigaos4__
@@ -975,7 +983,11 @@ void CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 		/* Add the menu item to the dropdown menu.  This will take care of appending a shortcut */
 		/* key, if one has been specified */
 
-		AddMenuItem(&MenuItem, DropdownMenu);
+		RetVal = AddMenuItem(&MenuItem, DropdownMenu);
+	}
+	else
+	{
+		RetVal = KErrNotFound;
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -993,21 +1005,30 @@ void CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 			MenuItem.m_eType = EStdMenuSeparator;
 		}
 
-		/* Add the menu item to the dropdown menu and, if a shortcut key has been specified, then */
-		/* append a new accelerator to the current accelerator table */
+		/* Add the menu item to the dropdown menu */
 
-		// TODO: CAW - Return errors from here?  Check failing for all new menu item and accelerator functions
-		if (AddMenuItem(&MenuItem, DropdownMenu) == KErrNone)
+		if ((RetVal = AddMenuItem(&MenuItem, DropdownMenu)) == KErrNone)
 		{
+			/* If a shortcut key has been specified, then append a new accelerator to the current */
+			/* accelerator table, deleting the menu entry if it fails */
+
 			if (MenuItem.m_pccHotKey)
 			{
-				AddAccelerator(&MenuItem);
+				if ((RetVal = AddAccelerator(&MenuItem)) != KErrNone)
+				{
+					RemoveMenuItem(a_iCommand, a_iOrdinal);
+				}
 			}
 		}
+	}
+	else
+	{
+		RetVal = KErrNotFound;
 	}
 
 #endif /* ! QT_GUI_LIB */
 
+	return(RetVal);
 }
 
 /* Written: Monday 11-Jul-2011 6:16 am */
