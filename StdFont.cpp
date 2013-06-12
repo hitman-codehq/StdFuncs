@@ -656,11 +656,20 @@ void RFont::SetHighlight(TBool a_bHighlight)
 	{
 		m_oPainter.setBackground(m_oText);
 		m_oPainter.setPen(m_oBackground);
+
+		/* Set the background mode to opaque, as we want to forcibly draw the highlight over the top of the background */
+
+		m_oPainter.setBackgroundMode(Qt::OpaqueMode);
 	}
 	else
 	{
 		m_oPainter.setBackground(m_oBackground);
 		m_oPainter.setPen(m_oText);
+
+		/* Set the background mode back to transparent so that if there is a pretty transparent background or a */
+		/* gradient in the background it is displayed correctly */
+
+		m_oPainter.setBackgroundMode(Qt::TransparentMode);
 	}
 
 #elif defined(WIN32)
