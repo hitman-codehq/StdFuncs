@@ -26,7 +26,7 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
 	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
 	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },
-	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_F1, Qt::Key_F1 },
+	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_TAB, Qt::Key_Backtab }, { STD_KEY_F1, Qt::Key_F1 },
 	{ STD_KEY_F2, Qt::Key_F2 }, { STD_KEY_F3, Qt::Key_F3 }, { STD_KEY_F4, Qt::Key_F4 },
 	{ STD_KEY_F5, Qt::Key_F5 }, { STD_KEY_F6, Qt::Key_F6 }, { STD_KEY_F7, Qt::Key_F7 },
 	{ STD_KEY_F8, Qt::Key_F8 }, { STD_KEY_F9, Qt::Key_F9 }, { STD_KEY_F10, Qt::Key_F10 },
