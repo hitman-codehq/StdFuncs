@@ -1865,7 +1865,7 @@ CQtAction *CWindow::FindMenuItem(TInt a_iItemID)
  * is required as the shortcut key specified in SStdMenuItem can be somewhat complex and
  * this function is called from more than one place internally.
  *
- * @date	Thursday 06-Jun-2013 6:43 am Code HQ Ehinger Tor TODO: CAW - Move
+ * @date	Thursday 06-Jun-2013 6:43 am Code HQ Ehinger Tor
  * @param	a_poAccelerator	Ptr to the ACCEL structure to be initialised
  * @param	a_pcoMenuItem	Ptr to the generic SStdMenuItem structure with which to initialise
  *							the accelerator
@@ -2337,6 +2337,84 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 	RethinkLayout();
 }
 
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+/**
+ * Removes an accelerator from an accelerator table.
+ * This function removes an accelerator from an accelerator table.  The accelerator to be removed
+ * is found by iterating through the existing accelerator list and looking for an accelerator
+ * with the specified command ID.
+ *
+ * @date	Thursday 13-Jun-2013 7:41 am, Code HQ Ehinger Tor
+ * @param	a_iCommand	Command ID of the accelerator to be removed
+ * @param	KErrNone if successful
+ * @param	KErrNotFound if the specified accelerator was not found
+ */
+
+TInt CWindow::RemoveAccelerator(TInt a_iCommand)
+{
+	TInt Index, NumAccelerators, RemainingAccelerators, RetVal;
+	ACCEL *Accelerators;
+	HACCEL OldAccelerators;
+
+	/* Assume failure */
+
+	RetVal = KErrNotFound;
+
+	/* Determine how many accelerators are in the current accelerator table and allocate */
+	/* enough memory to represent those accelerators */
+
+	NumAccelerators = CopyAcceleratorTable(m_poAccelerators, NULL, 0);
+
+	if ((Accelerators = new ACCEL[NumAccelerators]) != NULL)
+	{
+		/* Get a copy of the existing accelerator table into the newly allocate memory */
+
+		NumAccelerators = CopyAcceleratorTable(m_poAccelerators, Accelerators, NumAccelerators);
+
+		/* Iterate through the accelerator table until we find the one we are looking for */
+		/* and when found, remove it */
+
+		for (Index = 0; Index < NumAccelerators; ++Index)
+		{
+			if (Accelerators[Index].cmd == a_iCommand)
+			{
+				RemainingAccelerators = (NumAccelerators - Index - 1);
+				memcpy(&Accelerators[Index], &Accelerators[Index + 1], (RemainingAccelerators * sizeof(ACCEL)));
+
+				break;
+			}
+		}
+
+		/* Only recreate the accelerator table if the accelerator was found */
+
+		if (Index < NumAccelerators)
+		{
+			RetVal = KErrNone;
+
+			/* Save a ptr to the old accelerator table and create a new one, only deleting the */
+			/* old one if creation of the new was successful */
+
+			OldAccelerators = m_poAccelerators;
+
+			if ((m_poAccelerators = CreateAcceleratorTable(Accelerators, (NumAccelerators - 1))) != NULL)
+			{
+				RetVal = KErrNone;
+
+				/* The new accelerator table was created successfully so delete the old one */
+
+				DestroyAcceleratorTable(OldAccelerators);
+			}
+		}
+
+		delete [] Accelerators;
+	}
+
+	return(RetVal);
+}
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
 /**
  * Removes a menu item from a dropdown menu.
  * This function removes a menu item from a dropdown menu.  The dropdown menu from which to remove the
@@ -2396,6 +2474,8 @@ void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
 	{
 		DEBUGCHECK((RemoveMenu(DropdownMenu, a_iCommand, MF_BYCOMMAND) != FALSE),
 			"CWindow::RemoveMenuItem() => Unable to remove menu item");
+
+		DEBUGCHECK((RemoveAccelerator(a_iCommand) == KErrNone), "CWindow::RemoveMenuItem() => Unable to remove accelerator");
 	}
 
 #endif /* ! QT_GUI_LIB */

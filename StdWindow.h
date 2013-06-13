@@ -103,6 +103,8 @@ private:
 
 	void InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMenuItem *a_pcoMenuItem);
 
+	TInt RemoveAccelerator(TInt a_iCommand);
+
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 public:
