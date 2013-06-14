@@ -1,7 +1,7 @@
 
 AR = @ar
 CC = @g++
-CFLAGS = -c -fno-strict-aliasing -Wall -Wextra -Wwrite-strings
+CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -fno-strict-aliasing -Wall -Wextra -Wwrite-strings
 
 ifdef DEBUG
 	OBJ = Debug
