@@ -223,6 +223,8 @@ public:
 
 	virtual TBool OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { return(EFalse); }
 
+	virtual void OfferRawKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/) { }
+
 	/* This function is called by The Framework whenever the window is resized.  The */
 	/* behaviour can differ slightly between platforms in that some platforms will call */
 	/* it before the window is displayed and some platforms will call it only after the */

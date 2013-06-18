@@ -203,6 +203,14 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 			}
 		}
 	}
+
+	/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
+	/* of preprocessing */
+
+	if ((NativeKey = a_poKeyEvent->nativeVirtualKey()) != 0)
+	{
+		m_poWindow->OfferRawKeyEvent(NativeKey, a_bKeyDown);
+	}
 }
 
 /* Written: Saturday 23-Feb-2013 1:38 pm */
@@ -507,6 +515,11 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			{
 				Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
 			}
+
+			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
+			/* of preprocessing */
+
+			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
 
 			/* This is pretty horrible.  Because Windows mixes its WM_KEY#? and WM_CHAR events, we */
 			/* can get duplicate keys that need to get filtered out in order to provide a consistent */
