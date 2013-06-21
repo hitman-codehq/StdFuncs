@@ -103,6 +103,8 @@ private:
 
 	void InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMenuItem *a_pcoMenuItem);
 
+	char *InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem);
+
 	TInt RemoveAccelerator(TInt a_iCommand);
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
@@ -208,6 +210,8 @@ public:
 	void RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal);
 
 	void RethinkLayout();
+
+	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal);
 
 	/* Functions can be implemented by client software */
 

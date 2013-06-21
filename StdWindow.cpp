@@ -885,49 +885,11 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 		ASSERTM((DropdownMenu != NULL), "CWindow::AddMenuItem() => Menu bar must be created before a menu item can be added");
 		ASSERTM((a_pcoMenuItem->m_pccLabel != NULL), "CWindow::AddMenuItem() => All menu items must have a name");
 
-		/* Determine the length required for the menu item label.  This will be the length of the */
-		/* base label plus a tab, the length of the qualifier (maximum 6 for "shift+"), the length */
-		/* of the hotkey shortcut as a string and a NULL terminator */
+		/* Build the menu item's label as a composite of the menu's label and its shortcut */
 
-		Length = (strlen(a_pcoMenuItem->m_pccLabel) + 8);
-
-		if (a_pcoMenuItem->m_pccHotKey)
+		if ((Label = InitialiseMenuLabel(a_pcoMenuItem)) != NULL)
 		{
-			Length += strlen(a_pcoMenuItem->m_pccHotKey);
-		}
-
-		/* Allocate a temporary buffer in which to build the menu item's label */
-
-		if ((Label = (char *) Utils::GetTempBuffer(Label,  Length, EFalse)) != NULL)
-		{
-			/* Now build the menu item's label as a composite of the label's base name, a */
-			/* tab, a modifier key and the textual name of the shortcut key */
-
-			strcpy(Label, a_pcoMenuItem->m_pccLabel);
-
-			/* If the menu item has a hotkey then generate a key sequence and append it to the label */
-
-			if (a_pcoMenuItem->m_pccHotKey)
-			{
-				strcat(Label, "\t");
-
-				if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
-				{
-					strcat(Label, "Ctrl+");
-				}
-				else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_ALT)
-				{
-					strcat(Label, "Alt+");
-				}
-				else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
-				{
-					strcat(Label, "Shift+");
-				}
-
-				strcat(Label, a_pcoMenuItem->m_pccHotKey);
-			}
-
-			/* Any create a new menu item using the newly constructed label and add it to the */
+			/* And create a new menu item using the newly constructed label and add it to the */
 			/* previously created drop down menu */
 
 			DEBUGCHECK((AppendMenu(DropdownMenu, 0, a_pcoMenuItem->m_iCommand, Label) != FALSE),
@@ -935,7 +897,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 			/* And free the temporary buffer used for the menu item labels */
 
-			Utils::FreeTempBuffer(Label);
+			delete [] Label;
 		}
 		else
 		{
@@ -1957,6 +1919,73 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
 	}
 }
 
+/**
+ * Builds a string representing a menu item's label and its associated hotkey.
+ * This is a convenience function for use by other functions that are creating or
+ * modifying menu items.  It will take a SStdMenuItem structure and will build a
+ * disablayable string that represents the contents of that structure.  This string
+ * is in a format suitable for use in dropdown menu items.
+ *
+ * It is the responsibility of the caller to free the returned string's buffer.
+ *
+ * @date	Friday 21-Jun-2013 8:52 am
+ * @param	a_pcoMenuItem	Ptr to the structure representing the label to be created.
+ *							Only the m_pccLabel, m_pccHotKey and m_iHotKeyModifier members
+ *							are used
+ * @return	Ptr to a string containing the label if successful, else NULL if no memory
+ */
+
+char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem)
+{
+	char *RetVal;
+	TInt Length;
+
+	/* Determine the length required for the menu item label.  This will be the length of the */
+	/* base label plus a tab, the length of the qualifier (maximum 6 for "shift+"), the length */
+	/* of the hotkey shortcut as a string and a NULL terminator */
+
+	Length = (strlen(a_pcoMenuItem->m_pccLabel) + 8);
+
+	if (a_pcoMenuItem->m_pccHotKey)
+	{
+		Length += strlen(a_pcoMenuItem->m_pccHotKey);
+	}
+
+	/* Allocate a temporary buffer in which to build the menu item's label */
+
+	if ((RetVal = new char[Length]) != NULL)
+	{
+		/* Now build the menu item's label as a composite of the label's base name, a */
+		/* tab, a modifier key and the textual name of the shortcut key */
+
+		strcpy(RetVal, a_pcoMenuItem->m_pccLabel);
+
+		/* If the menu item has a hotkey then generate a key sequence and append it to the label */
+
+		if (a_pcoMenuItem->m_pccHotKey)
+		{
+			strcat(RetVal, "\t");
+
+			if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+			{
+				strcat(RetVal, "Ctrl+");
+			}
+			else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_ALT)
+			{
+				strcat(RetVal, "Alt+");
+			}
+			else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
+			{
+				strcat(RetVal, "Shift+");
+			}
+
+			strcat(RetVal, a_pcoMenuItem->m_pccHotKey);
+		}
+	}
+
+	return(RetVal);
+}
+
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /* Written: Sunday 01-May-2011 10:48 am */
@@ -2464,7 +2493,7 @@ void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
 		{
 			if ((Action = (CQtAction *) Actions.at(Index)) != NULL)
 			{
-				/* Got it!  Remove the menu item and delete it */
+				/* If this is the action then remove the menu item and delete it */
 
 				if (Action->Command() == a_iCommand)
 				{
@@ -2583,5 +2612,90 @@ void CWindow::RethinkLayout()
 	}
 
 #endif /* ! __amigaos4__ */
+
+}
+
+/**
+ * Modifies a menu item in a dropdown menu.
+ * This function updates an already existing menu item in a dropdown menu.  The dropdown menu
+ * in which to update the menu item is specified as an ordinal starting from zero, where zero
+ * is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
+ *
+ * @date	Wednesday 19-Jun-20130 8:16 am, Henry's Coffee World Ulm
+ * @param	a_pccLabel	Ptr to a string containing the new label to assign to the menu item
+ * @param	a_pccHotKey	Ptr to a string containing the new hotkey to assign to the menu item
+ * @param	a_iCommand	Command ID of the menu item to be updated
+ * @param	a_iOrdinal	Ordinal offset of the dropdown menu in which to update the menu item
+ */
+
+void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
+{
+
+#ifdef __amigaos4__
+
+#elif defined(QT_GUI_LIB)
+
+	(void) a_pccHotKey;
+
+	TInt Index;
+	CQtAction *Action;
+	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
+	QMenu *DropdownMenu;
+
+	/* Get a handle to the dropdown menu in which to modify the menu item */
+
+	if ((DropdownMenu = Menus.at(a_iOrdinal)->menu()) != NULL)
+	{
+		QList<QAction *> Actions = DropdownMenu->actions();
+
+		/* Iterate through the list of actions attached to the dropdown menu and */
+		/* find the specified command ID */
+
+		for (Index = 0; Index < Actions.count(); ++Index)
+		{
+			Action = (CQtAction *) Actions.at(Index);
+
+			/* If this is the action then update its label */
+
+			if (Action->Command() == a_iCommand)
+			{
+				Action->setText(a_pccLabel);
+
+				break;
+			}
+		}
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	char *Label;
+	HMENU DropdownMenu;
+	struct SStdMenuItem MenuItem;
+
+	/* Get a handle to the dropdown menu in which to modify the menu item */
+
+	if ((DropdownMenu = GetSubMenu(m_poMenu, a_iOrdinal)) != NULL)
+	{
+		/* Build the menu item's label as a composite of the menu's label and its shortcut */
+
+		MenuItem.m_pccLabel = a_pccLabel;
+		MenuItem.m_pccHotKey = a_pccHotKey;
+		MenuItem.m_iHotKeyModifier = STD_KEY_ALT;
+
+		/* Build a menu label to be displayed, including its shortcut */
+
+		if ((Label = InitialiseMenuLabel(&MenuItem)) != NULL)
+		{
+			/* And update the menu item using the newly constructed label */
+
+			ModifyMenu(DropdownMenu, a_iCommand, MF_BYCOMMAND, a_iCommand, Label);
+
+			/* And free the temporary buffer used for the menu item label */
+
+			delete [] Label;
+		}
+	}
+
+#endif /* ! QT_GUI_LIB */
 
 }
