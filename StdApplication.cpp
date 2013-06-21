@@ -536,6 +536,11 @@ int RApplication::Main()
 									}
 								}
 							}
+
+							/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
+							/* of preprocessing */
+
+							Window->OfferRawKeyEvent(Code, KeyDown);
 						}
 						else
 						{
