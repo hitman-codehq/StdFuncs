@@ -773,7 +773,6 @@ TInt CWindow::AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem)
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-// TODO: CAW - Better error checking in here (rather than using DEBUGCHECK)
 TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDropdownMenu)
 {
 	TInt RetVal;
@@ -935,7 +934,7 @@ TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 {
 	TInt RetVal;
 
-	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand }; // TODO: CAW - alt ok?
+	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand };
 
 #ifdef __amigaos4__
 
