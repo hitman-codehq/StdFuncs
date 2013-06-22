@@ -51,6 +51,11 @@ private:
 
 	struct Hook			m_oIDCMPHook;				/* IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootGadget;			/* layout.gadget containing the window's gadgets */
+	TBool				m_bMenuStripSet;			/* ETrue if menus have been added to the main window */
+	struct Menu			*m_poMenus;					/* Ptr to main menus displayed at top of the screen */
+	struct NewMenu		*m_poNewMenus;				/* Array of NewMenu structures used for creating menus */
+	struct SStdMenuMapping	*m_poMenuMappings;		/* Array of menu ID -> FULLMENUNUM mappings */
+	TInt					m_iNumMenuMappings;		/* # of entries in m_poMenuMappings */
 
 #elif defined(WIN32)
 
@@ -176,6 +181,11 @@ public:
 	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
 
 	ULONG GetSignal();
+
+	struct Menu *Menus()
+	{
+		return(m_poMenus);
+	}
 
 #elif defined(QT_GUI_LIB)
 

@@ -3,7 +3,6 @@
 #include "StdApplication.h"
 #include "StdReaction.h"
 #include "StdWindow.h"
-#include <string.h>
 
 #ifdef __amigaos4__
 
@@ -24,8 +23,6 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_F8, 0x57 }, { STD_KEY_F9, 0x58 }, { STD_KEY_F10, 0x59 }, { STD_KEY_F11, 0x4b },
 	{ STD_KEY_F12, 0x6f }
 };
-
-static const char *g_pccEmptyString = "";	/* Empty string used for creating menu items */
 
 #define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
@@ -54,12 +51,9 @@ RApplication::RApplication()
 
 #ifdef __amigaos4__
 
-	m_bDone = m_bMenuStripSet = EFalse;
-	m_poMenus = NULL;
-	m_poNewMenus = NULL;
+	m_bDone = EFalse;
 	m_ulMainSeconds = m_ulMainMicros = 0;
-	m_iLastX = m_iLastY = m_iNumMenuMappings = 0;
-	m_poMenuMappings = NULL;
+	m_iLastX = m_iLastY = 0;
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -71,198 +65,17 @@ RApplication::RApplication()
 	m_pcoMenuItems = NULL;
 }
 
-/* Written: Wednesday 30-Jun-2010 6:53 am */
-/* @param 	a_pcoMenuItems Ptr to array of menu items to be created.  Must be persisted for the lifetime */
-/*			of the RApplication class that uses them */
-
-TInt RApplication::CreateMenus(const struct SStdMenuItem *a_pcoMenuItems)
-{
-	/* Save the ptr to the original menu item structures so they can be used for creating window */
-	/* specific menus l8r */
-
-	m_pcoMenuItems = a_pcoMenuItems;
-
-#ifdef __amigaos4__
-
-	const char *Label;
-	char *NewLabel;
-	TInt DestIndex, SourceIndex, Index, Length, Menu, Item, NumMenuItems, RetVal;
-	const struct SStdMenuItem *MenuItem;
-	struct NewMenu *NewMenus;
-	struct Screen *Screen;
-	APTR VisualInfo;
-
-	/* Assume failure */
-
-	RetVal = KErrNoMemory; // TODO:CAW - Proper error + what about Utils::Info() handling?
-
-	/* Iterate through the menu item structures passed in and count how many need to be created */
-
-	NumMenuItems = 1;
-	MenuItem = a_pcoMenuItems;
-
-	do
-	{
-		++NumMenuItems;
-		++MenuItem;
-	}
-	while (MenuItem->m_eType != EStdMenuEnd);
-
-	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures, and */
-	/* another large enough to hold all of the menu ID mappings, and populate them with */
-	/* data taken from the generic SStdMenuItem structures passed in */
-
-	if ((m_poMenuMappings = new SStdMenuMapping[NumMenuItems]) != NULL)
-	{
-		m_iNumMenuMappings = NumMenuItems;
-
-		if ((m_poNewMenus = NewMenus = new NewMenu[NumMenuItems]) != NULL)
-		{
-			Menu = -1;
-			Item = 0;
-
-			for (Index = 0; Index < NumMenuItems; ++Index)
-			{
-				/* Every time we find a menu title, increase the menu number and reset the */
-				/* item for that menu to zero.  This way we build up the mappings for */
-				/* each menu ID -> FULLMENUNUM required by Intuition for accessing menus */
-
-				if (a_pcoMenuItems[Index].m_eType == EStdMenuTitle)
-				{
-					++Menu;
-					Item = -1;
-				}
-				else
-				{
-					++Item;
-				}
-
-				/* Now populate the SStdMenuMapping structure */
-
-				m_poMenuMappings[Index].m_iID = a_pcoMenuItems[Index].m_iCommand;
-				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
-
-				/* Checkable menus are handled slightly differently */
-
-				if (a_pcoMenuItems[Index].m_eType == EStdMenuCheck)
-				{
-					NewMenus[Index].nm_Type = EStdMenuItem;
-					NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
-				}
-				else
-				{
-					NewMenus[Index].nm_Type = a_pcoMenuItems[Index].m_eType;
-					NewMenus[Index].nm_Flags = 0;
-				}
-
-				/* Separators get a special label that causes Intuition to treat them as such */
-
-				if (a_pcoMenuItems[Index].m_eType == EStdMenuSeparator)
-				{
-					NewMenus[Index].nm_Type = EStdMenuItem;
-					NewMenus[Index].nm_Label = NM_BARLABEL;
-				}
-				else
-				{
-					/* If there is a label for the menu item present then it will have the '&' shortcut */
-					/* key modifier embedded in it for Windows & Qt.  We need to make a copy of the label */
-					/* and remove this modifier, which doesn't have any effect on Amiga OS */
-
-					Label = NewMenus[Index].nm_Label = a_pcoMenuItems[Index].m_pccLabel;
-
-					if (Label)
-					{
-						/* Find out the length of the label, including the NULL terminator, and allocate */
-						/* a buffer for it */
-
-						Length = (strlen(Label) + 1);
-						NewMenus[Index].nm_Label = NewLabel = new char[Length];
-
-						if (NewLabel)
-						{
-							/* Copy the label into the newly allocated buffer, removing the '&' as we go */
-
-							DestIndex = 0;
-
-							for (SourceIndex = 0; SourceIndex < Length; ++SourceIndex)
-							{
-								if (Label[SourceIndex] != '&')
-								{
-									NewLabel[DestIndex++] = Label[SourceIndex];
-								}
-							}
-						}
-
-						/* If we cannot allocate a new label then we need to use *something* and cannot just */
-						/* use a NULL string.  So use a globally allocated empty string and Close() will skip */
-						/* freeing this */
-
-						else
-						{
-							NewMenus[Index].nm_Label = g_pccEmptyString;
-						}
-					}
-				}
-
-				/* Amiga OS is a little limited in terms of the modifiers and strings that can be */
-				/* used for the menu items' shortcut keys, so only use the hotkey if the STD_KEY_CONTROL */
-				/* or STD_KEY_ALT (which both map to ramiga) modifier is used and if the length of the */
-				/* shortcut string is only one character long */
-
-				NewMenus[Index].nm_CommKey = NULL;
-
-				if ((a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_CONTROL) || (a_pcoMenuItems[Index].m_iHotKeyModifier == STD_KEY_ALT))
-				{
-					if ((a_pcoMenuItems[Index].m_pccHotKey) && (strlen(a_pcoMenuItems[Index].m_pccHotKey) == 1))
-					{
-						NewMenus[Index].nm_CommKey = a_pcoMenuItems[Index].m_pccHotKey;
-					}
-				}
-
-				NewMenus[Index].nm_UserData = (APTR) a_pcoMenuItems[Index].m_iCommand;
-			}
-
-			/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
-			/* the menus out */
-
-			if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
-			{
-				if ((VisualInfo = IGadTools->GetVisualInfo(Screen, TAG_DONE)) != NULL)
-				{
-					/* Create the menus and lay them out in preparation for display */
-
-					if ((m_poMenus = IGadTools->CreateMenus(NewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
-					{
-						if (IGadTools->LayoutMenus(m_poMenus, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE))
-						{
-							RetVal = KErrNone;
-						}
-					}
-				}
-
-				/* And unlock the default public screen */
-
-				IIntuition->UnlockPubScreen(NULL, Screen);
-			}
-		}
-	}
-
-	return(RetVal);
-
-#else /* ! __amigaos4__ */
-
-	return(KErrNone);
-
-#endif /* ! __amigaos4__ */
-
-}
-
 /* Written: Thursday 01-Jul-2010 6:46 am */
 /* Applications that derive from this class should call this method to initialise their menus */
 
 TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 {
 	TInt RetVal;
+
+	/* Save the ptr to the original menu item structures so they can be used for creating window */
+	/* specific menus l8r */
+
+	m_pcoMenuItems = a_pcoMenuItems;
 
 #ifdef QT_GUI_LIB
 
@@ -279,16 +92,6 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 	RetVal = KErrNone;
 
 #endif /* ! QT_GUI_LIB */
-
-	if (RetVal == KErrNone)
-	{
-		/* Create the application's menu, if requested */
-
-		if (a_pcoMenuItems)
-		{
-			RetVal = CreateMenus(a_pcoMenuItems);
-		}
-	}
 
 	return(RetVal);
 }
@@ -377,14 +180,14 @@ int RApplication::Main()
 							/* we can extract the command ID of the menu item from the user data */
 							/* field and pass it to CWindow::HandleCommand() */
 
-							if ((MenuItem = IIntuition->ItemAddress(m_poMenus, Code)) != NULL)
+							if ((MenuItem = IIntuition->ItemAddress(Window->Menus(), Code)) != NULL)
 							{
 								Window->HandleCommand((TInt) GTMENUITEM_USERDATA(MenuItem));
 							}
 
 							/* And get the code of the next menu item selected */
 
-							Code = IIntuition->ItemAddress(m_poMenus, Code)->NextSelect;
+							Code = IIntuition->ItemAddress(Window->Menus(), Code)->NextSelect;
 						}
 
 						break;
@@ -616,63 +419,16 @@ int RApplication::Main()
 	return(KErrNone);
 }
 
-/* Written: Tuesday 29-Jun-2010 7:59 pm, London Hackspace */
+/**
+ * Closes the class and frees any allocated resources.
+ * This function is required by the so-called "Symbian idioms" by which The Framework is written,
+ * although in the case of the RApplication class it does not do anything.
+ *
+ * @date	Tuesday 29-Jun-2010 7:59 pm, London Hackspace
+ */
 
 void RApplication::Close()
 {
-
-#ifdef __amigaos4__
-
-	const char *Label;
-	TInt Index;
-
-	/* If the menus have been created then destroy them */
-
-	if (m_poMenus)
-	{
-		/* Remove the menus from the main window, if they were added */
-
-		if ((m_bMenuStripSet) && (m_poWindows))
-		{
-			IIntuition->ClearMenuStrip(m_poWindows->m_poWindow);
-		}
-
-		IGadTools->FreeMenus(m_poMenus);
-	}
-
-	/* The label strings used by the menus are no longer required so destroy them */
-
-	if (m_poNewMenus)
-	{
-		/* First delete the temporary menu labels previously allocated */
-
-		for (Index = 0; Index < m_iNumMenuMappings; ++Index)
-		{
-			Label = m_poNewMenus[Index].nm_Label;
-
-			/* If the label was allocated and is not a predefined separator constant or the */
-			/* global empty string then free it */
-
-			if ((Label) && (Label != NM_BARLABEL) && (Label != g_pccEmptyString))
-			{
-				delete [] Label;
-			}
-		}
-
-		/* And now delete the NewMenu structures themselves */
-
-		delete [] m_poNewMenus;
-		m_poNewMenus = NULL;
-	}
-
-	/* And free the menu mapping structures */
-
-	delete [] m_poMenuMappings;
-	m_poMenuMappings = NULL;
-	m_iNumMenuMappings = 0;
-
-#endif /* __amigaos4__ */
-
 }
 
 /* Written: Monday 08-Feb-2010 7:25 am */
@@ -711,16 +467,6 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	/* And add the new window's signal bit to the list of signals that the application will wait on */
 
 	m_ulWindowSignals |= a_poWindow->GetSignal();
-
-	/* Add the global application menus to the window, if they exist */
-
-	if (m_poMenus)
-	{
-		if (IIntuition->SetMenuStrip(a_poWindow->m_poWindow, m_poMenus))
-		{
-			m_bMenuStripSet = ETrue;
-		}
-	}
 
 #endif /* __amigaos4__ */
 

@@ -48,15 +48,10 @@ private:
 
 	ULONG			m_ulWindowSignals;	/* Signals representing all currently open windows */
 	TBool			m_bDone;			/* Set to ETrue when it's time to exit the main loop */
-	struct Menu		*m_poMenus;			/* Ptr to main menus displayed at top of the screen */
-	struct NewMenu	*m_poNewMenus;		/* Array of NewMenu structures used for creating menus */
-	TBool			m_bMenuStripSet;	/* ETrue if menus have been added to the main window */
 	TInt			m_iLastX;			/* X and Y positions of the mouse the last time the */
 	TInt			m_iLastY;			/* LMB was clicked or released */
 	ULONG			m_ulMainSeconds;	/* Tick count in seconds and microseconds of when */
 	ULONG			m_ulMainMicros;		/* the LMB was last clicked */
-	struct SStdMenuMapping	*m_poMenuMappings;	/* Array of menu ID -> FULLMENUNUM mappings */
-	TInt					m_iNumMenuMappings;	/* # of entries in m_poMenuMappings */
 
 #elif defined(QT_GUI_LIB)
 
@@ -69,10 +64,6 @@ private:
 #endif /* ! QT_GUI_LIB */
 
 	const struct SStdMenuItem *m_pcoMenuItems;	/* Ptr to a list of structures describing the application's menus */
-
-private:
-
-	TBool CreateMenus(const struct SStdMenuItem *a_pcoMenuItems);
 
 public:
 
@@ -93,24 +84,7 @@ public:
 		return(m_pcoMenuItems);
 	}
 
-#ifdef __amigaos4__
-
-	struct Menu *Menus()
-	{
-		return(m_poMenus);
-	}
-
-	struct SStdMenuMapping *MenuMappings()
-	{
-		return(m_poMenuMappings);
-	}
-
-	TInt NumMenuMappings()
-	{
-		return(m_iNumMenuMappings);
-	}
-
-#elif defined(WIN32)
+#ifdef WIN32
 
 	void SetCurrentDialog(HWND a_poDialog);
 
