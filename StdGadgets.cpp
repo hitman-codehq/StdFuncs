@@ -107,7 +107,12 @@ void CStdGadget::Hide()
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
+	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back, */
+	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */
+	/* until a CStdGadget::UnHide() function is required we won't bother */
+
+	IIntuition->SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
