@@ -8,8 +8,8 @@ class RTest
 {
 private:
 
-	const char	*iTitle;	/* Title to be printed by Title() */
-	TInt		iLevel;		/* # of currently executing test */
+	const char	*m_pccTitle;	/* Title to be printed by Title() */
+	TInt		m_iLevel;		/* # of currently executing test */
 
 public:
 

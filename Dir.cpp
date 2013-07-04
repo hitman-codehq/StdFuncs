@@ -733,7 +733,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 					IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
 
-					/* Convert it so a Symbian style TDateTime structure */
+					/* Convert it to a Symbian style TDateTime structure */
 
 					TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
 						ClockData.min, ClockData.sec, 0);

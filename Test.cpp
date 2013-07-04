@@ -7,15 +7,15 @@
 
 RTest::RTest(const char *a_pccTitle)
 {
-	iTitle = a_pccTitle;
-	iLevel = 0;
+	m_pccTitle = a_pccTitle;
+	m_iLevel = 0;
 }
 
 /* Written: Friday 05-Jun-2009 11:48 am */
 
 void RTest::Title()
 {
-	printf("RTEST TITLE: %s\n", iTitle);
+	printf("RTEST TITLE: %s\n", m_pccTitle);
 }
 
 /* Written: Monday 06-Jul 2009 3:56 pm */
@@ -33,7 +33,7 @@ void RTest::Printf(const char *a_pccString, ...)
 
 void RTest::Start(const char *a_pccHeading)
 {
-	printf("RTEST: Level %03d\n", ++iLevel);
+	printf("RTEST: Level %03d\n", ++m_iLevel);
 	printf("Next test - %s\n", a_pccHeading);
 }
 
@@ -41,7 +41,7 @@ void RTest::Start(const char *a_pccHeading)
 
 void RTest::Next(const char *a_pccHeading)
 {
-	printf("RTEST: Level %03d\n", ++iLevel);
+	printf("RTEST: Level %03d\n", ++m_iLevel);
 	printf("Next test - %s\n", a_pccHeading);
 }
 
@@ -49,14 +49,14 @@ void RTest::Next(const char *a_pccHeading)
 
 void RTest::End()
 {
-	printf("RTEST: SUCCESS : %s test completed O.K.\n", iTitle);
+	printf("RTEST: SUCCESS : %s test completed O.K.\n", m_pccTitle);
 }
 
 void RTest::operator()(TInt a_iResult, TInt a_iLineNumber, const char *a_pccFileName)
 {
 	if (!(a_iResult))
 	{
-		printf("RTEST: FAIL : %s failed check at line %d of %s\n", iTitle, a_iLineNumber, a_pccFileName);
+		printf("RTEST: FAIL : %s failed check at line %d of %s\n", m_pccTitle, a_iLineNumber, a_pccFileName);
 		exit(RETURN_ERROR);
 	}
 }
