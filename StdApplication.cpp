@@ -98,7 +98,7 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 
 /* Written: Monday 08-Feb-2010 6:54 am */
 
-int RApplication::Main()
+TInt RApplication::Main()
 {
 
 #ifdef __amigaos4__

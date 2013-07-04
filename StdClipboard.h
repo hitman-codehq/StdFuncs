@@ -25,7 +25,7 @@ private:
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
-	int			m_iDataSize;			/* Size of buffer to be written */
+	TInt		m_iDataSize;			/* Size of buffer to be written */
 
 #else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
@@ -56,7 +56,7 @@ public:
 
 	}
 
-	int Open(CWindow *a_poWindow);
+	TInt Open(CWindow *a_poWindow);
 
 	void Close();
 

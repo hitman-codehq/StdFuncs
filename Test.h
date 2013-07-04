@@ -6,6 +6,8 @@
 
 class RTest
 {
+private:
+
 	const char	*iTitle;	/* Title to be printed by Title() */
 	TInt		iLevel;		/* # of currently executing test */
 

@@ -80,12 +80,12 @@ typedef int TBool;
 
 #ifdef WIN32
 
-#define TFMain() int WINAPI WinMain(HINSTANCE /*a_hInstance*/, HINSTANCE /*a_hPrevInstance*/, char *a_pcCmdParam, int /*a_iCmdShow*/)
+#define TFMain() TInt WINAPI WinMain(HINSTANCE /*a_hInstance*/, HINSTANCE /*a_hPrevInstance*/, char *a_pcCmdParam, TInt /*a_iCmdShow*/)
 #define TFArgs a_pcCmdParam
 
 #else /* ! WIN32 */
 
-#define TFMain() int main(int a_iArgC, const char *a_ppcArgV[])
+#define TFMain() TInt main(TInt a_iArgC, const char *a_ppcArgV[])
 #define TFArgs a_ppcArgV, a_iArgC
 
 #endif /* ! WIN32 */
@@ -150,8 +150,8 @@ typedef unsigned long COLORREF;
 
 struct SKeyMapping
 {
-	int	m_iStdKey;			/* Standard keycode */
-	int	m_iNativeKey;		/* Native keycode */
+	TInt	m_iStdKey;			/* Standard keycode */
+	TInt	m_iNativeKey;		/* Native keycode */
 };
 
 #include "Utils.h"

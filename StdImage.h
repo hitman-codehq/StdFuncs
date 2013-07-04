@@ -15,6 +15,8 @@
 
 class RStdImage
 {
+private:
+
 	TInt			m_iWidth;		/* Width and height of the image, as determined from */
 	TInt			m_iHeight;		/* the image file upon loading */
 

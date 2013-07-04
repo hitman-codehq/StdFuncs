@@ -15,6 +15,7 @@ enum TFileMode
 
 class RFile
 {
+private:
 
 #ifdef __amigaos4__
 
@@ -23,7 +24,7 @@ class RFile
 
 #elif defined(__linux__)
 
-	int		m_oHandle;		/* Handle to the open file or 0 if closed */
+	TInt		m_oHandle;		/* Handle to the open file or 0 if closed */
 
 #else /* ! __linux__ */
 

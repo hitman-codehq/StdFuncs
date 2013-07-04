@@ -71,7 +71,7 @@ public:
 
 	TInt Open(const struct SStdMenuItem *a_pcoMenuItems);
 
-	int Main();
+	TInt Main();
 
 	void Close();
 

@@ -36,12 +36,6 @@ extern CWindow *g_poRootWindow;
 
 class CWindow
 {
-	/* RApplication and CStdGadgetLayout classes need to be able to access this class's internals */
-	/* in order to link windows into the window list and manage the gadgets' positions etc. */
-
-	friend class CStdGadgetLayout;
-	friend class RApplication;
-
 private:
 
 	TBool				m_bFillBackground;			/* ETrue to fill background when drawing */
@@ -113,6 +107,12 @@ private:
 	TInt RemoveAccelerator(TInt a_iCommand);
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
+protected:
+
+	CWindow() { }
+
+	void CompleteOpen();
 
 public:
 
@@ -246,13 +246,12 @@ public:
 
 	virtual void Resize(TInt /*a_iOldInnerWidth*/, TInt /*a_iOldInnerHeight*/) { }
 
-protected:
-
-	CWindow() { }
-
-	void CompleteOpen();
+	/* RApplication and CStdGadgetLayout classes need to be able to access this class's internals */
+	/* in order to link windows into the window list and manage the gadgets' positions etc. */
 
 	friend class CQtWindow;
+	friend class CStdGadgetLayout;
+	friend class RApplication;
 };
 
 #endif /* ! STDWINDOW_H */

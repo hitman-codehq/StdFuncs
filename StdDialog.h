@@ -58,33 +58,9 @@ protected:
 
 #endif /* __amigaos4__ */
 
-public:
+private:
 
-	CDialog(RApplication *a_poApplication, MDialogObserver *a_poDialogObserver = NULL)
-		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
-	{
-		/* Dialogs don't have their backgrounds filled */
-
-		EnableFillBackground(EFalse);
-	}
-
-	virtual ~CDialog();
-
-#ifdef __amigaos4__
-
-	static TInt	StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
-
-	TInt DoStringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
-
-#endif /* __amigaos4__ */
-
-	/* Functions can be implemented by client software */
-
-	virtual void HandleEvent(enum TStdEventType /*a_eEventID*/, TInt /*a_iGadgetID*/) { }
-
-	virtual void InitDialog() { }
-
-	virtual TBool OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/);
+	CDialog() { }
 
 protected:
 
@@ -114,9 +90,33 @@ protected:
 
 	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
 
-private:
+public:
 
-	CDialog() { }
+	CDialog(RApplication *a_poApplication, MDialogObserver *a_poDialogObserver = NULL)
+		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
+	{
+		/* Dialogs don't have their backgrounds filled */
+
+		EnableFillBackground(EFalse);
+	}
+
+	virtual ~CDialog();
+
+#ifdef __amigaos4__
+
+	static TInt	StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
+
+	TInt DoStringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
+
+#endif /* __amigaos4__ */
+
+	/* Functions can be implemented by client software */
+
+	virtual void HandleEvent(enum TStdEventType /*a_eEventID*/, TInt /*a_iGadgetID*/) { }
+
+	virtual void InitDialog() { }
+
+	virtual TBool OfferKeyEvent(TInt /*a_iKey*/, TBool /*a_bKeyDown*/);
 };
 
 #endif /* ! STDDIALOG_H */

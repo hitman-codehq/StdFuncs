@@ -40,6 +40,8 @@ public:
 
 #endif /* ! __linux__ */
 
+public:
+
 	TEntry();
 
 	TBool IsDir() const;
@@ -64,6 +66,8 @@ public:
 
 class TEntryArray
 {
+private:
+
 	StdList<TEntry>		iEntries;	/* List of entries */
 
 public:
@@ -92,25 +96,6 @@ public:
 
 class RDir
 {
-public:
-
-	RDir();
-
-	TInt Open(const char *a_pccPattern);
-
-	void Close();
-
-	// TODO: CAW - Is it possible to make this more Symbian like?  What about ordering of functions/members in here?
-	TInt Read(TEntryArray *&a_rpoEntries);
-
-private:
-
-#ifdef WIN32
-
-	TInt AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData);
-
-#endif /* WIN32 */
-
 private:
 
 #ifdef __amigaos4__
@@ -135,6 +120,25 @@ private:
 	TEntry			iSingleEntry;	/* If a single entry is being examined, Open() will populate this */
 	TBool			iSingleEntryOk;	/* ETrue if the contents of iSingleEntry are valid, else EFalse */
 	TEntryArray		iEntries;		/* Array of TEntry classes containing directory and file information */
+
+private:
+
+#ifdef WIN32
+
+	TInt AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData);
+
+#endif /* WIN32 */
+
+public:
+
+	RDir();
+
+	TInt Open(const char *a_pccPattern);
+
+	void Close();
+
+	// TODO: CAW - Is it possible to make this more Symbian like?
+	TInt Read(TEntryArray *&a_rpoEntries);
 };
 
 #endif /* ! DIR_H */

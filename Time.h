@@ -14,6 +14,8 @@ enum TMonth
 
 class TDateTime
 {
+private:
+
 	TInt	iYear;		/* The current year */
 	TInt	iMonth;		/* The month of the current year, starting with 0 */
 	TInt	iDay;		/* The day of the current month */
@@ -46,6 +48,8 @@ public:
 
 class TTime
 {
+private:
+
 	TDateTime	iDateTime;	/* Internal representation of the time */
 
 public:

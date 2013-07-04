@@ -30,6 +30,8 @@ public:
 
 class RStdPool
 {
+private:
+
 	TBool					m_bExtensible;		/* ETrue if pool can be extended beyond its initial size */
 	TInt					m_iNumItems;		/* # of items in each block of items */
 	TInt					m_iSize;			/* Size of the nodes in the pool */

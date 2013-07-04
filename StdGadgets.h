@@ -36,11 +36,6 @@ enum TStdGadgetType
 
 class CStdGadget
 {
-	/* CStdGadgetLayout classe needs to be able to access this class's internals in order to */
-	/* manage the gadgets' positions etc. */
-
-	friend class CStdGadgetLayout;
-
 protected:
 
 	char					*m_iText;			/* Ptr to gadget's text, if any */
@@ -69,10 +64,6 @@ protected:
 
 #endif /* WIN32 */
 
-public:
-
-	StdListNode<CStdGadget>	m_oStdListNode;		/* Standard list node */
-
 private:
 
 	void SetPosition(TInt a_iX, TInt a_iY);
@@ -80,6 +71,8 @@ private:
 	void SetSize(TInt a_iWidth, TInt a_iHeight);
 
 public:
+
+	StdListNode<CStdGadget>	m_oStdListNode;		/* Standard list node */
 
 	virtual ~CStdGadget();
 
@@ -113,17 +106,17 @@ public:
 	void SaveText(const char *a_pccText);
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
+
+	/* CStdGadgetLayout classe needs to be able to access this class's internals in order to */
+	/* manage the gadgets' positions etc. */
+
+	friend class CStdGadgetLayout;
 };
 
 /* A special gadget that can automatically layout other gadgets inside itself */
 
 class CStdGadgetLayout : public CStdGadget
 {
-	/* CWindow classe needs to be able to access this class's internals in order to map */
-	/* native events onto standard cross platform events */
-
-	friend class CWindow;
-
 private:
 
 	TInt					m_iWeight;			/* Weight of the layout gadget */
@@ -137,10 +130,6 @@ private:
 												/* derived objects do not derive from QWidget */
 
 #endif /* QT_GUI_LIB */
-
-public:
-
-	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/* Standard list node */
 
 private:
 
@@ -158,6 +147,8 @@ private:
 	CStdGadget *FindNativeGadget(void *a_pvGadget);
 
 public:
+
+	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/* Standard list node */
 
 	static CStdGadgetLayout *New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient);
 
@@ -183,6 +174,11 @@ public:
 	virtual TInt Y();
 
 	virtual TInt MinHeight();
+
+	/* CWindow classe needs to be able to access this class's internals in order to map */
+	/* native events onto standard cross platform events */
+
+	friend class CWindow;
 };
 
 /* A class representing a slider or proportional gadget */

@@ -17,9 +17,9 @@
 
 /* Written: Tuesday 06-Jul-2010 7:42 am */
 
-int RClipboard::Open(CWindow *a_poWindow)
+TInt RClipboard::Open(CWindow *a_poWindow)
 {
-	int RetVal;
+	TInt RetVal;
 
 	ASSERTM((a_poWindow != NULL), "RClipboard::Open() => Window passed in is not open");
 	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::Open() => Native window passed in is not open");

@@ -7,6 +7,8 @@
 
 class RTextFile
 {
+private:
+
 	char	*m_pcBuffer;	/* Ptr to buffer containing the text */
 	char	*m_pcBufferPtr;	/* Ptr to current position in buffer */
 

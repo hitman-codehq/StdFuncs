@@ -20,6 +20,8 @@ struct StdListNode
 template <class T>
 class StdList
 {
+private:
+
 	StdListNode<T>			m_oHead;		/* Dummy node representing head of the list */
 	StdListNode<T>			m_oTail;		/* Dummy node representing tail of the list */
 	TInt					m_iCount;		/* # of items in the list */
