@@ -95,6 +95,11 @@ public:
 
 	void Hide();
 
+	TBool Visible()
+	{
+		return(!(m_bHidden));
+	}
+
 	virtual TInt X();
 
 	virtual TInt Y();
