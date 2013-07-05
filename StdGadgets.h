@@ -38,7 +38,6 @@ class CStdGadget
 {
 protected:
 
-	char					*m_iText;			/* Ptr to gadget's text, if any */
 	TBool					m_bHidden;			/* ETrue if the gadget is hidden */
 	TInt					m_iGadgetID;		/* Unique ID of the gadget */
 	TInt					m_iX;				/* X and Y positions of the gadget, relative */
@@ -102,8 +101,6 @@ public:
 	virtual TInt Height();
 
 	virtual TInt MinHeight();
-
-	void SaveText(const char *a_pccText);
 
 	virtual void Updated(ULONG /*a_ulData*/ = 0) { }
 
