@@ -364,14 +364,21 @@ TInt CStdGadgetLayout::Y()
 	return(m_iY);
 }
 
-/* Written: Wednesday 23-Nov-2011 6:45 am, Code HQ Söflingen */
+/**
+ * Returns the minimum height of the layout in pixels.
+ * Returns the minimum height of the layout gadget, based on the minimum size of the
+ * gadgets that are attached to it.
+ *
+ * @date	Wednesday 23-Nov-2011 6:45 am, Code HQ Söflingen
+ * @return	The minimum height of the gadget in pixels
+ */
 
 TInt CStdGadgetLayout::MinHeight()
 {
 	TInt RetVal;
 	CStdGadget *Gadget;
 
-	RetVal = 13; // TODO: CAW
+	RetVal = 0;
 
 	/* Get a ptr to the first gadget in the list of the layout's attached gadgets */
 

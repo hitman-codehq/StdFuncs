@@ -167,11 +167,18 @@ TInt CStdGadget::Height()
 	return(RetVal);
 }
 
-/* Written: Wednesday 23-Nov-2011 6:37 am, Code HQ Söflingen */
+/**
+ * Returns the minimum height of the gadget in pixels.
+ * Returns the minimum height of the gadget, taking into account whether or not the
+ * gadget is visible.  Hidden gadgets return a height of zero.
+ *
+ * @date	Wednesday 23-Nov-2011 6:37 am, Code HQ Söflingen
+ * @return	The minimum height of the gadget in pixels
+ */
 
 TInt CStdGadget::MinHeight()
 {
-	return(m_iMinHeight);
+	return((m_bHidden) ? 0 : m_iMinHeight);
 }
 
 /* Written: Wednesday 21-Mar-2011 6:27 am, Hilton Košice */
