@@ -497,6 +497,11 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				}
 			}
 
+			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
+			/* of preprocessing */
+
+			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_SYSKEYDOWN));
+
 			/* And indicate that we want to pass the keypress onto the system */
 
 			RetVal = 1;
@@ -524,11 +529,6 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			{
 				Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
 			}
-
-			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
-			/* of preprocessing */
-
-			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
 
 			/* This is pretty horrible.  Because Windows mixes its WM_KEY#? and WM_CHAR events, we */
 			/* can get duplicate keys that need to get filtered out in order to provide a consistent */
@@ -560,6 +560,11 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					m_bAltPressed = m_bCtrlPressed = EFalse;
 				}
 			}
+
+			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
+			/* of preprocessing */
+
+			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
 
 			break;
 		}
