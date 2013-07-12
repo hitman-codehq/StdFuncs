@@ -31,7 +31,7 @@ RFont::RFont(CWindow *a_poWindow)
 #endif /* _DEBUG */
 
 	m_bHighlight = EFalse;
-	m_iClipWidth = -1; // TODO: CAW - Check for this being -1 in DrawText() + Win32 version and DrawColouredText() ignores this
+	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
 	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
@@ -692,38 +692,46 @@ void RFont::SetHighlight(TBool a_bHighlight)
 	m_bHighlight = a_bHighlight;
 }
 
-/* Written: Wednesday 30-Nov-2011 5:49 am, Söflingen */
-/* @param	a_iClipWidth	Number of pixels to draw horizontally before clipping */
-/* Sets the clipping width of the area into which the font will draw.  This is the */
-/* number of pixels starting at the value passed into RFont::SetXOffset() - it is */
-/* an offset, not an absolute value! */
+/**
+ * Defines the rectangular area used for drawing text.
+ * By default the RFont class will use the entire client area of the window in which it
+ * used.  This function can be used to define a sub area of that window into which to
+ * draw.  It acts as both a position setting and a clip setting function.  The text will
+ * be drawn starting at offset a_iXOffset, a_YOffset from the inside border of the parent
+ * window and will be clipped after a_iWidth pixels horizontally and a_iHeight pixels
+ * vertically.
+ *
+ * @pre	This function must be called after RFont::Begin() for clipping to take effect on
+ * all platforms.
+ *
+ * @date	Friday 12-Jul-2013 6:33 am, Code HQ Ehinger Tor
+ * @param	a_iXOffset	X position in pixels at which to begin drawing
+ * @param	a_iYOffset	Y position in pixels at which to begin drawing
+ * @param	a_iWidth	# of pixels to draw horizontally before clipping
+ * @param	a_iHeight	# of pixels to draw vertically before clipping
+ */
 
-void RFont::SetClipWidth(TInt a_iClipWidth)
+void RFont::SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight)
 {
-	m_iClipWidth = a_iClipWidth;
-}
+	ASSERTM((a_iXOffset >= 0), "RFont::SetClipRect() => X offset must be >= 0");
+	ASSERTM((a_iYOffset >= 0), "RFont::SetClipRect() => Y offset must be >= 0");
+	ASSERTM((a_iWidth >= 0), "RFont::SetClipRect() => Width must be >= 0");
+	ASSERTM((a_iHeight >= 0), "RFont::SetClipRect() => Height must be >= 0");
+	ASSERTM((m_bBeginCalled != EFalse), "RFont::SetClipRect() => RFont::Begin() must be called first");
 
-/* Written: Thursday 31-May-2012 7:20 am, Code HQ Ehinger Tor */
-/* @param	a_iXOffset	Offset from the left of the window in pixels */
-/* This function sets the offset from the left of the window at which text is output */
-/* by the RFont class.  This means that when clients call the text drawing functions */
-/* and pass in an X position at which to print, that position is calculated from the */
-/* X offset passed in here, rather than the left of the window.  This allows the */
-/* client to treat areas of the window as a sub-windows. */
+	/* Save the coordinates of the clipping rectangle */
 
-void RFont::SetXOffset(TInt a_iXOffset)
-{
 	m_iXOffset = a_iXOffset;
-}
-/* Written: Friday 08-Jul-2010 7:42 am, Code HQ-by-Thames */
-/* @param	a_iYOffset	Offset from the top of the window in pixels */
-/* This function sets the offset from the top of the window at which text is output */
-/* by the RFont class.  This means that when clients call the text drawing functions */
-/* and pass in a Y position at which to print, that position is calculated from the */
-/* Y offset passed in here, rather than the top of the window.  This allows the */
-/* client to treat areas of the window as a sub-windows. */
-
-void RFont::SetYOffset(TInt a_iYOffset)
-{
 	m_iYOffset = a_iYOffset;
+	m_iClipWidth = a_iWidth;
+	m_iClipHeight = a_iHeight;
+
+#ifdef QT_GUI_LIB
+
+	/* And set the clipping rectangle in the QPainter, so that it is active for all operations */
+
+	m_oPainter.setClipRect(m_iXOffset, m_iYOffset, m_iClipWidth, m_iClipHeight);
+
+#endif /* QT_GUI_LIB */
+
 }

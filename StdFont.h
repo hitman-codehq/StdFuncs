@@ -60,6 +60,7 @@ private:
 
 	TBool		m_bHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iClipWidth;	/* Number of pixels to draw horizontally before clipping */
+	TInt		m_iClipHeight;	/* Number of pixels to draw vertically before clipping */
 	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;		/* Height of a character in pixels */
 	TInt		m_iXOffset;		/* Offset from left of window at which to print */
@@ -96,11 +97,7 @@ public:
 
 	void SetHighlight(TBool a_bHighlight);
 
-	void SetClipWidth(TInt a_iClipWidth);
-
-	void SetXOffset(TInt a_iXOffset);
-
-	void SetYOffset(TInt a_iYOffset);
+	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);
 };
 
 #endif /* ! STDFONT_H */
