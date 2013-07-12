@@ -10,7 +10,10 @@
 
 #elif defined(QT_GUI_LIB)
 
+#include "StdApplication.h"
+#include <QtGui/QApplication>
 #include <QtGui/QScrollBar>
+#include <QtGui/QStyle>
 #include "Qt/StdWindow.h"
 
 /**
@@ -108,11 +111,13 @@ TInt CStdGadgetSlider::Construct()
 
 		if (m_iGadgetType == EStdGadgetVerticalSlider)
 		{
+			m_iWidth = m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
 			m_iHeight = m_poParentLayout->Height();
 		}
 		else
 		{
-			m_iHeight = ScrollBar->height();
+			m_iWidth = m_poParentLayout->Width();
+			m_iHeight = m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
 		}
 	}
 
