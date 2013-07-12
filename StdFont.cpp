@@ -713,11 +713,11 @@ void RFont::SetHighlight(TBool a_bHighlight)
 
 void RFont::SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight)
 {
-	ASSERTM((a_iXOffset >= 0), "RFont::SetClipRect() => X offset must be >= 0");
-	ASSERTM((a_iYOffset >= 0), "RFont::SetClipRect() => Y offset must be >= 0");
-	ASSERTM((a_iWidth >= 0), "RFont::SetClipRect() => Width must be >= 0");
-	ASSERTM((a_iHeight >= 0), "RFont::SetClipRect() => Height must be >= 0");
-	ASSERTM((m_bBeginCalled != EFalse), "RFont::SetClipRect() => RFont::Begin() must be called first");
+	ASSERTM((a_iXOffset >= 0), "RFont::SetDrawingRect() => X offset must be >= 0");
+	ASSERTM((a_iYOffset >= 0), "RFont::SetDrawingRect() => Y offset must be >= 0");
+	ASSERTM((a_iWidth >= 0), "RFont::SetDrawingRect() => Width must be >= 0");
+	ASSERTM((a_iHeight >= 0), "RFont::SetDrawingRect() => Height must be >= 0");
+	ASSERTM((m_bBeginCalled != EFalse), "RFont::SetDrawingRect() => RFont::Begin() must be called first");
 
 	/* Save the coordinates of the clipping rectangle */
 
