@@ -84,7 +84,14 @@ public:
 		return(m_pcoMenuItems);
 	}
 
-#ifdef WIN32
+#ifdef QT_GUI_LIB
+
+	QApplication *Application()
+	{
+		return(m_poApplication);
+	}
+
+#elif defined(WIN32)
 
 	void SetCurrentDialog(HWND a_poDialog);
 
