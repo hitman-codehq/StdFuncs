@@ -76,18 +76,24 @@ RFont::RFont(CWindow *a_poWindow)
 
 }
 
-/* Written: Sunday 31-May-2010 3:38 pm */
-/* @return	KErrNone if the font was opened successfully, else KErrGeneral */
-/* Opens the font for use.  This function can be called at any time but before rendering, you */
-/* must first also call RFont::Begin() to setup the rendering context.  Begin() can unfortunately */
-/* only be called in response to a system paint event (in other words, from your overridden */
-/* CWindow::Draw() function) due to needing to fit in with Qt's architecture.  For cross platform */
-/* compatibility, this requirement therefore applies to all platforms, not just Qt. */
-/* */
-/* After this function has been called, the RFont::Width() and RFont::Height() functions are able */
-/* to be called, but no other functions */
+/**
+ * Opens the default or a user specified font for use.
+ * Opens the font for use.  This function can be called at any time but before rendering, you
+ * must first also call RFont::Begin() to setup the rendering context.  Begin() can unfortunately
+ * only be called in response to a system paint event (in other words, from your overridden
+ * CWindow::Draw() function) due to needing to fit in with Qt's architecture.  For cross platform
+ * compatibility, this requirement therefore applies to all platforms, not just Qt.
+ *
+ * After this function has been called, the RFont::Width() and RFont::Height() functions are able
+ * to be called, but no other functions.
+ *
+ * @date	Sunday 31-May-2010 3:38 pm
+ * @param	Ptr to the name of the font to be opened, which is platform specific.  If not specified
+ *			then a platform specific generic courier style font will be selected
+ * @return	KErrNone if the font was opened successfully, else KErrGeneral
+ */
 
-TInt RFont::Open()
+TInt RFont::Open(const char *a_pccFont)
 {
 	TInt RetVal;
 
@@ -112,9 +118,16 @@ TInt RFont::Open()
 
 #elif defined(QT_GUI_LIB)
 
+	/* If no font has been specified then use "Monospace" */
+
+	if (!(a_pccFont))
+	{
+		a_pccFont = "Monospace";
+	}
+
 	/* Create a monospace font in the desired point size */
 
-	if ((m_poFont = new QFont("Monospace", 10)) != NULL)
+	if ((m_poFont = new QFont(a_pccFont, 10)) != NULL)
 	{
 		RetVal = KErrNone;
 
@@ -156,6 +169,14 @@ TInt RFont::Open()
 
 	if (m_poWindow->m_poDC)
 	{
+		/* If no font has been specified then use "Courier" which is as ugly as sin but has been */
+		/* the default on Brunel since day one and fits lots of lines on my netbook! */
+
+		if (!(a_pccFont))
+		{
+			a_pccFont = "Courier";
+		}
+
 		/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
 		/* that uses that size */
 
@@ -163,7 +184,7 @@ TInt RFont::Open()
 
 		// TODO: CAW - This is an expensive routine - can we shorten it?
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), "Courier")) != NULL)
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), a_pccFont)) != NULL)
 		{
 			DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
 		}

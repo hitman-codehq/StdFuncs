@@ -71,7 +71,7 @@ public:
 
 	RFont(CWindow *a_poWindow);
 
-	TInt Open();
+	TInt Open(const char *a_pccFont = NULL);
 
 	void Close();
 
