@@ -438,7 +438,7 @@ TInt RConfigFile::GetInteger(const char *a_pccSectionName, const char *a_pccSubS
 TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSectionName,
 	const char *a_pccKeyName, char *&a_rpcResult)
 {
-	char *Buffer;
+	char *Buffer, *Heading;
 	const char *Token;
 	TBool FoundSection, FoundSubSection;
 	TInt BufferSize, Index, KeyNameLength, LFIndex, SectionNameLength, SubSectionNameLength, RetVal, TokenLength;
@@ -479,52 +479,60 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 			}
 		}
 
-		/* Initialise a TLex to parse the current line for tokens and configure it to treat */
-		/* spaces, tabs and the = sign as white space.  This allows the user flexibility in */
-		/* how they layout the .ini file */
+		Heading = Utils::StripDags(Buffer, &LFIndex);
 
-		TLex Lex(Buffer, LFIndex);
+		/* If it is a comment then simply skip this entire line */
 
-		Lex.SetWhitespace("\t =");
-
-		/* Update the buffer variables so they point to the start of the next line, for the */
-		/* next iteration of the loop */
-
-		++Index;
-		Buffer += Index;
-		BufferSize -= Index;
-
-		/* Get the first token from the line */
-
-		if ((Token = Lex.NextToken(&TokenLength)) != NULL)
+		if (Heading[0] != ';')
 		{
-			/* If it is a comment then simply skip this entire line */
+			/* If this is a section marker then see if it is the one we are interested */
+			/* in.  If a section or subsection has already been found then abort processing */
+			/* as duplicate sections of the same name are not supported and we have not */
+			/* found the key we are looking for in the currently active section/subsection */
 
-			if (Token[0] != ';')
+			if ((Heading[0] == '(') && (Heading[LFIndex - 1] == ')'))
 			{
-				/* If this is a section marker then see if it is the one we are interested */
-				/* in.  If a section or subsection has already been found then abort processing */
-				/* as duplicate sections of the same name are not supported and we have not */
-				/* found the key we are looking for in the currently active section/subsection */
+				if (!(FoundSubSection))
+				{
+					if (!(FoundSection))
+					{
+						/* Is this the section we are after?  Only do a comparison if the token */
+						/* found is the same length as the section name (taking into account the */
+						/* '(' and ')' characters surrounding the token) */
 
-				if ((Token[0] == '(') && (Token[TokenLength - 1] == ')'))
+						if (SectionNameLength == (LFIndex - 2))
+						{
+							FoundSection = (strnicmp(&Heading[1], a_pccSectionName, SectionNameLength) == 0);
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			/* If we have found the target section and this is a subsection marker then see if */
+			/* it is the one we are interested in.  Again, we abort processing if a subsection has */
+			/* already been found */
+
+			else if (FoundSection)
+			{
+				if ((Heading[0] == '[') && (Heading[LFIndex - 1] == ']'))
 				{
 					if (!(FoundSubSection))
 					{
-						if (!(FoundSection))
-						{
-							/* Is this the section we are after?  Only do a comparison if the token */
-							/* found is the same length as the section name (taking into account the */
-							/* '(' and ')' characters surrounding the token) */
+						/* Is this the subsection we are after?  Only do a comparison if the token */
+						/* found is the same length as the subsection name (taking into account the */
+						/* '[' and ']' characters surrounding the token) */
 
-							if (SectionNameLength == (TokenLength - 2))
-							{
-								FoundSection = (strnicmp(&Token[1], a_pccSectionName, SectionNameLength) == 0);
-							}
-						}
-						else
+						if (SubSectionNameLength == (LFIndex - 2))
 						{
-							break;
+							FoundSubSection = (strnicmp(&Heading[1], a_pccSubSectionName, SubSectionNameLength) == 0);
 						}
 					}
 					else
@@ -533,35 +541,22 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 					}
 				}
 
-				/* If we have found the target section and this is a subsection marker then see if */
-				/* it is the one we are interested in.  Again, we abort processing if a subsection has */
-				/* already been found */
+				/* If we have found both the target section and the target subsection then see if */
+				/* this is the key we are interested in */
 
-				else if (FoundSection)
+				else if (FoundSubSection)
 				{
-					if ((Token[0] == '[') && (Token[TokenLength - 1] == ']'))
-					{
-						if (!(FoundSubSection))
-						{
-							/* Is this the subsection we are after?  Only do a comparison if the token */
-							/* found is the same length as the subsection name (taking into account the */
-							/* '[' and ']' characters surrounding the token) */
+					/* Initialise a TLex to parse the current line for tokens and configure it to treat */
+					/* spaces, tabs and the = sign as white space.  This allows the user flexibility in */
+					/* how they layout the .ini file */
 
-							if (SubSectionNameLength == (TokenLength - 2))
-							{
-								FoundSubSection = (strnicmp(&Token[1], a_pccSubSectionName, SubSectionNameLength) == 0);
-							}
-						}
-						else
-						{
-							break;
-						}
-					}
+					TLex Lex(Buffer, Index);
 
-					/* If we have found both the target section and the target subsection then see if */
-					/* this is the key we are interested in */
+					Lex.SetWhitespace("\t =");
 
-					else if (FoundSubSection)
+					/* Get the first token from the line */
+
+					if ((Token = Lex.NextToken(&TokenLength)) != NULL)
 					{
 						/* Is this the key we are after?  Only do a comparison if the token found is */
 						/* the same length as the target key, to avoid finding keys that are substrings */
@@ -594,6 +589,13 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 				}
 			}
 		}
+
+		/* Update the buffer variables so they point to the start of the next line, for the */
+		/* next iteration of the loop */
+
+		++Index;
+		Buffer += Index;
+		BufferSize -= Index;
 	}
 
 	return(RetVal);
@@ -614,7 +616,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 TInt RConfigFile::Parse()
 {
-	char *Buffer;
+	char *Buffer, *Heading;
 	const char *Token, *ValueToken;
 	TInt BufferSize, Index, LFIndex, RetVal, TokenLength, ValueTokenLength;
 	CKey *Key;
@@ -652,13 +654,161 @@ TInt RConfigFile::Parse()
 			}
 		}
 
-		/* Initialise a TLex to parse the current line for tokens and configure it to treat */
-		/* spaces, tabs and the = sign as white space.  This allows the user flexibility in */
-		/* how they layout the .ini file */
+		Heading = Utils::StripDags(Buffer, &LFIndex);
 
-		TLex Lex(Buffer, LFIndex);
+		/* If it is a comment then simply skip this entire line */
 
-		Lex.SetWhitespace("\t =");
+		if (Heading[0] != ';')
+		{
+			/* If this is a valid section marker then allocate a CSection instance for it */
+			/* and add it to the list of top level sections */
+
+			if ((Heading[0] == '(') && (Heading[LFIndex - 1] == ')'))
+			{
+				if ((NewSection = CSection::New(&Heading[1], (LFIndex - 2))) != NULL)
+				{
+					/* Make this the current section and indicate that there are no longer */
+					/* any currently active subsections or groups.  Otherwise any newly found */
+					/* groups or key would be added to the incorrect subsection */
+
+					Section = NewSection;
+					SubSection = Group = NULL;
+
+					/* And add the section to the list of top level sections */
+
+					m_oSections.AddTail(NewSection);
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			/* If this is a valid subsection marker then allocate a CSection instance for it */
+			/* and add it to the list of subsections in the current top level section */
+
+			else if ((Heading[0] == '[') && (Heading[LFIndex - 1] == ']'))
+			{
+				if ((NewSection = CSection::New(&Heading[1], (LFIndex - 2))) != NULL)
+				{
+					/* Only use the subsection if it is within a section */
+
+					if (Section)
+					{
+						/* Indicate that this is now the currently active subsection and that */
+						/* there is no longer an active group */
+
+						SubSection = NewSection;
+						Group = NULL;
+
+						/* And add the subsection to the current section's list of subsections */
+
+						Section->m_oSections.AddTail(NewSection);
+					}
+
+					/* Otherwise the subsection is invalid so discard it and display a warning */
+
+					else
+					{
+						Utils::Info("Discarding orphan subsection %s", NewSection->m_pcName);
+
+						delete NewSection;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			/* If this is a valid group marker then allocate a CSection instance for it */
+			/* and add it to the list of subsections in the current subsection */
+
+			else if ((Heading[0] == '{') && (Heading[LFIndex - 1] == '}'))
+			{
+				if ((NewSection = CSection::New(&Heading[1], (LFIndex - 2))) != NULL)
+				{
+					/* Only use the subsection if it is within a subsection */
+
+					if (SubSection)
+					{
+						/* Indicate that this is now the currently active group */
+
+						Group = NewSection;
+
+						/* And add the group to the current subsection's list of groups */
+
+						SubSection->m_oSections.AddTail(NewSection);
+					}
+
+					/* Otherwise the group is invalid so discard it and display a warning */
+
+					else
+					{
+						Utils::Info("Discarding orphan group %s", NewSection->m_pcName);
+
+						delete NewSection;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				/* Initialise a TLex to parse the current line for tokens and configure it to treat */
+				/* spaces, tabs and the = sign as white space.  This allows the user flexibility in */
+				/* how they layout the .ini file */
+
+				TLex Lex(Buffer, LFIndex);
+
+				Lex.SetWhitespace("\t =");
+
+				/* Get the first token from the line */
+
+				if ((Token = Lex.NextToken(&TokenLength)) != NULL)
+				{
+					/* If this is a valid key and value pair CKey instance for it */
+
+					if ((ValueToken = Lex.NextToken(&ValueTokenLength)) != NULL)
+					{
+						if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
+						{
+							/* Only use the key and value if it is within a subsection or a group */
+
+							if ((SubSection) || (Group))
+							{
+								/* Add the new key to the current group, if there is one.  Otherwise add */
+								/* it to the current subsection */
+
+								if (Group)
+								{
+									Group->m_oKeys.AddTail(Key);
+								}
+								else
+								{
+									SubSection->m_oKeys.AddTail(Key);
+								}
+							}
+
+							/* Otherwise the key is invalid so discard it and display a warning */
+
+							else
+							{
+								Utils::Info("Discarding orphan key %s", Key->m_pcName);
+
+								delete Key;
+							}
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		/* Update the buffer variables so they point to the start of the next line, for the */
 		/* next iteration of the loop */
@@ -666,150 +816,6 @@ TInt RConfigFile::Parse()
 		++Index;
 		Buffer += Index;
 		BufferSize -= Index;
-
-		/* Get the first token from the line */
-
-		if ((Token = Lex.NextToken(&TokenLength)) != NULL)
-		{
-			/* If it is a comment then simply skip this entire line */
-
-			if (Token[0] != ';')
-			{
-				/* If this is a valid section marker then allocate a CSection instance for it */
-				/* and add it to the list of top level sections */
-
-				if ((Token[0] == '(') && (Token[TokenLength - 1] == ')'))
-				{
-					if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
-					{
-						/* Make this the current section and indicate that there are no longer */
-						/* any currently active subsections or groups.  Otherwise any newly found */
-						/* groups or key would be added to the incorrect subsection */
-
-						Section = NewSection;
-						SubSection = Group = NULL;
-
-						/* And add the section to the list of top level sections */
-
-						m_oSections.AddTail(NewSection);
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				/* If this is a valid subsection marker then allocate a CSection instance for it */
-				/* and add it to the list of subsections in the current top level section */
-
-				else if ((Token[0] == '[') && (Token[TokenLength - 1] == ']'))
-				{
-					if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
-					{
-						/* Only use the subsection if it is within a section */
-
-						if (Section)
-						{
-							/* Indicate that this is now the currently active subsection and that */
-							/* there is no longer an active group */
-
-							SubSection = NewSection;
-							Group = NULL;
-
-							/* And add the subsection to the current section's list of subsections */
-
-							Section->m_oSections.AddTail(NewSection);
-						}
-
-						/* Otherwise the subsection is invalid so discard it and display a warning */
-
-						else
-						{
-							Utils::Info("Discarding orphan subsection %s", NewSection->m_pcName);
-
-							delete NewSection;
-						}
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				/* If this is a valid group marker then allocate a CSection instance for it */
-				/* and add it to the list of subsections in the current subsection */
-
-				else if ((Token[0] == '{') && (Token[TokenLength - 1] == '}'))
-				{
-					if ((NewSection = CSection::New(&Token[1], (TokenLength - 2))) != NULL)
-					{
-						/* Only use the subsection if it is within a subsection */
-
-						if (SubSection)
-						{
-							/* Indicate that this is now the currently active group */
-
-							Group = NewSection;
-
-							/* And add the group to the current subsection's list of groups */
-
-							SubSection->m_oSections.AddTail(NewSection);
-						}
-
-						/* Otherwise the group is invalid so discard it and display a warning */
-
-						else
-						{
-							Utils::Info("Discarding orphan group %s", NewSection->m_pcName);
-
-							delete NewSection;
-						}
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				/* If this is a valid key and value pair CKey instance for it */
-
-				else if ((ValueToken = Lex.NextToken(&ValueTokenLength)) != NULL)
-				{
-					if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
-					{
-						/* Only use the key and value if it is within a subsection or a group */
-
-						if ((SubSection) || (Group))
-						{
-							/* Add the new key to the current group, if there is one.  Otherwise add */
-							/* it to the current subsection */
-
-							if (Group)
-							{
-								Group->m_oKeys.AddTail(Key);
-							}
-							else
-							{
-								SubSection->m_oKeys.AddTail(Key);
-							}
-						}
-
-						/* Otherwise the key is invalid so discard it and display a warning */
-
-						else
-						{
-							Utils::Info("Discarding orphan key %s", Key->m_pcName);
-
-							delete Key;
-						}
-					}
-					else
-					{
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	/* If we reached the end of the buffer without breaking out of the loop then the parsing */

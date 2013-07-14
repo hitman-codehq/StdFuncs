@@ -20,7 +20,7 @@ static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyNam
 	/* Read in the number from the requested key and ensure that it is read in correctly */
 
 	IntegerValue = 0;
-	Result = a_poConfigFile->GetInteger("ConfigFile", "General", a_pccKeyName, &IntegerValue);
+	Result = a_poConfigFile->GetInteger("Config File", "General", a_pccKeyName, &IntegerValue);
 	test(Result == KErrNone);
 	test(IntegerValue == 42);
 }
@@ -58,9 +58,9 @@ static void TestDynamicReads(RConfigFile *a_poConfigFile)
 
 	Test.Next("Query for basic values in a particular subsection");
 
-	/* First find the "General" subsection in the "ConfigFile" section */
+	/* First find the "General" subsection in the "Config File" section */
 
-	Section = a_poConfigFile->FindSection("ConfigFile");
+	Section = a_poConfigFile->FindSection("Config File");
 	test(Section != NULL);
 
 	SubSection = Section->FindSection("General");
@@ -84,7 +84,7 @@ static void TestDynamicReads(RConfigFile *a_poConfigFile)
 	SubSection = Section->FindSection("SyntaxHighlighting");
 	test(SubSection != NULL);
 
-	Group = SubSection->FindSection("C/C++");
+	Group = SubSection->FindSection("C / C++");
 	test(SubSection != NULL);
 
 	Key = Group->FindKey("SyntaxExtensions");
@@ -123,7 +123,7 @@ static void TestDynamicReads(RConfigFile *a_poConfigFile)
 
 	Group = SubSection->FindSection();
 	test(Group != NULL);
-	test(strcmp(Group->m_pcName, "C/C++") == 0);
+	test(strcmp(Group->m_pcName, "C / C++") == 0);
 
 	Group = SubSection->FindNextSection(Group);
 	test(Group != NULL);
@@ -172,7 +172,7 @@ int main()
 	Result = ConfigFile.GetString("InvalidSection", "General", "InvalidInteger1", StringValue);
 	test(Result == KErrNotFound);
 
-	Result = ConfigFile.GetString("ConfigFile", "General", "InvalidInteger1", StringValue);
+	Result = ConfigFile.GetString("Config File", "General", "InvalidInteger1", StringValue);
 	test(Result == KErrNone);
 	test(strcmp(StringValue, "Found") == 0);
 
@@ -180,7 +180,7 @@ int main()
 
 	/* There are two instances of "ValidString1" in the .ini file so ensure the correct one is found */
 
-	Result = ConfigFile.GetString("ConfigFile", "General", "ValidString1", StringValue);
+	Result = ConfigFile.GetString("Config File", "General", "ValidString1", StringValue);
 	test(Result == KErrNone);
 	test(strcmp(StringValue, "Valid1") == 0);
 
@@ -188,7 +188,7 @@ int main()
 
 	/* There are two instances of "ValidString2" in the .ini file so ensure the correct one is found */
 
-	Result = ConfigFile.GetString("ConfigFile", "NextSubSection", "ValidString2", StringValue);
+	Result = ConfigFile.GetString("Config File", "Next Sub Section", "ValidString2", StringValue);
 	test(Result == KErrNone);
 	test(strcmp(StringValue, "Valid2") == 0);
 
@@ -199,7 +199,7 @@ int main()
 	Result = ConfigFile.GetString("NonExisting", "General", "ValidString1", StringValue);
 	test(Result == KErrNotFound);
 
-	Result = ConfigFile.GetString("ConfigFile", "NonExisting", "ValidString1", StringValue);
+	Result = ConfigFile.GetString("Config File", "NonExisting", "ValidString1", StringValue);
 	test(Result == KErrNotFound);
 
 	Result = ConfigFile.GetString("NonExisting", "NonExisting", "ValidString1", StringValue);
@@ -208,13 +208,13 @@ int main()
 	/* Ensure that we don't match partial sections, subsections or keys.  ie.  Searching for */
 	/* "ValidString" should not return a match for "ValidString1" */
 
-	Result = ConfigFile.GetString("ConfigFil", "General", "ValidString1", StringValue);
+	Result = ConfigFile.GetString("Config Fil", "General", "ValidString1", StringValue);
 	test(Result == KErrNotFound);
 
-	Result = ConfigFile.GetString("ConfigFile", "Genera", "ValidString1", StringValue);
+	Result = ConfigFile.GetString("Config File", "Genera", "ValidString1", StringValue);
 	test(Result == KErrNotFound);
 
-	Result = ConfigFile.GetString("ConfigFile", "General", "ValidString", StringValue);
+	Result = ConfigFile.GetString("Config File", "General", "ValidString", StringValue);
 	test(Result == KErrNotFound);
 
 	/* Malformed section or subsection names should fail to be recognised */
