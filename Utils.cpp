@@ -2080,11 +2080,92 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 }
 
 /**
+ * Strips white space from the start and end of the line.
+ * This function will strip spaces and tabs from the start and end of the
+ * line, as well as the carriage return (0x0d) from the end.  It returns a
+ * ptr to the first non whitespace character in the line and the length of
+ * the "new" line, that has the white space stripped.
+ *
+ * @date	Sunday 14-Jul-2013 8:36 am, Code HQ Ehinger Tor
+ * @param	a_pcLine	Ptr to the line to have its white space stripped
+ * @param	a_piLength	Number of characters in the line to be stripped.
+ *						Upon return, this will contain the new length of
+ *						the line
+ * @return	A ptr to the first non whitespace character in the line, or
+ *			the start of the line passed in if no changes were made
+ */
+
+char *Utils::StripDags(char *a_pcLine, TInt *a_piLength)
+{
+	char Char, *RetVal;
+	TInt Index, Length;
+
+	/* Get a ptr to the start of the line */
+
+	RetVal = a_pcLine;
+
+	/* Iterate through the line until a non whitespace character is found */
+
+	Length = *a_piLength;
+
+	for (Index = 0; Index < Length; ++Index)
+	{
+		Char = RetVal[Index];
+
+		if ((Char != ' ') && (Char != '\t'))
+		{
+			break;
+		}
+	}
+
+	/* If we have found one or more whitespace characters, adjust the ptr to the line */
+	/* and the length of the line */
+
+	if (Index > 0)
+	{
+		RetVal += Index;
+		Length -= Index;
+	}
+
+	/* Save the new length of the line */
+
+	*a_piLength = Length;
+
+	/* Now search backwards along the line, looking for white space */
+
+	Index = (Length - 1);
+
+	while (Index >= 0)
+	{
+		/* If the current letter isn't white space then we're done so break out */
+
+		Char = RetVal[Index];
+
+		if ((Char != ' ') && (Char != '\t') && (Char != 0x0d))
+		{
+			break;
+		}
+
+		--Index;
+	}
+
+	/* If we have found any whitespace then save the new length */
+
+	if (Index >= 0)
+	{
+		++Index;
+		*a_piLength = Index;
+	}
+
+	return(RetVal);
+}
+
+/**
  * Converts a numeric string to an integer.
  * Converts a numeric string to an integer and validates that the string to be returned
  * actually contains a valid integer, consisting of only characters between 0 and 9.
  *
- * @date	Tuesday 26-Mar-20013 06:15 am, Code HQ Ehinger Tor
+ * @date	Tuesday 26-Mar-2013 6:15 am, Code HQ Ehinger Tor
  * @param	a_pccString		Ptr to numeric string to be converted
  * @param	a_piResult		Ptr to an integer into which to place the result
  * @return	KErrNone if the string was converted successfully

@@ -100,6 +100,8 @@ public:
 
 	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);
 
+	static char *StripDags(char *a_pcLine, TInt *a_piLength);
+
 	static TInt StringToInt(const char *a_pccString, TInt *a_piResult);
 
 	static TBool TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
