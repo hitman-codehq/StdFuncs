@@ -334,6 +334,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	TBool Checked;
 	TInt Command, Index;
 	TBool Handled;
+	HKL KeyboardLayout;
 	LRESULT RetVal;
 	const struct SStdMenuItem *MenuItem;
 	CStdGadget *Gadget;
@@ -454,6 +455,47 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			if ((m_bCtrlPressed) && (!(m_bAltPressed)))
 			{
 				a_oWParam |= 0x60;
+
+				/* This is awful hackiness taken to the next level.  For reasons unknown, the '[' */
+				/* and ']' keys (on the UK/US keyboard layouts) are setup to return the keycodes 27 */
+				/* (escape) and 29 (group separator) when pressed in conjunction with the ctrl key. */
+				/* The keys in the equivalent position on a German keyboard ('ü' and '+' respectively) */
+				/* are also setup to return these key values!  Although this explains the mystery of how */
+				/* MSVC magically uses these key on different keyboard layouts, it makes it impossible to */
+				/* write truly generic keyboard handling code.  In a hack of horrific dimensions we */
+				/* translate these keys into the values for the real keys at these positions.  This might */
+				/* have to be extended to use a table in the future, if more crazy key mappings and */
+				/* languages are to be supported */
+
+				if ((a_oWParam == 123) || (a_oWParam == 125))
+				{
+					/* Determine the current input locale */
+
+					KeyboardLayout = GetKeyboardLayout(0);
+
+					if (LOWORD(KeyboardLayout) == LANG_ENGLISH)
+					{
+						if (a_oWParam == 123)
+						{
+							a_oWParam = '[';
+						}
+						else if (a_oWParam == 125)
+						{
+							a_oWParam = ']';
+						}
+					}
+					else
+					{
+						if (a_oWParam == 123)
+						{
+							a_oWParam = (unsigned char) 'ü';
+						}
+						else if (a_oWParam == 125)
+						{
+							a_oWParam = '+';
+						}
+					}
+				}
 			}
 
 			/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
