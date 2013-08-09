@@ -461,8 +461,8 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				/* (escape) and 29 (group separator) when pressed in conjunction with the ctrl key. */
 				/* The keys in the equivalent position on a German keyboard ('ü' and '+' respectively) */
 				/* are also setup to return these key values!  Although this explains the mystery of how */
-				/* MSVC magically uses these key on different keyboard layouts, it makes it impossible to */
-				/* write truly generic keyboard handling code.  In a hack of horrific dimensions we */
+				/* MSVC magically uses these keys on different keyboard layouts, it makes it impossible */
+				/* to write truly generic keyboard handling code.  In a hack of horrific dimensions we */
 				/* translate these keys into the values for the real keys at these positions.  This might */
 				/* have to be extended to use a table in the future, if more crazy key mappings and */
 				/* languages are to be supported */
