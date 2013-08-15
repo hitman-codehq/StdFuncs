@@ -15,6 +15,8 @@
 
 #elif defined(QT_GUI_LIB)
 
+#include <QtCore/QLocale>
+#include <QtGui/QApplication>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenuBar>
 #include "Qt/StdWindow.h"
@@ -190,7 +192,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 		if (String.length() >= 1)
 		{
-			Key = String[0].toAscii();
+			Key = String[0].unicode();
 
 			/* It seems that Qt keyboard handling is just as complex as Windows.  :-( */
 			/* We have to take care of a complex combination of key presses that come in, */
@@ -208,7 +210,41 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 			}
 			else if ((a_poKeyEvent->key() != 0) && (a_poKeyEvent->key() != Qt::Key_unknown))
 			{
-				m_poWindow->OfferKeyEvent(a_poKeyEvent->key(), a_bKeyDown);
+				/* Like the Windows API, the Qt API also maps crazy keycodes onto the '[' and ']' keys */
+				/* (or the keys in their positions on keymaps other than UK/US) so we map them back to */
+				/* something useful.  However, unlike Windows, if ctrl is pressed then Qt maps these keys */
+				/* back to '[' and ']' even on non UK/US keymaps!  So we have to map them back to their */
+				/* original keys */
+
+				Key = a_poKeyEvent->key();
+
+				/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII, */
+				/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
+
+				if ((m_poWindow->m_bCtrlPressed) && (!(m_poWindow->m_bAltPressed)))
+				{
+					/* Determine the current input locale */
+
+					QLocale KeyboardLayout = QApplication::keyboardInputLocale();
+
+					if (KeyboardLayout.language() == QLocale::German)
+					{
+						/* Adjust the keycodes returned, just like in the Windows version to return the */
+						/* real keys rather than these fudged ones.  Note that the "real" keys returned */
+						/* are still not in accordance with the standard, but at least they are consistent! */
+
+						if (Key == 91)
+						{
+							Key = (unsigned char) 'ü';
+						}
+						else if (Key == 93)
+						{
+							Key = '+';
+						}
+					}
+				}
+
+				m_poWindow->OfferKeyEvent(Key, a_bKeyDown);
 			}
 		}
 	}
