@@ -192,7 +192,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 		if (String.length() >= 1)
 		{
-			Key = String[0].unicode();
+			Key = (unsigned char) String[0].toAscii();
 
 			/* It seems that Qt keyboard handling is just as complex as Windows.  :-( */
 			/* We have to take care of a complex combination of key presses that come in, */
