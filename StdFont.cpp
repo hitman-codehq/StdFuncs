@@ -9,7 +9,6 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtCore/QTextCodec>
 #include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
@@ -143,23 +142,9 @@ TInt RFont::Open(const char *a_pccFont)
 		m_iHeight = Metrics.height();
 		m_iWidth = Metrics.averageCharWidth();
 
-		/* Assign the font to the window */
+		/* And assign the font to the window */
 
 		m_poWindow->m_poWindow->setFont(*m_poFont);
-
-		/* And set the dreaded code page.  It is crazy but Windows and Linux use two different */
-		/* code pages, thus making it impossible to display the € symbol on both systems! */
-
-#ifdef WIN32
-
-		QTextCodec::setCodecForCStrings(QTextCodec::codecForName("Windows-1252"));
-
-#else /* ! WIN32 */
-
-		QTextCodec::setCodecForCStrings(QTextCodec::codecForName("ISO 8859-15"));
-
-#endif /* ! WIN32 */
-
 	}
 	else
 	{
