@@ -593,9 +593,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
-		/* Display the text in the required colour, taking into account that QPainter::drawText() uses */
-		/* the Y position as the baseline of the font, not as the top.  If the highlight is set then */
-		/* the colours will already have been inversed so leave them as they are */
+		/* If the highlight is set then the colours will already have been inversed so don't change them */
 
 		if (!(m_bHighlight))
 		{
@@ -603,8 +601,10 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 			m_oPainter.setPen(Pen);
 		}
 
-		QByteArray String(a_pccText, Length);
+		/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
+		/* the baseline of the font, not as the top */
 
+		QByteArray String(a_pccText, Length);
 		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
