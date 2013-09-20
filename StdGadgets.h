@@ -190,7 +190,7 @@ private:
 
 #ifdef QT_GUI_LIB
 
-	CQtSlider	m_oSlider;						/* Underlying Qt slider widget */
+	CQtSlider	m_oSlider;						/* Helper class for listening for signals */
 
 #endif /* QT_GUI_LIB */
 
