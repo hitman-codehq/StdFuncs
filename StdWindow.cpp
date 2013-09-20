@@ -17,6 +17,7 @@
 
 #include <QtCore/QLocale>
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenuBar>
 #include "Qt/StdWindow.h"
@@ -378,6 +379,24 @@ void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 
 	QSize Size = centralWidget()->size();
 	m_poWindow->InternalResize(Size.width(), Size.height());
+}
+
+/**
+ * Returns the preferred size of the window to the Qt framework.
+ * This function returns the preferred size of our window to Qt, which Qt then
+ * bizarrely changes.  We want the Qt version of The Framework to work like the
+ * Windows version, so that a normal (ie. non maximised) window is the same size
+ * as the desktop by default.  But Qt has other ideas and refuses to resize the
+ * application to more than 2/3 the size of the desktop.  Oh well, that is better
+ * than nothing but still a compromise.  :-(
+ *
+ * @date	Friday 20-Sep-2013 7:30 am
+ * @return	The preferred size of the window in pixels, which Qt then somewhat ignores
+ */
+
+QSize CQtWindow::sizeHint() const
+{
+	return(m_oSize);
 }
 
 #elif defined(WIN32)
@@ -2575,9 +2594,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	RetVal = KErrNoMemory;
 
-	/* Allocate a window based on the QMainWindow class */
+	/* Allocate a window based on the QMainWindow class, passing in the preferred size */
+	/* to use for the window when in non maximised state */
 
-	if ((m_poWindow = new CQtWindow(this)) != NULL)
+	QSize DesktopSize = m_poApplication->Application()->desktop()->screenGeometry(-1).size();
+
+	if ((m_poWindow = new CQtWindow(this, DesktopSize)) != NULL)
 	{
 		/* We also need a QWidget based class to use as the so-called "central widget" */
 
@@ -2598,7 +2620,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			if (CreateMenus())
 			{
-				/* Set the window to the size of the desktop and display it */
+				/* Set the position of the window to the top left of the screen so that */
+				/* it does not appear at a random position when set to non maximised */
+
+				m_poWindow->move(QPoint(0, 0));
+
+				/* Display the window maximised */
 
 				m_poWindow->showMaximized();
 

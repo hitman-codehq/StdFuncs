@@ -18,6 +18,7 @@ private:
 
 	bool		m_bClosing;		/* true if in the window is in the process of being closed */
 	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
+	QSize		m_oSize;		/* Preferred size of the non maximised window */
 
 private:
 
@@ -35,11 +36,14 @@ protected:
 
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 
+	QSize sizeHint() const;
+
 public:
 
-	CQtWindow(CWindow *a_poWindow)
+	CQtWindow(CWindow *a_poWindow, QSize &a_roSize)
 	{
 		m_poWindow = a_poWindow;
+		m_oSize = a_roSize;
 
 		/* Allow the window to accept keyboard input by default */
 
