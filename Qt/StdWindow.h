@@ -55,6 +55,12 @@ public:
 	{
 		m_bClosing = a_bClosing;
 	}
+
+public slots:
+
+	/* Slot for picking up when the menu bar is activated */
+
+	void aboutToShow();
 };
 
 /* This custom class is required to keep track of Qt menu selection events and send them to */

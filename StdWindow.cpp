@@ -258,6 +258,25 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 	}
 }
 
+/**
+ * Function called when a dropdown menu is about to be shown.
+ * This function is called when a dropdown menu is about to be shown and will clear the
+ * flags for the alt and control keys.  If these are pressed at the time the dropdown
+ * menu is displayed then no key up events will be received and so when the user releases
+ * the keys, the system will think they are still pressed.  Clearing the flags avoids that
+ * situation.
+ *
+ * @date	Thursday 19-Sep-2013 7:18 am
+ */
+
+void CQtWindow::aboutToShow()
+{
+	/* Forget about the alt and ctrl keypresses as we won't get a key up event for them */
+	/* due to the menu now being active */
+
+	m_poWindow->m_bAltPressed = m_poWindow->m_bCtrlPressed = EFalse;
+}
+
 /* Written: Saturday 23-Feb-2013 1:38 pm */
 /* @param	a_poCloseEvent	Ptr to structure containing information for handling the event */
 /* This function is called whenever the main window is about to be closed due to the close */
@@ -583,6 +602,16 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* And indicate that we want to pass the keypress onto the system */
 
 			RetVal = 1;
+
+			break;
+		}
+
+		case WM_INITMENUPOPUP :
+		{
+			/* Forget about the alt and ctrl keypresses as we won't get a WM_KEYUP or WM_SYSKEYUP for */
+			/* them due to the menu now being active */
+
+			m_bAltPressed = m_bCtrlPressed = EFalse;
 
 			break;
 		}
@@ -1430,6 +1459,11 @@ TBool CWindow::CreateMenus()
 
 				break;
 			}
+
+			/* Connect a signal from the dropdown menu to our Qt window class so that we */
+			/* can tell when a menu is about to be displayed */
+
+			QObject::connect(DropdownMenu, SIGNAL(aboutToShow()), m_poWindow, SLOT(aboutToShow()));
 		}
 
 		/* Otherwise add a new menu option to an already existing dropdown menu */
