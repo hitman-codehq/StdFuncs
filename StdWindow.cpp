@@ -2492,14 +2492,14 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
  * all windows are opened full screen by default.
  *
  * @date	Monday 08-Feb-2010 7:13 am
- * @a_pccTitle		Ptr to a string to be placed into the title bar of the window
- * @a_pccScreenName	Ptr to the name of the screen on which to open the window.  Amiga
- *					OS only - this is ignored on other platforms
- * @a_bResizeable	ETrue to enable resizing of the window.  Amiga OS only - on other
- *					platforms windows are always resizeable
- * @return			KErrNone if the window was opened successfully
- * @return			KErrNoMemory if there was not enough memory to open the window
- * @return			KErrGeneral if an operating system specific error occurred
+ * @param	a_pccTitle		Ptr to a string to be placed into the title bar of the window
+ * @param	a_pccScreenName	Ptr to the name of the screen on which to open the window.  Amiga
+ *							OS only - this is ignored on other platforms
+ * @param	a_bResizeable	ETrue to enable resizing of the window.  Amiga OS only - on other
+ *							platforms windows are always resizeable
+ * @return	KErrNone if the window was opened successfully
+ * @return	KErrNoMemory if there was not enough memory to open the window
+ * @return	KErrGeneral if an operating system specific error occurred
  */
 
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
