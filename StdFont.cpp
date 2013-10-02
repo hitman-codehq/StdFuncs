@@ -492,7 +492,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY
 
 }
 
-/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport awaiting flight EK 052 to Dubai */
+/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport, awaiting flight EK 052 to Dubai */
 /* @param	a_pccText	Ptr to string to be drawn to the screen */
 /*			a_iX		X position in the window at which to draw */
 /*			a_iY		Y position in the window at which to draw */
