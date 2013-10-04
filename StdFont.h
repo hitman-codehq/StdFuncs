@@ -34,6 +34,8 @@ private:
 #ifdef __amigaos4__
 
 	LONG		m_alPens[STDFONT_NUM_COLOURS]; /* Array of pens found using IGraphics->ObtainBestPen() */
+	struct TextFont	*m_poFont;		/* Amiga font with which to render */
+	struct TextFont *m_poOldFont;	/* Default system font used for rendering text */
 
 #elif defined(QT_GUI_LIB)
 

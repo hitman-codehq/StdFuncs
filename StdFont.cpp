@@ -5,6 +5,7 @@
 
 #ifdef __amigaos4__
 
+#include <proto/diskfont.h>
 #include <proto/graphics.h>
 
 #elif defined(QT_GUI_LIB)
@@ -62,6 +63,10 @@ RFont::RFont(CWindow *a_poWindow)
 		}
 	}
 
+	/* We are using the default font by default */
+
+	m_poFont = m_poOldFont = NULL;
+
 #elif defined(QT_GUI_LIB)
 
 	m_iBaseline = 0;
@@ -88,7 +93,7 @@ RFont::RFont(CWindow *a_poWindow)
  * to be called, but no other functions.
  *
  * @date	Sunday 31-May-2010 3:38 pm
- * @param	Ptr to the name of the font to be opened, which is platform specific.  If not specified
+ * @param	Ptr to the name of the font to be opened, which is platform specific.  If NULL
  *			then a platform specific generic courier style font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
@@ -98,6 +103,8 @@ TInt RFont::Open(const char *a_pccFont)
 	TInt RetVal;
 
 #ifdef __amigaos4__
+
+	struct TextAttr TextAttr = { a_pccFont, 0, 0, 0 };
 
 	ASSERTM(m_poWindow, "RFont::Open() => Window handle not set");
 
@@ -109,11 +116,33 @@ TInt RFont::Open(const char *a_pccFont)
 
 	if (m_poWindow->m_poWindow)
 	{
+		/* If a specific font has been specified then try to load it from disk and make it the rastport's */
+		/* default font */
+
+		if (a_pccFont)
+		{
+			/* Use the same size font as the currently selected one */
+
+			TextAttr.ta_YSize = m_poWindow->m_poWindow->RPort->Font->tf_YSize;
+
+			/* And try to open the font */
+
+			if ((m_poFont = IDiskfont->OpenDiskFont(&TextAttr)) != NULL)
+			{
+				m_poOldFont = m_poWindow->m_poWindow->RPort->Font;
+				IGraphics->SetFont(m_poWindow->m_poWindow->RPort, m_poFont);
+			}
+			else
+			{
+				Utils::Info("RFont::Open() => Unable to open font \"%s\"", a_pccFont);
+			}
+		}
+
 		/* Determine the baseline, width & height of the font from the window */
 
-		m_iBaseline = m_poWindow->m_poWindow->IFont->tf_Baseline;
-		m_iWidth = m_poWindow->m_poWindow->IFont->tf_XSize;
-		m_iHeight = m_poWindow->m_poWindow->IFont->tf_YSize;
+		m_iBaseline = m_poWindow->m_poWindow->RPort->Font->tf_Baseline;
+		m_iWidth = m_poWindow->m_poWindow->RPort->Font->tf_XSize;
+		m_iHeight = m_poWindow->m_poWindow->RPort->Font->tf_YSize;
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -224,7 +253,24 @@ TInt RFont::Open(const char *a_pccFont)
 void RFont::Close()
 {
 
-#if defined(WIN32) && !defined(QT_GUI_LIB)
+#ifdef __amigaos4__
+
+	/* If a user defined font was loaded and assigned to the rastport, set the rastport's font back */
+	/* to the default and free the font */
+
+	if (m_poFont)
+	{
+		if (m_poOldFont)
+		{
+			IGraphics->SetFont(m_poWindow->m_poWindow->RPort, m_poOldFont);
+			m_poOldFont = NULL;
+		}
+
+		IGraphics->CloseFont(m_poFont);
+		m_poFont = NULL;
+	}
+
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	if (m_poOldFont)
 	{
