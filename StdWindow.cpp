@@ -1060,7 +1060,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * The dropdown menu to which to add the menu item is specified as an ordinal starting from
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
- * @date	Wednesday 22-May-2013 6:23 pm Frankfurt am Main Airport awaiting flight TP 579 to Lisbon
+ * @date	Wednesday 22-May-2013 6:23 pm, Frankfurt am Main Airport, awaiting flight TP 579 to Lisbon
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
  * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
@@ -2229,25 +2229,18 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
 	TInt FunctionKey;
 
 	/* Initialise the accelerator with the shortcut key and command to be triggered when */
-	/* it is selected */
+	/* it is selected.  For the sake of simplicity we work only with virtual keycodes, so */
+	/* translate the ASCII value to a virtual key */
 
-	a_poAccelerator->fVirt = 0;
-	a_poAccelerator->key = *a_pcoMenuItem->m_pccHotKey;
+	a_poAccelerator->fVirt = FVIRTKEY;
+	a_poAccelerator->key = (unsigned char) VkKeyScan(*a_pcoMenuItem->m_pccHotKey);
 	a_poAccelerator->cmd = (WORD) a_pcoMenuItem->m_iCommand;
 
-	/* If the hotkey also has a qualifier then add this to the ACCEL structure. */
-	/* This get a little complex here because some qualifiers (control and shift) */
-	/* require the shortcut key to be specified as a virtual keycode while others */
-	/* allow a character code to be used.  Character codes for letters map to the */
-	/* same value as their corresponding virtual keycodes.  Strings used for function */
-	/* key (such as "F3") need to be manually converted into a virtual keycode.  We */
-	/* only translate a subset of the range of keys passed in (because I don't want to */
-	/* spend hours writing a comprehensive conversion routine) meaning that this function */
-	/* may have to get extended in the future */
+	/* If the hotkey also has a qualifier then add this to the ACCEL structure */
 
 	if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
 	{
-		a_poAccelerator->fVirt = (FCONTROL | FVIRTKEY);
+		a_poAccelerator->fVirt |= FCONTROL;
 	}
 	else if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_ALT)
 	{
@@ -2258,38 +2251,24 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
 		a_poAccelerator->fVirt |= FSHIFT;
 	}
 
-	/* For function keys such as "F3" we need to convert the textual value passed in */
-	/* to a virtual keycode.  The use of these function keys is currently only supported */
-	/* by themselves or with a shift qualifier */
+	/* For function keys such as "F3" we need to convert the textual value passed in to a */
+	/* virtual keycode */
 
-	if ((a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT) || (a_pcoMenuItem->m_iHotKeyModifier == 0))
+	if (strlen(a_pcoMenuItem->m_pccHotKey) >= 2)
 	{
-		/* See if we have a valid function key in the range of F1 - F12 */
+		/* Is it a function key with a numeric value following it? */
 
-		if (strlen(a_pcoMenuItem->m_pccHotKey) >= 2)
+		if ((toupper(a_pcoMenuItem->m_pccHotKey[0]) == 'F') && (Utils::StringToInt(&a_pcoMenuItem->m_pccHotKey[1], &FunctionKey) == KErrNone))
 		{
-			/* Is it a function key with a numeric value following it? */
+			/* Does the numeric value represent a valid function key? */
 
-			if ((toupper(a_pcoMenuItem->m_pccHotKey[0]) == 'F') && (Utils::StringToInt(&a_pcoMenuItem->m_pccHotKey[1], &FunctionKey) == KErrNone))
+			if ((FunctionKey >= 1) && (FunctionKey <= 12))
 			{
-				/* Does the numeric value represent a valid function key? */
+				/* Everything is valid.  Convert the key to a virtual keycode and add */
+				/* it to the accelerator list */
 
-				if ((FunctionKey >= 1) && (FunctionKey <= 12))
-				{
-					/* Everything is valid.  Convert the key to a virtual keycode and add */
-					/* it to the accelerator list */
-
-					FunctionKey += (VK_F1 - 1);
-					a_poAccelerator->key = (WORD) FunctionKey;
-					a_poAccelerator->fVirt = FVIRTKEY;
-
-					/* And finally apply the shift modifier, if required */
-
-					if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_SHIFT)
-					{
-						a_poAccelerator->fVirt |= FSHIFT;
-					}
-				}
+				FunctionKey += (VK_F1 - 1);
+				a_poAccelerator->key = (WORD) FunctionKey;
 			}
 		}
 	}
