@@ -115,23 +115,30 @@ typedef unsigned long COLORREF;
 
 #endif /* ! WIN32 */
 
-/* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent() */
+/* Standard keycodes that are passed to client code through CWindow::OfferKeyEvent().  Keys */
+/* are grouped into sets with a similar function to allow client code to check key values */
+/* against ranges of keys and these sets/ranges are guaranteed not to change (although numeric */
+/* values within the ranges may).  Thus it is safe to perform check such as: */
+/* */
+/* if ((Key >= STD_KEY_UP) && (Key <= STD_KEY_PGDN)) */
+/* */
+/* To check whether a key is a movement key */
 
 #define STD_KEY_SHIFT 256
 #define STD_KEY_CONTROL 257
 #define STD_KEY_ALT 258
 #define STD_KEY_BACKSPACE 259
 #define STD_KEY_ENTER 260
-#define STD_KEY_UP 261
-#define STD_KEY_DOWN 262
-#define STD_KEY_LEFT 263
-#define STD_KEY_RIGHT 264
-#define STD_KEY_HOME 265
-#define STD_KEY_END 266
-#define STD_KEY_PGUP 267
-#define STD_KEY_PGDN 268
-#define STD_KEY_DELETE 269
-#define STD_KEY_TAB 270
+#define STD_KEY_TAB 261
+#define STD_KEY_DELETE 262
+#define STD_KEY_UP 263
+#define STD_KEY_DOWN 264
+#define STD_KEY_LEFT 265
+#define STD_KEY_RIGHT 266
+#define STD_KEY_HOME 267
+#define STD_KEY_END 268
+#define STD_KEY_PGUP 269
+#define STD_KEY_PGDN 270
 #define STD_KEY_ESC 271
 #define STD_KEY_F1 272
 #define STD_KEY_F2 273
