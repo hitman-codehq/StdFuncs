@@ -33,6 +33,18 @@ public:
 		Reset();
 	};
 
+	void AddHead(T *a_poNode)
+	{
+		a_poNode->m_oStdListNode.m_poThis = a_poNode;
+		a_poNode->m_oStdListNode.m_poPrev = &m_oHead;
+		a_poNode->m_oStdListNode.m_poNext = m_oHead.m_poNext;
+
+		m_oHead.m_poNext->m_poPrev = &a_poNode->m_oStdListNode;
+		m_oHead.m_poNext = &a_poNode->m_oStdListNode;
+
+		++m_iCount;
+	}
+
 	void AddTail(T *a_poNode)
 	{
 		a_poNode->m_oStdListNode.m_poThis = a_poNode;
