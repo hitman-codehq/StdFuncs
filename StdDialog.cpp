@@ -332,10 +332,10 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 /* Amiga OS only function that will scan the requester's list of BOOPSI gadgets for */
 /* one that matches a specified ID */
 
-APTR CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
+Object *CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
 {
 	TInt Index;
-	APTR RetVal;
+	Object *RetVal;
 
 	/* Iterate through the list of gadget mappings and find the BOOPSI ptr that matches */
 	/* the gadget ID */
@@ -371,7 +371,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 #ifdef __amigaos4__
 
-	APTR Gadget;
+	Object *Gadget;
 
 	/* Assume failure and use a default value */
 
@@ -433,7 +433,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 #ifdef __amigaos4__
 
 	const char *Text;
-	APTR Gadget;
+	Object *Gadget;
 
 	/* If the text gadget is currently being edited then extract the information directly */
 	/* from the SGWork structure associated with the gadget.  It must be done like this as */
@@ -579,7 +579,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	TBool RetVal;
 	ULONG Checked;
-	APTR Gadget;
+	Object *Gadget;
 
 	/* Find a ptr to the BOOPSI gadget and if found then get the state of the checkbox gadget */
 
@@ -622,8 +622,8 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 #ifdef __amigaos4__
 
-	APTR Gadget;
 	ULONG Disabled;
+	Object *Gadget;
 
 	/* If they key is an enter key being released then simulate an IDOK event */
 
@@ -634,7 +634,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 		if ((Gadget = GetBOOPSIGadget(IDOK)) != NULL)
 		{
-			if (IIntuition->GetAttr(GA_Disabled, (struct Gadget *) Gadget, &Disabled))
+			if (IIntuition->GetAttr(GA_Disabled, Gadget, &Disabled))
 			{
 				/* If is not disabled then send the fake IDOK command to the client */
 

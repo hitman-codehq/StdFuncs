@@ -21,7 +21,7 @@ enum TStdEventType
 
 struct SStdGadgetMapping
 {
-	APTR	m_poGadget;				/* Ptr to BOOPSI gadget */
+	Object	*m_poGadget;			/* Ptr to BOOPSI gadget */
 	TInt	m_iID;					/* Integer ID of the gadget */
 };
 
@@ -74,7 +74,7 @@ protected:
 
 #ifdef __amigaos4__
 
-	APTR GetBOOPSIGadget(TInt a_iGadgetID);
+	Object *GetBOOPSIGadget(TInt a_iGadgetID);
 
 #endif /* __amigaos4__ */
 
