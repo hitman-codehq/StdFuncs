@@ -35,7 +35,7 @@
 
 #define MAX_NAME_FROM_LOCK_LENGTH 1024
 
-#define DELETE_DIRECTORY(DirectoryName) IDOS->DeleteFile(DirectoryName)
+#define DELETE_DIRECTORY(DirectoryName) IDOS->Delete(DirectoryName)
 #define VSNPRINTF vsnprintf
 
 #elif defined(__linux__)
@@ -1939,7 +1939,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 
 #ifdef __amigaos4__
 
-		Entry.iAttributes &= ~FIBF_DELETE;
+		Entry.iAttributes &= ~EXDF_NO_DELETE;
 
 #else /* ! __amigaos4__ */
 
@@ -1971,7 +1971,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 #ifdef __amigaos4__
 
-	if (IDOS->SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
+	if (IDOS->SetDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
 	{
 		RetVal = KErrNone;
 	}

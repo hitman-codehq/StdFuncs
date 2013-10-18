@@ -12,7 +12,7 @@
 
 #ifdef __amigaos4__
 
-#define DELETE_FILE(FileName) IDOS->DeleteFile(FileName)
+#define DELETE_FILE(FileName) IDOS->Delete(FileName)
 
 #elif defined(__linux__)
 
