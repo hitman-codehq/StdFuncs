@@ -1419,7 +1419,7 @@ TBool CWindow::CreateMenus()
 
 				NewMenus[Index].nm_CommKey = NULL;
 
-				if ((MenuItem[Index].m_iHotKeyModifier == STD_KEY_CONTROL) || (MenuItem[Index].m_iHotKeyModifier == STD_KEY_ALT))
+				if ((MenuItem[Index].m_iHotKeyModifier == STD_KEY_MENU) || (MenuItem[Index].m_iHotKeyModifier == STD_KEY_ALT))
 				{
 					if ((MenuItem[Index].m_pccHotKey) && (strlen(MenuItem[Index].m_pccHotKey) == 1))
 					{
