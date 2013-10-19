@@ -93,8 +93,8 @@ RFont::RFont(CWindow *a_poWindow)
  * to be called, but no other functions.
  *
  * @date	Sunday 31-May-2010 3:38 pm
- * @param	Ptr to the name of the font to be opened, which is platform specific.  If NULL
- *			then a platform specific generic courier style font will be selected
+ * @param	a_pccFont	Ptr to the name of the font to be opened, which is platform specific.  If NULL
+ *						then a platform specific generic courier style font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 

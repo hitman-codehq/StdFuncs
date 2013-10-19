@@ -37,7 +37,8 @@ TLex::TLex(char *a_pcString)
  * the caller to subsequently store the extracted tokens somewhere.
  *
  * @date	Saturday 24-Nov-2012 9:30 am
- * @param	a_pcString Ptr to string to be parsed for tokens
+ * @param	a_pccString	Ptr to string to be parsed for tokens
+ * @param	a_iLength	The length of the string passed in
  */
 
 TLex::TLex(const char *a_pccString, TInt a_iLength)
@@ -175,7 +176,7 @@ char *TLex::NextToken()
  * to 0.  This is a non destructive routine.
  *
  * @date	Thursday 22-Nov-2012 6:12 am
- * @param	A ptr to a variable into which to place the length of the token
+ * @param	a_piLength	A ptr to a variable into which to place the length of the token
  * @return	The next token available in the TLex instance, or NULL if there are none
  */
 
@@ -351,7 +352,7 @@ void TLex::MoveBackwards(TInt a_iLength)
  *
  * @date	Tuesday 27-Nov-2012 5:52 am
  * @param	a_bKeepQuotes		ETrue to retain the " quotation marks in extracted strings
- *			a_bKeepWhiteSpace	ETrue to return white space as a token
+ * @param	a_bKeepWhiteSpace	ETrue to return white space as a token
  */
 
 void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)

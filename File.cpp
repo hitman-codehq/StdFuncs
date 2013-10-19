@@ -244,7 +244,7 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  *
  * @date	Friday 02-Jan-2009 8:57 pm
  * @param	a_pccFileName	Ptr to the name of the file to be opened
- * @pram	a_uiFileMode	Mode in which to open the file
+ * @param	a_uiFileMode	Mode in which to open the file
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
  * @return	KErrInUse if the file or directory is in use

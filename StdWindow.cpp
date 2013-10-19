@@ -2209,6 +2209,8 @@ CQtAction *CWindow::FindMenuItem(TInt a_iItemID)
 
 #endif /* QT_GUI_LIB */
 
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
 /**
  * Initialises an ACCEL structure with a shortcut and command ID.
  * This Windows specific function will initialise an ACCEL structure to represent the
@@ -2221,8 +2223,6 @@ CQtAction *CWindow::FindMenuItem(TInt a_iItemID)
  * @param	a_pcoMenuItem	Ptr to the generic SStdMenuItem structure with which to initialise
  *							the accelerator
  */
-
-#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMenuItem *a_pcoMenuItem)
 {

@@ -1116,8 +1116,8 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
  *
  * @date	Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor
  * @param	a_pccBuffer		Ptr to the currently allocated buffer
- *			a_iSize			Size in bytes of the new buffer to be allocated
- *			a_bCopyContents	ETrue to copy the contents of the old buffer.
+ * @param	a_iSize			Size in bytes of the new buffer to be allocated
+ * @param	a_bCopyContents	ETrue to copy the contents of the old buffer.
  *							If not specified then this is ETrue by default
  * @return	A Ptr to the allocated buffer if successful, else NULL
  */
