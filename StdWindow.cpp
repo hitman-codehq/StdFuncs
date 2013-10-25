@@ -15,12 +15,12 @@
 
 #elif defined(QT_GUI_LIB)
 
+#include "Qt/StdWindow.h"
 #include <QtCore/QLocale>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenuBar>
-#include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
 
