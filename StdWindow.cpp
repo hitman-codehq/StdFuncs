@@ -934,7 +934,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 	DropdownMenu = (QMenu *) a_pvDropdownMenu;
 
-	/* Otherwise create a new menu item and add it to the previously created drop down menu */
+	/* Create a new menu item and add it to the previously created drop down menu */
 
 	if ((Action = new CQtAction(a_pcoMenuItem->m_iCommand, a_pcoMenuItem->m_pccLabel, m_poWindow)) != NULL)
 	{
