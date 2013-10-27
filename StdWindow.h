@@ -12,6 +12,7 @@
 
 /* Forward declarations to reduce the # of includes required */
 
+class CAmiMenus;
 class CQtAction;
 class CQtCentralWidget;
 class CQtWindow;
@@ -45,11 +46,6 @@ private:
 
 	struct Hook			m_oIDCMPHook;				/* IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootGadget;			/* layout.gadget containing the window's gadgets */
-	TBool				m_bMenuStripSet;			/* ETrue if menus have been added to the main window */
-	struct Menu			*m_poMenus;					/* Ptr to main menus displayed at top of the screen */
-	struct NewMenu		*m_poNewMenus;				/* Array of NewMenu structures used for creating menus */
-	struct SStdMenuMapping	*m_poMenuMappings;		/* Array of menu ID -> FULLMENUNUM mappings */
-	TInt					m_iNumMenuMappings;		/* # of entries in m_poMenuMappings */
 
 #elif defined(WIN32)
 
@@ -72,6 +68,7 @@ public:
 
 #ifdef __amigaos4__
 
+	CAmiMenus			*m_poAmiMenus;				/* Ptr to instance of Amiga menu helper class */
 	Object				*m_poWindowObj;				/* Ptr to underlying Reaction window */
 	struct Window		*m_poWindow;				/* Ptr to underlying Intuition window */
 
@@ -178,14 +175,9 @@ public:
 
 	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
 
-	ULONG FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID);
-
 	ULONG GetSignal();
 
-	struct Menu *Menus()
-	{
-		return(m_poMenus);
-	}
+	struct Menu *Menus();
 
 #elif defined(QT_GUI_LIB)
 

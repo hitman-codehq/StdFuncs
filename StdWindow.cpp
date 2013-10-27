@@ -8,6 +8,7 @@
 
 #ifdef __amigaos4__
 
+#include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
 #include <proto/utility.h>
 #include <intuition/gui.h>
@@ -25,8 +26,6 @@
 #endif /* QT_GUI_LIB */
 
 #ifdef __amigaos4__
-
-static const char *g_pccEmptyString = "";	/* Empty string used for creating menu items */
 
 #elif defined(QT_GUI_LIB)
 
@@ -900,6 +899,8 @@ TInt CWindow::AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem)
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
+#ifndef __amigaos4__
+
 /**
  * Adds a menu item to an already existing dropdown menu.
  * This is an internal function.  Client code should use the public version of CWindow::AddMenuItem(),
@@ -924,9 +925,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 	RetVal = KErrNone;
 
-#ifdef __amigaos4__
-
-#elif defined(QT_GUI_LIB)
+#ifdef QT_GUI_LIB
 
 	QAction *Action;
 	QMenu *DropdownMenu;
@@ -1051,6 +1050,8 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 	return(RetVal);
 }
 
+#endif /* ! __amigaos4__ */
+
 /**
  * Adds a menu item to an already existing dropdown menu.
  * This function appends a new menu item to a dropdown menu.  The label passed in can contain
@@ -1074,9 +1075,15 @@ TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 {
 	TInt RetVal;
 
+#ifndef __amigaos4__
+
 	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand };
 
+#endif /* ! __amigaos4__ */
+
 #ifdef __amigaos4__
+
+	return(m_poAmiMenus->AddItem(a_pccLabel, a_pccHotKey, a_iCommand, a_iOrdinal));
 
 #elif defined(QT_GUI_LIB)
 
@@ -1190,8 +1197,8 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 /**
  * Enables or disables the checkmark on a checkable menu item.
- * Finds a menu item that has a command ID matching that passed in enables or
- * disables its checkmark.  For a menu item to be checked it must have been
+ * Finds a menu item that has a command ID matching that passed in and enables
+ * or disables its checkmark.  For a menu item to be checked it must have been
  * created with the type EStdMenuCheck.  It is safe to call this function on a
  * menu item that is not of this type;  in thise case it will simply do nothing.
  *
@@ -1205,41 +1212,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	ULONG FullMenuNum;
-	struct MenuItem *MenuItem;
-
-	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
-
-	if ((FullMenuNum = FindMenuMapping(m_poMenuMappings, m_iNumMenuMappings, a_iItemID)) != 0)
-	{
-		/* Now use the result to find the actual menu in the menu strip */
-
-		if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
-		{
-			/* Enable or disable the menu item's check mark as appropriate */
-
-			IIntuition->ClearMenuStrip(m_poWindow);
-
-			if (a_bEnable)
-			{
-				MenuItem->Flags |= CHECKED;
-			}
-			else
-			{
-				MenuItem->Flags &= ~CHECKED;
-			}
-
-			IIntuition->ResetMenuStrip(m_poWindow, m_poMenus);
-		}
-		else
-		{
-			Utils::Info("CWindow::CheckMenuItem() => Menu item not found");
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::CheckMenuItem() => Menu mapping not found");
-	}
+	m_poAmiMenus->CheckItem(a_iItemID, a_bEnable);
 
 #elif defined(QT_GUI_LIB)
 
@@ -1270,6 +1243,8 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
  * rather than in RApplication as some platforms require a separate copy of the menus to be
  * created for each window opened, or they cannot create the menus at application creation time.
  *
+ * @pre		The window must already have been created, although not necessarily opened.
+ *
  * @date	Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor
  * @return	ETrue if all menus were created successfully, else EFalse
  */
@@ -1278,6 +1253,8 @@ TBool CWindow::CreateMenus()
 {
 	TBool RetVal;
 	const struct SStdMenuItem *MenuItem;
+
+	ASSERTM((m_poWindow != NULL), "CWindow::CreateMenus() => Window must be created before menus");
 
 	/* Assume success */
 
@@ -1290,169 +1267,20 @@ TBool CWindow::CreateMenus()
 
 #ifdef __amigaos4__
 
-	const char *Label;
-	char *NewLabel;
-	TInt DestIndex, SourceIndex, Index, Length, Menu, Item, NumMenuItems;
-	struct NewMenu *NewMenus;
-	struct Screen *Screen;
-	APTR VisualInfo;
+	// TODO: CAW - Is this the best place to put this?  Should CAmiMenus be a C or an R class?  Bodgey return value
 
-	/* Assume failure */
-
-	RetVal = EFalse; // TODO:CAW - Proper error + what about Utils::Info() handling and this clashes with the above
-
-	/* Iterate through the menu item structures passed in and count how many need to be created */
-
-	NumMenuItems = 1;
-
-	do
+	if (!(m_poAmiMenus))
 	{
-		++NumMenuItems;
-		++MenuItem;
+		m_poAmiMenus = new CAmiMenus(m_poWindow);
 	}
-	while (MenuItem->m_eType != EStdMenuEnd);
 
-	/* Get a ptr to the first menu structure again, now that we have already parsed the menu structures */
-
-	MenuItem = m_poApplication->MenuItems();
-
-	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures, and */
-	/* another large enough to hold all of the menu ID mappings, and populate them with */
-	/* data taken from the generic SStdMenuItem structures passed in */
-
-	if ((m_poMenuMappings = new SStdMenuMapping[NumMenuItems]) != NULL)
+	if (m_poAmiMenus)
 	{
-		m_iNumMenuMappings = NumMenuItems;
-
-		if ((m_poNewMenus = NewMenus = new NewMenu[NumMenuItems]) != NULL)
-		{
-			Menu = -1;
-			Item = 0;
-
-			for (Index = 0; Index < NumMenuItems; ++Index)
-			{
-				/* Every time we find a menu title, increase the menu number and reset the */
-				/* item for that menu to zero.  This way we build up the mappings for */
-				/* each menu ID -> FULLMENUNUM required by Intuition for accessing menus */
-
-				if (MenuItem[Index].m_eType == EStdMenuTitle)
-				{
-					++Menu;
-					Item = -1;
-				}
-				else
-				{
-					++Item;
-				}
-
-				/* Now populate the SStdMenuMapping structure */
-
-				m_poMenuMappings[Index].m_iID = MenuItem[Index].m_iCommand;
-				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
-
-				/* Checkable menus are handled slightly differently */
-
-				if (MenuItem[Index].m_eType == EStdMenuCheck)
-				{
-					NewMenus[Index].nm_Type = EStdMenuItem;
-					NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
-				}
-				else
-				{
-					NewMenus[Index].nm_Type = MenuItem[Index].m_eType;
-					NewMenus[Index].nm_Flags = 0;
-				}
-
-				/* Separators get a special label that causes Intuition to treat them as such */
-
-				if (MenuItem[Index].m_eType == EStdMenuSeparator)
-				{
-					NewMenus[Index].nm_Type = EStdMenuItem;
-					NewMenus[Index].nm_Label = NM_BARLABEL;
-				}
-				else
-				{
-					/* If there is a label for the menu item present then it will have the '&' shortcut */
-					/* key modifier embedded in it for Windows & Qt.  We need to make a copy of the label */
-					/* and remove this modifier, which doesn't have any effect on Amiga OS */
-
-					Label = NewMenus[Index].nm_Label = MenuItem[Index].m_pccLabel;
-
-					if (Label)
-					{
-						/* Find out the length of the label, including the NULL terminator, and allocate */
-						/* a buffer for it */
-
-						Length = (strlen(Label) + 1);
-						NewMenus[Index].nm_Label = NewLabel = new char[Length];
-
-						if (NewLabel)
-						{
-							/* Copy the label into the newly allocated buffer, removing the '&' as we go */
-
-							DestIndex = 0;
-
-							for (SourceIndex = 0; SourceIndex < Length; ++SourceIndex)
-							{
-								if (Label[SourceIndex] != '&')
-								{
-									NewLabel[DestIndex++] = Label[SourceIndex];
-								}
-							}
-						}
-
-						/* If we cannot allocate a new label then we need to use *something* and cannot just */
-						/* use a NULL string.  So use a globally allocated empty string and Close() will skip */
-						/* freeing this */
-
-						else
-						{
-							NewMenus[Index].nm_Label = g_pccEmptyString;
-						}
-					}
-				}
-
-				/* Amiga OS is a little limited in terms of the modifiers and strings that can be */
-				/* used for the menu items' shortcut keys, so only use the hotkey if the STD_KEY_CONTROL */
-				/* or STD_KEY_ALT (which both map to ramiga) modifier is used, and the length of the */
-				/* shortcut string is only one character long */
-
-				NewMenus[Index].nm_CommKey = NULL;
-
-				if ((MenuItem[Index].m_iHotKeyModifier == STD_KEY_MENU) || (MenuItem[Index].m_iHotKeyModifier == STD_KEY_ALT))
-				{
-					if ((MenuItem[Index].m_pccHotKey) && (strlen(MenuItem[Index].m_pccHotKey) == 1))
-					{
-						NewMenus[Index].nm_CommKey = MenuItem[Index].m_pccHotKey;
-					}
-				}
-
-				NewMenus[Index].nm_UserData = (APTR) MenuItem[Index].m_iCommand;
-			}
-
-			/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
-			/* the menus out */
-
-			if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
-			{
-				if ((VisualInfo = IGadTools->GetVisualInfo(Screen, TAG_DONE)) != NULL)
-				{
-					/* Create the menus and lay them out in preparation for display */
-
-					if ((m_poMenus = IGadTools->CreateMenus(NewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
-					{
-						if (IGadTools->LayoutMenus(m_poMenus, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE))
-						{
-							RetVal = ETrue;
-						}
-					}
-				}
-
-				/* And unlock the default public screen */
-
-				IIntuition->UnlockPubScreen(NULL, Screen);
-			}
-		}
+		RetVal = (m_poAmiMenus->Create(MenuItem) == KErrNone);
+	}
+	else
+	{
+		RetVal = EFalse;
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -1723,55 +1551,12 @@ void CWindow::Close()
 
 #ifdef __amigaos4__
 
-	const char *Label;
-	TInt Index;
+	/* Destroy the window's menus and associated resources */
 
-	/* If the menus have been created then destroy them */
+	delete m_poAmiMenus;
+	m_poAmiMenus = NULL;
 
-	if (m_poMenus)
-	{
-		/* Remove the menus from the window, if they were added */
-
-		if (m_bMenuStripSet)
-		{
-			IIntuition->ClearMenuStrip(m_poWindow);
-		}
-
-		IGadTools->FreeMenus(m_poMenus);
-	}
-
-	/* The label strings used by the menus are no longer required so destroy them */
-
-	if (m_poNewMenus)
-	{
-		/* First delete the temporary menu labels previously allocated */
-
-		for (Index = 0; Index < m_iNumMenuMappings; ++Index)
-		{
-			Label = m_poNewMenus[Index].nm_Label;
-
-			/* If the label was allocated and is not a predefined separator constant or the */
-			/* global empty string then free it */
-
-			if ((Label) && (Label != NM_BARLABEL) && (Label != g_pccEmptyString))
-			{
-				delete [] Label;
-			}
-		}
-
-		/* And now delete the NewMenu structures themselves */
-
-		delete [] m_poNewMenus;
-		m_poNewMenus = NULL;
-	}
-
-	/* Free the menu mapping structures */
-
-	delete [] m_poMenuMappings;
-	m_poMenuMappings = NULL;
-	m_iNumMenuMappings = 0;
-
-	/* And finally close the window itself */
+	/* And close the window itself */
 
 	if (m_poWindowObj)
 	{
@@ -1863,21 +1648,6 @@ void CWindow::CompleteOpen()
 
 	m_poApplication->AddWindow(this);
 	m_bOpen = ETrue;
-
-#ifdef __amigaos4__
-
-	/* Add the menus to the window, if they exist */
-
-	if (m_poMenus)
-	{
-		if (IIntuition->SetMenuStrip(m_poWindow, m_poMenus))
-		{
-			m_bMenuStripSet = ETrue;
-		}
-	}
-
-#endif /* __amigaos4__ */
-
 }
 
 /* Written: Saturday 29-May-2010 1:07 pm*/
@@ -2025,37 +1795,21 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 }
 
-/* Written: Sunday 08-Apr-2011 8:50 am, Code HQ Ehinger Tor */
-/* @param	a_iItemID	ID of the menu item to be enabled or disabled */
-/* @param	a_bEnable	ETrue to enable the menu item, else EFalse to disable it */
-/* This function will enable or disable an item in the window's menu list */
+/**
+ * Enables or disables a menu item.
+ * Searches for the menu item identified by a_iItemID and enables or disables it.
+ *
+ * @date	Sunday 08-Apr-2011 8:50 am, Code HQ Ehinger Tor
+ * @param	a_iItemID	ID of the menu item to be enabled or disabled
+ * @param	a_bEnable	ETrue to enable the menu item, else EFalse to disable it
+ */
 
 void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 {
 
 #ifdef __amigaos4__
 
-	ULONG FullMenuNum;
-
-	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
-
-	if ((FullMenuNum = FindMenuMapping(m_poMenuMappings, m_iNumMenuMappings, a_iItemID)) != 0)
-	{
-		/* Enable or disable the menu item as appropriate */
-
-		if (a_bEnable)
-		{
-			IIntuition->OnMenu(m_poWindow, FullMenuNum);
-		}
-		else
-		{
-			IIntuition->OffMenu(m_poWindow, FullMenuNum);
-		}
-	}
-	else
-	{
-		Utils::Info("CWindow::EnableMenuItem() => Menu mapping not found");
-	}
+	m_poAmiMenus->EnableItem(a_iItemID, a_bEnable);
 
 #elif defined(QT_GUI_LIB)
 
@@ -2081,41 +1835,6 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-/* Written: Saturday 14-Apr-2012 8:02 am, Code HQ Ehinger Tor */
-/* @param	a_poMenuMappings	Ptr to array of menu mappings to search through */
-/*			a_poNumMenuMappings	Number of items in the menu mappings array */
-/*			a_iItemID			Item ID to be searched for */
-/* This function searches through an array of menu mappings, searching for an item of a */
-/* particular ID.  It is a helper function to allow accessing menu items in the Windows */
-/* manner of addressing them via the ID, rather than the Amiga OS style of using the */
-/* menu item's position */
-
-ULONG CWindow::FindMenuMapping(struct SStdMenuMapping *a_poMenuMappings, TInt a_iNumMenuMappings, TInt a_iItemID)
-{
-	TInt Index;
-	ULONG RetVal;
-
-	/* Assume failure */
-
-	RetVal = 0;
-
-	/* Iterate through the list of menu mappings and find the one we are looking for */
-
-	for (Index = 0; Index < a_iNumMenuMappings; ++Index)
-	{
-		if (a_poMenuMappings->m_iID == a_iItemID)
-		{
-			RetVal = a_poMenuMappings->m_ulFullMenuNum;
-
-			break;
-		}
-
-		++a_poMenuMappings;
-	}
-
-	return(RetVal);
-}
-
 /* Written: Saturday 06-Nov-2010 8:27 am */
 
 struct Screen *CWindow::GetRootWindowScreen()
@@ -2137,6 +1856,21 @@ struct Screen *CWindow::GetRootWindowScreen()
 ULONG CWindow::GetSignal()
 {
 	return((m_poWindow) ? (1 << m_poWindow->UserPort->mp_SigBit) : 0);
+}
+
+/**
+ * Returns a ptr to the window's Amiga specific menu structure.
+ * This is an internal function that should only be used by The Framework.  It returns a ptr
+ * to the window's underlying Intuition menus and it is required for certain internal menu
+ * handling by The Framework.
+ *
+ * @date	Tuesday 22-Oct-2013 7:28 am, Code HQ Ehinger Tor
+ * @return	A ptr to the window's Intuition menus, if created, else NULL
+ */
+
+struct Menu *CWindow::Menus()
+{
+	return(m_poAmiMenus->Menus());
 }
 
 #elif defined(QT_GUI_LIB)
@@ -2384,9 +2118,10 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 /**
  * Determines whether a menu item is checked.
  * Finds a menu item that has a command ID matching that passed in and returns
- * whether or not it is checked.  For a menu item to be checked it must have been
- * created with the type EStdMenuCheck.  It is safe to call this function on a
- * menu item that is not of this type;  in thise case it will always return EFalse.
+ * whether or not it is checked.  For a menu item to be able to be checked it
+ * must have been created with the type EStdMenuCheck.  It is safe to call this
+ * function on a menu item that is not of this type;  in thise case it will
+ * always return EFalse.
  *
  * @date	Sunday 05-May-2013 8:25 am, Code HQ Ehinger Tor
  * @param	a_iItemID	ID of the menu item to be queried
@@ -2403,25 +2138,7 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 
 #ifdef __amigaos4__
 
-	ULONG FullMenuNum;
-	struct MenuItem *MenuItem;
-
-	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
-
-	if ((FullMenuNum = FindMenuMapping(m_poMenuMappings, m_iNumMenuMappings, a_iItemID)) != 0)
-	{
-		/* Now use the result to find the actual menu in the menu strip */
-
-		if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
-		{
-			/* And determine whether the menu item is checked */
-
-			if (MenuItem->Flags & CHECKED)
-			{
-				RetVal = ETrue;
-			}
-		}
-	}
+	return(m_poAmiMenus->ItemChecked(a_iItemID));
 
 #elif defined(QT_GUI_LIB)
 
@@ -2850,6 +2567,10 @@ void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
 
 #ifdef __amigaos4__
 
+	(void) a_iOrdinal;
+
+	return(m_poAmiMenus->RemoveItem(a_iCommand));
+
 #elif defined(QT_GUI_LIB)
 
 	TInt Index;
@@ -3009,6 +2730,10 @@ void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TI
 {
 
 #ifdef __amigaos4__
+
+	(void) a_iOrdinal;
+
+	m_poAmiMenus->UpdateItem(a_pccLabel, a_pccHotKey, a_iCommand);
 
 #elif defined(QT_GUI_LIB)
 
