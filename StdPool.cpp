@@ -43,7 +43,7 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 	return(RetVal);
 }
 
-/* Written: Sunday 03-Jun-2012 11:27 am, On train to Munich Deutsches Museum */
+/* Written: Sunday 03-Jun-2012 11:27 am, on train to Munich Deutsches Museum */
 /* @param	a_bFreeNodes	If ETrue then all nodes referring to the pool are explicitly */
 /*							freed, otherwise they are implicitly freed */
 /* Frees the resources allocated by the class and makes it ready for use again.  After */
@@ -93,7 +93,7 @@ void RStdPool::Close(TBool a_bFreeNodes)
 	m_iNumItems = m_iSize = 0;
 }
 
-/* Written: Sunday 03-Jun-2012 11:20 pm, On train to Munich Deutsches Museum */
+/* Written: Sunday 03-Jun-2012 11:20 pm, on train to Munich Deutsches Museum */
 /* @return	Ptr to the new node if successful, else NULL */
 /* Allocates a node from the list of available nodes.  This is a very fast operation */
 /* as it simply returns the first node on the list of available nodes.  If there are */
