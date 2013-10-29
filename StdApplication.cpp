@@ -186,9 +186,11 @@ TInt RApplication::Main()
 					case WMHI_MENUPICK :
 					{
 						/* Scan through the messages, processing each one.  There may be multiple */
-						/* messages waiting due to the user selecting more than one menu item */
+						/* messages waiting due to the user selecting more than one menu item.  We */
+						/* have to check for Code being 0 in case the menu strip is updated while we */
+						/* are processing the menus, in which case Code will never get set to MENUNULL */
 
-						while (Code != MENUNULL)
+						while ((Code != MENUNULL) && (Code != 0))
 						{
 							/* Get the address of the underlying Intuition MenuItem and from that */
 							/* we can extract the command ID of the menu item from the user data */
