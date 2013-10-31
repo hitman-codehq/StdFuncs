@@ -1267,18 +1267,14 @@ TBool CWindow::CreateMenus()
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Is this the best place to put this?  Should CAmiMenus be a C or an R class?  Bodgey return value
+	// TODO: CAW - Bodgey return value
 
 	if (!(m_poAmiMenus))
 	{
-		m_poAmiMenus = new CAmiMenus(m_poWindow);
+		m_poAmiMenus = CAmiMenus::New(m_poWindow, MenuItem);
 	}
 
-	if (m_poAmiMenus)
-	{
-		RetVal = (m_poAmiMenus->Create(MenuItem) == KErrNone);
-	}
-	else
+	if (!(m_poAmiMenus))
 	{
 		RetVal = EFalse;
 	}
