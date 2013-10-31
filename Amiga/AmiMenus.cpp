@@ -9,20 +9,51 @@
 static const char *g_pccEmptyString = "";	/* Empty string used for creating menu items */
 
 /**
+ * Creates an instance of the CAmiMenus class.
+ * Standard Symbian style factory function that will create and initialise an instance of the
+ * class.
+ *
+ * @date	Wednesday 30-Oct-2013 12:19 pm, Henry's Kaffe Welt (Hirschstraße)
+ * @param	a_poWindow		Ptr to the parent window to which the menus will belong
+ * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
+ *			menu items to be created.
+ * @return	Ptr to the newly created class object if successful, else NULL
+ */
+
+CAmiMenus *CAmiMenus::New(struct Window *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems)
+{
+	CAmiMenus *RetVal;
+
+	/* Create and initialise an instance of the class */
+
+	if ((RetVal = new CAmiMenus(a_poWindow)) != NULL)
+	{
+		if (RetVal->Construct(a_pcoMenuItems) != KErrNone)
+		{
+			delete RetVal;
+			RetVal = NULL;
+		}
+	}
+
+	return(RetVal);
+}
+
+/**
  * Creates a set of menus and attaches them to the underlying Intuition window.
  * This is the main function of the class.  It will take an array of SStdMenuItem structures and
  * will use them to create both an array of NewItem structures and a set of Intuition specific
  * menus.  The NewMenu structures can be used later on for updating the menus (ie. Adding or
- * removing items, setting or clearing checkmarks etc.) and the Intuition specific menus will be
- * attached to the window that was passed into the constructor when the class was created.
+ * removing items etc.) and the Intuition specific menus will be attached to the window that was
+ * passed in when the class was created.
  *
  * @date	Sunday 20-Oct-2013 9:20 am, on board RB 19320 to Stuttgart
  * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
  *			menu items to be created.
  * @return	KErrNone if the menus were created successfully
+ * @return	KErrNoMemory if not enough memory was available to allocate the menus
  */
 
-TInt CAmiMenus::Create(const struct SStdMenuItem *a_pcoMenuItems)
+TInt CAmiMenus::Construct(const struct SStdMenuItem *a_pcoMenuItems)
 {
 	TInt Index, Menu, Item, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
@@ -122,17 +153,16 @@ TInt CAmiMenus::Create(const struct SStdMenuItem *a_pcoMenuItems)
 	return(RetVal);
 }
 
-// * @date	Sunday 20-Oct-2013 9:20 am, on board RB 19320 to Stuttgart
+/**
+ * Destructor for the class.
+ * The destructor will remove the Intuition specific menus from the window and will free all
+ * structures associated with them.  This inludes the Intuition menus themselves, the class's
+ * internal menu array and all strings associated with the labels and hotkey shortcuts.
+ *
+ * @date	Sunday 20-Oct-2013 9:20 am, on board RB 19320 to Stuttgart
+ */
 
 CAmiMenus::~CAmiMenus()
-{
-	Close();
-}
-
-// * @date	Sunday 20-Oct-2013 10:14 am, on board RB 19320 to Stuttgart
-
-// TODO: CAW - Merge into destructor? If so then get rid of Close() comment + this is inconsistent with Create()
-void CAmiMenus::Close()
 {
 	TInt Index;
 
@@ -181,8 +211,8 @@ void CAmiMenus::Close()
  * the menu item to add and an Amiga specific ptr to the dropdown menu to which to add the new item.
  *
  * @date	Sunday 20-Oct-2013 10:05 am, on board RB 19320 to Stuttgart
- * @param	a_pcoMenuItem		Ptr to structure containing information such as the label, command ID etc.
- * @param	a_pvDropdownMenu	Amiga specific ptr to the dropdown menu to which to add the menu item
+ * @param	a_pcoMenuItem		Ptr to structure containing information such as the label, item ID etc.
+ * @param	a_poDropdownMenu	Amiga specific ptr to the dropdown menu to which to add the menu item
  * @return	KErrNone if successful
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
@@ -224,8 +254,10 @@ TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
 /**
  * Adds a menu item to an already existing dropdown menu.
  * This function appends a new menu item to a dropdown menu.  The label passed in can contain
- * a character preceded by a '&' character, in which case that character will be used as the
- * menu item's shortcut.  If no label is passed in then a separator will be added to the menu.
+ * a character preceded by a '&' character, in which case that character will be stripped from
+ * the label.  This is to facilitate cross platform portability, as many platforms use this
+ * character to denote the shortcut for the menu item.  If no label is passed in then the item
+ * will be added as a separator.
  *
  * The dropdown menu to which to add the menu item is specified as an ordinal starting from
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
@@ -233,25 +265,23 @@ TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
  * @date	Sunday 20-Oct-2013 10:04 am, on board RB 19320 to Stuttgart
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
+ * @param	a_iItemID	Item ID that will be passed to the window's HandleCommand() function
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
  * @return	KErrNone if successful
  * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-// TODO: CAW - Can/should a_iCommand and a_iOrdinal be swapped?  Change names of variables and parameters too!  a_iCommand -vs- a_iItemID
-//             Also, a_iCommandID is not commented very well
+// TODO: CAW - Can/should a_iCommand and a_iOrdinal be swapped?  Change names of variables and parameters too!
 //             Remove some unneeded preconditions
-//             Also return values specified above
-TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
+TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iItemID, TInt a_iOrdinal)
 {
 	TInt NumMenus, RetVal, Size;
 	struct Menu *Menus;
 	struct NewMenu *DropdownMenu, *NewMenus, *Menu, *Next;
 	struct SStdMenuMapping *NewMenuMappings, *Mapping;
 
-	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iCommand };
+	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
 
 	/* Assume failure */
 
@@ -268,6 +298,8 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 
 		if ((Next = FindMenu(a_iOrdinal + 1)) != NULL)
 		{
+			RetVal = KErrNoMemory;
+
 			if ((NewMenuMappings = new SStdMenuMapping[m_iNumMenus + 1]) != NULL)
 			{
 				if ((NewMenus = new NewMenu[m_iNumMenus + 1]) != NULL)
@@ -325,11 +357,11 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 }
 
 /**
- * Enables or disables the checkmark on a checkable menu item.
- * Finds a menu item that has a command ID matching that passed in and enables
- * or disables its checkmark.  For a menu item to be checked it must have been
- * created with the type EStdMenuCheck.  It is safe to call this function on a
- * menu item that is not of this type;  in thise case it will simply do nothing.
+ * Sets or clears the checkmark on a checkable menu item.
+ * Finds a menu item that has an item ID matching that passed in and sets or clears
+ * its checkmark.  For a menu item to be checked it must have been created with the
+ * type EStdMenuCheck.  It is safe to call this function on a menu item that is not
+ * of this type;  in thise case it will simply do nothing.
  *
  * @date	Sunday 20-Oct-2013 6:37 am, Code HQ Ehinger Tor
  * @param	a_iItemID	ID of the menu item to be checked or unchecked
@@ -384,7 +416,7 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
  *
  * @date  Friday 25-Oct-2013 6:57 am, Code HQ Ehinger Tor
  * @param	a_pcoMenuItem	Ptr to the SStdMenuItem structure containing the new shortcut string
- * @param	a_poMenu		Ptr to the NewMenu structure into which to place the shortcut string ptr
+ * @param	a_poNewMenu		Ptr to the NewMenu structure into which to place the shortcut string ptr
  */
 
 void CAmiMenus::CreateCommKey(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poNewMenu)
@@ -424,10 +456,10 @@ void CAmiMenus::CreateCommKey(const struct SStdMenuItem *a_pcoMenuItem, struct N
  *
  * @date	Friday 25-Oct-2013 7:22 am, Code HQ Ehinger Tor
  * @param	a_pcoMenuItem	Ptr to the SStdMenuItem structure containing the new label
- * @param	a_poMenu		Ptr to the NewMenu structure into which to place the label ptr
+ * @param	a_poNewMenu		Ptr to the NewMenu structure into which to place the label ptr
  */
 
-void CAmiMenus::CreateLabel(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poMenu)
+void CAmiMenus::CreateLabel(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poNewMenu)
 {
 	char *NewLabel;
 	const char *Label;
@@ -438,8 +470,8 @@ void CAmiMenus::CreateLabel(const struct SStdMenuItem *a_pcoMenuItem, struct New
 
 	if (a_pcoMenuItem->m_eType == EStdMenuSeparator)
 	{
-		a_poMenu->nm_Type = EStdMenuItem;
-		a_poMenu->nm_Label = NM_BARLABEL;
+		a_poNewMenu->nm_Type = EStdMenuItem;
+		a_poNewMenu->nm_Label = NM_BARLABEL;
 	}
 
 	/* Otherwise if there is a label for the menu item present then it will have the '&' shortcut */
@@ -452,7 +484,7 @@ void CAmiMenus::CreateLabel(const struct SStdMenuItem *a_pcoMenuItem, struct New
 		/* a buffer for it */
 
 		Length = (strlen(Label) + 1);
-		a_poMenu->nm_Label = NewLabel = new char[Length];
+		a_poNewMenu->nm_Label = NewLabel = new char[Length];
 
 		if (NewLabel)
 		{
@@ -470,12 +502,12 @@ void CAmiMenus::CreateLabel(const struct SStdMenuItem *a_pcoMenuItem, struct New
 		}
 
 		/* If we cannot allocate a new label then we need to use *something* and cannot just */
-		/* use a NULL string.  So use a globally allocated empty string and Close() will skip */
-		/* freeing this */
+		/* use a NULL string.  So use a globally allocated empty string and the destructor will */
+		/* skip freeing this */
 
 		else
 		{
-			a_poMenu->nm_Label = g_pccEmptyString;
+			a_poNewMenu->nm_Label = g_pccEmptyString;
 		}
 	}
 }
@@ -561,7 +593,7 @@ void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
 	}
 	else
 	{
-		Utils::Info("CWindow::EnableMenuItem() => Menu mapping not found");
+		Utils::Info("CWindow::EnableItem() => Menu mapping not found");
 	}
 }
 
@@ -624,9 +656,7 @@ struct NewMenu *CAmiMenus::FindItem(TInt a_iItemID)
  * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
  *
  * @date	Saturday 14-Apr-2012 8:02 am, Code HQ Ehinger Tor
- * @param	a_poMenuMappings	Ptr to array of menu mappings to search through
- * @param	a_poNumMenuMappings	Number of items in the menu mappings array
- * @param	a_iItemID			Item ID to be searched for
+ * @param	a_iItemID	Item ID to be searched for
  * @return	The Amiga stype menu mapping of the menu matching the ID passed in, else 0
  *			if the ID was not found
  */
@@ -749,7 +779,7 @@ void CAmiMenus::FreeLabel(struct NewMenu *a_poNewMenu)
 
 /**
  * Determines whether a menu item is checked.
- * Finds a menu item that has a command ID matching that passed in and returns
+ * Finds a menu item that has an item ID matching that passed in and returns
  * whether or not it is checked.  For a menu item to be able to be checked it
  * must have been created with the type EStdMenuCheck.  It is safe to call this
  * function on a menu item that is not of this type;  in thise case it will
@@ -792,7 +822,7 @@ TBool CAmiMenus::ItemChecked(TInt a_iItemID)
 
 /**
  * Removes a single menu item from a dropdown menu.
- * This function will search through the array of menus for an item of a particular ID and,
+ * This function will search through the array of menus for an item of the given ID and,
  * when found, will remove it from the array and free the memory used for holding its label
  * and shortcut key.  It will then rebuild the underlying Intuition menu structures, remove
  * the current Intuition menu strip and attach the newly created one, thus updating not only
@@ -804,20 +834,20 @@ TBool CAmiMenus::ItemChecked(TInt a_iItemID)
  * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
  *
  * @date	Sunday 20-Oct-2013 9:47 am, on board RB 19320 to Stuttgart
- * @param	a_iItemID	 ID of menu item to be removed
+ * @param	a_iItemID	 ID of the menu item to be removed
  */
 
-void CAmiMenus::RemoveItem(TInt a_iCommand)
+void CAmiMenus::RemoveItem(TInt a_iItemID)
 {
 	TInt NumMenus, Offset, Size;
 	struct Menu *Menus;
 	struct NewMenu *NewMenu;
 
-	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::UpdateItem() => Menus must be initialised items can be removed");
+	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::RemoveItem() => Menus must be initialised items can be removed");
 
 	/* Get a ptr to the menu item to be removed */
 
-	if ((NewMenu = FindItem(a_iCommand)) != NULL)
+	if ((NewMenu = FindItem(a_iItemID)) != NULL)
 	{
 		/* Only do anything if this is a menu item.  If the user is trying to delete a dropdown */
 		/* menu then simply return */
@@ -884,21 +914,21 @@ void CAmiMenus::RemoveItem(TInt a_iCommand)
  * @date	Sunday 20-Oct-2013 9:54 am, on board RB 19320 to Stuttgart
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
+ * @param	a_iItemID	Item ID that will be passed to the window's HandleCommand() function
  */
 
-void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand)
+void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iItemID)
 {
 	struct Menu *Menus;
 	struct NewMenu *NewMenu;
 
-	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iCommand };
+	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
 
 	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::UpdateItem() => Menus must be initialised items can be updated");
 
 	/* Get a ptr to the menu item to be updated */
 
-	if ((NewMenu = FindItem(a_iCommand)) != NULL)
+	if ((NewMenu = FindItem(a_iItemID)) != NULL)
 	{
 		/* The label and hotkey strings are going to be replaced with new ones, so free the old strings */
 
