@@ -123,7 +123,7 @@ class RConfigFile
 private:
 
 	char				*m_pcBuffer;	/**< Ptr to buffer containing Windows style .ini file */
-	TInt				m_iBufferSize;	/**< # of bytes in the file */
+	TInt				m_iBufferSize;	/**< Number of bytes in the file */
 	StdList<CSection>	m_oSections;	/**< List of the top level sections in the configuration file */
 
 private:
