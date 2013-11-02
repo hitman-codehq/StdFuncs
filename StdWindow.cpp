@@ -624,7 +624,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
-		case WM_INITMENUPOPUP :
+		case WM_MENUSELECT :
 		{
 			/* Forget about the alt and ctrl keypresses as we won't get a WM_KEYUP or WM_SYSKEYUP for */
 			/* them due to the menu now being active */
