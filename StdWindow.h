@@ -105,6 +105,26 @@ private:
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
+#ifdef __amigaos4__
+
+	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
+
+	static struct Screen *GetRootWindowScreen();
+
+	ULONG GetSignal();
+
+	struct Menu *Menus();
+
+#elif defined(QT_GUI_LIB)
+
+	CQtAction *FindMenuItem(TInt a_iItemID);
+
+#elif defined(WIN32)
+
+	static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam);
+
+#endif /* WIN32 */
+
 protected:
 
 	CWindow() { }
@@ -171,24 +191,6 @@ public:
 		return(m_iInnerHeight);
 	}
 
-#ifdef __amigaos4__
-
-	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
-
-	ULONG GetSignal();
-
-	struct Menu *Menus();
-
-#elif defined(QT_GUI_LIB)
-
-	CQtAction *FindMenuItem(TInt a_iItemID);
-
-#elif defined(WIN32)
-
-	static LRESULT CALLBACK WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam);
-
-#endif /* WIN32 */
-
 	void MakeRootWindow()
 	{
 		g_poRootWindow = this;
@@ -200,12 +202,6 @@ public:
 	{
 		return(g_poRootWindow);
 	}
-
-#ifdef __amigaos4__
-
-	static struct Screen *GetRootWindowScreen();
-
-#endif /* __amigaos4__ */
 
 	void Remove(CStdGadgetLayout *a_poLayoutGadget);
 
@@ -244,6 +240,7 @@ public:
 	friend class CQtWindow;
 	friend class CStdGadgetLayout;
 	friend class RApplication;
+	friend class RStdImage;
 };
 
 #endif /* ! STDWINDOW_H */
