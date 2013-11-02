@@ -768,8 +768,8 @@ void RFont::SetHighlight(TBool a_bHighlight)
  * window and will be clipped after a_iWidth pixels horizontally and a_iHeight pixels
  * vertically.
  *
- * @pre	This function must be called after RFont::Begin() for clipping to take effect on
- * all platforms.
+ * @pre		This function must be called after RFont::Begin() for clipping to take effect on
+ *			all platforms
  *
  * @date	Friday 12-Jul-2013 6:33 am, Code HQ Ehinger Tor
  * @param	a_iXOffset	X position in pixels at which to begin drawing
