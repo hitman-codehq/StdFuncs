@@ -957,7 +957,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 			/* a fully text based one, so start by converting the modifier keys to */
 			/* a textual prefix */
 
-			if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+			if ((a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL) || (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_MENU))
 			{
 				Shortcut = "Ctrl+";
 			}
@@ -1968,7 +1968,7 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
 
 	/* If the hotkey also has a qualifier then add this to the ACCEL structure */
 
-	if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+	if ((a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL) || (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_MENU))
 	{
 		a_poAccelerator->fVirt |= FCONTROL;
 	}
@@ -2051,7 +2051,7 @@ char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem)
 		{
 			strcat(RetVal, "\t");
 
-			if (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL)
+			if ((a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_CONTROL) || (a_pcoMenuItem->m_iHotKeyModifier == STD_KEY_MENU))
 			{
 				strcat(RetVal, "Ctrl+");
 			}
@@ -2715,7 +2715,7 @@ void CWindow::RethinkLayout()
  * in which to update the menu item is specified as an ordinal starting from zero, where zero
  * is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
- * @date	Wednesday 19-Jun-20130 8:16 am, Henry's Coffee World Ulm
+ * @date	Wednesday 19-Jun-20130 8:16 am, Henry's Kaffee Welt Ulm
  * @param	a_pccLabel	Ptr to a string containing the new label to assign to the menu item
  * @param	a_pccHotKey	Ptr to a string containing the new hotkey to assign to the menu item
  * @param	a_iCommand	Command ID of the menu item to be updated
