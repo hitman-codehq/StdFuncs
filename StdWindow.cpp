@@ -1268,7 +1268,6 @@ TBool CWindow::CreateMenus()
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Also check preconditions on Windows and Qt builds
 	ASSERTM((m_poAmiMenus == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
 	if ((m_poAmiMenus = CAmiMenus::New(this, MenuItem)) == NULL)
@@ -1280,6 +1279,14 @@ TBool CWindow::CreateMenus()
 
 	QMenu *DropdownMenu;
 	QString Shortcut;
+
+#ifdef _DEBUG
+
+	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
+
+	ASSERTM((Menus.count() == 0), "CWindow::CreateMenus() => Menus can only be created once");
+
+#endif /* _DEBUG */
 
 	DropdownMenu = NULL;
 
@@ -1328,6 +1335,8 @@ TBool CWindow::CreateMenus()
 	TInt Index, Length, NumAccelerators;
 	ACCEL *Accelerators;
 	HMENU DropdownMenu;
+
+	ASSERTM((m_poMenu == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
 	Label = NULL;
 	Length = NumAccelerators = 0;
