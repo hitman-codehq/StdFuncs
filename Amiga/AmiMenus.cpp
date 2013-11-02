@@ -1,8 +1,10 @@
 
 #include "../StdFuncs.h"
 #include "../StdApplication.h"
+#include "../StdWindow.h"
 #include <proto/gadtools.h>
 #include <proto/intuition.h>
+#include <ctype.h>
 #include <string.h>
 #include "AmiMenus.h"
 
@@ -16,19 +18,19 @@ static const char *g_pccEmptyString = "";	/* Empty string used for creating menu
  * @date	Wednesday 30-Oct-2013 12:19 pm, Henry's Kaffe Welt (Hirschstraße)
  * @param	a_poWindow		Ptr to the parent window to which the menus will belong
  * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
- *			menu items to be created.
+ *							menu items to be created
  * @return	Ptr to the newly created class object if successful, else NULL
  */
 
-CAmiMenus *CAmiMenus::New(struct Window *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems)
+CAmiMenus *CAmiMenus::New(CWindow *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems)
 {
 	CAmiMenus *RetVal;
 
 	/* Create and initialise an instance of the class */
 
-	if ((RetVal = new CAmiMenus(a_poWindow)) != NULL)
+	if ((RetVal = new CAmiMenus(a_poWindow, a_pcoMenuItems)) != NULL)
 	{
-		if (RetVal->Construct(a_pcoMenuItems) != KErrNone)
+		if (RetVal->Construct() != KErrNone)
 		{
 			delete RetVal;
 			RetVal = NULL;
@@ -47,13 +49,11 @@ CAmiMenus *CAmiMenus::New(struct Window *a_poWindow, const struct SStdMenuItem *
  * passed in when the class was created.
  *
  * @date	Sunday 20-Oct-2013 9:20 am, on board RB 19320 to Stuttgart
- * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
- *			menu items to be created.
  * @return	KErrNone if the menus were created successfully
  * @return	KErrNoMemory if not enough memory was available to allocate the menus
  */
 
-TInt CAmiMenus::Construct(const struct SStdMenuItem *a_pcoMenuItems)
+TInt CAmiMenus::Construct()
 {
 	TInt Index, Menu, Item, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
@@ -65,7 +65,7 @@ TInt CAmiMenus::Construct(const struct SStdMenuItem *a_pcoMenuItems)
 
 	/* Iterate through the menu item structures passed in and count how many need to be created */
 
-	MenuItem = a_pcoMenuItems;
+	MenuItem = m_pcoMenuItems;
 	NumMenuItems = 1;
 
 	do
@@ -77,7 +77,7 @@ TInt CAmiMenus::Construct(const struct SStdMenuItem *a_pcoMenuItems)
 
 	/* Get a ptr to the first menu structure again, now that we have already parsed the menu structures */
 
-	MenuItem = a_pcoMenuItems;
+	MenuItem = m_pcoMenuItems;
 
 	/* Allocate a buffer large enough to hold all of the GadTools NewMenu structures, and */
 	/* another large enough to hold all of the menu ID mappings, and populate them with */
@@ -141,7 +141,7 @@ TInt CAmiMenus::Construct(const struct SStdMenuItem *a_pcoMenuItems)
 
 			if ((m_poMenus = CreateIntuitionMenus(NewMenus)) != NULL)
 			{
-				if (IIntuition->SetMenuStrip(m_poWindow, m_poMenus))
+				if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 				{
 					RetVal = KErrNone;
 					m_bMenuStripSet = ETrue;
@@ -174,7 +174,7 @@ CAmiMenus::~CAmiMenus()
 
 		if (m_bMenuStripSet)
 		{
-			IIntuition->ClearMenuStrip(m_poWindow);
+			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 		}
 
 		IGadTools->FreeMenus(m_poMenus);
@@ -329,7 +329,7 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 
 					if ((Menus = CreateIntuitionMenus(NewMenus)) != NULL)
 					{
-						IIntuition->ClearMenuStrip(m_poWindow);
+						IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 
 						++m_iNumMenus;
 
@@ -342,7 +342,7 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 						IGadTools->FreeMenus(m_poMenus);
 						m_poMenus = Menus;
 
-						if (IIntuition->SetMenuStrip(m_poWindow, m_poMenus))
+						if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 						{
 							RetVal = KErrNone;
 							m_bMenuStripSet = ETrue;
@@ -383,7 +383,7 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 		{
 			/* Enable or disable the menu item's check mark as appropriate */
 
-			IIntuition->ClearMenuStrip(m_poWindow);
+			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 
 			if (a_bEnable)
 			{
@@ -394,7 +394,7 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 				MenuItem->Flags &= ~CHECKED;
 			}
 
-			IIntuition->ResetMenuStrip(m_poWindow, m_poMenus);
+			IIntuition->ResetMenuStrip(m_poWindow->m_poWindow, m_poMenus);
 		}
 		else
 		{
@@ -584,17 +584,118 @@ void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
 
 		if (a_bEnable)
 		{
-			IIntuition->OnMenu(m_poWindow, FullMenuNum);
+			IIntuition->OnMenu(m_poWindow->m_poWindow, FullMenuNum);
 		}
 		else
 		{
-			IIntuition->OffMenu(m_poWindow, FullMenuNum);
+			IIntuition->OffMenu(m_poWindow->m_poWindow, FullMenuNum);
 		}
 	}
 	else
 	{
 		Utils::Info("CWindow::EnableItem() => Menu mapping not found");
 	}
+}
+
+/**
+ * Simulates the selection of a menu item.
+ * This function will search through the class's menu array for a given key value and, if found,
+ * will send a command to the associated CWindow that was passed in when the CAmiMenus instance was
+ * created.  This is to support key combinations that may be used on Windows and Qt but which
+ * are not supported by default on Amiga OS.  For instance, <f3> or ctrl+<key> combinations.  This
+ * enables client code to add these keyboard shortcuts to menu items and, even though they will
+ * not be displayed in the Intuition specific menu, they will still generate commands as they would
+ * on the other platforms.
+ *
+ * If used in response to keyboard events, this function should only be called on a key down (or
+ * key up) event, to prevent the commands being sent to the underlying window multiple times.
+ *
+ * @date    Thursday 31-Oct-2013 7:06 am, Code HQ Ehinger Tor
+ * @param	a_iKey			Value of the keyboard key pressed
+ * @param	a_bCtrlPressed	ETrue if the control key is currently pressed, else EFalse
+ */
+
+void CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
+{
+	TInt FunctionKey, Command;
+	const struct SStdMenuItem *MenuItem;
+
+	/* Iterate through the menu items and see if any match the key combination passed in */
+
+	Command	= -1;
+	MenuItem = m_pcoMenuItems;
+
+	do
+	{
+		/* Only do anything for menu items that have an associated shotcut key */
+
+		if ((MenuItem->m_eType == EStdMenuItem) && (MenuItem->m_pccHotKey))
+		{
+			/* If the shortcut key is long then it is a function key string so it must be converted */
+			/* to a value the can be compared against the Amiga's function keys */
+
+			if (strlen(MenuItem->m_pccHotKey) >= 2)
+			{
+				/* Is it a function key with a numeric value following it? */
+
+				if ((toupper(MenuItem->m_pccHotKey[0]) == 'F') && (Utils::StringToInt(&MenuItem->m_pccHotKey[1], &FunctionKey) == KErrNone))
+				{
+					/* Does the numeric value represent a valid function key? */
+
+					if ((FunctionKey >= 1) && (FunctionKey <= 12))
+					{
+						/* Yes.  Convert the key to a virtual keycode */
+
+						FunctionKey += (STD_KEY_F1 - 1);
+
+						/* Do we have a match? */
+
+						if (FunctionKey == a_iKey)
+						{
+							Command = MenuItem->m_iCommand;
+						}
+					}
+				}
+			}
+
+			/* Otherwise it is a "normal" key so check to see if it matches the key passed in */
+
+			else if (*MenuItem->m_pccHotKey == a_iKey)
+			{
+				Command	= MenuItem->m_iCommand;
+			}
+
+			/* If a matching key was found then also check the shortcut's modifier (if it has one) */
+			/* to see if that was also pressed.  If so then call CWindow::HandleCommand() to */
+			/* simulate a menu item selection */
+
+			if (Command != -1)
+			{
+				if ((a_bCtrlPressed) && (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL))
+				{
+					m_poWindow->HandleCommand(MenuItem->m_iCommand);
+
+					break;
+				}
+				else if ((!(a_bCtrlPressed)) && (MenuItem->m_iHotKeyModifier == 0))
+				{
+					m_poWindow->HandleCommand(MenuItem->m_iCommand);
+
+					break;
+				}
+
+				/* The modifier did not match that of the shortcut so keep searching */
+
+				else
+				{
+					Command = -1;
+				}
+			}
+		}
+
+		++MenuItem;
+	}
+	while (MenuItem->m_eType != EStdMenuEnd);
 }
 
 /**
@@ -884,7 +985,7 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
 			{
 				/* Remove the old Intuition menu structures from the menu strip and free them */
 
-				IIntuition->ClearMenuStrip(m_poWindow);
+				IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 				m_bMenuStripSet = EFalse;
 
 				IGadTools->FreeMenus(m_poMenus);
@@ -892,7 +993,7 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
 
 				/* And now attach the new Intuition menu structures to the menu strip */
 
-				if (IIntuition->SetMenuStrip(m_poWindow, m_poMenus))
+				if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 				{
 					m_bMenuStripSet = ETrue;
 				}
@@ -945,7 +1046,7 @@ void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt
 		{
 			/* Remove the old Intuition menu structures from the menu strip and free them */
 
-			IIntuition->ClearMenuStrip(m_poWindow);
+			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 			m_bMenuStripSet = EFalse;
 
 			IGadTools->FreeMenus(m_poMenus);
@@ -953,7 +1054,7 @@ void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt
 
 			/* And now attach the new Intuition menu structures to the menu strip */
 
-			if (IIntuition->SetMenuStrip(m_poWindow, m_poMenus))
+			if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 			{
 				m_bMenuStripSet = ETrue;
 			}

@@ -63,7 +63,7 @@ private:
 
 #endif /* ! QT_GUI_LIB */
 
-	const struct SStdMenuItem *m_pcoMenuItems;	/* Ptr to a list of structures describing the application's menus */
+	const struct SStdMenuItem *m_pcoMenuItems;	/**< Ptr to a list of structures describing the application's menus */
 
 public:
 

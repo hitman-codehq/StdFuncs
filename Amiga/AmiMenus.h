@@ -27,10 +27,11 @@ private:
 
 	TBool					m_bMenuStripSet;	/**< ETrue if menus have been added to the main window */
 	TInt					m_iNumMenus;		/**< Number of entries in m_poMenuMappings */
+	const struct SStdMenuItem *m_pcoMenuItems;	/**< Ptr to a list of structures describing the menus */
 	struct Menu				*m_poMenus;			/**< Ptr to Intuition menus managed by the class */
 	struct NewMenu			*m_poNewMenus;		/**< Array of NewMenu structures used for creating menus */
 	struct SStdMenuMapping	*m_poMenuMappings;	/**< Array of menu ID -> FULLMENUNUM mappings */
-	struct Window			*m_poWindow;		/**< Ptr to underlying Intuition window */
+	CWindow					*m_poWindow;		/**< Ptr to the parent window to which the menus belong */
 
 private:
 
@@ -46,13 +47,17 @@ private:
 	 * Constructor for the class.
 	 * This is an internal function used only by the CAmiMenus::New() factory function.
 	 *
-	 * @param	a_poWindow	Ptr to the parent window to which the menus will belong
+	 * @param	a_poWindow		Ptr to the parent window to which the menus will belong
+	 * @param	a_pcoMenuItems  Ptr to a list of structures describing the menus
 	 */
 
-	CAmiMenus(struct Window *a_poWindow)
+	CAmiMenus(CWindow *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems)
 	{
 		m_poWindow = a_poWindow;
+		m_pcoMenuItems = a_pcoMenuItems;
 	}
+
+	TInt Construct();
 
 	TInt AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu);
 
@@ -72,9 +77,7 @@ private:
 
 public:
 
-	static CAmiMenus *New(struct Window *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems);
-
-	TInt Construct(const struct SStdMenuItem *a_pcoMenuItems);
+	static CAmiMenus *New(CWindow *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems);
 
 	~CAmiMenus();
 
@@ -83,6 +86,8 @@ public:
 	void CheckItem(TInt a_iItemID, TBool a_bEnable);
 
 	void EnableItem(TInt a_iItemID, TBool a_bEnable);
+
+	void ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed);
 
 	TBool ItemChecked(TInt a_iItemID);
 

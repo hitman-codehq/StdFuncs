@@ -6,8 +6,10 @@
 
 #ifdef __amigaos4__
 
+#include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
 #include <proto/keymap.h>
+#include <ctype.h>
 
 /* Array of key mappings for mapping Amiga keys onto standard keys */
 
@@ -66,8 +68,19 @@ RApplication::RApplication()
 	m_pcoMenuItems = NULL;
 }
 
-/* Written: Thursday 01-Jul-2010 6:46 am */
-/* Applications that derive from this class should call this method to initialise their menus */
+/**
+ * Prepares the application for use.
+ * Applications that derive from this class should call this method to initialise the class
+ * and to ensure that the RApplication is prepared for handling its incoming messages.  The
+ * menu items passed into this function must be in persistent memory and persist for the
+ * lifetime of the instance.
+ *
+ * @date	Thursday 01-Jul-2010 6:46 am
+ * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
+ *							menu items to be created
+ * @return	KErrNone if successful
+ * @return  KErrNoMemory if not enough memory was available
+ */
 
 TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 {
@@ -122,7 +135,7 @@ TInt RApplication::Main()
 	TBool DoubleClicked, KeyDown, KeyHandled;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
-	struct InputEvent *InputEvent;
+	struct InputEvent *InputEvent, ShortcutEvent;
 	struct MenuItem *MenuItem;
 	CWindow *Window;
 	TStdMouseEvent MouseEvent;
@@ -317,7 +330,7 @@ TInt RApplication::Main()
 							{
 								Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
 
-								/* Link on Windows, when ctrl is pressed, the ASCII characters sent to */
+								/* Like on Windows, when ctrl is pressed, the ASCII characters sent to */
 								/* WMHI_RAWKEY messages are different so we need to adjust these back */
 								/* to standard ASCII so keeping track of the state of the ctrl key is */
 								/* the only way to achieve this */
@@ -325,6 +338,14 @@ TInt RApplication::Main()
 								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
 								{
 									CWindow::m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
+								}
+
+								/* If this was a key down event then execute any menu item shortcuts that match */
+								/* the key that was just pressed */
+
+								if (KeyDown)
+								{
+									Window->m_poAmiMenus->ExecuteShortcut(g_aoKeyMap[Index].m_iStdKey, CWindow::m_bCtrlPressed);
 								}
 							}
 
@@ -336,6 +357,23 @@ TInt RApplication::Main()
 							{
 								if (KeyDown)
 								{
+									/* Copy the InputEvent and remove any qualifiers associated with it.  This makes */
+									/* it easier to find out what key was pressed without having to concern ourselves */
+									/* with upper/lower case or changes made by the control key being pressed */
+
+									ShortcutEvent = *InputEvent;
+									ShortcutEvent.ie_Qualifier = 0;
+
+									/* Cook the raw key press and pass it to the CAmiMenus class to execute any */
+									/* menu item shortcuts that match the key that was just pressed */
+
+									if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+									{
+										Window->m_poAmiMenus->ExecuteShortcut(toupper(KeyBuffer[0]), CWindow::m_bCtrlPressed);
+									}
+
+									/* Now perform the normal keyboard handling */
+
 									if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 									{
 										/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */

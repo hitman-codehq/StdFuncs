@@ -1243,7 +1243,8 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
  * rather than in RApplication as some platforms require a separate copy of the menus to be
  * created for each window opened, or they cannot create the menus at application creation time.
  *
- * @pre		The window must already have been created, although not necessarily opened.
+ * @pre		The window must already have been created, although not necessarily opened
+ * @pre		The menus must not yet have been created
  *
  * @date	Sunday 05-Jan-2013 7:53 am, Code HQ Ehinger Tor
  * @return	ETrue if all menus were created successfully, else EFalse
@@ -1267,14 +1268,10 @@ TBool CWindow::CreateMenus()
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Bodgey return value
+	// TODO: CAW - Also check preconditions on Windows and Qt builds
+	ASSERTM((m_poAmiMenus == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
-	if (!(m_poAmiMenus))
-	{
-		m_poAmiMenus = CAmiMenus::New(m_poWindow, MenuItem);
-	}
-
-	if (!(m_poAmiMenus))
+	if ((m_poAmiMenus = CAmiMenus::New(this, MenuItem)) == NULL)
 	{
 		RetVal = EFalse;
 	}
