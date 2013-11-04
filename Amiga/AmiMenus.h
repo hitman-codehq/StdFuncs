@@ -87,7 +87,7 @@ public:
 
 	void EnableItem(TInt a_iItemID, TBool a_bEnable);
 
-	void ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed);
+	TBool ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed);
 
 	TBool ItemChecked(TInt a_iItemID);
 

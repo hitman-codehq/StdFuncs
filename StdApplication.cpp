@@ -132,7 +132,7 @@ TInt RApplication::Main()
 
 	char KeyBuffer[5];
 	TInt InnerWidth, InnerHeight, Index, NumChars, X, Y;
-	TBool DoubleClicked, KeyDown, KeyHandled;
+	TBool DoubleClicked, ExecutedShortcut, KeyDown;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
 	struct InputEvent *InputEvent, ShortcutEvent;
@@ -304,8 +304,6 @@ TInt RApplication::Main()
 						/* we will handle cooking the keys ourselves.  Assume to start with that the */
 						/* cooked key will not be handled */
 
-						KeyHandled = EFalse;
-
 						/* Get a ptr to the InputEvent from Reaction */
 
 						if (IIntuition->GetAttr(WINDOW_InputEvent, Window->m_poWindowObj, (ULONG *) &InputEvent) > 0)
@@ -328,8 +326,6 @@ TInt RApplication::Main()
 
 							if (Index < (TInt) NUM_KEYMAPPINGS)
 							{
-								Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
-
 								/* Like on Windows, when ctrl is pressed, the ASCII characters sent to */
 								/* WMHI_RAWKEY messages are different so we need to adjust these back */
 								/* to standard ASCII so keeping track of the state of the ctrl key is */
@@ -343,9 +339,18 @@ TInt RApplication::Main()
 								/* If this was a key down event then execute any menu item shortcuts that match */
 								/* the key that was just pressed */
 
+								ExecutedShortcut = EFalse;
+
 								if (KeyDown)
 								{
-									Window->m_poAmiMenus->ExecuteShortcut(g_aoKeyMap[Index].m_iStdKey, CWindow::m_bCtrlPressed);
+									ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(g_aoKeyMap[Index].m_iStdKey, CWindow::m_bCtrlPressed);
+								}
+
+								/* Pass the key event onto the client, but only if no menu shortcut was executed */
+
+								if (!(ExecutedShortcut))
+								{
+									Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, KeyDown);
 								}
 							}
 
@@ -367,28 +372,32 @@ TInt RApplication::Main()
 									/* Cook the raw key press and pass it to the CAmiMenus class to execute any */
 									/* menu item shortcuts that match the key that was just pressed */
 
+									ExecutedShortcut = EFalse;
+
 									if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 									{
-										Window->m_poAmiMenus->ExecuteShortcut(toupper(KeyBuffer[0]), CWindow::m_bCtrlPressed);
+										ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(toupper(KeyBuffer[0]), CWindow::m_bCtrlPressed);
 									}
 
-									/* Now perform the normal keyboard handling */
+									/* Now perform the normal keyboard handling, but only if no menu shortcut was executed */
 
-									if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+									if (!(ExecutedShortcut))
 									{
-										/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
-
-										if (CWindow::m_bCtrlPressed)
+										if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 										{
-											KeyBuffer[0] |= 0x60;
-										}
+											/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
 
-										/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+											if (CWindow::m_bCtrlPressed)
+											{
+												KeyBuffer[0] |= 0x60;
+											}
 
-										if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254))
-										{
-											Window->OfferKeyEvent(KeyBuffer[0], ETrue);
-											KeyHandled = ETrue;
+											/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
+
+											if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254))
+											{
+												Window->OfferKeyEvent(KeyBuffer[0], ETrue);
+											}
 										}
 									}
 								}

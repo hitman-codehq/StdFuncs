@@ -613,12 +613,18 @@ void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
  * @date    Thursday 31-Oct-2013 7:06 am, Code HQ Ehinger Tor
  * @param	a_iKey			Value of the keyboard key pressed
  * @param	a_bCtrlPressed	ETrue if the control key is currently pressed, else EFalse
+ * @return	ETrue if a shortcut was executed, else EFalse
  */
 
-void CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
+TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 {
+	TBool RetVal;
 	TInt FunctionKey, Command;
 	const struct SStdMenuItem *MenuItem;
+
+	/* Assume no shortcut is executed */
+
+	RetVal = EFalse;
 
 	/* Iterate through the menu items and see if any match the key combination passed in */
 
@@ -673,12 +679,14 @@ void CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 			{
 				if ((a_bCtrlPressed) && (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL))
 				{
+					RetVal = ETrue;
 					m_poWindow->HandleCommand(MenuItem->m_iCommand);
 
 					break;
 				}
 				else if ((!(a_bCtrlPressed)) && (MenuItem->m_iHotKeyModifier == 0))
 				{
+					RetVal = ETrue;
 					m_poWindow->HandleCommand(MenuItem->m_iCommand);
 
 					break;
@@ -696,6 +704,8 @@ void CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 		++MenuItem;
 	}
 	while (MenuItem->m_eType != EStdMenuEnd);
+
+	return(RetVal);
 }
 
 /**
