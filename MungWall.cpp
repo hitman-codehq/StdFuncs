@@ -15,8 +15,6 @@
 #undef malloc
 #undef free
 #undef new
-#undef AllocMem
-#undef FreeMem
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
