@@ -30,6 +30,10 @@ protected:
 
 	void closeEvent(QCloseEvent *a_poCloseEvent);
 
+	void focusInEvent(QFocusEvent *a_poFocusEvent);
+
+	void focusOutEvent(QFocusEvent *a_poFocusEvent);
+
 	void keyPressEvent(QKeyEvent *a_poKeyEvent);
 
 	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);

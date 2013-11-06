@@ -381,6 +381,43 @@ void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 }
 
 /**
+ * Qt helper function to detect when a window gains focus.
+ * This function is called when the Qt framework detect that the window has gained focus
+ * and will simply pass the event onto The Framework.
+ *
+ * @date	Tuesday 05-Oct-2013 7:44 am
+ * @param	a_poFocusEvent	Ptr to a class containing information about the event
+ */
+
+void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
+{
+	/* Window focus is changing so let the client know that the window is activating */
+
+	m_poWindow->Activated(ETrue);
+}
+
+/**
+ * Qt helper function to detect when a window gains focus.
+ * This function is called when the Qt framework detect that the window has gained focus
+ * and will simply pass the event onto The Framework.
+ *
+ * @date	Tuesday 05-Oct-2013 7:42 am
+ * @param	a_poFocusEvent	Ptr to a class containing information about the event
+ */
+
+void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
+{
+	/* Window focus is changing so let the client know that the window is deactivating */
+
+	m_poWindow->Activated(EFalse);
+
+	/* And forget about the alt and ctrl keypresses as we won't get a key up event for them */
+	/* now that we no longer have focus */
+
+	m_poWindow->m_bAltPressed = m_poWindow->m_bCtrlPressed = EFalse;
+}
+
+/**
  * Returns the preferred size of the window to the Qt framework.
  * This function returns the preferred size of our window to Qt, which Qt then
  * bizarrely changes.  We want the Qt version of The Framework to work like the
@@ -451,7 +488,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Window focus is changing so let the client know that the window is activating */
 			/* or deactivating */
 
-			Window->Activated(!(a_oWParam == WA_INACTIVE));
+			Window->Activated(a_oWParam == WA_ACTIVE);
 
 			/* And forget about the alt and ctrl keypresses as we won't get a WM_KEYUP for them now */
 			/* that we no longer have focus */
