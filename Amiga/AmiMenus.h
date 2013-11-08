@@ -75,6 +75,8 @@ private:
 
 	void FreeLabel(struct NewMenu *a_poNewMenu);
 
+	void UpdateCheckStatus(TInt a_iItemID, TBool a_bEnabled);
+
 public:
 
 	static CAmiMenus *New(CWindow *a_poWindow, const struct SStdMenuItem *a_pcoMenuItems);
@@ -107,6 +109,8 @@ public:
 	void RemoveItem(TInt a_iItemID);
 
 	void UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iItemID);
+
+	friend class RApplication;
 };
 
 #endif /* ! AMIMENUS_H */

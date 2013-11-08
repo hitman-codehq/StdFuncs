@@ -372,29 +372,41 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 {
 	ULONG FullMenuNum;
 	struct MenuItem *MenuItem;
+	struct NewMenu *NewMenu;
 
 	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
 
 	if ((FullMenuNum = FindMapping(a_iItemID)) != 0)
 	{
-		/* Now use the result to find the actual menu in the menu strip */
+		/* Get a ptr to the menu item for which to set or clear the checkmark */
 
-		if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
+		if ((NewMenu = FindItem(a_iItemID)) != NULL)
 		{
-			/* Enable or disable the menu item's check mark as appropriate */
+			/* Now use the result to find the actual menu in the menu strip */
 
-			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
-
-			if (a_bEnable)
+			if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
 			{
-				MenuItem->Flags |= CHECKED;
+				/* Enable or disable the menu item's check mark as appropriate */
+
+				IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+
+				if (a_bEnable)
+				{
+					NewMenu->nm_Flags |= CHECKED;
+					MenuItem->Flags |= CHECKED;
+				}
+				else
+				{
+					NewMenu->nm_Flags &= ~CHECKED;
+					MenuItem->Flags &= ~CHECKED;
+				}
+
+				IIntuition->ResetMenuStrip(m_poWindow->m_poWindow, m_poMenus);
 			}
 			else
 			{
-				MenuItem->Flags &= ~CHECKED;
+				Utils::Info("CWindow::CheckMenuItem() => Intuition menu item not found");
 			}
-
-			IIntuition->ResetMenuStrip(m_poWindow->m_poWindow, m_poMenus);
 		}
 		else
 		{
@@ -1008,6 +1020,42 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
 					m_bMenuStripSet = ETrue;
 				}
 			}
+		}
+	}
+}
+
+/**
+ * Updates the internal checkmark state of a menu item.
+ * This is an internal function that will update the state of a menu item's checkmark in the
+ * internal NewMenu structures kept by the CAmiMenus class.  When menu items are added, removed
+ * or updated, the underlying Intuition menus are destroyed and recreated, thus losing the state
+ * of the checkmarks for any checkable menus.  This function should thus be called by The Framework
+ * when the state of a checkmark is changed by Intuition, so that CAmiMenus can keep track of
+ * these checkmark state changes.
+ *
+ * @date	Friday 08-Nov-2013 7:15 am, Code HQ Ehinger Tor
+ * @param	a_iItemID	ID of the menu item that was checked or unchecked
+ * @param	a_bEnable	ETrue if the menu item was checked, else EFalse if it was cleared
+ */
+
+void CAmiMenus::UpdateCheckStatus(TInt a_iItemID, TBool a_bEnabled)
+{
+	struct NewMenu *NewMenu;
+
+	/* Get a ptr to the menu item for which to update the checkmark status */
+
+	if ((NewMenu = FindItem(a_iItemID)) != NULL)
+	{
+		/* Update the internal flags in the NewMenu structure so that if the Intuition menu structures */
+		/* are recreated then they will have the checkmark correctly set or cleared */
+
+		if (a_bEnabled)
+		{
+			NewMenu->nm_Flags |= CHECKED;
+		}
+		else
+		{
+			NewMenu->nm_Flags &= ~CHECKED;
 		}
 	}
 }

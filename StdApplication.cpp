@@ -131,7 +131,7 @@ TInt RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	TInt InnerWidth, InnerHeight, Index, NumChars, X, Y;
+	TInt InnerWidth, InnerHeight, Index, ItemID, NumChars, X, Y;
 	TBool DoubleClicked, ExecutedShortcut, KeyDown;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
@@ -211,6 +211,19 @@ TInt RApplication::Main()
 
 							if ((MenuItem = IIntuition->ItemAddress(Window->Menus(), Code)) != NULL)
 							{
+								ItemID = (TInt) GTMENUITEM_USERDATA(MenuItem);
+
+								/* If the menu item is checkable then we need to update the internal state of */
+								/* the checkmark that is kept by the CAmiMenus class so that the checkmark is */
+								/* recreated in the correct state if the menus are updated */
+
+								if (MenuItem->Flags & CHECKIT)
+								{
+									Window->m_poAmiMenus->UpdateCheckStatus(ItemID, (MenuItem->Flags & CHECKED));
+								}
+
+								/* Now send the command to the client */
+
 								Window->HandleCommand((TInt) GTMENUITEM_USERDATA(MenuItem));
 							}
 
