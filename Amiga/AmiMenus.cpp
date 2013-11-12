@@ -276,9 +276,9 @@ TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
 //             Remove some unneeded preconditions
 TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iItemID, TInt a_iOrdinal)
 {
-	TInt NumMenus, RetVal, Size;
+	TInt Item, NumMenus, RetVal, Size;
 	struct Menu *Menus;
-	struct NewMenu *DropdownMenu, *NewMenus, *Menu, *Next;
+	struct NewMenu *DropdownMenu, *NewMenus, *NewMenuItem, *Menu, *Next;
 	struct SStdMenuMapping *NewMenuMappings, *Mapping;
 
 	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
@@ -286,6 +286,8 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 	/* Assume failure */
 
 	RetVal = KErrNotFound;
+
+	/* Get a ptr to the dropdown menu to which to add the new menu item */
 
 	if ((DropdownMenu = FindMenu(a_iOrdinal)) != NULL)
 	{
@@ -296,40 +298,87 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 			MenuItem.m_eType = EStdMenuSeparator;
 		}
 
-		if ((Next = FindMenu(a_iOrdinal + 1)) != NULL)
-		{
-			RetVal = KErrNoMemory;
+		/* Try to get a ptr to the dropdown menu after the one to which we will add the new menu */
+		/* item.  This will only be found (and used) if we are not adding an item to the last */
+		/* dropdown menu in the list */
 
-			if ((NewMenuMappings = new SStdMenuMapping[m_iNumMenus + 1]) != NULL)
+		Next = FindMenu(a_iOrdinal + 1);
+
+		/* Allocate new arrays for the menu mappings and NewMenu structures */
+
+		RetVal = KErrNoMemory;
+		NewMenuItem = NULL;
+
+		if ((NewMenuMappings = new SStdMenuMapping[m_iNumMenus + 1]) != NULL)
+		{
+			if ((NewMenus = new NewMenu[m_iNumMenus + 1]) != NULL)
 			{
-				if ((NewMenus = new NewMenu[m_iNumMenus + 1]) != NULL)
+				/* If the target dropdown menu is not the last one then we must copy all menu items */
+				/* between the first one and the dropdown menu coming after the one to which we are */
+				/* appending.  Also calculate the number of the new item, with 0 meaning the ID of */
+				/* the first item already existing in the target dropdown menu */
+
+				if (Next)
 				{
 					NumMenus = (Next - m_poNewMenus);
-					Size = (NumMenus * sizeof(struct NewMenu));
-					memcpy(NewMenus, m_poNewMenus, Size);
+					Item = ((Next - DropdownMenu) - 1);
+				}
 
-					memcpy(NewMenuMappings, m_poMenuMappings, (NumMenus * sizeof(struct SStdMenuMapping)));
+				/* Otherwise copy all menus up to the "NULL terminator" menu.  We will insert the */
+				/* new menu item just before this.  Again calculate the number of the new item, */
+				/* starting with 0 */
 
-					Menu = &NewMenus[NumMenus];
-					RetVal = AddItem(&MenuItem, Menu); // TODO: CAW - Move as much as possible into here - too much is in this function!
+				else
+				{
+					NumMenus = (m_iNumMenus - 1);
+					Item = ((NumMenus - (DropdownMenu - m_poNewMenus)) - 1);
+					Next = &m_poNewMenus[NumMenus];
+				}
 
-					Mapping = &NewMenuMappings[NumMenus];
+				/* Copy the NewMenu structures and menu mappings up to the point at which the new */
+				/* menu item is to be inserted */
 
-					/* Now populate the SStdMenuMapping structure */
+				Size = (NumMenus * sizeof(struct NewMenu));
+				memcpy(NewMenus, m_poNewMenus, Size);
 
-					Mapping->m_iID = MenuItem.m_iCommand;
-					Mapping->m_ulFullMenuNum = FULLMENUNUM(0/*Menu*/, 0/*Item*/, 0); // TODO: CAW
+				memcpy(NewMenuMappings, m_poMenuMappings, (NumMenus * sizeof(struct SStdMenuMapping)));
 
-					++Menu;
-					Size = ((m_iNumMenus - NumMenus) * sizeof(struct NewMenu));
-					memcpy(Menu, Next, Size);
+				/* Populate the NewMenu structure for the menu item we are inserting */
 
-					++Mapping;
-					memcpy(Mapping, &m_poMenuMappings[NumMenus], ((m_iNumMenus - NumMenus) * sizeof(struct SStdMenuMapping)));
+				Menu = NewMenuItem = &NewMenus[NumMenus];
+				AddItem(&MenuItem, Menu);
 
-					if ((Menus = CreateIntuitionMenus(NewMenus)) != NULL)
+				/* Now populate the new SStdMenuMapping structure */
+
+				Mapping = &NewMenuMappings[NumMenus];
+				Mapping->m_iID = MenuItem.m_iCommand;
+				Mapping->m_ulFullMenuNum = FULLMENUNUM(a_iOrdinal, Item, 0);
+
+				/* Copy whatever NewMenu items come after the newly inserted one, up to and including the */
+				/* "NULL terminator" NewMenu item.  This means that we will copy at least one NewMenu structure */
+
+				++Menu;
+				Size = ((m_iNumMenus - NumMenus) * sizeof(struct NewMenu));
+				memcpy(Menu, Next, Size);
+
+				/* And copy the remaining menu mappings */
+
+				++Mapping;
+				memcpy(Mapping, &m_poMenuMappings[NumMenus], ((m_iNumMenus - NumMenus) * sizeof(struct SStdMenuMapping)));
+
+				/* The NewMenu structures have been initialised so create the Intuition specific menus */
+				/* and assign them to the Intuition window that was passed into the class's constructor */
+
+				if ((Menus = CreateIntuitionMenus(NewMenus)) != NULL)
+				{
+					IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+
+					if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 					{
-						IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+						RetVal = KErrNone;
+						m_bMenuStripSet = ETrue;
+
+						/* Success!  Save the new menu related metadata and free the old */
 
 						++m_iNumMenus;
 
@@ -341,14 +390,21 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 
 						IGadTools->FreeMenus(m_poMenus);
 						m_poMenus = Menus;
-
-						if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
-						{
-							RetVal = KErrNone;
-							m_bMenuStripSet = ETrue;
-						}
 					}
 				}
+			}
+
+			/* If anything failed then free whatever menu related metadata was allocated */
+
+			if (RetVal != KErrNone)
+			{
+				if (NewMenuItem)
+				{
+					FreeLabel(NewMenuItem);
+				}
+
+				delete [] NewMenus;
+				delete [] NewMenuMappings;
 			}
 		}
 	}
