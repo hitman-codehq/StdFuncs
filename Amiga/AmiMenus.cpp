@@ -213,19 +213,10 @@ CAmiMenus::~CAmiMenus()
  * @date	Sunday 20-Oct-2013 10:05 am, on board RB 19320 to Stuttgart
  * @param	a_pcoMenuItem		Ptr to structure containing information such as the label, item ID etc.
  * @param	a_poDropdownMenu	Amiga specific ptr to the dropdown menu to which to add the menu item
- * @return	KErrNone if successful
- * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-// TODO: CAW - Always succeeds at the moment
-TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu)
+void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu)
 {
-	TInt RetVal;
-
-	/* Assume success */
-
-	RetVal = KErrNone;
-
 	/* Checkable menus are handled slightly differently */
 
 	if (a_pcoMenuItem->m_eType == EStdMenuCheck)
@@ -247,8 +238,6 @@ TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
 	/* And store the command ID associated with the menu item */
 
 	a_poDropdownMenu->nm_UserData = (APTR) a_pcoMenuItem->m_iCommand;
-
-	return(RetVal);
 }
 
 /**
@@ -265,16 +254,15 @@ TInt CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
  * @date	Sunday 20-Oct-2013 10:04 am, on board RB 19320 to Stuttgart
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iItemID	Item ID that will be passed to the window's HandleCommand() function
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
+ * @param	a_iItemID	Item ID that will be passed to the window's HandleCommand() function
  * @return	KErrNone if successful
  * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-// TODO: CAW - Can/should a_iCommand and a_iOrdinal be swapped?  Change names of variables and parameters too!
-//             Remove some unneeded preconditions
-TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iItemID, TInt a_iOrdinal)
+// TODO: CAW - Change names of variables and parameters and remove some unneeded preconditions
+TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iItemID)
 {
 	TInt Item, NumMenus, RetVal, Size;
 	struct Menu *Menus;
@@ -373,7 +361,7 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 				{
 					IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
 
-					if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
+					if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, Menus))
 					{
 						RetVal = KErrNone;
 						m_bMenuStripSet = ETrue;
@@ -784,8 +772,6 @@ TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
  * the menu item's position.  The menu item for which to search can be either a
  * dropdown menu or an item within a dropdown menu.
  *
- * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
- *
  * @date	Sunday 13-Oct-2013 8:32 am, Code HQ Ehinger Tor
  * @param	a_iItemID	 ID of menu item for which to search
  * @return	Ptr to the NewMenu structure of the menu matching the ID passed in, else NULL
@@ -797,8 +783,6 @@ struct NewMenu *CAmiMenus::FindItem(TInt a_iItemID)
 	TInt Index;
 	struct NewMenu *RetVal;
 	struct SStdMenuMapping *MenuMapping;
-
-	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::FindItem() => Menus must be initialised before a search is performed");
 
 	/* Assume failure */
 
@@ -832,8 +816,6 @@ struct NewMenu *CAmiMenus::FindItem(TInt a_iItemID)
  * manner of addressing them via ID, rather than the Amiga OS style of using the menu
  * item's position.
  *
- * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
- *
  * @date	Saturday 14-Apr-2012 8:02 am, Code HQ Ehinger Tor
  * @param	a_iItemID	Item ID to be searched for
  * @return	The Amiga stype menu mapping of the menu matching the ID passed in, else 0
@@ -845,8 +827,6 @@ ULONG CAmiMenus::FindMapping(TInt a_iItemID)
 	TInt Index;
 	ULONG RetVal;
 	struct SStdMenuMapping *MenuMappings;
-
-	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::FindMapping() => Menus must be initialised before a search is performed");
 
 	/* Assume failure */
 
@@ -878,8 +858,6 @@ ULONG CAmiMenus::FindMapping(TInt a_iItemID)
  * Windows manner of addressing them via ID, rather than the Amiga OS style of using
  * the menu item's position.
  *
- * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
- *
  * @date	Saturday 12-Oct-2013 1:26 pm, Code HQ Ehinger Tor
  * @param	a_iOrdinalID	ID of dropdown menu for which to search
  * @return	Ptr to the NewMenu structure of the menu matching the ID passed in, else NULL
@@ -890,8 +868,6 @@ struct NewMenu *CAmiMenus::FindMenu(TInt a_iOrdinalID)
 {
 	TInt Index, MenuIndex;
 	struct NewMenu *NewMenu, *RetVal;
-
-	ASSERTM((m_poNewMenus != NULL), "CAmiMenus::FindMenu() => Menus must be initialised before a search is performed");
 
 	/* Assume failure */
 
@@ -1010,8 +986,6 @@ TBool CAmiMenus::ItemChecked(TInt a_iItemID)
  * The item referenced by the item ID passed in must be a menu item, not a dropdown menu.
  * If it represents a dropdown menu then this function will do nothing.
  *
- * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
- *
  * @date	Sunday 20-Oct-2013 9:47 am, on board RB 19320 to Stuttgart
  * @param	a_iItemID	 ID of the menu item to be removed
  */
@@ -1021,8 +995,6 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
 	TInt NumMenus, Offset, Size;
 	struct Menu *Menus;
 	struct NewMenu *NewMenu;
-
-	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::RemoveItem() => Menus must be initialised items can be removed");
 
 	/* Get a ptr to the menu item to be removed */
 
@@ -1124,8 +1096,6 @@ void CAmiMenus::UpdateCheckStatus(TInt a_iItemID, TBool a_bEnabled)
  * care of removing any Windows style '&' characters in the menu label, as this routine is
  * designed to work with cross platform code.
  *
- * @pre		The underlying menu structures must have been initialised by CAmiMenus::Create().
- *
  * @date	Sunday 20-Oct-2013 9:54 am, on board RB 19320 to Stuttgart
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
@@ -1138,8 +1108,6 @@ void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt
 	struct NewMenu *NewMenu;
 
 	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
-
-	ASSERTM((m_poMenuMappings != NULL), "CAmiMenus::UpdateItem() => Menus must be initialised items can be updated");
 
 	/* Get a ptr to the menu item to be updated */
 

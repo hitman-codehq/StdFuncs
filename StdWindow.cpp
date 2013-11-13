@@ -1909,7 +1909,7 @@ ULONG CWindow::GetSignal()
 
 struct Menu *CWindow::Menus()
 {
-	return(m_poAmiMenus->Menus());
+	return((m_poAmiMenus) ? m_poAmiMenus->Menus() : NULL);
 }
 
 #elif defined(QT_GUI_LIB)
@@ -2608,7 +2608,7 @@ void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
 
 	(void) a_iOrdinal;
 
-	return(m_poAmiMenus->RemoveItem(a_iCommand));
+	m_poAmiMenus->RemoveItem(a_iCommand);
 
 #elif defined(QT_GUI_LIB)
 
