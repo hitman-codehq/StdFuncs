@@ -356,7 +356,12 @@ TInt RApplication::Main()
 
 								if (KeyDown)
 								{
-									ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(g_aoKeyMap[Index].m_iStdKey, CWindow::m_bCtrlPressed);
+									/* It is possible for the window to not have any menus attached so check this */
+
+									if (Window->m_poAmiMenus)
+									{
+										ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(g_aoKeyMap[Index].m_iStdKey, CWindow::m_bCtrlPressed);
+									}
 								}
 
 								/* Pass the key event onto the client, but only if no menu shortcut was executed */
@@ -389,7 +394,12 @@ TInt RApplication::Main()
 
 									if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 									{
-										ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(toupper(KeyBuffer[0]), CWindow::m_bCtrlPressed);
+										/* It is possible for the window to not have any menus attached so check this */
+
+										if (Window->m_poAmiMenus)
+										{
+											ExecutedShortcut = Window->m_poAmiMenus->ExecuteShortcut(toupper(KeyBuffer[0]), CWindow::m_bCtrlPressed);
+										}
 									}
 
 									/* Now perform the normal keyboard handling, but only if no menu shortcut was executed */
