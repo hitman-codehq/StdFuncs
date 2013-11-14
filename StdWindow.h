@@ -147,7 +147,7 @@ public:
 
 	void Activate();
 
-	TInt AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal);
+	TInt AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
 
 	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 
@@ -205,11 +205,11 @@ public:
 
 	void Remove(CStdGadgetLayout *a_poLayoutGadget);
 
-	void RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal);
+	void RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand);
 
 	void RethinkLayout();
 
-	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal);
+	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
 
 	/* Functions can be implemented by client software */
 

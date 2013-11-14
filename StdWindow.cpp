@@ -1101,14 +1101,14 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * @date	Wednesday 22-May-2013 6:23 pm, Frankfurt am Main Airport, awaiting flight TP 579 to Lisbon
  * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
+ * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
  * @return	KErrNone if successful
  * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
+TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand)
 {
 	TInt RetVal;
 
@@ -1174,7 +1174,7 @@ TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 			{
 				if ((RetVal = AddAccelerator(&MenuItem)) != KErrNone)
 				{
-					RemoveMenuItem(a_iCommand, a_iOrdinal);
+					RemoveMenuItem(a_iOrdinal, a_iCommand);
 				}
 			}
 		}
@@ -2597,11 +2597,11 @@ TInt CWindow::RemoveAccelerator(TInt a_iCommand)
  * and (NumMenus - 1) is the rightmost.
  *
  * @date	Wednesday 29-May-2013 6:50 am Code Ehinger Tor
- * @param	a_iCommand	Command ID of the menu item to be removed
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu from which to remove the menu item
+ * @param	a_iCommand	Command ID of the menu item to be removed
  */
 
-void CWindow::RemoveMenuItem(TInt a_iCommand, TInt a_iOrdinal)
+void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 {
 
 #ifdef __amigaos4__
@@ -2761,11 +2761,11 @@ void CWindow::RethinkLayout()
  * @date	Wednesday 19-Jun-20130 8:16 am, Henry's Kaffee Welt Ulm
  * @param	a_pccLabel	Ptr to a string containing the new label to assign to the menu item
  * @param	a_pccHotKey	Ptr to a string containing the new hotkey to assign to the menu item
- * @param	a_iCommand	Command ID of the menu item to be updated
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu in which to update the menu item
+ * @param	a_iCommand	Command ID of the menu item to be updated
  */
 
-void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iCommand, TInt a_iOrdinal)
+void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand)
 {
 
 #ifdef __amigaos4__
