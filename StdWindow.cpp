@@ -2296,6 +2296,13 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
 				m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+
+				/* And now bring the window's screen to the front, so that if an instance of the client */
+				/* application is already running on the screen, it will come to the front.  Without this, */
+				/* the screen would only come to the front when the first instance of the application was */
+				/* launched */
+
+				IIntuition->ScreenToFront(m_poWindow->WScreen);
 			}
 			else
 			{
