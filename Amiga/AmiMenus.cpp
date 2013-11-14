@@ -658,7 +658,7 @@ void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
  * This function will search through the class's menu array for a given key value and, if found,
  * will send a command to the associated CWindow that was passed in when the CAmiMenus instance was
  * created.  This is to support key combinations that may be used on Windows and Qt but which
- * are not supported by default on Amiga OS.  For instance, <f3> or ctrl+<key> combinations.  This
+ * are not supported by default on Amiga OS.  For instance, f3 or ctrl+key combinations.  This
  * enables client code to add these keyboard shortcuts to menu items and, even though they will
  * not be displayed in the Intuition specific menu, they will still generate commands as they would
  * on the other platforms.
@@ -1063,7 +1063,7 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
  *
  * @date	Friday 08-Nov-2013 7:15 am, Code HQ Ehinger Tor
  * @param	a_iItemID	ID of the menu item that was checked or unchecked
- * @param	a_bEnable	ETrue if the menu item was checked, else EFalse if it was cleared
+ * @param	a_bEnabled	ETrue if the menu item was checked, else EFalse if it was cleared
  */
 
 void CAmiMenus::UpdateCheckStatus(TInt a_iItemID, TBool a_bEnabled)
