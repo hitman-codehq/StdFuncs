@@ -57,7 +57,7 @@ TInt CAmiMenus::Construct()
 {
 	TInt Index, Menu, Item, NumMenuItems, RetVal;
 	const struct SStdMenuItem *MenuItem;
-	struct NewMenu *NewMenus;
+	struct NewMenu *NewMenus, *NewMenuItem;
 
 	/* Assume failure */
 
@@ -108,32 +108,15 @@ TInt CAmiMenus::Construct()
 					++Item;
 				}
 
+				/* Populate the NewMenu structure for the menu item we are inserting */
+
+				NewMenuItem = &NewMenus[Index];
+				AddItem(&MenuItem[Index], NewMenuItem);
+
 				/* Now populate the SStdMenuMapping structure */
 
 				m_poMenuMappings[Index].m_iID = MenuItem[Index].m_iCommand;
 				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
-
-				/* Checkable menus are handled slightly differently */
-
-				if (MenuItem[Index].m_eType == EStdMenuCheck)
-				{
-					NewMenus[Index].nm_Type = EStdMenuItem;
-					NewMenus[Index].nm_Flags = (CHECKIT | MENUTOGGLE);
-				}
-				else
-				{
-					NewMenus[Index].nm_Type = MenuItem[Index].m_eType;
-					NewMenus[Index].nm_Flags = 0;
-				}
-
-				/* Create labels and hotkey strings that match the values passed in */
-
-				CreateLabel(&MenuItem[Index], &NewMenus[Index]);
-				CreateCommKey(&MenuItem[Index], &NewMenus[Index]);
-
-				/* And store the command ID associated with the menu item */
-
-				NewMenus[Index].nm_UserData = (APTR) MenuItem[Index].m_iCommand;
 			}
 
 			/* The NewMenu structures have been initialised so create the Intuition specific menus */
@@ -334,7 +317,7 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 				/* Populate the NewMenu structure for the menu item we are inserting */
 
 				Menu = NewMenuItem = &NewMenus[NumMenus];
-				AddItem(&MenuItem, Menu);
+				AddItem(&MenuItem, NewMenuItem);
 
 				/* Now populate the new SStdMenuMapping structure */
 
