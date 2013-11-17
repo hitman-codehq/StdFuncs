@@ -836,8 +836,6 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 		else
 		{
 			RetVal = KErrNotFound;
-
-			Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 		}
 
 #elif defined(__linux__)
