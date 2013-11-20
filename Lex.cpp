@@ -38,7 +38,7 @@ TLex::TLex(char *a_pcString)
  *
  * @date	Saturday 24-Nov-2012 9:30 am
  * @param	a_pccString	Ptr to string to be parsed for tokens
- * @param	a_iLength	The length of the string passed in
+ * @param	a_iLength	The length of the string passed in, excluding NULL terminator
  */
 
 TLex::TLex(const char *a_pccString, TInt a_iLength)
