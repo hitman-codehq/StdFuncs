@@ -157,6 +157,10 @@ SOURCE=.\StdPool.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdStringList.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdTextFile.cpp
 # End Source File
 # Begin Source File
@@ -254,6 +258,10 @@ SOURCE=.\StdPool.h
 # Begin Source File
 
 SOURCE=.\StdReaction.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdStringList.h
 # End Source File
 # Begin Source File
 
