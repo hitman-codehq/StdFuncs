@@ -565,6 +565,37 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	return(RetVal);
 }
 
+/**
+ * Highlights the contents of a text gadget.
+ * Sets the contents of a text gadget to a highlighted state and places the cursor at the end
+ * of the highlighted area.
+ *
+ * @date	Thursday 05-Dec-2013 7:35 am Code HQ Ehinger Tor
+ * @param	a_iGadgetID	ID of the gadget for which to highlight the text
+ */
+
+void CDialog::HighlightGadgetText(TInt a_iGadgetID)
+{
+
+#ifdef __amigaos4__
+
+#elif defined(QT_GUI_LIB)
+
+	// TODO: CAW - Implement
+
+#else /* ! QT_GUI_LIB */
+
+	HWND Gadget;
+
+	Gadget = GetDlgItem(m_poWindow, a_iGadgetID);
+	ASSERTM(Gadget, "CDialog::HighlightGadgetText() => Unable to get handle to gadget");
+
+	SendMessage(Gadget, EM_SETSEL, 0, -1);
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
 /* Written: Saturday 27-Aug-2010 10:28 am */
 /* @param	a_iGadgetID	ID of the gadget for which to obtain checked status */
 /* @return	ETrue if the gadget is checked, else EFalse */

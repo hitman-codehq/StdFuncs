@@ -84,6 +84,8 @@ protected:
 
 	void CheckGadget(TInt a_iGadgetID);
 
+	void HighlightGadgetText(TInt a_iGadgetID);
+
 	TBool IsGadgetChecked(TInt a_iGadgetID);
 
 	void SetGadgetFocus(TInt a_iGadgetID);
