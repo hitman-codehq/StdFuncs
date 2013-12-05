@@ -309,16 +309,16 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #else /* ! QT_GUI_LIB */
 
-	HWND DialogItem;
+	HWND Gadget;
 
 	/* Get a handle to the gadget to be enabled or disabled */
 
-	DialogItem = GetDlgItem(m_poWindow, a_iGadgetID);
-	ASSERTM(DialogItem, "CDialog::EnableGadget() => Unable to get handle to gadget");
+	Gadget = GetDlgItem(m_poWindow, a_iGadgetID);
+	ASSERTM(Gadget, "CDialog::EnableGadget() => Unable to get handle to gadget");
 
 	/* And enable or disable it */
 
-	EnableWindow(DialogItem, a_bEnable);
+	EnableWindow(Gadget, a_bEnable);
 
 #endif /* ! QT_GUI_LIB */
 
