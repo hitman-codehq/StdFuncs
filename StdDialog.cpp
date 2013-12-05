@@ -579,6 +579,25 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 #ifdef __amigaos4__
 
+	TInt Length;
+	APTR Gadget;
+
+	/* Find a ptr to the BOOPSI gadget for which to highlight the text */
+
+	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	{
+		/* STRINGA_Mark is an odd tag.  You can't set the end position to 0xff and expect */
+		/* it to work things out or the string gadget will go crazy and will never work */
+		/* properly again.  Instead you set the end value to the position you want to */
+		/* set it to (ie. The length of the string) - 1 */
+
+		if ((Length = GetGadgetText(a_iGadgetID, EFalse)) > 0)
+		{
+			IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
+				(Length - 1), TAG_DONE);
+		}
+	}
+
 #elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
