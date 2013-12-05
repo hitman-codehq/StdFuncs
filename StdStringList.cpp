@@ -4,6 +4,7 @@
 #include "StdFuncs.h"
 #include "Lex.h"
 #include "StdStringList.h"
+#include <string.h>
 
 /**
  * Appends one or more strings to the string array.
