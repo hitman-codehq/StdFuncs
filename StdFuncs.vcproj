@@ -499,6 +499,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdStringList.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdTextFile.cpp"
 				>
 				<FileConfiguration
@@ -689,6 +693,10 @@
 			</File>
 			<File
 				RelativePath=".\StdPool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StdStringList.h"
 				>
 			</File>
 			<File
