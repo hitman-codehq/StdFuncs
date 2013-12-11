@@ -1099,16 +1099,18 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
  * @date	Wednesday 22-May-2013 6:23 pm, Frankfurt am Main Airport, awaiting flight TP 579 to Lisbon
- * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
- * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
- * @param	a_iCommand	Command ID that will be passed to the window's HandleCommand() function
+ * @param	a_pccLabel		Label to be used for the new menu item, or NULL for a separator
+ * @param	a_pccHotKey		Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
+ * @param	a_iOrdinal		Ordinal offset of the dropdown menu to which to add the menu item
+ * @param	a_iSubOrdinal	Ordinal offset of the submenu within the dropdown menu to which to add the
+ *							menu item.  Set to -1 if no submenu is to be used
+ * @param	a_iCommand		Command ID that will be passed to the window's HandleCommand() function
  * @return	KErrNone if successful
  * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand)
+TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand)
 {
 	TInt RetVal;
 
@@ -1156,27 +1158,41 @@ TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt 
 
 	if ((DropdownMenu = GetSubMenu(m_poMenu, a_iOrdinal)) != NULL)
 	{
-		/* If there is no label then this is a separator */
+		/* If the user has requested to add the menu item to a submenu then search for that now */
 
-		if (!(a_pccLabel))
+		if (a_iSubOrdinal != -1)
 		{
-			MenuItem.m_eType = EStdMenuSeparator;
+			DropdownMenu = GetSubMenu(DropdownMenu, a_iSubOrdinal);
 		}
 
-		/* Add the menu item to the dropdown menu */
-
-		if ((RetVal = AddMenuItem(&MenuItem, DropdownMenu)) == KErrNone)
+		if (DropdownMenu)
 		{
-			/* If a shortcut key has been specified, then append a new accelerator to the current */
-			/* accelerator table, deleting the menu entry if it fails */
+			/* If there is no label then this is a separator */
 
-			if (MenuItem.m_pccHotKey)
+			if (!(a_pccLabel))
 			{
-				if ((RetVal = AddAccelerator(&MenuItem)) != KErrNone)
+				MenuItem.m_eType = EStdMenuSeparator;
+			}
+
+			/* Add the menu item to the dropdown menu */
+
+			if ((RetVal = AddMenuItem(&MenuItem, DropdownMenu)) == KErrNone)
+			{
+				/* If a shortcut key has been specified, then append a new accelerator to the current */
+				/* accelerator table, deleting the menu entry if it fails */
+
+				if (MenuItem.m_pccHotKey)
 				{
-					RemoveMenuItem(a_iOrdinal, a_iCommand);
+					if ((RetVal = AddAccelerator(&MenuItem)) != KErrNone)
+					{
+						RemoveMenuItem(a_iOrdinal, a_iCommand);
+					}
 				}
 			}
+		}
+		else
+		{
+			RetVal = KErrNotFound;
 		}
 	}
 	else
@@ -1371,7 +1387,7 @@ TBool CWindow::CreateMenus()
 	char *Label;
 	TInt Index, Length, NumAccelerators;
 	ACCEL *Accelerators;
-	HMENU DropdownMenu;
+	HMENU DropdownMenu, PopupMenu;
 
 	ASSERTM((m_poMenu == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
@@ -1398,6 +1414,29 @@ TBool CWindow::CreateMenus()
 				else
 				{
 					Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
+
+					RetVal = EFalse;
+
+					break;
+				}
+			}
+
+			/* If this is a popup then create a new popup menu to which to add menu items */
+
+			else if (MenuItem->m_eType == EStdMenuSubMenu)
+			{
+				if ((PopupMenu = CreatePopupMenu()) != NULL)
+				{
+					DEBUGCHECK((AppendMenu(DropdownMenu, MF_POPUP, (UINT_PTR) PopupMenu, MenuItem->m_pccLabel) != FALSE),
+						"CWindow::CreateMenus() => Unable to append new popup menu");
+
+					/* Any further menu items from here to the next dropdown menu will be added to this popup menu */
+
+					DropdownMenu = PopupMenu;
+				}
+				else
+				{
+					Utils::Info("CWindow::CreateMenus() => Unable to create popup menu");
 
 					RetVal = EFalse;
 

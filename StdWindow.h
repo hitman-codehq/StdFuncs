@@ -147,7 +147,7 @@ public:
 
 	void Activate();
 
-	TInt AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
+	TInt AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand);
 
 	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 
