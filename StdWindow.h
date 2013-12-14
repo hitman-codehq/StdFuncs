@@ -18,6 +18,38 @@ class CQtCentralWidget;
 class CQtWindow;
 class RApplication;
 
+/* Enumeration defining the types of menu items that can be created. These are mapped */
+/* onto the types used by Amiga OS for easy use on that operating system */
+
+enum TStdMenuItemType
+{
+	EStdMenuEnd,						/* Marker to indicate the end of the menu list */
+	EStdMenuTitle,						/* A menu */
+	EStdMenuItem,						/* An item on a menu */
+	EStdMenuCheck,						/* A checked menu item */
+	EStdMenuSeparator,					/* A separator bar */
+	EStdMenuSubMenu						/* A popout submenu */
+};
+
+/* Each instance of this structure represents an Amiga OS menu mapping */
+
+struct SStdMenuMapping
+{
+	TInt	m_iID;						/* Integer ID of the menu */
+	ULONG	m_ulFullMenuNum;			/* FULLMENUNUM of the menu, useable for OffMenu() etc */
+};
+
+/* Structure defining a single menu item to be dynamically created */
+
+struct SStdMenuItem
+{
+	TStdMenuItemType	m_eType;			/**< Type of menu or menu item to be created */
+	const char			*m_pccLabel;		/**< Menu item's label to be displayed */
+	const char			*m_pccHotKey;		/**< Shortcut key to be displayed, if non NULL */
+	TInt				m_iHotKeyModifier;	/**< Modifier for hotkey, such as STD_KEY_CONTROL */
+	TInt				m_iCommand;			/**< Command to send when menu is selected */
+};
+
 /* Mouse events that can be reported to the client */
 
 enum TStdMouseEvent
@@ -147,7 +179,7 @@ public:
 
 	void Activate();
 
-	TInt AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand);
+	TInt AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand);
 
 	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
 

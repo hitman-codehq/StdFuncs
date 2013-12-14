@@ -1099,6 +1099,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
  * @date	Wednesday 22-May-2013 6:23 pm, Frankfurt am Main Airport, awaiting flight TP 579 to Lisbon
+ * @param	a_eMenuItemType	The type of menu item to be added
  * @param	a_pccLabel		Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey		Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
  * @param	a_iOrdinal		Ordinal offset of the dropdown menu to which to add the menu item
@@ -1110,13 +1111,13 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-TInt CWindow::AddMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand)
+TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand)
 {
 	TInt RetVal;
 
 #ifndef __amigaos4__
 
-	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand };
+	struct SStdMenuItem MenuItem = { a_eMenuItemType, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand };
 
 #endif /* ! __amigaos4__ */
 
@@ -2804,7 +2805,7 @@ void CWindow::RethinkLayout()
  * in which to update the menu item is specified as an ordinal starting from zero, where zero
  * is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
- * @date	Wednesday 19-Jun-20130 8:16 am, Henry's Kaffee Welt Ulm
+ * @date	Wednesday 19-Jun-2013 8:16 am, Henry's Kaffee Welt Ulm // TODO: CAW - Which?
  * @param	a_pccLabel	Ptr to a string containing the new label to assign to the menu item
  * @param	a_pccHotKey	Ptr to a string containing the new hotkey to assign to the menu item
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu in which to update the menu item
