@@ -1134,17 +1134,31 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
 
 	if ((DropdownMenu = Menus.at(a_iOrdinal)->menu()) != NULL)
 	{
-		/* If there is no label then this is a separator */
+		/* If the user has requested to add the menu item to a submenu then search for that now */
 
-		if (!(a_pccLabel))
+		if (a_iSubOrdinal != -1)
 		{
-			MenuItem.m_eType = EStdMenuSeparator;
+			DropdownMenu = DropdownMenu->actions().at(a_iSubOrdinal)->menu();
 		}
 
-		/* Add the menu item to the dropdown menu.  This will take care of appending a shortcut */
-		/* key, if one has been specified */
+		if (DropdownMenu)
+		{
+			/* If there is no label then this is a separator */
 
-		RetVal = AddMenuItem(&MenuItem, DropdownMenu);
+			if (!(a_pccLabel))
+			{
+				MenuItem.m_eType = EStdMenuSeparator;
+			}
+
+			/* Add the menu item to the dropdown menu.  This will take care of appending a shortcut */
+			/* key, if one has been specified */
+
+			RetVal = AddMenuItem(&MenuItem, DropdownMenu);
+		}
+		else
+		{
+			RetVal = KErrNotFound;
+		}
 	}
 	else
 	{
@@ -1331,7 +1345,7 @@ TBool CWindow::CreateMenus()
 
 #elif defined(QT_GUI_LIB)
 
-	QMenu *DropdownMenu;
+	QMenu *DropdownMenu, *PopupMenu;
 	QString Shortcut;
 
 #ifdef _DEBUG
@@ -1365,6 +1379,26 @@ TBool CWindow::CreateMenus()
 			/* can tell when a menu is about to be displayed */
 
 			QObject::connect(DropdownMenu, SIGNAL(aboutToShow()), m_poWindow, SLOT(aboutToShow()));
+		}
+
+		/* If this is a submenu then create a new submenu to which to add menu items */
+
+		else if (MenuItem->m_eType == EStdMenuSubMenu)
+		{
+			if ((PopupMenu = DropdownMenu->addMenu(MenuItem->m_pccLabel)) != NULL)
+			{
+				/* Any further menu items from here to the next dropdown menu will be added to this submenu */
+
+				DropdownMenu = PopupMenu;
+			}
+			else
+			{
+				Utils::Info("CWindow::CreateMenus() => Unable to create submenu");
+
+				RetVal = EFalse;
+
+				break;
+			}
 		}
 
 		/* Otherwise add a new menu option to an already existing dropdown menu */
@@ -1422,22 +1456,22 @@ TBool CWindow::CreateMenus()
 				}
 			}
 
-			/* If this is a popup then create a new popup menu to which to add menu items */
+			/* If this is a submenu then create a new submenu to which to add menu items */
 
 			else if (MenuItem->m_eType == EStdMenuSubMenu)
 			{
 				if ((PopupMenu = CreatePopupMenu()) != NULL)
 				{
 					DEBUGCHECK((AppendMenu(DropdownMenu, MF_POPUP, (UINT_PTR) PopupMenu, MenuItem->m_pccLabel) != FALSE),
-						"CWindow::CreateMenus() => Unable to append new popup menu");
+						"CWindow::CreateMenus() => Unable to append new submenu");
 
-					/* Any further menu items from here to the next dropdown menu will be added to this popup menu */
+					/* Any further menu items from here to the next dropdown menu will be added to this submenu */
 
 					DropdownMenu = PopupMenu;
 				}
 				else
 				{
-					Utils::Info("CWindow::CreateMenus() => Unable to create popup menu");
+					Utils::Info("CWindow::CreateMenus() => Unable to create submenu");
 
 					RetVal = EFalse;
 
