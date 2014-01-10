@@ -121,6 +121,7 @@ void CStdStringList::Reset()
  *
  * @date	Tuesday 19-Nov-2013 7:55 am, Code HQ Ehinger Tor
  * @param	a_iIndex	Index of the string to be retrieved
+ * @return	Ptr to the string at the given index
  */
 
 const char *CStdStringList::operator[](TInt a_iIndex)
