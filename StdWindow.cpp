@@ -1123,7 +1123,7 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
 
 #ifdef __amigaos4__
 
-	return(m_poAmiMenus->AddItem(a_pccLabel, a_pccHotKey, a_iOrdinal, a_iCommand));
+	return(m_poAmiMenus->AddItem(a_pccLabel, a_pccHotKey, a_iSubOrdinal, a_iOrdinal, a_iCommand));
 
 #elif defined(QT_GUI_LIB)
 
