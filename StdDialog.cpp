@@ -410,16 +410,21 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 	return(RetVal);
 }
 
-/* Written: Saturday 21-Aug-2010 1:08 pm */
-/* @param	a_iGadgetID	ID of the gadget for which to obtain the text */
-/*			a_bGetText	ETrue to actually get the text, else EFalse to just get the length */
-/* @return	Length of the text if successful */
-/*			KErrNotFound if the gadget with the specified ID was not found */
-/*			KErrNoMemory if not enough memory was available */
-/* Queries the gadget specified by the a_iGadgetID identifier for its text contents */
-/* and length.  Optionally, this function can obtain just the length.  This function gets the */
-/* text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so */
-/* the text is only valid until the next call to this function */
+/*
+ * Obtains the text belonging to a string gadget.
+ * Queries the gadget specified by the a_iGadgetID identifier for its text contents
+ * and length.  Optionally, this function can obtain just the length.  This function gets the
+ * text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so
+ * the text is only valid until the next call to this function.  Note that the length of the
+ * text returned does NOT include the NULL terminator.
+ *
+ * @date	Saturday 21-Aug-2010 1:08 pm
+ * @param	a_iGadgetID	ID of the gadget for which to obtain the text
+ * @param	a_bGetText	ETrue to actually get the text, else EFalse to just get the length
+ * @return	Length of the text if successful.  This does not include the NULL terminator
+ * @return	KErrNotFound if the gadget with the specified ID was not found
+ * @return	KErrNoMemory if not enough memory was available
+ */
 
 TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
@@ -442,7 +447,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	if ((m_poEditHookData) && (m_poEditHookData->Gadget->GadgetID == a_iGadgetID))
 	{
 		RetVal = KErrNone;
-		Length = (m_poEditHookData->NumChars + 1);
+		Length = m_poEditHookData->NumChars;
 		Text = m_poEditHookData->WorkBuffer;
 	}
 	else
@@ -455,7 +460,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
 			{
 				RetVal = KErrNone;
-				Length = (strlen(Text) + 1);
+				Length = strlen(Text);
 			}
 			else
 			{
@@ -483,7 +488,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	{
 		/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
-		Length = (GetWindowTextLength(Gadget) + 1);
+		Length = GetWindowTextLength(Gadget);
 		RetVal = KErrNone;
 	}
 	else
@@ -505,7 +510,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			/* If the currently allocated buffer is too small then delete it */
 
-			if (m_iTextBufferLength < Length)
+			if (m_iTextBufferLength < (Length + 1))
 			{
 				delete [] m_pcTextBuffer;
 				m_pcTextBuffer = NULL;
@@ -516,14 +521,14 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			if (!(m_pcTextBuffer))
 			{
-				m_pcTextBuffer = new char[Length];
+				m_pcTextBuffer = new char[Length + 1];
 			}
 
 			/* If the buffer was allocated successfully the get the contents of the text gadget into it */
 
 			if (m_pcTextBuffer)
 			{
-				m_iTextBufferLength = Length;
+				m_iTextBufferLength = (Length + 1);
 
 #ifdef __amigaos4__
 
