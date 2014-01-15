@@ -433,7 +433,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	/* Assume failure */
 
 	RetVal = KErrNotFound;
-	Length = 0;
+	Length = 1;
 
 #ifdef __amigaos4__
 
@@ -447,7 +447,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	if ((m_poEditHookData) && (m_poEditHookData->Gadget->GadgetID == a_iGadgetID))
 	{
 		RetVal = KErrNone;
-		Length = m_poEditHookData->NumChars;
+		Length = (m_poEditHookData->NumChars + 1);
 		Text = m_poEditHookData->WorkBuffer;
 	}
 	else
@@ -460,7 +460,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
 			{
 				RetVal = KErrNone;
-				Length = strlen(Text);
+				Length = (strlen(Text) + 1);
 			}
 			else
 			{
@@ -476,7 +476,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 #elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement
-	Length = 0;
+	Length = 1;
 
 #else /* ! QT_GUI_LIB */
 
@@ -488,7 +488,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	{
 		/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
-		Length = GetWindowTextLength(Gadget);
+		Length = (GetWindowTextLength(Gadget) + 1);
 		RetVal = KErrNone;
 	}
 	else
@@ -510,7 +510,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			/* If the currently allocated buffer is too small then delete it */
 
-			if (m_iTextBufferLength < (Length + 1))
+			if (m_iTextBufferLength < Length)
 			{
 				delete [] m_pcTextBuffer;
 				m_pcTextBuffer = NULL;
@@ -521,14 +521,14 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			if (!(m_pcTextBuffer))
 			{
-				m_pcTextBuffer = new char[Length + 1];
+				m_pcTextBuffer = new char[Length];
 			}
 
 			/* If the buffer was allocated successfully the get the contents of the text gadget into it */
 
 			if (m_pcTextBuffer)
 			{
-				m_iTextBufferLength = (Length + 1);
+				m_iTextBufferLength = Length;
 
 #ifdef __amigaos4__
 
@@ -547,7 +547,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 				if ((Length = GetWindowText(Gadget, m_pcTextBuffer, Length)) >= 0)
 				{
-					RetVal = Length;
+					RetVal = (Length + 1);
 				}
 				else
 				{
@@ -565,6 +565,14 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		{
 			RetVal = Length;
 		}
+	}
+
+	/* If the text was successfully obtained, remove the length of the NULL terminator as this */
+	/* function returns only the length of the text itself */
+
+	if (RetVal > 0)
+	{
+		RetVal -= 1;
 	}
 
 	return(RetVal);
