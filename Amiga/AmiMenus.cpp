@@ -359,7 +359,7 @@ TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel
 					{
 						/* If this is a submenu then increment the submenu ID and skip past it */
 
-						if (TempMenu->nm_Type == EStdMenuSubMenu)
+						if (TempMenu->nm_Type == NM_SUB)
 						{
 							++SubItem;
 							++TempMenu;
