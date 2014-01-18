@@ -24,8 +24,8 @@ class RApplication;
 enum TStdMenuItemType
 {
 	EStdMenuEnd,						/* Marker to indicate the end of the menu list */
-	EStdMenuTitle,						/* A menu */
-	EStdMenuItem,						/* An item on a menu */
+	EStdMenuTitle,						/* A menu - must be 1 to match NM_TITLE */
+	EStdMenuItem,						/* An item on a menu  - must be 2 to match NM_ITEM */
 	EStdMenuCheck,						/* A checked menu item */
 	EStdMenuSeparator,					/* A separator bar */
 	EStdMenuSubMenu						/* A popout submenu */
