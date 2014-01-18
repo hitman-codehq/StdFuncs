@@ -59,7 +59,7 @@ private:
 
 	TInt Construct();
 
-	void AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu);
+	void AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu, TBool a_bSubMenu);
 
 	void CreateCommKey(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poNewMenu);
 
@@ -83,7 +83,7 @@ public:
 
 	~CAmiMenus();
 
-	TInt AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iItemID);
+	TInt AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iItemID);
 
 	void CheckItem(TInt a_iItemID, TBool a_bEnable);
 

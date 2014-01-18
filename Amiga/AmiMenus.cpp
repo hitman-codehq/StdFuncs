@@ -111,7 +111,7 @@ TInt CAmiMenus::Construct()
 				/* Populate the NewMenu structure for the menu item we are inserting */
 
 				NewMenuItem = &NewMenus[Index];
-				AddItem(&MenuItem[Index], NewMenuItem);
+				AddItem(&MenuItem[Index], NewMenuItem, EFalse);
 
 				/* Now populate the SStdMenuMapping structure */
 
@@ -188,28 +188,45 @@ CAmiMenus::~CAmiMenus()
 }
 
 /**
- * Adds a menu item to an already existing dropdown menu.
- * This is an internal function.  Client code should use the public version of CAmiMenus::AddItem(),
- * which is a wrapper around this version.  This version accepts a structure containing information about
- * the menu item to add and an Amiga specific ptr to the dropdown menu to which to add the new item.
+ * Initialises a menu item in preparation for adding to an already existing dropdown menu.
+ * This is an internal function used for initialisating Amiga specific NewMenu structures.  Client code
+ * wishing to add menu items should use the public version of CAmiMenus::AddItem().
  *
  * @date	Sunday 20-Oct-2013 10:05 am, on board RB 19320 to Stuttgart
  * @param	a_pcoMenuItem		Ptr to structure containing information such as the label, item ID etc.
- * @param	a_poDropdownMenu	Amiga specific ptr to the dropdown menu to which to add the menu item
+ * @param	a_poDropdownMenu	Amiga specific ptr to the menu item to be initialised
+ * @param	a_bSubMenu			ETrue if the menu item being added is a submenu item, else EFalse
  */
 
-void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu)
+void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu *a_poDropdownMenu, TBool a_bSubMenu)
 {
 	/* Checkable menus are handled slightly differently */
 
 	if (a_pcoMenuItem->m_eType == EStdMenuCheck)
 	{
-		a_poDropdownMenu->nm_Type = EStdMenuItem;
+		a_poDropdownMenu->nm_Type = (a_bSubMenu) ? NM_SUB : EStdMenuItem;
 		a_poDropdownMenu->nm_Flags = (CHECKIT | MENUTOGGLE);
 	}
 	else
 	{
-		a_poDropdownMenu->nm_Type = a_pcoMenuItem->m_eType;
+		/* Submenus are handled differently on Amiga OS as it is the submenu items themselves that are considered */
+		/* to the the submenus.  We must therefore take into account that The Framework's menu system works like */
+		/* that of Windows and Qt.  If the item is a submenu (in the Windows/Qt meaning) then make it a normal menu */
+		/* item on Amiga OS */
+
+		if (a_pcoMenuItem->m_eType == EStdMenuSubMenu)
+		{
+			a_poDropdownMenu->nm_Type = EStdMenuItem;
+		}
+
+		/* If the menu item is a normal menu item then it might be a submenu (in the Amiga meaning) so set its */
+		/* type based on the a_bSubMenu flag passed in */
+
+		else
+		{
+			a_poDropdownMenu->nm_Type = (a_bSubMenu) ? NM_SUB : a_pcoMenuItem->m_eType;
+		}
+
 		a_poDropdownMenu->nm_Flags = 0;
 	}
 
@@ -235,24 +252,26 @@ void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
  * @date	Sunday 20-Oct-2013 10:04 am, on board RB 19320 to Stuttgart
- * @param	a_pccLabel	Label to be used for the new menu item, or NULL for a separator
- * @param	a_pccHotKey	Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
- * @param	a_iOrdinal	Ordinal offset of the dropdown menu to which to add the menu item
- * @param	a_iItemID	Item ID that will be passed to the window's HandleCommand() function
+ * @param	a_pccLabel		Label to be used for the new menu item, or NULL for a separator
+ * @param	a_pccHotKey		Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
+ * @param	a_iOrdinal		Ordinal offset of the dropdown menu to which to add the menu item
+ * @param	a_iSubOrdinal	Ordinal offset of the submenu within the dropdown menu to which to add the
+ *							menu item.  Set to -1 if no submenu is to be used
+ * @param	a_iItemID		Item ID that will be passed to the window's HandleCommand() function
  * @return	KErrNone if successful
  * @return	KErrNotFound if the dropdown menu represented by a_iOrdinal was not found
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
 // TODO: CAW - Change names of variables and parameters and remove some unneeded preconditions
-TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iItemID)
+TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iItemID)
 {
-	TInt Item, NumMenus, RetVal, Size;
+	TInt Index, Item, NumMenus, RetVal, Size, SubItem;
 	struct Menu *Menus;
-	struct NewMenu *DropdownMenu, *NewMenus, *NewMenuItem, *Menu, *Next;
+	struct NewMenu *DropdownMenu, *NewMenus, *NewMenuItem, *Menu, *Next, *TempMenu;
 	struct SStdMenuMapping *NewMenuMappings, *Mapping;
 
-	struct SStdMenuItem MenuItem = { EStdMenuItem, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
+	struct SStdMenuItem MenuItem = { a_eMenuItemType, a_pccLabel, a_pccHotKey, STD_KEY_MENU, a_iItemID };
 
 	/* Assume failure */
 
@@ -306,6 +325,61 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 					Next = &m_poNewMenus[NumMenus];
 				}
 
+				/* If the menu item is to be placed under a submenu then we need to calculate the ID */
+				/* of the item on the submenu, as well as how many menu items to copy before the sub */
+				/* menu on the menu list */
+
+				SubItem = 0;
+
+				if (a_iSubOrdinal != -1)
+				{
+					/* Set the item ID to the submenu ordinal as we are appending at a particular point, */
+					/* rather than at the end of the list of menu items on the current dropdown menu */
+
+					Item = a_iSubOrdinal;
+
+					/* Now we want to find the location at which to insert the submenu item.  This will be either */
+					/* a) The slot after the menu item with ordinal of a_iSubOrdinal, if there are no submenu */
+					/*    items attached to that item; or */
+					/* b) The slot after the last submenu item attached to the menu item with ordinal of a_iSubOrdinal */
+					/* Start by getting a ptr to the first menu item on the drop down menu (ie. The one after the */
+					/* menu title) and searching for the submenu ordinal ID */
+
+					TempMenu = (DropdownMenu + 1);
+
+					for (Index = 0; Index <= a_iSubOrdinal; ++Index)
+					{
+						++TempMenu;
+					}
+
+					/* We now have a ptr to the item after the menu item with ordinal a_iSubOrdinal.  See if any sub */
+					/* menu items are attached and scan past them, stopping if we get to the next drop down menu */
+
+					while (TempMenu != Next)
+					{
+						/* If this is a submenu then increment the submenu ID and skip past it */
+
+						if (TempMenu->nm_Type == EStdMenuSubMenu)
+						{
+							++SubItem;
+							++TempMenu;
+						}
+
+						/* Otherwise we have found the menu item's insertion point so break out */
+
+						else
+						{
+							break;
+						}
+					}
+
+					/* Save a ptr to the insertion point and calculate the number of menu items before it */
+					/* that need to be copied */
+
+					Next = TempMenu;
+					NumMenus = (TempMenu - m_poNewMenus);
+				}
+
 				/* Copy the NewMenu structures and menu mappings up to the point at which the new */
 				/* menu item is to be inserted */
 
@@ -317,13 +391,13 @@ TInt CAmiMenus::AddItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_
 				/* Populate the NewMenu structure for the menu item we are inserting */
 
 				Menu = NewMenuItem = &NewMenus[NumMenus];
-				AddItem(&MenuItem, NewMenuItem);
+				AddItem(&MenuItem, NewMenuItem, (a_iSubOrdinal != -1));
 
 				/* Now populate the new SStdMenuMapping structure */
 
 				Mapping = &NewMenuMappings[NumMenus];
 				Mapping->m_iID = MenuItem.m_iCommand;
-				Mapping->m_ulFullMenuNum = FULLMENUNUM(a_iOrdinal, Item, 0);
+				Mapping->m_ulFullMenuNum = FULLMENUNUM(a_iOrdinal, Item, SubItem);
 
 				/* Copy whatever NewMenu items come after the newly inserted one, up to and including the */
 				/* "NULL terminator" NewMenu item.  This means that we will copy at least one NewMenu structure */
