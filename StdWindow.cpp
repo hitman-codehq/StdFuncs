@@ -2003,7 +2003,7 @@ struct Menu *CWindow::Menus()
 
 CQtAction *CWindow::FindMenuItem(TInt a_iItemID)
 {
-	TInt MenuIndex, MenuItemIndex;
+	TInt MenuIndex, MenuItemIndex, SubMenuItemIndex;
 	CQtAction *QtAction, *RetVal;
 	QAction *Action;
 	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
@@ -2039,13 +2039,52 @@ CQtAction *CWindow::FindMenuItem(TInt a_iItemID)
 				Action = MenuItems.at(MenuItemIndex);
 				QtAction = (CQtAction *) Action;
 
-				/* If it is the menu item we are interested in then return it */
+				/* See if the menu item contains a list of submenu items.  If so then we want */
+				/* to iterate through these as well */
 
-				if (QtAction->Command() == a_iItemID)
+				if (QtAction->menu())
 				{
-					RetVal = QtAction;
+					/* Get the list of actions associated with the submenu and iterate through those */
 
+					QList<QAction *> SubMenuItems = Action->menu()->actions();
+
+					for (SubMenuItemIndex = 0; SubMenuItemIndex < SubMenuItems.count(); ++SubMenuItemIndex)
+					{
+						/* Get the action and convert it to our derived CQtAction class */
+
+						Action = SubMenuItems.at(SubMenuItemIndex);
+						QtAction = (CQtAction *) Action;
+
+						/* If it is the menu item we are interested in then return it */
+
+						if (QtAction->Command() == a_iItemID)
+						{
+							RetVal = QtAction;
+
+							break;
+						}
+					}
+				}
+
+				/* If we found a submenu item in the step above then break out of the loop */
+
+				if (RetVal)
+				{
 					break;
+				}
+
+				/* Otherwise check the current menu item to see if it is the one we are interested in */
+
+				else
+				{
+					/* If it is the menu item we are interested in then return it */
+
+					if (QtAction->Command() == a_iItemID)
+					{
+						RetVal = QtAction;
+
+						break;
+					}
 				}
 			}
 		}
