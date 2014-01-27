@@ -249,6 +249,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	OpenFileName.lStructSize = sizeof(OpenFileName);
 	OpenFileName.lpstrFile = m_acFileName;
 	OpenFileName.nMaxFile = MAX_FILEREQUESTER_PATH;
+	OpenFileName.Flags = OFN_OVERWRITEPROMPT;
 
 	/* See if a root window has been set by the application and if so, open the dialog on that */
 	/* window.  Otherwise just open it on the desktop */
