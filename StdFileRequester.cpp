@@ -38,7 +38,13 @@ void RFileRequester::Close()
  * Note that the filename may be 0 bytes long if the user clicked ok without selecting a file.
  * The a_pccFileName parameter can be a directory, in which case the file requester is opened
  * pointing to this directory, or a fully qualified filename, in which case the filename is split
- * and both parts are used in choosing the directory in which to open the requester
+ * and both parts are used in choosing the directory in which to open the requester.
+ *
+ * When saving a file, this function will prompt the user to confirm the overwrite of the file if
+ * it exists.  Similarly, when either loading or saving a file, if an empty filename is selected
+ * then this function will display an error and will now allow the user to continue until they
+ * have selected a valid filename.
+ *
  * @date	Saturday 26-Jun-2010 2:48 pm
  * @param	a_pccFileName	Ptr to fully qualified filename with which to initialise the file
  *							open requester.  May be NULL
@@ -131,6 +137,8 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 #ifdef __amigaos4__
 
+	char *Drawer, *QualifiedFileName;
+	TInt QualifiedFileNameLength;
 	APTR Requester;
 	struct Screen *Screen;
 
@@ -165,33 +173,96 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	if ((Requester = IAsl->AllocAslRequest(ASL_FileRequest, Tags)) != NULL)
 	{
-		/* And display it on the screen */
+		/* Display the requester as many times as it takes to get a valid filename or the user hits cancel */
 
-		if (IAsl->AslRequestTags(Requester, TAG_DONE))
+		QualifiedFileName = NULL;
+
+		do
 		{
-			/* Indicate success */
+			/* And display it on the screen */
 
-			RetVal = KErrNone;
+			if (IAsl->AslRequestTags(Requester, TAG_DONE))
+			{
+				TEntry Entry;
 
-			/* Save the fully qualified name of the file for l8r use */
+				/* Assume failure */
 
-			strcpy(m_acFileName, ((struct FileRequester *) Requester)->fr_Drawer);
-			Utils::AddPart(m_acFileName, ((struct FileRequester *) Requester)->fr_File, sizeof(m_acFileName));
+				RetVal = KErrCancel;
+
+				/* Determine the fully qualified filename of the file that was just selected so that we can determine */
+				/* whether or not it is valid */
+
+				Drawer = ((struct FileRequester *) Requester)->fr_Drawer;
+				FileName = ((struct FileRequester *) Requester)->fr_File;
+				QualifiedFileNameLength = (strlen(Drawer) + 1 + strlen(FileName) + 1);
+				QualifiedFileName = (char *) Utils::GetTempBuffer(QualifiedFileName, QualifiedFileNameLength, EFalse);
+
+				if (QualifiedFileName)
+				{
+					strcpy(QualifiedFileName, Drawer);
+					Utils::AddPart(QualifiedFileName, FileName, QualifiedFileNameLength);
+
+					/* Filenames of length 0 are now allowed */
+
+					if (strlen(FileName) == 0)
+					{
+						Utils::MessageBox("Warning", "Please choose a valid filename", EMBTOk);
+					}
+
+					/* If we are in saving mode and the file already exists then confirm that it is Ok to overwrite it */
+
+					else if ((a_bSaveAs) && (Utils::GetFileInfo(QualifiedFileName, &Entry) == KErrNone))
+					{
+						RetVal = Utils::MessageBox("Warning", "File already exists, overwrite?", EMBTYesNo);
+
+						if (RetVal == IDYES)
+						{
+							RetVal = KErrNone;
+						}
+					}
+
+					/* All checks have passed so indicate that it is ok to use the name */
+
+					else
+					{
+						RetVal = KErrNone;
+					}
+
+					/* If we have a valid filename then save the fully qualified name of the file for l8r use */
+
+					if (RetVal == KErrNone)
+					{
+						strcpy(m_acFileName, QualifiedFileName);
+					}
+				}
+				else
+				{
+					/* Out of memory, so indicate this and exit the loop */
+
+					RetVal = KErrNoMemory;
+
+					break;
+				}
+			}
+
+			/* Either the user hit "Cancel" or the requester could not be displayed, so check to see */
+			/* what happened */
+
+			else
+			{
+				/* If DOS's last error is 0 then the user hit cancel, so indicate this.  Otherwise */
+				/* return that another error occurred */
+
+				RetVal = (IDOS->IoErr() == 0) ? KErrCancel : KErrGeneral;
+
+				break;
+			}
 		}
+		while (RetVal != KErrNone);
 
-		/* Either the user hit "Cancel" or the requester could not be displayed, so check to see */
-		/* what happened */
+		/* And free the temporary buffer and ASL requester now that we have finished with them */
 
-		else
-		{
-			/* If DOS's last error is 0 then the user hit cancel, so indicate this.  Otherwise */
-			/* return that another error occurred */
-
-			RetVal = (IDOS->IoErr() == 0) ? KErrCancel : KErrGeneral;
-		}
-
-		/* And free the requester now that we have finished with it */
-
+		Utils::FreeTempBuffer(QualifiedFileName);
 		IAsl->FreeAslRequest(Requester);
 	}
 	else
