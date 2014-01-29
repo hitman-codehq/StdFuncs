@@ -781,7 +781,7 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 		}
 		else
 		{
-			Utils::Info("Utils::FullNameFromWBArg() => Unable to obtain file name from Lock");
+			Utils::Info("Utils::FullNameFromWBArg() => Unable to obtain filename from Lock");
 		}
 	}
 

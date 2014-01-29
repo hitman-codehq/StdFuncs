@@ -11,7 +11,7 @@
 
 #endif /* __linux__ */
 
-/* An instance of this class represents a directory or file name and its associated */
+/* An instance of this class represents a directory or filename and its associated */
 /* attributes, such as name etc.  It is filled in by the RDir class */
 
 class TEntry

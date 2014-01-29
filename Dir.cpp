@@ -394,7 +394,7 @@ TInt RDir::Open(const char *a_pccPattern)
 	LONG Result;
 	STRPTR FileNameOffset;
 
-	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
@@ -477,7 +477,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	TInt Length, FileNameOffset;
 
-	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
@@ -557,7 +557,7 @@ TInt RDir::Open(const char *a_pccPattern)
 	TInt Length;
 	WIN32_FIND_DATA FindData;
 
-	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
@@ -828,7 +828,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	struct dirent *DirEnt;
 	struct TEntry *Entry, FileInfo;
 
-	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
@@ -927,7 +927,7 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 
 	WIN32_FIND_DATA FindData;
 
-	/* Only try to scan a directory if it wasn't a single file name that was passed in */
+	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
