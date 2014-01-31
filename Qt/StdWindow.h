@@ -24,6 +24,8 @@ private:
 
 	void HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown);
 
+	void HandlePointerEvent(QMouseEvent *a_poMouseEvent);
+
 protected:
 
 	/* From QMainWindow */
@@ -37,6 +39,14 @@ protected:
 	void keyPressEvent(QKeyEvent *a_poKeyEvent);
 
 	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);
+
+	void mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent);
+
+	void mousePressEvent(QMouseEvent *a_poMouseEvent);
+
+	void mouseReleaseEvent(QMouseEvent *a_poMouseEvent);
+
+	void mouseMoveEvent(QMouseEvent *a_poMouseEvent);
 
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 

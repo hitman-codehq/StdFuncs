@@ -259,6 +259,51 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 }
 
 /**
+ * Performs generic handling of Qt mouse input events.
+ * This is an internal helper function that will extract information from a QMouseEvent
+ * structure and will pass it onto The Framework's client code for processing.
+ *
+ * @date	Thursday 30-Jan-2014 7:59 am
+ * @param	a_poMouseEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
+{
+	TInt X, Y;
+	TStdMouseEvent MouseEvent;
+
+	/* Convert the Qt QEvent::Type enum into a TStdMouseEvent enum */
+
+	if (a_poMouseEvent->type() == QEvent::MouseButtonPress)
+	{
+		MouseEvent = EStdMouseDown;
+	}
+	else if (a_poMouseEvent->type() == QEvent::MouseButtonRelease)
+	{
+		MouseEvent = EStdMouseUp;
+	}
+	else if (a_poMouseEvent->type() == QEvent::MouseButtonDblClick)
+	{
+		MouseEvent = EStdMouseDoubleClick;
+	}
+	else
+	{
+		MouseEvent = EStdMouseMove;
+	}
+
+	/* Extract the X and Y positions from the QMouseEvent structure.  The Y position is relative to */
+	/* the top of the menu bar so take that into account, so that we have X and Y positions that */
+	/* are relative to the client area */
+
+	X = a_poMouseEvent->x();
+	Y = (a_poMouseEvent->y() - m_poWindow->m_poWindow->menuBar()->height());
+
+	/* And pass the event onto the client's CWindow::HandlePointerEvent() function */
+
+	m_poWindow->HandlePointerEvent(X, Y, MouseEvent);
+}
+
+/**
  * Function called when a dropdown menu is about to be shown.
  * This function is called when a dropdown menu is about to be shown and will clear the
  * flags for the alt and control keys.  If these are pressed at the time the dropdown
@@ -347,6 +392,58 @@ void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 	/* Perform standard keyboard handling for the key release event */
 
 	HandleKeyEvent(a_poKeyEvent, EFalse);
+}
+
+/**
+ * Captures mouse button double clicks for handling.
+ * Captures Qt QEvent::MouseButtonDblClick events and passes them onto client code.
+ *
+ * @date	Friday 31-Jan-2014 6:23 am
+ * @param	a_poMouseEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtWindow::mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent)
+{
+	HandlePointerEvent(a_poMouseEvent);
+}
+
+/**
+ * Captures mouse button presses for handling.
+ * Captures Qt QEvent::MouseButtonPress events and passes them onto client code.
+ *
+ * @date	Thursday 30-Jan-2014 7:33 am
+ * @param	a_poMouseEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtWindow::mousePressEvent(QMouseEvent *a_poMouseEvent)
+{
+	HandlePointerEvent(a_poMouseEvent);
+}
+
+/**
+ * Captures mouse button releases for handling.
+ * Captures Qt QEvent::MouseButtonRelease events and passes them onto client code.
+ *
+ * @date	Thursday 30-Jan-2014 7:34 am
+ * @param	a_poMouseEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtWindow::mouseReleaseEvent(QMouseEvent *a_poMouseEvent)
+{
+	HandlePointerEvent(a_poMouseEvent);
+}
+
+/**
+ * Captures mouse movement events for handling.
+ * Captures Qt QEvent::MouseMove events and passes them onto client code.
+ *
+ * @date	Thursday 30-Jan-2014 7:34 am
+ * @param	a_poMouseEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtWindow::mouseMoveEvent(QMouseEvent *a_poMouseEvent)
+{
+	HandlePointerEvent(a_poMouseEvent);
 }
 
 /* Written: Thursday 06-Sep-2012 1:35 pm */
@@ -2878,7 +2975,7 @@ void CWindow::RethinkLayout()
  * in which to update the menu item is specified as an ordinal starting from zero, where zero
  * is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
- * @date	Wednesday 19-Jun-2013 8:16 am, Henry's Kaffee Welt Ulm // TODO: CAW - Which?
+ * @date	Wednesday 19-Jun-2013 8:16 am, Henry's Kaffee Welt Ulm
  * @param	a_pccLabel	Ptr to a string containing the new label to assign to the menu item
  * @param	a_pccHotKey	Ptr to a string containing the new hotkey to assign to the menu item
  * @param	a_iOrdinal	Ordinal offset of the dropdown menu in which to update the menu item
