@@ -20,7 +20,7 @@ int main()
 	Test.Title();
 	Test.Start("Utils class API test");
 
-	/* Test #2: Extract a file from a path with Utils::FilePart() */
+	/* Test #1: Extract a file from a path with Utils::FilePart() */
 
 	Test.Next("Extract a file from a path with Utils::FilePart()");
 
@@ -36,7 +36,7 @@ int main()
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	/* Test #3: Extract an extension from a file name with Utils::Extension() */
+	/* Test #2: Extract an extension from a file name with Utils::Extension() */
 
 	Test.Next("Extract an extension from a file name with Utils::Extension()");
 
@@ -51,7 +51,7 @@ int main()
 	Extension = Utils::Extension("*txt");
 	test(Extension == NULL);
 
-	/* Test #4: Trimming white space from the start & end of a string */
+	/* Test #3: Trimming white space from the start & end of a string */
 
 	Test.Next("Trimming white space from the start & end of a string");
 
@@ -79,7 +79,7 @@ int main()
 	test(String3[0] == 'h');
 	test(String3[strlen(String3) - 1] == 'd');
 
-	/* Test #5: Ensure that Utils::CountTokens() functions correctly */
+	/* Test #4: Ensure that Utils::CountTokens() functions correctly */
 
 	Test.Next("Ensure that Utils::CountTokens() functions correctly");
 	test(Utils::CountTokens("") == 0);
@@ -106,7 +106,7 @@ int main()
 	test(Utils::CountTokens("\tOne\t\tTwo\t") == 2);
 	test(Utils::CountTokens(" One  Two ") == 2);
 
-	/* Test #6: Ensure Utils::CreateDirectory() and Utils::DeleteDirectory() work */
+	/* Test #5: Ensure Utils::CreateDirectory() and Utils::DeleteDirectory() work */
 
 	Test.Next("Ensure Utils::CreateDirectory() and Utils::DeleteDirectory() work");
 	Result = Utils::DeleteDirectory("SomeDirectory");
@@ -117,7 +117,7 @@ int main()
 	test(Utils::DeleteDirectory("SomeDirectory") == KErrNone);
 	test(Utils::CreateDirectory("x/SomeDirectory") == KErrNotFound);
 
-	/* Test #7: Ensure that we can set the file date and time on a file */
+	/* Test #6: Ensure that we can set the file date and time on a file */
 
 	Test.Next("Ensure that we can set the file date and time on a file");
 
@@ -152,7 +152,7 @@ int main()
 	test(Utils::SetFileDate("UnknownFile.txt", OldEntry) == KErrNotFound);
 	test(Utils::SetProtection("UnknownFile.txt", OldEntry.iAttributes) == KErrNotFound);
 
-	/* Test #8: Ensure we can decode attributes successfully */
+	/* Test #7: Ensure we can decode attributes successfully */
 
 	Test.Next("Ensure we can decode attributes successfully");
 
@@ -173,7 +173,7 @@ int main()
 	Test.Printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
 	test(Entry.IsDeleteable());
 
-	/* Test #9: Ensure that trying to delete an object that is in use acts sanely */
+	/* Test #8: Ensure that trying to delete an object that is in use acts sanely */
 
 	Test.Next("Ensure that trying to delete an object that is in use acts sanely");
 
@@ -220,7 +220,7 @@ int main()
 	Result = Utils::DeleteDirectory("InUseDirectory");
 	test(Result == KErrNone);
 
-	/* Test #10: Test unsuccessful deleting of a file and directory */
+	/* Test #9: Test unsuccessful deleting of a file and directory */
 
 	Test.Next("Test unsuccessful deleting of a file and directory");
 
@@ -249,7 +249,7 @@ int main()
 
 #endif /* __amigaos4__ */
 
-	/* Test #11: Ensure that Utils::ResolveFileName() works */
+	/* Test #10: Ensure that Utils::ResolveFileName() works */
 
 	Test.Next("Ensure that Utils::ResolveFileName() works");
 
@@ -284,7 +284,7 @@ int main()
 
 	delete [] (char *) FileName;
 
-	/* Test #12: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
+	/* Test #11: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
 	Test.Next("Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName()");
 
@@ -294,7 +294,7 @@ int main()
 
 	delete [] ProgDirName;
 
-	/* Test #13: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
+	/* Test #12: Ensure that the PROGDIR: prefix works with Utils::GetFileInfo() */
 
 	Test.Next("Ensure that the PROGDIR: prefix works with Utils::GetFileInfo()");
 
@@ -311,6 +311,23 @@ int main()
 	test(Result == KErrNone);
 
 #endif /* ! WIN32 */
+
+	/* Test #13: Ensure that Utils::GetFileInfo() correctly returns failure if wildcards are used */
+
+#ifdef __amigaos4__
+
+	Result = Utils::GetFileInfo("#?", &Entry);
+	test(Result == KErrNotFound);
+
+#else /* ! __amigaos4__ */
+
+	Result = Utils::GetFileInfo("*", &Entry);
+	test(Result == KErrNotFound);
+
+	Result = Utils::GetFileInfo("?", &Entry);
+	test(Result == KErrNotFound);
+
+#endif /* ! __amigaos4__ */
 
 	/* Test #14: Basic Utils::StringToInt() tests */
 
