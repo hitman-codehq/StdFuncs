@@ -314,7 +314,9 @@ int main()
 
 	/* Test #13: Ensure that Utils::GetFileInfo() correctly returns failure if wildcards are used */
 
-#ifdef __amigaos4__
+	Test.Next("Ensure that Utils::GetFileInfo() correctly returns failure if wildcards are used");
+
+ #ifdef __amigaos4__
 
 	Result = Utils::GetFileInfo("#?", &Entry);
 	test(Result == KErrNotFound);
