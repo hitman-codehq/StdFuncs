@@ -252,6 +252,7 @@ void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
  * zero, where zero is the leftmost dropdown menu and (NumMenus - 1) is the rightmost.
  *
  * @date	Sunday 20-Oct-2013 10:04 am, on board RB 19320 to Stuttgart
+ * @param	a_eMenuItemType	The type of menu item to be added
  * @param	a_pccLabel		Label to be used for the new menu item, or NULL for a separator
  * @param	a_pccHotKey		Shortcut key to be displayed, or NULL for no shortcut.  Ignored for separators
  * @param	a_iOrdinal		Ordinal offset of the dropdown menu to which to add the menu item
@@ -968,6 +969,7 @@ struct NewMenu *CAmiMenus::FindMenu(TInt a_iOrdinalID)
  * set to NULL and must be reallocated before the NewMenu structure can be reused.
  *
  * @date	Saturday 26-Oct-2013 7:13 am, Code HQ Ehinger Tor
+ * @param	a_poNewMenu	Ptr to the menu item for which to free the label
  */
 
 void CAmiMenus::FreeLabel(struct NewMenu *a_poNewMenu)
