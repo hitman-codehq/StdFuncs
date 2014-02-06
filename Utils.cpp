@@ -872,40 +872,35 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		RetVal = KErrNotFound;
 
-		/* Only perform the query if there is no wildcard present */
+		/* Obtain information about the file and convert its last modification time to the local time */
 
-		if ((strstr(ProgDirName, "*") == 0) && (strstr(ProgDirName, "?") == 0))
+		if (lstat(ProgDirName, &Stat) == 0)
 		{
-			/* Obtain information about the file and convert its last modification time to the local time */
-
-			if (lstat(ProgDirName, &Stat) == 0)
+			if ((Tm = localtime(&Stat.st_mtime)) != NULL)
 			{
-				if ((Tm = localtime(&Stat.st_mtime)) != NULL)
-				{
-					RetVal = KErrNone;
+				RetVal = KErrNone;
 
-					/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
+				/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
 
-					TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
+				TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
 
-					/* Fill in the file's properties in the TEntry structure */
+				/* Fill in the file's properties in the TEntry structure */
 
-					a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
-					a_poEntry->iPlatformDate = Stat.st_mtime;
+				a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
+				a_poEntry->iPlatformDate = Stat.st_mtime;
 
-					/* Copy the filename into the TEntry structure */
+				/* Copy the filename into the TEntry structure */
 
-					strcpy(a_poEntry->iName, FilePart(a_pccFileName));
-				}
-				else
-				{
-					Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
-				}
+				strcpy(a_poEntry->iName, FilePart(a_pccFileName));
 			}
 			else
 			{
-				Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
+				Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
 			}
+		}
+		else
+		{
+			Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
 		}
 
 #else /* ! __linux__ */
