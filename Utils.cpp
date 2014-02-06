@@ -790,12 +790,37 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 #endif /* __amigaos4__ */
 
-/* Written: Saturday 04-Jul-2009 9:20 pm */
+/**
+ * Obtains information about a given file.
+ * This function is useful for obtaining directory listing type information about a single
+ * file, without the overhead of having to use the RDir class to do so.  It will query the
+ * given filename, which can be either relative or absolute, and will place the information
+ * about it into the TEntry structure that is passed in.  This will then contain all of the
+ * same information that would be in the TEntry structure had it been filled in by the RDir
+ * class.
+ *
+ * The filename passed in may be prefixed by an Amiga OS style PROGDIR: prefix, which will
+ * resolve to the directory from which the current executable was executed.
+ *
+ * Note that this function explicitly checks for wildcards being passed in and if detected,
+ * returns failure.  If you wish to use wildcards then use the more powerful RDir class instead.
+ *
+ * @pre		Ptr to TEntry structure passed in must not be NULL
+ *
+ * @date	Saturday 04-Jul-2009 9:20 pm
+ * @param	a_pccFileName	Ptr to the name of the file for which to obtain information
+ * @param	a_poEntry		Ptr to the TEntry structure into which to place the information
+ * @return	KErrNone if the information was obtained successfully
+ * @return	KErrNotFound if the file could not be found
+ * @return	KErrPathNotFound if an Amiga OS style PROGDIR: prefix could not be resolved
+ */
 
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
 	char *ProgDirName;
 	TInt RetVal;
+
+	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => TEntry structure passed in must not be NULL");
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
@@ -847,35 +872,40 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		RetVal = KErrNotFound;
 
-		/* Obtain information about the file and convert its last modification time to the local time */
+		/* Only perform the query if there is no wildcard present */
 
-		if (lstat(ProgDirName, &Stat) == 0)
+		if ((strstr(ProgDirName, "*") == 0) && (strstr(ProgDirName, "?") == 0))
 		{
-			if ((Tm = localtime(&Stat.st_mtime)) != NULL)
+			/* Obtain information about the file and convert its last modification time to the local time */
+
+			if (lstat(ProgDirName, &Stat) == 0)
 			{
-				RetVal = KErrNone;
+				if ((Tm = localtime(&Stat.st_mtime)) != NULL)
+				{
+					RetVal = KErrNone;
 
-				/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
+					/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
 
-				TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
+					TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
 
-				/* Fill in the file's properties in the TEntry structure */
+					/* Fill in the file's properties in the TEntry structure */
 
-				a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
-				a_poEntry->iPlatformDate = Stat.st_mtime;
+					a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
+					a_poEntry->iPlatformDate = Stat.st_mtime;
 
-				/* Copy the filename into the TEntry structure */
+					/* Copy the filename into the TEntry structure */
 
-				strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+					strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+				}
+				else
+				{
+					Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
+				}
 			}
 			else
 			{
-				Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
+				Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
 			}
-		}
-		else
-		{
-			Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
 		}
 
 #else /* ! __linux__ */
@@ -888,41 +918,46 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 		RetVal = KErrNotFound;
 
-		/* Open the file to determine its properties */
+		/* Only perform the query if there is no wildcard present */
 
-		if ((Handle = FindFirstFile(ProgDirName, &FindData)) != INVALID_HANDLE_VALUE)
+		if ((strstr(ProgDirName, "*") == 0) && (strstr(ProgDirName, "?") == 0))
 		{
-			/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
+			/* Open the file to determine its properties */
 
-			if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
+			if ((Handle = FindFirstFile(ProgDirName, &FindData)) != INVALID_HANDLE_VALUE)
 			{
-				RetVal = KErrNone;
+				/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
 
-				/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
+				if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
+				{
+					RetVal = KErrNone;
 
-				TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
-					SystemTime.wSecond, 0);
+					/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
 
-				/* Fill in the file's properties in the TEntry structure */
+					TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
+						SystemTime.wSecond, 0);
 
-				a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
-					DateTime);
-				a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
+					/* Fill in the file's properties in the TEntry structure */
 
-				/* Copy the filename into the TEntry structure */
+					a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
+						DateTime);
+					a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
 
-				strcpy(a_poEntry->iName, FindData.cFileName);
+					/* Copy the filename into the TEntry structure */
+
+					strcpy(a_poEntry->iName, FindData.cFileName);
+				}
+				else
+				{
+					Utils::Info("Utils::GetFileInfo() => Unable to convert FILETIME to SYSTEMTIME");
+				}
+
+				FindClose(Handle);
 			}
 			else
 			{
-				Utils::Info("Utils::GetFileInfo() => Unable to convert FILETIME to SYSTEMTIME");
+				Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 			}
-
-			FindClose(Handle);
-		}
-		else
-		{
-			Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
 		}
 
 #endif /* ! __linux__ */
@@ -1552,15 +1587,29 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 	return(RetVal);
 }
 
-/* Written: Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor */
-/* @param	a_pccFileName	Ptr to filename to be resolved */
-/* @return	Ptr to the fully qualified name of the filename passed in, */
-/*			if successful, else NULL */
-/* Takes a filename that contains either no path or a relative path and */
-/* converts it to a fully qualified filename.  It is the responsibility */
-/* of the caller to free the returned buffer with delete [].  It is safe */
-/* to pass in an already qualified filename - the filename will simply */
-/* be copied into an allocated buffer and returned */
+/**
+ * Converts a filename to a fully qualified filename.
+ * Takes a filename that contains either no path or a relative path and
+ * converts it to a fully qualified filename.  The function will attempt
+ * to determine the true path to the filename, which will only work if the
+ * file actually exists.  If this is not the case then the current directory
+ * will be used instead.  In the event that even this cannot be obtained,
+ * the function will fail.
+ *
+ * The use of the current directory is useful when creating new files, but
+ * care must be taken if using this function with software that changes the
+ * current directory, especially if the changes could be done in a separate
+ * thread.
+ *
+ * It is the responsibility of the caller to free the returned buffer with
+ * delete [].  It is safe to pass in an already qualified filename - the
+ * filename will simply be copied into an allocated buffer and returned.
+ *
+ * @date	Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor
+ * @param	a_pccFileName	Ptr to filename to be resolved
+ * @return	Ptr to the fully qualified name of the filename passed in,
+ *			if successful, else NULL
+ */
 
 char *Utils::ResolveFileName(const char *a_pccFileName)
 {
