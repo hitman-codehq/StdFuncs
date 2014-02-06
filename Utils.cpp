@@ -1633,9 +1633,23 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	{
 		/* Convert the filename into a fully qualified path and put it in the allocated buffer */
 
-		if ((RetVal = realpath(a_pccFileName, RetVal)) == NULL)
+		if (!(realpath(a_pccFileName, RetVal)))
 		{
-			Utils::Info("Utils::ResolveFileName() => Unable to determine full path of filename");
+			/* Converting the filename failed, probably due to the file not existing, so get the current */
+			/* directory instead and append the filename to it */
+
+			if (getcwd(RetVal, PATH_MAX))
+			{
+				Utils::AddPart(RetVal, a_pccFileName, PATH_MAX);
+			}
+
+			/* We couldn't even get the current directory so free the buffer and return failure */
+
+			else
+			{
+				delete [] RetVal;
+				RetVal = NULL;
+			}
 		}
 	}
 	else
