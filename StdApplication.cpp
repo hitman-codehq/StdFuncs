@@ -349,6 +349,13 @@ TInt RApplication::Main()
 									CWindow::m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
 								}
 
+								/* Also save the current shift state */
+
+								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_SHIFT)
+								{
+									CWindow::m_bShiftPressed = (KeyDown) ? ETrue : EFalse;
+								}
+
 								/* If this was a key down event then execute any menu item shortcuts that match */
 								/* the key that was just pressed */
 

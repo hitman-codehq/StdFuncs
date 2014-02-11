@@ -90,6 +90,7 @@ protected:
 
 	static TBool		m_bAltPressed;				/* ETrue if alt is currently pressed */
 	static TBool		m_bCtrlPressed;				/* ETrue if ctrl is currently pressed */
+	static TBool		m_bShiftPressed;			/* ETrue if shift is currently pressed */
 	TBool				m_bOpen;					/* ETrue if window is open */
 	TInt				m_iInnerWidth;				/* Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;				/* Height of window, minus top and bottom borders */
@@ -203,10 +204,6 @@ public:
 
 	void CheckMenuItem(TInt a_iItemID, TBool a_bEnable);
 
-	TBool AltPressed();
-
-	TBool CtrlPressed();
-
 	/* This function is *internal* and must not be used.  Unfortunately making it private */
 	/* would require exposing too much of the internals of the CWindow class so it is */
 	/* public with a warning instead.  Sometimes C++ can be a right nuisance! */
@@ -242,6 +239,14 @@ public:
 	void RethinkLayout();
 
 	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
+
+	/* Accessor functions */
+
+	static TBool AltPressed();
+
+	static TBool CtrlPressed();
+
+	static TBool ShiftPressed();
 
 	/* Functions can be implemented by client software */
 

@@ -70,6 +70,7 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 TBool CWindow::m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
+TBool CWindow::m_bShiftPressed;		/* ETrue if shift is currently pressed */
 
 #ifdef __amigaos4__
 
@@ -2967,6 +2968,20 @@ void CWindow::RethinkLayout()
 
 #endif /* ! __amigaos4__ */
 
+}
+
+/**
+ * Returns whether the shift key is currently pressed.
+ * Allows client code to query whether the shift key is currently pressed, in
+ * order to use that key in shortcut sequences.
+ *
+ * @date	Tuesday 11-Feb-2014 6:15 am, Code HQ Ehinger Tor
+ * @return	ETrue if the shift key is pressed, else EFalse
+ */
+
+TBool CWindow::ShiftPressed()
+{
+	return(m_bShiftPressed);
 }
 
 /**

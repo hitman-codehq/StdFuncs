@@ -791,19 +791,17 @@ TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 
 			if (Command != -1)
 			{
-				if ((a_bCtrlPressed) && (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL))
+				if ((CWindow::ShiftPressed()) && (MenuItem->m_iHotKeyModifier == STD_KEY_SHIFT))
 				{
 					RetVal = ETrue;
-					m_poWindow->HandleCommand(MenuItem->m_iCommand);
-
-					break;
+				}
+				else if ((a_bCtrlPressed) && (MenuItem->m_iHotKeyModifier == STD_KEY_CONTROL))
+				{
+					RetVal = ETrue;
 				}
 				else if ((!(a_bCtrlPressed)) && (MenuItem->m_iHotKeyModifier == 0))
 				{
 					RetVal = ETrue;
-					m_poWindow->HandleCommand(MenuItem->m_iCommand);
-
-					break;
 				}
 
 				/* The modifier did not match that of the shortcut so keep searching */
@@ -811,6 +809,15 @@ TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 				else
 				{
 					Command = -1;
+				}
+
+				/* If a valid shortcut was found then execute it and break out of the loop */
+
+				if (RetVal)
+				{
+					m_poWindow->HandleCommand(MenuItem->m_iCommand);
+
+					break;
 				}
 			}
 		}
