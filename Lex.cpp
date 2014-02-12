@@ -182,6 +182,7 @@ char *TLex::NextToken()
 
 const char *TLex::NextToken(TInt *a_piLength)
 {
+	char QuoteChar;
 	const char *NextToken, *RetVal;
 	TBool FoundQuotes;
 	TInt Index;
@@ -193,6 +194,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	NextToken = RetVal = m_pccString;
 	Index = 0;
 	FoundQuotes = EFalse;
+	QuoteChar = '"';
 
 	/* Skip past any white space at the start of the string */
 
@@ -207,18 +209,19 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	if ((Index == 0) || (!(m_bKeepWhiteSpace)))
 	{
-		/* If the new token start with a " then extract up until the next " and include and */
-		/* white space found between the start and end " characters */
+		/* If the new token starts with a " or ' then extract up until the next " or ' and include and */
+		/* white space found between the start and end " or ' characters */
 
 		RetVal = NextToken;
 
-		if (*NextToken == '"')
+		if ((*NextToken == '"') || (*NextToken == '\''))
 		{
+			QuoteChar = *NextToken;
 			++NextToken;
 			++Index;
 			FoundQuotes = ETrue;
 
-			/* Only skip the beginning " if we are not configured to keep it */
+			/* Only skip the beginning " or ' if we are not configured to keep it */
 
 			if (!(m_bKeepQuotes))
 			{
@@ -227,15 +230,15 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 			/* Extract the string itself as the token */
 
-			while ((Index < m_iLength) && (*NextToken != '"'))
+			while ((Index < m_iLength) && (*NextToken != QuoteChar))
 			{
 				++NextToken;
 				++Index;
 			}
 
-			/* Only skip the end " if we are configured to keep it and if it actually exists */
+			/* Only skip the end " or ' if we are configured to keep it and if it actually exists */
 
-			if ((m_bKeepQuotes) && (*NextToken == '"'))
+			if ((m_bKeepQuotes) && (*NextToken == QuoteChar))
 			{
 				++NextToken;
 				++Index;
@@ -283,7 +286,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 		/* another without whitespace, the start of the second token will be */
 		/* skipped instead */
 
-		else if ((*NextToken == '"') && (FoundQuotes) && (!(m_bKeepQuotes)))
+		else if ((*NextToken == QuoteChar) && (FoundQuotes) && (!(m_bKeepQuotes)))
 		{
 			++NextToken;
 			++Index;
@@ -351,7 +354,7 @@ void TLex::MoveBackwards(TInt a_iLength)
  * version of TLex::NextToken().
  *
  * @date	Tuesday 27-Nov-2012 5:52 am
- * @param	a_bKeepQuotes		ETrue to retain the " quotation marks in extracted strings
+ * @param	a_bKeepQuotes		ETrue to retain the " or ' quotation marks in extracted strings
  * @param	a_bKeepWhiteSpace	ETrue to return white space as a token
  */
 
