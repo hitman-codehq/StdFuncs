@@ -193,6 +193,11 @@ TInt RApplication::Main()
 
 						Window->Activated(EFalse);
 
+						/* Forget about the modifier keypresses as we won't get a key up event for them due */
+						/* to the window no longer being active */
+
+						CWindow::m_bShiftPressed = CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = EFalse;
+
 						break;
 					}
 
