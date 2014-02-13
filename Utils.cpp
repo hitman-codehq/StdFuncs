@@ -1600,6 +1600,13 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
  * delete [].  It is safe to pass in an already qualified filename - the
  * filename will simply be copied into an allocated buffer and returned.
  *
+ * Despite its name, this function works for both directories and files.
+ * For directories it will "clean" the names returned;  that is, it will
+ * ensure that there is no trailing \ or / character at the end of the
+ * directory name (unless it is the root directory) as this can cause
+ * confusion with calling software if it tries to examine the returned
+ * path to determine its type.
+ *
  * @date	Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor
  * @param	a_pccFileName	Ptr to filename to be resolved
  * @return	Ptr to the fully qualified name of the filename passed in,
@@ -1719,7 +1726,17 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 			/* Convert the filename into a fully qualified path and put it in */
 			/* the allocated buffer */
 
-			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) == 0)
+			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) == Length)
+			{
+				/* Remove any trailing '\' characters at the end of the returned filename.  Windows */
+				/* helpfully converts any '/' passed in to a '\' so we only need to worry about backslashes */
+
+				if (RetVal[Length - 1] == '\\')
+				{
+					RetVal[Length - 1] = '\0';
+				}
+			}
+			else
 			{
 				Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
 

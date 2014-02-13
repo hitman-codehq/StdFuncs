@@ -253,33 +253,24 @@ int main()
 
 	Test.Next("Ensure that Utils::ResolveFileName() works");
 
-#ifdef WIN32
-
-#ifdef _DEBUG
-
-	FileName = Utils::ResolveFileName("T_Utils_Debug/T_Utils.exe");
-
-#else /* ! _DEBUG */
-
-	FileName = Utils::ResolveFileName("T_Utils_Release/T_Utils.exe");
-
-#endif /* ! _DEBUG */
-
-#else /* ! WIN32 */
-
-#ifdef _DEBUG
-
-	FileName = Utils::ResolveFileName("Debug/T_Utils");
-
-#else /* ! _DEBUG */
-
-	FileName = Utils::ResolveFileName("Release/T_Utils");
-
-#endif /* ! _DEBUG */
-
-#endif /* ! WIN32 */
-
+	FileName = Utils::ResolveFileName("TestFiles/StdConfigFile.ini");
 	test(FileName != NULL);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+	FileName = Utils::ResolveFileName("TestFiles");
+	test(FileName != NULL);
+	test(FileName[strlen(FileName) - 1] != '\\');
+	test(FileName[strlen(FileName) - 1] != '/');
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+	FileName = Utils::ResolveFileName("TestFiles/");
+	test(FileName != NULL);
+	test(FileName[strlen(FileName) - 1] != '\\');
+	test(FileName[strlen(FileName) - 1] != '/');
 	Test.Printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
