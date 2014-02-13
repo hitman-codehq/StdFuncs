@@ -23,9 +23,11 @@ endif
 
 LFLAGS += -L../$(OBJ)
 
-EXECUTABLES = $(T_ARGS) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_UTILS) $(T_WILDCARD)
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_UTILS) $(T_WILDCARD)
 
 T_ARGS = $(OBJ)/T_Args
+
+T_CONFIGFILE = $(OBJ)/T_ConfigFile
 
 T_DIR = $(OBJ)/T_Dir
 
@@ -40,6 +42,8 @@ T_UTILS = $(OBJ)/T_Utils
 T_WILDCARD = $(OBJ)/T_Wildcard
 
 T_ARGS_OBJECTS = $(OBJ)/T_Args.o
+
+T_CONFIGFILE_OBJECTS = $(OBJ)/T_ConfigFile.o
 
 T_DIR_OBJECTS = $(OBJ)/T_Dir.o
 
@@ -61,6 +65,11 @@ $(OBJ):
 $(T_ARGS): $(T_ARGS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_ARGS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	@strip -R.comment $@.debug -o $@
+
+$(T_CONFIGFILE): $(T_CONFIGFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_CONFIGFILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
 $(T_DIR): $(T_DIR_OBJECTS) ../$(OBJ)/libStdFuncs.a
