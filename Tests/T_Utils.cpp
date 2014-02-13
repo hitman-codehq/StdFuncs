@@ -275,6 +275,39 @@ int main()
 
 	delete [] (char *) FileName;
 
+	/* Some special tests for root directories, which are handled specially by Utils::ResolveFileName() */
+
+#ifdef WIN32
+
+	FileName = Utils::ResolveFileName("c:/");
+	test(FileName != NULL);
+	test(strcmp(FileName, "c:\\") == 0);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+	/* The Windows version will convert a slash by itself to a drive letter so check for this */
+
+	FileName = Utils::ResolveFileName("/");
+	test(FileName != NULL);
+	test(strcmp(&FileName[1], ":\\") == 0);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+#else /* ! WIN32 */
+
+	/* Other versions will leave a slash as a slash so check for this */
+
+	FileName = Utils::ResolveFileName("/");
+	test(FileName != NULL);
+	test(strcmp(FileName, "/") == 0);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+#endif /* WIN32 */
+
 	/* Test #11: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
 	Test.Next("Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName()");
