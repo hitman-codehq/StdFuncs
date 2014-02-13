@@ -1710,6 +1710,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 #else /* ! __linux__ */
 
+	TBool RemoveSlash;
 	DWORD Length;
 
 	/* Assume failure */
@@ -1726,12 +1727,23 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 			/* Convert the filename into a fully qualified path and put it in */
 			/* the allocated buffer */
 
-			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) == Length)
+			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) > 0)
 			{
 				/* Remove any trailing '\' characters at the end of the returned filename.  Windows */
 				/* helpfully converts any '/' passed in to a '\' so we only need to worry about backslashes */
 
-				if (RetVal[Length - 1] == '\\')
+				RemoveSlash = ETrue;
+
+				/* Have a special check for paths referring to the root directory of a particular drive */
+
+				if ((Length == 3) && (RetVal[1] == ':'))
+				{
+					RemoveSlash = EFalse;
+				}
+
+				/* And remove the slash if required */
+
+				if (RemoveSlash)
 				{
 					RetVal[Length - 1] = '\0';
 				}
