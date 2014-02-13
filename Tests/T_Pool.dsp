@@ -93,6 +93,34 @@ SOURCE=.\T_Pool.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\Dir.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\MungWall.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\StdFuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\StdList.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\StdPool.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\Test.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\Utils.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

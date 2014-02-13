@@ -95,7 +95,15 @@ SOURCE=.\T_Dir.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\BaUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\Dir.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\File.h
 # End Source File
 # Begin Source File
 
