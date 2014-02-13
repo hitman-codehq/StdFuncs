@@ -2,6 +2,7 @@
 #include <StdFuncs.h>
 #include <StdConfigFile.h>
 #include <Test.h>
+#include <string.h>
 
 static RTest Test("T_ConfigFile");	/* Class to use for testing and reporting results */
 
