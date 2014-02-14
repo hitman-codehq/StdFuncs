@@ -1743,7 +1743,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 				/* And remove the slash if required */
 
-				if (RemoveSlash)
+				if ((RemoveSlash) && (RetVal[Length - 1] == '\\'))
 				{
 					RetVal[Length - 1] = '\0';
 				}

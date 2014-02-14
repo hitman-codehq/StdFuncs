@@ -255,6 +255,7 @@ int main()
 
 	FileName = Utils::ResolveFileName("TestFiles/StdConfigFile.ini");
 	test(FileName != NULL);
+	test(strcmp(Utils::FilePart(FileName), "StdConfigFile.ini") == 0);
 	Test.Printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
@@ -263,6 +264,7 @@ int main()
 	test(FileName != NULL);
 	test(FileName[strlen(FileName) - 1] != '\\');
 	test(FileName[strlen(FileName) - 1] != '/');
+	test(strcmp(Utils::FilePart(FileName), "TestFiles") == 0);
 	Test.Printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
@@ -271,6 +273,7 @@ int main()
 	test(FileName != NULL);
 	test(FileName[strlen(FileName) - 1] != '\\');
 	test(FileName[strlen(FileName) - 1] != '/');
+	test(strcmp(Utils::FilePart(FileName), "TestFiles") == 0);
 	Test.Printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
