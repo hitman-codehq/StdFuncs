@@ -222,7 +222,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 				/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII, */
 				/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
 
-				if ((m_poWindow->m_bCtrlPressed) && (!(m_poWindow->m_bAltPressed)))
+				if ((CWindow::m_bCtrlPressed) && (!(CWindow::m_bAltPressed)))
 				{
 					/* Determine the current input locale */
 
@@ -317,10 +317,10 @@ void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
 
 void CQtWindow::aboutToShow()
 {
-	/* Forget about the alt and ctrl keypresses as we won't get a key up event for them */
-	/* due to the menu now being active */
+	/* Forget about the modifier keypresses as we won't get a key up event for them due */
+	/* to the window no longer being active */
 
-	m_poWindow->m_bAltPressed = m_poWindow->m_bCtrlPressed = EFalse;
+	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
 }
 
 /* Written: Saturday 23-Feb-2013 1:38 pm */
@@ -355,15 +355,19 @@ void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 
 void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 {
-	/* If this is an ALT or control key then indicate this in case the client queries about it */
+	/* If this is an alt, control or shift key then indicate this in case the client queries about it */
 
 	if (a_poKeyEvent->key() == Qt::Key_Alt)
 	{
-		m_poWindow->m_bAltPressed = ETrue;
+		CWindow::m_bAltPressed = ETrue;
 	}
 	else if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
-		m_poWindow->m_bCtrlPressed = ETrue;
+		CWindow::m_bCtrlPressed = ETrue;
+	}
+	else if (a_poKeyEvent->key() == Qt::Key_Shift)
+	{
+		CWindow::m_bShiftPressed = ETrue;
 	}
 
 	/* Perform standard keyboard handling for the key down event */
@@ -379,15 +383,19 @@ void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 
 void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 {
-	/* If this is an ALT or control key then indicate it is no longer pressed */
+	/* If this is an alt, control or shift key then indicate it is no longer pressed */
 
 	if (a_poKeyEvent->key() == Qt::Key_Alt)
 	{
-		m_poWindow->m_bAltPressed = EFalse;
+		CWindow::m_bAltPressed = EFalse;
 	}
 	else if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
-		m_poWindow->m_bCtrlPressed = EFalse;
+		CWindow::m_bCtrlPressed = EFalse;
+	}
+	else if (a_poKeyEvent->key() == Qt::Key_Shift)
+	{
+		CWindow::m_bShiftPressed = EFalse;
 	}
 
 	/* Perform standard keyboard handling for the key release event */
@@ -509,10 +517,10 @@ void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
 
 	m_poWindow->Activated(EFalse);
 
-	/* And forget about the alt and ctrl keypresses as we won't get a key up event for them */
-	/* now that we no longer have focus */
+	/* Forget about the modifier keypresses as we won't get a key up event for them due */
+	/* to the window no longer being active */
 
-	m_poWindow->m_bAltPressed = m_poWindow->m_bCtrlPressed = EFalse;
+	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
 }
 
 /**
@@ -540,7 +548,7 @@ QSize CQtWindow::sizeHint() const
 LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	TBool Checked;
-	TInt Command, Index;
+	TInt Command, Index, Key;
 	TBool Handled;
 	HKL KeyboardLayout;
 	LRESULT RetVal;
@@ -588,10 +596,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			Window->Activated(a_oWParam == WA_ACTIVE);
 
-			/* And forget about the alt and ctrl keypresses as we won't get a WM_KEYUP for them now */
-			/* that we no longer have focus */
+			/* Forget about the modifier keypresses as we won't get a key up event for them due */
+			/* to the window no longer being active */
 
-			m_bAltPressed = m_bCtrlPressed = EFalse;
+			m_bAltPressed = m_bCtrlPressed = m_bShiftPressed = EFalse;
 
 			break;
 		}
@@ -761,10 +769,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_MENUSELECT :
 		{
-			/* Forget about the alt and ctrl keypresses as we won't get a WM_KEYUP or WM_SYSKEYUP for */
-			/* them due to the menu now being active */
+			/* Forget about the modifier keypresses as we won't get a WM_KEYUP or WM_SYSKEYUP for them */
+			/* due to the window no longer being active */
 
-			m_bAltPressed = m_bCtrlPressed = EFalse;
+			m_bAltPressed = m_bCtrlPressed = m_bShiftPressed = EFalse;
 
 			break;
 		}
@@ -787,7 +795,17 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if (Index < NUM_KEYMAPPINGS)
 			{
-				Window->OfferKeyEvent(g_aoKeyMap[Index].m_iStdKey, (a_uiMessage == WM_KEYDOWN));
+				Key = g_aoKeyMap[Index].m_iStdKey;
+
+				/* First record the state of the shift key, it it was indeed shift that was pressed */
+				/* or released */
+
+				if (Key == STD_KEY_SHIFT)
+				{
+					m_bShiftPressed = (a_uiMessage == WM_KEYDOWN) ? ETrue : EFalse;
+				}
+
+				Window->OfferKeyEvent(Key, (a_uiMessage == WM_KEYDOWN));
 			}
 
 			/* This is pretty horrible.  Because Windows mixes its WM_KEY#? and WM_CHAR events, we */

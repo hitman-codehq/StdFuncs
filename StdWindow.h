@@ -86,11 +86,12 @@ private:
 
 #endif /* WIN32 */
 
-protected:
-
 	static TBool		m_bAltPressed;				/* ETrue if alt is currently pressed */
 	static TBool		m_bCtrlPressed;				/* ETrue if ctrl is currently pressed */
 	static TBool		m_bShiftPressed;			/* ETrue if shift is currently pressed */
+
+protected:
+
 	TBool				m_bOpen;					/* ETrue if window is open */
 	TInt				m_iInnerWidth;				/* Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;				/* Height of window, minus top and bottom borders */

@@ -196,7 +196,7 @@ TInt RApplication::Main()
 						/* Forget about the modifier keypresses as we won't get a key up event for them due */
 						/* to the window no longer being active */
 
-						CWindow::m_bShiftPressed = CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = EFalse;
+						CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
 
 						break;
 					}
