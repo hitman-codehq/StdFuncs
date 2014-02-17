@@ -15,7 +15,7 @@
 
 static const SKeyMapping g_aoKeyMap[] =
 {
-	{ STD_KEY_SHIFT, 0x60 }, { STD_KEY_SHIFT, 0x61 }, { STD_KEY_CONTROL, 0x63 },
+	{ STD_KEY_SHIFT, 0x60 }, { STD_KEY_SHIFT, 0x61 }, { STD_KEY_CONTROL, 0x63 }, { STD_KEY_ALT, 0x64 },
 	{ STD_KEY_BACKSPACE, 0x41 }, { STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c },
 	{ STD_KEY_DOWN, 0x4d }, { STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e },
 	{ STD_KEY_HOME, 0x70 }, { STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 },
@@ -344,17 +344,17 @@ TInt RApplication::Main()
 
 							if (Index < (TInt) NUM_KEYMAPPINGS)
 							{
-								/* Like on Windows, when ctrl is pressed, the ASCII characters sent to */
-								/* WMHI_RAWKEY messages are different so we need to adjust these back */
-								/* to standard ASCII so keeping track of the state of the ctrl key is */
-								/* the only way to achieve this */
+								/* Save the current alt, control and shift key states */
+
+								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_ALT)
+								{
+									CWindow::m_bAltPressed = (KeyDown) ? ETrue : EFalse;
+								}
 
 								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_CONTROL)
 								{
 									CWindow::m_bCtrlPressed = (KeyDown) ? ETrue : EFalse;
 								}
-
-								/* Also save the current shift state */
 
 								if (g_aoKeyMap[Index].m_iStdKey == STD_KEY_SHIFT)
 								{
@@ -418,15 +418,17 @@ TInt RApplication::Main()
 
 									if (!(ExecutedShortcut))
 									{
-										if ((NumChars = IKeymap->MapRawKey(InputEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+										/* We want all keys to be processed along with their qualifiers, except the control */
+										/* key and the left alt key.  These alter the cooked key values in unwanted ways so */
+										/* we filter them out */
+
+										if (!(InputEvent->ie_Qualifier & (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT)))
 										{
-											/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII */
+											ShortcutEvent.ie_Qualifier = InputEvent->ie_Qualifier;
+										}
 
-											if (CWindow::m_bCtrlPressed)
-											{
-												KeyBuffer[0] |= 0x60;
-											}
-
+										if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+										{
 											/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
 											if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254))
