@@ -689,20 +689,33 @@ struct Menu *CAmiMenus::CreateIntuitionMenus(struct NewMenu *a_poNewMenus)
 void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
 {
 	ULONG FullMenuNum;
+	struct NewMenu *NewMenu;
 
 	/* Map the menu item's ID onto a value the can be used by Intuition's menu system */
 
 	if ((FullMenuNum = FindMapping(a_iItemID)) != 0)
 	{
-		/* Enable or disable the menu item as appropriate */
+		/* Get a ptr to the menu item to be enabled or disabled */
 
-		if (a_bEnable)
+		if ((NewMenu = FindItem(a_iItemID)) != NULL)
 		{
-			IIntuition->OnMenu(m_poWindow->m_poWindow, FullMenuNum);
+			/* Enable or disable the menu item as appropriate, also storing the state in the associated NewMenu */
+			/* structure so that it is retained if the menu strip is recreated */
+
+			if (a_bEnable)
+			{
+				IIntuition->OnMenu(m_poWindow->m_poWindow, FullMenuNum);
+				NewMenu->nm_Flags &= ~NM_ITEMDISABLED;
+			}
+			else
+			{
+				IIntuition->OffMenu(m_poWindow->m_poWindow, FullMenuNum);
+				NewMenu->nm_Flags |= NM_ITEMDISABLED;
+			}
 		}
 		else
 		{
-			IIntuition->OffMenu(m_poWindow->m_poWindow, FullMenuNum);
+			Utils::Info("CAmiMenus::EnableItem() => Menu item not found");
 		}
 	}
 	else
