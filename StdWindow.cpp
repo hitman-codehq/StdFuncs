@@ -33,7 +33,7 @@
 
 static const SKeyMapping g_aoKeyMap[] =
 {
-	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_CONTROL, Qt::Key_Control }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
+	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_ALT, Qt::Key_Alt }, { STD_KEY_CONTROL, Qt::Key_Control }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
 	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
 	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
 	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },  { STD_KEY_ESC, Qt::Key_Escape },
@@ -759,6 +759,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* of preprocessing */
 
 			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_SYSKEYDOWN));
+
+			/* Have some special processing for the alt key, passing it onto the client code.  Even */
+			/* though the the alt key is not handled through the usual g_aoKeyMap array, to client */
+			/* code its handling will appear consistent */
+
+			if (a_oWParam == VK_MENU)
+			{
+				Window->OfferKeyEvent(STD_KEY_ALT, m_bAltPressed);
+			}
 
 			/* And indicate that we want to pass the keypress onto the system */
 
