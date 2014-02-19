@@ -1248,7 +1248,16 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
 
 #ifdef __amigaos4__
 
-	return(m_poAmiMenus->AddItem(a_eMenuItemType, a_pccLabel, a_pccHotKey, a_iOrdinal, a_iSubOrdinal, a_iCommand));
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		RetVal = m_poAmiMenus->AddItem(a_eMenuItemType, a_pccLabel, a_pccHotKey, a_iOrdinal, a_iSubOrdinal, a_iCommand);
+	}
+	else
+	{
+		RetVal = KErrNotFound;
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -1405,7 +1414,12 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	m_poAmiMenus->CheckItem(a_iItemID, a_bEnable);
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		m_poAmiMenus->CheckItem(a_iItemID, a_bEnable);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -2047,7 +2061,12 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-	m_poAmiMenus->EnableItem(a_iItemID, a_bEnable);
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		m_poAmiMenus->EnableItem(a_iItemID, a_bEnable);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -2415,7 +2434,12 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 
 #ifdef __amigaos4__
 
-	return(m_poAmiMenus->ItemChecked(a_iItemID));
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		RetVal = m_poAmiMenus->ItemChecked(a_iItemID);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -2853,7 +2877,12 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 	(void) a_iOrdinal;
 
-	m_poAmiMenus->RemoveItem(a_iCommand);
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		m_poAmiMenus->RemoveItem(a_iCommand);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -3031,7 +3060,12 @@ void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TI
 
 	(void) a_iOrdinal;
 
-	m_poAmiMenus->UpdateItem(a_pccLabel, a_pccHotKey, a_iCommand);
+	/* Only perform the action if the menus have been created */
+
+	if (m_poAmiMenus)
+	{
+		m_poAmiMenus->UpdateItem(a_pccLabel, a_pccHotKey, a_iCommand);
+	}
 
 #elif defined(QT_GUI_LIB)
 
