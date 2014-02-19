@@ -748,6 +748,7 @@ TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 	TBool RetVal;
 	TInt FunctionKey, Command;
 	const struct SStdMenuItem *MenuItem;
+	struct NewMenu *NewMenu;
 
 	/* Assume no shortcut is executed */
 
@@ -828,9 +829,21 @@ TBool CAmiMenus::ExecuteShortcut(TInt a_iKey, TBool a_bCtrlPressed)
 
 				if (RetVal)
 				{
-					m_poWindow->HandleCommand(MenuItem->m_iCommand);
+					/* Only execute the shortcut if the menu item is not greyed out.  This information is */
+					/* stored in the menu item's NewMenu structure so search for the instance of this that */
+					/* matches the ID */
 
-					break;
+					if ((NewMenu = FindItem(MenuItem->m_iCommand)) != NULL)
+					{
+						if ((NewMenu->nm_Flags & NM_ITEMDISABLED) == 0)
+						{
+							/* The item is enabled so handle the command */
+
+							m_poWindow->HandleCommand(MenuItem->m_iCommand);
+
+							break;
+						}
+					}
 				}
 			}
 		}
