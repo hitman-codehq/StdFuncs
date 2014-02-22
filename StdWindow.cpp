@@ -779,9 +779,13 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		case WM_MENUSELECT :
 		{
 			/* Forget about the modifier keypresses as we won't get a WM_KEYUP or WM_SYSKEYUP for them */
-			/* due to the window no longer being active */
+			/* due to the window no longer being active.  This message is also sent when alt is pressed */
+			/* so in this case ignore it */
 
-			m_bAltPressed = m_bCtrlPressed = m_bShiftPressed = EFalse;
+			if (a_oLParam != 0)
+			{
+				m_bAltPressed = m_bCtrlPressed = m_bShiftPressed = EFalse;
+			}
 
 			break;
 		}
