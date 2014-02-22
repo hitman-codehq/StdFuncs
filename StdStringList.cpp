@@ -1,6 +1,4 @@
 
-// TODO: CAW - Not sure if this is the best name for this
-
 #include "StdFuncs.h"
 #include "Lex.h"
 #include "StdStringList.h"
@@ -71,6 +69,7 @@ TInt CStdStringList::Append(const char *a_pccString)
 		// TODO: CAW - Error handling here + failure checking
 		if (RetVal == KErrNone)
 		{
+			delete [] m_ppcStrings;
 			m_ppcStrings = Strings;
 			m_iNumStrings = NumStrings;
 		}
