@@ -15,8 +15,12 @@ static char g_acBasicListWhitespace[] = " \tOne  two  three  four  five ";
 static const char *g_apccBasicListWhitespaceResults[] = { "One", "two", "three", "four", "five" };
 
 #define BASIC_LIST_QUOTES_COUNT 5
-static char g_acBasicListQuotes[] = "\"One\" two \"three\" four \"five\"";
-static const char *g_apccBasicListQuotesResults[BASIC_LIST_QUOTES_COUNT] = { "One", "two", "three", "four", "five" };
+static char g_acBasicListQuotes[] = "\"One\" two \"'three'\" four \"five\"";
+static const char *g_apccBasicListQuotesResults[BASIC_LIST_QUOTES_COUNT] = { "One", "two", "'three'", "four", "five" };
+
+#define BASIC_LIST_SINGLE_QUOTES_COUNT 5
+static char g_acBasicListSingleQuotes[] = "'One' two '\"three\"' four 'five'";
+static const char *g_apccBasicListSingleQuotesResults[BASIC_LIST_SINGLE_QUOTES_COUNT] = { "One", "two", "\"three\"", "four", "five" };
 
 #define NON_DESTRUCTIVE_LIST_COUNT 5
 static const char g_accNonDestructiveList[] = "One two three four five";
@@ -147,6 +151,9 @@ int main()
 
 	TLex BasicQuotes(g_acBasicListQuotes);
 	CheckList(BasicQuotes, g_apccBasicListQuotesResults, BASIC_LIST_QUOTES_COUNT);
+
+	TLex BasicSingleQuotes(g_acBasicListSingleQuotes);
+	CheckList(BasicSingleQuotes, g_apccBasicListSingleQuotesResults, BASIC_LIST_SINGLE_QUOTES_COUNT);
 
 	/* Test #3: Basic non destructive test */
 
