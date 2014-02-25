@@ -264,7 +264,6 @@ void CAmiMenus::AddItem(const struct SStdMenuItem *a_pcoMenuItem, struct NewMenu
  * @return	KErrNoMemory if not enough memory was available to allocate the menu item
  */
 
-// TODO: CAW - Change names of variables and parameters and remove some unneeded preconditions
 TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iItemID)
 {
 	TInt Index, Item, NumMenus, RetVal, Size, SubItem;
