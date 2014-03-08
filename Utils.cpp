@@ -862,31 +862,50 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 			struct ClockData ClockData;
 			struct ExamineData *ExamineData;
 
-			if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
+			/* Querying empty file names is not allowed by our API, even though the Amiga OS ExamineObject() */
+			/* function supports it */
+
+			if (*ProgDirName != '\0')
 			{
-				RetVal = KErrNone;
+				if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
+				{
+					RetVal = KErrNone;
 
-				/* Convert the new style date structure into something more usable that also contains */
-				/* year, month and day information */
+					/* Convert the new style date structure into something more usable that also contains */
+					/* year, month and day information */
 
-				IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
+					IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
 
-				/* Convert it so a Symbian style TDateTime structure */
+					/* Convert it so a Symbian style TDateTime structure */
 
-				TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
-					ClockData.min, ClockData.sec, 0);
+					TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
+						ClockData.min, ClockData.sec, 0);
 
-				/* And populate the new TEntry instance with information about the file or directory */
+					/* And populate the new TEntry instance with information about the file or directory */
 
-				a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
-					ExamineData->Protection, DateTime);
-				a_poEntry->iPlatformDate = ExamineData->Date;
+					a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
+						ExamineData->Protection, DateTime);
+					a_poEntry->iPlatformDate = ExamineData->Date;
 
-				/* Copy the filename into the TEntry structure */
+					/* If the name of the directory is the special case of an Amiga OS volume then return just */
+					/* ':' for consistency with other versions of this function, which would only return the slash */
+					/* required to access this directory */
 
-				strcpy(a_poEntry->iName, ExamineData->Name);
+					if (ProgDirName[Length - 1] == ':')
+					{
+						a_poEntry->iName[0] = ':';
+						a_poEntry->iName[1] = '\0';
+					}
 
-				IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+					/* Otherwise return the name of the directory or file */
+
+					else
+					{
+						strcpy(a_poEntry->iName, ExamineData->Name);
+					}
+
+					IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+				}
 			}
 
 #elif defined(__linux__)
@@ -960,9 +979,9 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 						else
 						{
-							/* If the name of the file is the special case of a Windows drive specification such as */
+							/* If the name of the directory is the special case of a Windows drive specification such as */
 							/* "x:\" then return just the slash at the end.  We only need to check the slash at this */
-							/* point as control would not reach here if this was a full path with a slas (such as */
+							/* point as control would not reach here if this was a full path with a slash (such as */
 							/* "c:\\Windows\\" */
 
 							if ((a_poEntry->IsDir()) && ((ProgDirName[Length - 1] == '\\') || (ProgDirName[Length - 1] == '/')))

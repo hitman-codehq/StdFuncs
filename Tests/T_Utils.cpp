@@ -298,7 +298,18 @@ int main()
 
 	delete [] (char *) FileName;
 
-#else /* ! WIN32 */
+#elif defined(__amigaos4__)
+
+	/* Amiga OS uses ':' for the root directory.  Assume that this test is being run on the "Work:" volume */
+
+	FileName = Utils::ResolveFileName(":");
+	test(FileName != NULL);
+	test(strcmp(FileName, "Work:") == 0);
+	Test.Printf("Resolved name is %s\n", FileName);
+
+	delete [] (char *) FileName;
+
+#else /* ! __amigaos4__ */
 
 	/* Other versions will leave a slash as a slash so check for this */
 
@@ -309,7 +320,7 @@ int main()
 
 	delete [] (char *) FileName;
 
-#endif /* WIN32 */
+#endif /* ! __amigaos4__ */
 
 	/* Test #11: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
@@ -387,9 +398,23 @@ int main()
 
 	/* Various random directory and file paths */
 
+#ifdef __amigaos4__
+
+	/* Amiga OS uses ':' for the root directory */
+
+	Result = Utils::GetFileInfo(":", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, ":") == 0);
+
+#else /* ! __amigaos4__ */
+
+	/* All other platforms use '/' */
+
 	Result = Utils::GetFileInfo("/", &Entry);
 	test(Result == KErrNone);
 	test(strcmp(Entry.iName, "/") == 0);
+
+#endif /* ! __amigaos4__ */
 
 	Result = Utils::GetFileInfo("SomeDir", &Entry);
 	test(Result == KErrNone);
