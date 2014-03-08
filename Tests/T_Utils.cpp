@@ -328,14 +328,14 @@ int main()
 #ifdef WIN32
 
 	Result = Utils::GetFileInfo("PROGDIR:T_Utils.exe", &Entry);
-	test(strcmp(Entry.iName, "T_Utils.exe") == 0);
 	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "T_Utils.exe") == 0);
 
 #else /* ! WIN32 */
 
 	Result = Utils::GetFileInfo("PROGDIR:T_Utils", &Entry);
-	test(strcmp(Entry.iName, "T_Utils") == 0);
 	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "T_Utils") == 0);
 
 #endif /* ! WIN32 */
 
@@ -358,7 +358,69 @@ int main()
 
 #endif /* ! __amigaos4__ */
 
-	/* Test #14: Basic Utils::StringToInt() tests */
+	/* Test #14: Ensure Utils::GetFileInfo() can handle different scenarios */
+
+	Test.Next("Ensure Utils::GetFileInfo() can handle different scenarios");
+
+#ifdef WIN32
+
+	/* Check that the special case of "x:\\" is handled correctly */
+
+	Result = Utils::GetFileInfo("c:/", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "/") == 0);
+
+	Result = Utils::GetFileInfo("c:\\", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "\\") == 0);
+
+	/* And also fully qualified pathnames.  These should not end with a slash */
+
+	Result = Utils::GetFileInfo("c:\\Windows", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "Windows") == 0);
+
+	Result = Utils::GetFileInfo("c:\\Windows\\", &Entry);
+	test(Result == KErrNotSupported);
+
+#endif /* WIN32 */
+
+	/* Various random directory and file paths */
+
+	Result = Utils::GetFileInfo("/", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "/") == 0);
+
+	Result = Utils::GetFileInfo("SomeDir", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "SomeDir") == 0);
+
+	Result = Utils::GetFileInfo("SomeDir/SomeFile.txt", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "SomeFile.txt") == 0);
+
+	Result = Utils::GetFileInfo("SomeDir/", &Entry);
+	test(Result == KErrNotSupported);
+
+	Result = Utils::GetFileInfo("", &Entry);
+	test(Result == KErrNotFound);
+
+#ifndef __linux__
+
+	/* For non case dependent operating systems, ensure that using the incorrect case */
+	/* works and that it returns the correctly cased name of the directory or file */
+
+	Result = Utils::GetFileInfo("somedir", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "SomeDir") == 0);
+
+	Result = Utils::GetFileInfo("somedir/somefile.txt", &Entry);
+	test(Result == KErrNone);
+	test(strcmp(Entry.iName, "SomeFile.txt") == 0);
+
+#endif /* __linux__ */
+
+	/* Test #15: Basic Utils::StringToInt() tests */
 
 	Test.Next("Basic Utils::StringToInt() tests");
 

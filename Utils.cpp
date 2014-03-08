@@ -799,12 +799,17 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
  * same information that would be in the TEntry structure had it been filled in by the RDir
  * class.
  *
+ * For simplicity, there are some restrictions on the file paths passed in:
+ *   - They must not end in a '/' or '\' unless they refer to a root directory
+ *   - They must not contain wildcards
+ *
  * The filename passed in may be prefixed by an Amiga OS style PROGDIR: prefix, which will
  * resolve to the directory from which the current executable was executed.
  *
  * Note that this function explicitly checks for wildcards being passed in and if detected,
  * returns failure.  If you wish to use wildcards then use the more powerful RDir class instead.
  *
+ * @pre		Ptr to file name passed in must not be NULL
  * @pre		Ptr to TEntry structure passed in must not be NULL
  *
  * @date	Saturday 04-Jul-2009 9:20 pm
@@ -812,150 +817,179 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
  * @param	a_poEntry		Ptr to the TEntry structure into which to place the information
  * @return	KErrNone if the information was obtained successfully
  * @return	KErrNotFound if the file could not be found
+ * @return	KErrNotSupported if the specified path ends with a '/' or '\'
  * @return	KErrPathNotFound if an Amiga OS style PROGDIR: prefix could not be resolved
  */
 
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 {
 	char *ProgDirName;
-	TInt RetVal;
+	TBool PathOk;
+	TInt Length, RetVal;
 
+	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Ptr to file name passed in must not be NULL");
 	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => TEntry structure passed in must not be NULL");
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
 	if ((ProgDirName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
 	{
+		/* Assume failure */
+
+		RetVal = KErrNotFound;
+
+		/* Only perform the query if the path does not end with a '/' or '\'.  The check for */
+		/* is not required on non Windows systems but it doesn't hurt to have it here */
+
+		Length = strlen(ProgDirName);
+		PathOk = ETrue;
+
+		if ((Length > 0) && ((ProgDirName[Length - 1] == '/') || (ProgDirName[Length - 1] == '\\')))
+		{
+			PathOk = EFalse;
+
+			if ((Length == 1) || ((Length == 3) && (ProgDirName[1] == ':')))
+			{
+				PathOk = ETrue;
+			}
+		}
+
+		if (PathOk)
+		{
 
 #ifdef __amigaos4__
 
-		struct ClockData ClockData;
-		struct ExamineData *ExamineData;
+			struct ClockData ClockData;
+			struct ExamineData *ExamineData;
 
-		if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
-		{
-			RetVal = KErrNone;
-
-			/* Convert the new style date structure into something more usable that also contains */
-			/* year, month and day information */
-
-			IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
-
-			/* Convert it so a Symbian style TDateTime structure */
-
-			TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
-				ClockData.min, ClockData.sec, 0);
-
-			/* And populate the new TEntry instance with information about the file or directory */
-
-			a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
-				ExamineData->Protection, DateTime);
-			a_poEntry->iPlatformDate = ExamineData->Date;
-
-			/* Copy the filename into the TEntry structure */
-
-			strcpy(a_poEntry->iName, ExamineData->Name);
-
-			IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
-		}
-		else
-		{
-			RetVal = KErrNotFound;
-		}
-
-#elif defined(__linux__)
-
-		struct stat Stat;
-		struct tm *Tm;
-
-		/* Assume failure */
-
-		RetVal = KErrNotFound;
-
-		/* Obtain information about the file and convert its last modification time to the local time */
-
-		if (lstat(ProgDirName, &Stat) == 0)
-		{
-			if ((Tm = localtime(&Stat.st_mtime)) != NULL)
+			if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
 			{
 				RetVal = KErrNone;
 
-				/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
+				/* Convert the new style date structure into something more usable that also contains */
+				/* year, month and day information */
 
-				TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
+				IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
 
-				/* Fill in the file's properties in the TEntry structure */
+				/* Convert it so a Symbian style TDateTime structure */
 
-				a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
-				a_poEntry->iPlatformDate = Stat.st_mtime;
+				TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
+					ClockData.min, ClockData.sec, 0);
+
+				/* And populate the new TEntry instance with information about the file or directory */
+
+				a_poEntry->Set(EXD_IS_DIRECTORY(ExamineData), EXD_IS_LINK(ExamineData), ExamineData->FileSize,
+					ExamineData->Protection, DateTime);
+				a_poEntry->iPlatformDate = ExamineData->Date;
 
 				/* Copy the filename into the TEntry structure */
 
-				strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+				strcpy(a_poEntry->iName, ExamineData->Name);
+
+				IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 			}
-			else
+
+#elif defined(__linux__)
+
+			struct stat Stat;
+			struct tm *Tm;
+
+			/* Obtain information about the file and convert its last modification time to the local time */
+
+			if (lstat(ProgDirName, &Stat) == 0)
 			{
-				Utils::Info("Utils::GetFileInfo() => Unable to convert timestamp to local time");
-			}
-		}
-		else
-		{
-			Utils::Info("Utils::GetFileInfo() => Unable to stat file \"%s\"", a_pccFileName);
-		}
-
-#else /* ! __linux__ */
-
-		HANDLE Handle;
-		SYSTEMTIME SystemTime;
-		WIN32_FIND_DATA FindData;
-
-		/* Assume failure */
-
-		RetVal = KErrNotFound;
-
-		/* Only perform the query if there is no wildcard present */
-
-		if ((strstr(ProgDirName, "*") == 0) && (strstr(ProgDirName, "?") == 0))
-		{
-			/* Open the file to determine its properties */
-
-			if ((Handle = FindFirstFile(ProgDirName, &FindData)) != INVALID_HANDLE_VALUE)
-			{
-				/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
-
-				if (FileTimeToSystemTime(&FindData.ftLastWriteTime, &SystemTime))
+				if ((Tm = localtime(&Stat.st_mtime)) != NULL)
 				{
 					RetVal = KErrNone;
 
-					/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
+					/* Convert the UNIX time information to a TDateTime that the TEntry can use internally */
 
-					TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
-						SystemTime.wSecond, 0);
+					TDateTime DateTime((Tm->tm_year + 1900), (TMonth) Tm->tm_mon, Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec, 0);
 
 					/* Fill in the file's properties in the TEntry structure */
 
-					a_poEntry->Set((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FindData.nFileSizeLow, FindData.dwFileAttributes,
-						DateTime);
-					a_poEntry->iPlatformDate = FindData.ftLastWriteTime;
+					a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
+					a_poEntry->iPlatformDate = Stat.st_mtime;
 
 					/* Copy the filename into the TEntry structure */
 
-					strcpy(a_poEntry->iName, FindData.cFileName);
+					strcpy(a_poEntry->iName, FilePart(a_pccFileName));
 				}
-				else
+			}
+
+#else /* ! __linux__ */
+
+			BY_HANDLE_FILE_INFORMATION FileInformation;
+			HANDLE FindHandle, Handle;
+			SYSTEMTIME SystemTime;
+			WIN32_FIND_DATA FindData;
+
+			/* Open the file and determine its properties */
+
+			if ((Handle = CreateFile(ProgDirName, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) != INVALID_HANDLE_VALUE)
+			{
+				if (GetFileInformationByHandle(Handle, &FileInformation))
 				{
-					Utils::Info("Utils::GetFileInfo() => Unable to convert FILETIME to SYSTEMTIME");
+					/* Convert the file's timestamp to a more useful format that can be put into the TEntry structure */
+
+					if (FileTimeToSystemTime(&FileInformation.ftLastWriteTime, &SystemTime))
+					{
+						RetVal = KErrNone;
+
+						/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
+
+						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
+							SystemTime.wSecond, 0);
+
+						/* Fill in the file's properties in the TEntry structure */
+
+						a_poEntry->Set((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FileInformation.nFileSizeLow,
+							FileInformation.dwFileAttributes, DateTime);
+						a_poEntry->iPlatformDate = FileInformation.ftLastWriteTime;
+
+						/* Try to find the file so that we can obtain its "real" name, which may vary by case */
+						/* to the one passed in, and copy it into the TEntry structure */
+
+						if ((FindHandle = FindFirstFile(ProgDirName, &FindData)) != INVALID_HANDLE_VALUE)
+						{
+							strcpy(a_poEntry->iName, FindData.cFileName);
+							FindClose(FindHandle);
+						}
+
+						/* The file or directory could not be queried so just copy its name the best we can */
+
+						else
+						{
+							/* If the name of the file is the special case of a Windows drive specification such as */
+							/* "x:\" then return just the slash at the end.  We only need to check the slash at this */
+							/* point as control would not reach here if this was a full path with a slas (such as */
+							/* "c:\\Windows\\" */
+
+							if ((a_poEntry->IsDir()) && ((ProgDirName[Length - 1] == '\\') || (ProgDirName[Length - 1] == '/')))
+							{
+								strcpy(a_poEntry->iName, &ProgDirName[Length - 1]);
+							}
+
+							/* Otherwise return the filename part of the path passed in */
+
+							else
+							{
+								strcpy(a_poEntry->iName, Utils::FilePart(a_pccFileName));
+							}
+						}
+					}
 				}
 
-				FindClose(Handle);
+				CloseHandle(Handle);
 			}
-			else
-			{
-				Utils::Info("Utils::GetFileInfo() => Unable to examine file \"%s\"", a_pccFileName);
-			}
-		}
 
 #endif /* ! __linux__ */
+
+		}
+		else
+		{
+			RetVal = KErrNotSupported;
+		}
 
 		/* And free the resolved filename, but only if it contained the prefix */
 
@@ -966,8 +1000,6 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	}
 	else
 	{
-		Utils::Info("Utils::GetFileInfo() => Unable to resolve program name for %s", a_pccFileName);
-
 		RetVal = KErrPathNotFound;
 	}
 
