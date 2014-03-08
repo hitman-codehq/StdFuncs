@@ -86,9 +86,20 @@ int main()
 	/* Test #4: Test that Open() with wildcards works */
 
 	Test.Next("Test that Open() with wildcards works");
+
+#ifdef __amigaos4__
+
+	TestScan("#?");
+	TestScan("#?.dsw", 1, 3054);
+	TestScan("SomeDir/#?.txt", 1, 174);
+
+#else /* ! __amigaos4__ */
+
 	TestScan("*");
 	TestScan("*.dsw", 1, 3054);
 	TestScan("SomeDir/*.txt", 1, 174);
+
+#endif /* ! __amigaos4__ */
 
 	/* Test #5: Test that Open() with a filename works */
 
