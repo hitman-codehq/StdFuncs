@@ -40,7 +40,7 @@ typedef unsigned char UBYTE;
 #if !defined(__linux__)
 
 /* We used to define this as max() but bizarrely Qt undefines it when you include certain headers! */
-/* So now we use MAX() instead and for Linux we use the one in sys/param.h instead */
+/* So now we use MAX() instead and for UNIX we use the one in sys/param.h */
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
