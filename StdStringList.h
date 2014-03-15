@@ -2,12 +2,21 @@
 #ifndef STDSTRINGLIST_H
 #define STDSTRINGLIST_H
 
+/**
+ * A class to easily split strings into individual words.
+ * This class allows splitting strings into individual words in a style similar to that used
+ * by the Python string.split() function.  Like its Python equivalent, it endeavours to make
+ * this task as simple as possible and to hide away all of the tedious details of the task, such
+ * as the management of the memory used to hold the strings and parsing the input string for
+ * separators and white space.
+ */
+
 class CStdStringList
 {
 private:
 
-	char	**m_ppcStrings;				/* Array of ptrs to keywords to be highlighted */
-	TInt	m_iNumStrings;				/* # of keywords present in the m_ppcKeywords array */
+	char	**m_ppcStrings;				/**< Array of ptrs to keywords to be highlighted */
+	TInt	m_iNumStrings;				/**< Number of keywords present in the m_ppcKeywords array */
 
 public:
 

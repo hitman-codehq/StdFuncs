@@ -8,7 +8,9 @@
  * Appends one or more strings to the string array.
  * Parses a string for substrings, separated by the ';' character, and copies any
  * substrings found into an internal buffer.  These substrings are then kept track
- * of in an array, which can be accessed via the [] operator.
+ * of in an array, which can be accessed via the [] operator.  Memory is automatically
+ * allocated for the strings, and it will be freed when the class itself is freed.  The
+ * original string passed in only needs to be valid for the duration of this call.
  *
  * @date	Wednesday 20-Nov-2013 6:37 am, Code HQ Ehinger Tor
  * @param	a_pccString	Ptr to a NULL terminated string to be parsed
@@ -38,21 +40,18 @@ TInt CStdStringList::Append(const char *a_pccString)
 
 	if ((Strings = new char *[NumStrings]) != NULL)
 	{
-		memcpy(Strings, m_ppcStrings, (m_iNumStrings * sizeof(char *)));
+		/* If an array of strings already exists, copy it into the newly allocated array */
+
+		if (m_ppcStrings)
+		{
+			memcpy(Strings, m_ppcStrings, (m_iNumStrings * sizeof(char *)));
+		}
 
 		/* Iterate through the string and break it up into individual substrings, placing */
 		/* them into the array allocated above */
 
 		Index = m_iNumStrings;
 		RetVal = KErrNone;
-
-		/* Keywords are separated by the ';' character so create and configure a */
-		/* TLex instance for scanning */
-
-		// TODO: CAW - Get rid of this
-		//TLex Lex(a_pccString, strlen(a_pccString));
-
-		//Lex.SetWhitespace(";");
 
 		/* Extract all tokens from this line and add them to the array */
 
@@ -66,12 +65,28 @@ TInt CStdStringList::Append(const char *a_pccString)
 			}
 		}
 
-		// TODO: CAW - Error handling here + failure checking
+		/* If all strings were allocated successfully then save the newly created array and */
+		/* delete the old one */
+
 		if (RetVal == KErrNone)
 		{
 			delete [] m_ppcStrings;
 			m_ppcStrings = Strings;
 			m_iNumStrings = NumStrings;
+		}
+
+		/* Otherwise the array is in a partially initialised state so delete whatever */
+		/* strings were allocated and the delete the array.  This will leave the class in */
+		/* a state as though this function had never been called */
+
+		else
+		{
+			for (Index = m_iNumStrings; Index < NumStrings; ++Index)
+			{
+				delete [] Strings[Index];
+			}
+
+			delete [] Strings;
 		}
 	}
 	else
