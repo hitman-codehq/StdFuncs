@@ -50,6 +50,8 @@ protected:
 
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 
+	void wheelEvent(QWheelEvent *a_poWheelEvent);
+
 	QSize sizeHint() const;
 
 public:

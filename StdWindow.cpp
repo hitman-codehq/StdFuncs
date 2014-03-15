@@ -88,7 +88,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 	Window = (CWindow *) a_poHook->h_Data;
 
-	/* If this is a mouse wheel event then convert the delta to a Windows style reading */
+	/* If this is a mouse wheel event then convert the delta to a Qt/Windows style reading */
 	/* (+/- 120 per notch) and notify the window */
 
 	if (a_poIntuiMessage->Class == IDCMP_EXTENDEDMOUSE)
@@ -484,6 +484,25 @@ void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 
 	QSize Size = centralWidget()->size();
 	m_poWindow->InternalResize(Size.width(), Size.height());
+}
+
+/**
+ * Qt helper function to receive mouse wheel events.
+ * This function will receive mouse wheel events and simply passes them onto the client
+ * unchanged.  The client is expecting the delta events in steps of +/- 120 per notch and
+ * this is the measurement that Qt uses, making this a very simple function.
+ *
+ * @date	Saturday 15-Mar-2014 7:29 am, Code HQ Ehinger Tor
+ * @param	a_poWheelEvent	Structure describing the mouse wheel event received
+ */
+
+void CQtWindow::wheelEvent(QWheelEvent *a_poWheelEvent)
+{
+	/* Pass the event directly onto the client and set it to ignored so that Qt performs */
+	/* no further processing of it */
+
+	m_poWindow->HandleWheelEvent(a_poWheelEvent->delta());
+	a_poWheelEvent->ignore();
 }
 
 /**
