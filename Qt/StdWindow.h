@@ -7,8 +7,11 @@
 
 class CWindow;
 
-/* This custom class is required to intercept certain required Qt messages such as paint */
-/* events etc. so that we can pass them onto our framework */
+/**
+ * Qt helper class that represents the main window of an application.
+ * This custom class is required to intercept certain required Qt messages such as paint
+ * events etc. so that we can pass them onto our framework
+ */
 
 class CQtWindow : public QMainWindow
 {
@@ -16,9 +19,9 @@ class CQtWindow : public QMainWindow
 
 private:
 
-	bool		m_bClosing;		/* true if in the window is in the process of being closed */
-	CWindow		*m_poWindow;	/* Ptr to framework window represented by this Qt window */
-	QSize		m_oSize;		/* Preferred size of the non maximised window */
+	bool		m_bClosing;		/**< true if in the window is in the process of being closed */
+	CWindow		*m_poWindow;	/**< Ptr to framework window represented by this Qt window */
+	QSize		m_oSize;		/**< Preferred size of the non maximised window */
 
 private:
 
@@ -83,8 +86,11 @@ public slots:
 	void aboutToShow();
 };
 
-/* This custom class is required to keep track of Qt menu selection events and send them to */
-/* the framework and its client classes */
+/**
+ * Qt helper class that represents an action associated with a menu item.
+ * This custom class is required to keep track of Qt menu selection events and send them to
+ * the framework and its client classes
+ */
 
 class CQtAction : public QAction
 {
@@ -92,8 +98,8 @@ class CQtAction : public QAction
 
 private:
 
-	int			m_iCommand;			/* ID of this action/menu item */
-	CQtWindow	*m_poWindow;		/* Ptr to framework window to which to send command updates */
+	int			m_iCommand;			/**< ID of this action/menu item */
+	CQtWindow	*m_poWindow;		/**< Ptr to framework window to which to send command updates */
 
 public:
 
@@ -132,7 +138,7 @@ class CQtCentralWidget : public QWidget
 {
 private:
 
-	CWindow		*m_poWindow;	/* Ptr to the Framework window that uses this widget */
+	CWindow		*m_poWindow;	/**< Ptr to the Framework window that uses this widget */
 
 protected:
 

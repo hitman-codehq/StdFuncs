@@ -154,10 +154,35 @@ CQtCentralWidget::CQtCentralWidget(CWindow *a_poWindow) : QWidget(a_poWindow->m_
 	m_poWindow = a_poWindow;
 }
 
-/* Written: Saturday 26-Jan-2013 11:49 am, Code HQ Ehinger Tor */
-/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
-/*			a_bKeyDown		true if a key press is being handled, else false for key a release */
-/* This is the internal function which handles both key presses and key releases under Qt */
+/**
+ * Qt helper function to receive paint events.
+ * This function is called whenever Qt performs a repaint of the window and will pass
+ * the event along to the generic CWindow::Draw() function, so that client code can
+ * perform its custom drawing.
+ *
+ * @date	Thursday 06-Sep-2012 1:35 pm
+ * @param	a_poPaintEvent	Ptr to a structure containing information about the event
+ */
+
+void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
+{
+	QRect Rect = a_poPaintEvent->rect();
+
+	/* Pass the request along to the underlying framework window.  Note that QRect::bottom() */
+	/* will return the inclusive bottom pixel but our framework works with exclusive pixel */
+	/* positions.  We therefore need to calculate that position using QRect::height() */
+
+	m_poWindow->Draw(Rect.top(), (Rect.top() + Rect.height()));
+}
+
+/**
+ * Qt helper function to receive key events.
+ * This is the internal function which handles both key presses and key releases under Qt.
+ *
+ * @date	Saturday 26-Jan-2013 11:49 am, Code HQ Ehinger Tor
+ * @param	a_poKeyEvent	Ptr to a structure containing information about the event
+ * @param	a_bKeyDown		true if a key press is being handled, else false for key a release
+ */
 
 void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 {
@@ -260,7 +285,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 }
 
 /**
- * Performs generic handling of Qt mouse input events.
+ * Qt helper function to receive mouse events.
  * This is an internal helper function that will extract information from a QMouseEvent
  * structure and will pass it onto The Framework's client code for processing.
  *
@@ -305,7 +330,7 @@ void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
 }
 
 /**
- * Function called when a dropdown menu is about to be shown.
+ * Qt helper function called when a dropdown menu is about to be shown.
  * This function is called when a dropdown menu is about to be shown and will clear the
  * flags for the alt and control keys.  If these are pressed at the time the dropdown
  * menu is displayed then no key up events will be received and so when the user releases
@@ -323,12 +348,16 @@ void CQtWindow::aboutToShow()
 	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
 }
 
-/* Written: Saturday 23-Feb-2013 1:38 pm */
-/* @param	a_poCloseEvent	Ptr to structure containing information for handling the event */
-/* This function is called whenever the main window is about to be closed due to the close */
-/* button or <alt-f4> being pressed.  It cancels that event, thus preventing the window */
-/* from closing, and sends a message to the client so that it can handle the close event as */
-/* it wishes (for example by prompting the user whether they wish to quit) */
+/**
+ * Qt helper function to capture window close events.
+ * This function is called whenever the main window is about to be closed due to the close
+ * button or <alt-f4> being pressed.  It cancels that event, thus preventing the window
+ * from closing, and sends a message to the client so that it can handle the close event as
+ * it wishes (for example by prompting the user whether they wish to quit).
+ *
+ * @date	Saturday 23-Feb-2013 1:38 pm
+ * @param	a_poCloseEvent	Ptr to structure containing information for handling the event
+ */
 
 void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 {
@@ -347,11 +376,15 @@ void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 	}
 }
 
-/* Written: Friday 31-Aug-2012 3:02 pm */
-/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
-/* This function is called whenever a key down event occurs and will pass the event along */
-/* to the underlying framework window in the expected format, filtering out any key events */
-/* in which the framework is not interested */
+/**
+ * Qt helper function to receive key press events.
+ * This function is called whenever a key down event occurs and will pass the event along
+ * to the underlying framework window in the expected format, filtering out any key events
+ * in which the framework is not interested.
+ *
+ * @date	Friday 31-Aug-2012 3:02 pm
+ * @param	a_poKeyEvent	Ptr to a structure containing information about the event
+ */
 
 void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 {
@@ -375,11 +408,15 @@ void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 	HandleKeyEvent(a_poKeyEvent, ETrue);
 }
 
-/* Written: Saturday 26-Jan-2013 11:42 am, Code HQ Ehinger Tor */
-/* @param	a_poKeyEvent	Ptr to a structure containing information about the event */
-/* This function is called whenever a key up event occurs and will pass the event along */
-/* to the underlying framework window in the expected format, filtering out any key events */
-/* in which the framework is not interested */
+/**
+ * Qt helper function to receive key release events.
+ * This function is called whenever a key up event occurs and will pass the event along
+ * to the underlying framework window in the expected format, filtering out any key events
+ * in which the framework is not interested.
+ *
+ * @date	Saturday 26-Jan-2013 11:42 am, Code HQ Ehinger Tor
+ * @param	a_poKeyEvent	Ptr to a structure containing information about the event
+ */
 
 void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 {
@@ -404,7 +441,7 @@ void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 }
 
 /**
- * Captures mouse button double clicks for handling.
+ * Qt helper function to receive mouse button double click events.
  * Captures Qt QEvent::MouseButtonDblClick events and passes them onto client code.
  *
  * @date	Friday 31-Jan-2014 6:23 am
@@ -417,7 +454,7 @@ void CQtWindow::mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent)
 }
 
 /**
- * Captures mouse button presses for handling.
+ * Qt helper function to receive mouse button press events.
  * Captures Qt QEvent::MouseButtonPress events and passes them onto client code.
  *
  * @date	Thursday 30-Jan-2014 7:33 am
@@ -430,7 +467,7 @@ void CQtWindow::mousePressEvent(QMouseEvent *a_poMouseEvent)
 }
 
 /**
- * Captures mouse button releases for handling.
+ * Qt helper function to receive mouse button release events.
  * Captures Qt QEvent::MouseButtonRelease events and passes them onto client code.
  *
  * @date	Thursday 30-Jan-2014 7:34 am
@@ -443,7 +480,7 @@ void CQtWindow::mouseReleaseEvent(QMouseEvent *a_poMouseEvent)
 }
 
 /**
- * Captures mouse movement events for handling.
+ * Qt helper function to receive mouse move events.
  * Captures Qt QEvent::MouseMove events and passes them onto client code.
  *
  * @date	Thursday 30-Jan-2014 7:34 am
@@ -455,27 +492,14 @@ void CQtWindow::mouseMoveEvent(QMouseEvent *a_poMouseEvent)
 	HandlePointerEvent(a_poMouseEvent);
 }
 
-/* Written: Thursday 06-Sep-2012 1:35 pm */
-/* @param	a_poPaintEvent	Ptr to a structure containing information about the event */
-/* This function is called whenever Qt performs a repaint of the window and will pass */
-/* the event along to the generic CWindow::Draw() function, so that client code can */
-/* perform its custom drawing */
-
-void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
-{
-	QRect Rect = a_poPaintEvent->rect();
-
-	/* Pass the request along to the underlying framework window.  Note that QRect::bottom() */
-	/* will return the inclusive bottom pixel but our framework works with exclusive pixel */
-	/* positions.  We therefore need to calculate that position using QRect::height() */
-
-	m_poWindow->Draw(Rect.top(), (Rect.top() + Rect.height()));
-}
-
-/* Written: Saturday 25-Aug-2012 1:36 pm */
-/* @param	a_poResizeEvent	Ptr to a structure containing information about the event */
-/* This function is called whenever Qt performs a resize of the window and will pass */
-/* the event along to the generic CWindow::Resize() function, to notify client code */
+/**
+ * Qt helper function to receive window resize events.
+ * This function is called whenever Qt performs a resize of the window and will pass
+ * the event along to the generic CWindow::Resize() function, to notify client code.
+ *
+ * @date	Saturday 25-Aug-2012 1:36 pm
+ * @param	a_poResizeEvent	Ptr to a structure containing information about the event
+ */
 
 void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
 {
