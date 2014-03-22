@@ -22,8 +22,10 @@ TLex::TLex(char *a_pcString)
 
 	m_pccString = m_pccOriginalString = NULL;
 	m_pcString = a_pcString;
+	m_pccQuotes = "\"'";
 	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = strlen(a_pcString);
+	m_iQuotesLength = 2;
 	m_iWhitespaceLength = 2;
 	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
 }
@@ -47,8 +49,10 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
 
 	m_pccString = m_pccOriginalString = a_pccString;
 	m_pcString = NULL;
+	m_pccQuotes = "\"'";
 	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = a_iLength;
+	m_iQuotesLength = 2;
 	m_iWhitespaceLength = 2;
 	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
 }
@@ -185,7 +189,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	char QuoteChar;
 	const char *NextToken, *RetVal;
 	TBool FoundQuotes;
-	TInt Index;
+	TInt Index, QuoteIndex;
 
 	ASSERTM((m_pccString != NULL), "TLex::NextToken() => String to parse not initialised");
 
@@ -209,12 +213,22 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	if ((Index == 0) || (!(m_bKeepWhitespace)))
 	{
-		/* If the new token starts with a " or ' then extract up until the next " or ' and include and */
-		/* white space found between the start and end " or ' characters */
+		/* If the new token starts with a quote then extract up until the next quote and include any */
+		/* white space found between the start and end quote characters */
 
 		RetVal = NextToken;
 
-		if ((*NextToken == '"') || (*NextToken == '\''))
+		/* Check against the user defined list of quote characters */
+
+		for (QuoteIndex= 0; QuoteIndex < m_iQuotesLength; ++QuoteIndex)
+		{
+			if (*NextToken == m_pccQuotes[QuoteIndex])
+			{
+				break;
+			}
+		}
+
+		if (QuoteIndex < m_iQuotesLength)
 		{
 			QuoteChar = *NextToken;
 			++NextToken;
@@ -365,6 +379,24 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace)
 }
 
 /**
+ * Sets the user definable quoted character list.
+ * Sets the list of characters that are treated as delimeters for quoted strings.  By
+ * default, these are the " and ' characters.
+ *
+ * @date	Friday 21-Mar-2014 7:14 am
+ * @param	a_pccQuotes		Ptr to string containing the new quote characters.
+ *							Contents must be valid for the duration of the class's use
+ */
+
+void TLex::SetQuotes(const char *a_pccQuotes)
+{
+	ASSERTM((a_pccQuotes != NULL), "TLex::SetQuotes() => Ptr to quote string can not be NULL");
+
+	m_pccQuotes = a_pccQuotes;
+	m_iQuotesLength = strlen(a_pccQuotes);
+}
+
+/**
  * Sets the user definable white space character list.
  * Sets the white space character list so that other characters can be treated as
  * white space.  For example, to parse the string ".cpp;.c;.h" into its separate
@@ -373,7 +405,7 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace)
  * white space separator is only allowed for the non destructive routines.
  *
  * @date	Wednesday 05-Dec-2012 5:30 am
- * @param	a_pcWhitespace	Ptr to string containing the new white space characters
+ * @param	a_pccWhitespace	Ptr to string containing the new white space characters
  *							Contents must be valid for the duration of the class's use
  */
 
