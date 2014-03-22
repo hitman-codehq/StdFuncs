@@ -22,10 +22,10 @@ TLex::TLex(char *a_pcString)
 
 	m_pccString = m_pccOriginalString = NULL;
 	m_pcString = a_pcString;
-	m_pcWhitespace = " \t";
+	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = strlen(a_pcString);
 	m_iWhitespaceLength = 2;
-	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
+	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
 }
 
 /**
@@ -47,10 +47,10 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
 
 	m_pccString = m_pccOriginalString = a_pccString;
 	m_pcString = NULL;
-	m_pcWhitespace = " \t";
+	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = a_iLength;
 	m_iWhitespaceLength = 2;
-	m_bKeepQuotes = m_bKeepWhiteSpace = EFalse;
+	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
 }
 
 /**
@@ -74,7 +74,7 @@ TBool TLex::CheckWhitespace(char a_cCharacter)
 
 	for (Index = 0; Index < m_iWhitespaceLength; ++Index)
 	{
-		if ((a_cCharacter == m_pcWhitespace[Index]) || (a_cCharacter == '\r') || (a_cCharacter == '\n'))
+		if ((a_cCharacter == m_pccWhitespace[Index]) || (a_cCharacter == '\r') || (a_cCharacter == '\n'))
 		{
 			break;
 		}
@@ -207,7 +207,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	/* If there was white space and the class is configured to keep white space then */
 	/* we already have a token to return */
 
-	if ((Index == 0) || (!(m_bKeepWhiteSpace)))
+	if ((Index == 0) || (!(m_bKeepWhitespace)))
 	{
 		/* If the new token starts with a " or ' then extract up until the next " or ' and include and */
 		/* white space found between the start and end " or ' characters */
@@ -274,7 +274,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 			/* token.  Note that this is incompatible with the destructive */
 			/* token extractor! */
 
-			if (!(m_bKeepWhiteSpace))
+			if (!(m_bKeepWhitespace))
 			{
 				++NextToken;
 				++Index;
@@ -355,13 +355,13 @@ void TLex::MoveBackwards(TInt a_iLength)
  *
  * @date	Tuesday 27-Nov-2012 5:52 am
  * @param	a_bKeepQuotes		ETrue to retain the " or ' quotation marks in extracted strings
- * @param	a_bKeepWhiteSpace	ETrue to return white space as a token
+ * @param	a_bKeepWhitespace	ETrue to return white space as a token
  */
 
-void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
+void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace)
 {
 	m_bKeepQuotes = a_bKeepQuotes;
-	m_bKeepWhiteSpace = a_bKeepWhiteSpace;
+	m_bKeepWhitespace = a_bKeepWhitespace;
 }
 
 /**
@@ -377,11 +377,11 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace)
  *							Contents must be valid for the duration of the class's use
  */
 
-void TLex::SetWhitespace(const char *a_pcWhitespace)
+void TLex::SetWhitespace(const char *a_pccWhitespace)
 {
-	ASSERTM((a_pcWhitespace != NULL), "TLex::SetWhitespace() => Ptr to white space can not be NULL");
+	ASSERTM((a_pccWhitespace != NULL), "TLex::SetWhitespace() => Ptr to white space can not be NULL");
 	ASSERTM((m_pcString == NULL), "TLex::SetWhitespace() => Alternate white space can only be used for non destructive extraction");
 
-	m_pcWhitespace = a_pcWhitespace;
-	m_iWhitespaceLength = strlen(a_pcWhitespace);
+	m_pccWhitespace = a_pccWhitespace;
+	m_iWhitespaceLength = strlen(a_pccWhitespace);
 }

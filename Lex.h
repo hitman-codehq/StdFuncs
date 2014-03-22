@@ -26,13 +26,13 @@ private:
 
 	const char	*m_pccString;			/**< Ptr to string to be parsed by non destructive routine */
 	const char	*m_pccOriginalString;	/**< Cached copy of m_pccString */
+	const char	*m_pccWhitespace;		/**< Whitespace characters for which to check */
 	char		*m_pcString;			/**< Ptr to string to be parsed by destructive routine */
-	const char	*m_pcWhitespace;		/**< Whitespace characters for which to check */
 	TBool		m_bKeepQuotes;			/**< ETrue to keep the quote marks around strings */
-	TBool		m_bKeepWhiteSpace;		/**< ETrue to treat white space as a token */
+	TBool		m_bKeepWhitespace;		/**< ETrue to treat white space as a token */
 	TInt		m_iLength;				/**< Length of the string to be parsed */
 	TInt		m_iOriginalLength;		/**< Cached copy of m_iLength */
-	TInt		m_iWhitespaceLength;	/**< # of characters of white space to be checked */
+	TInt		m_iWhitespaceLength;	/**< Number of characters of white space to be checked */
 
 public:
 
@@ -52,9 +52,9 @@ public:
 
 	void MoveBackwards(TInt a_iLength);
 
-	void SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhiteSpace);
+	void SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace);
 
-	void SetWhitespace(const char *a_pcWhitespace);
+	void SetWhitespace(const char *a_pccWhitespace);
 };
 
 #endif /* ! LEX_H */
