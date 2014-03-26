@@ -574,7 +574,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 			FileName = Utils::FilePart(a_pccPattern);
 
-			if (!(strstr(FileName, "*")) && !(strstr(FileName, "?")))
+			if (!(strstr(FileName, "*")) && (!(strstr(FileName, "?"))))
 			{
 				strcpy(Path, a_pccPattern);
 				DEBUGCHECK((Utils::AddPart(Path, "*.*", Length) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
