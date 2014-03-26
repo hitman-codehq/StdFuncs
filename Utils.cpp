@@ -284,6 +284,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLengt
 
 #else /* ! __amigaos4__ */
 
+	char Char;
 	TUint Length;
 
 	/* Assume failure */
@@ -301,7 +302,9 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLengt
 
 			/* Append the source string, plus a directory separator if required */
 
-			if ((a_pcDest[Length - 1] != '\\') && (a_pcDest[Length - 1] != '/'))
+			Char = a_pcDest[Length - 1];
+
+			if ((Char != '\\') && (Char != '/') && (Char != ':'))
 			{
 				strcat(a_pcDest, "/");
 			}
@@ -315,7 +318,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLengt
 
 	else
 	{
-		if (strlen(a_pccSource) < a_iDestLength)
+		if (strlen(a_pccSource) <= a_iDestLength)
 		{
 			RetVal = ETrue;
 
