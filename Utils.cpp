@@ -272,15 +272,32 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 	return(RetVal);
 }
 
-/* Written: Thursday 16-Jul-2009 3:58 pm */
+/**
+ * Appends a file or directory name to an existing path.
+ * This function will append a file or directory to an existing path, ensuring that a '/' character
+ * is appended as appropriate to the end of the existing path.  This will ensure that a single slash is
+ * always present between the end of the existing path and the beginning of the newly added path part.
+ * It will not append an extra slash if one exists already.
+ *
+ * It will also treat Windows style directory names (such as "d:") specially in that they will not have
+ * a slash appended to them.  This allows relative addressing of directories on drives where the drive
+ * letter by itself represents the current directory of that drive.
+ *
+ * @date	Thursday 16-Jul-2009 3:58 pm
+ * @param	a_pcDest	Ptr to the path to which to append the file or directory name
+ * @param	a_pccSource	Ptr to the file or directory name to be appended
+ * @param	a_iDestSize	The size of the destination buffer in bytes
+ * @return	ETrue if the file or directory was appended successfully, otherwise EFalse if the destination
+ *			buffer was too small to hold the resulting path
+ */
 
-TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLength)
+TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestSize)
 {
 	TBool RetVal;
 
 #ifdef __amigaos4__
 
-	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_iDestLength);
+	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_iDestSize);
 
 #else /* ! __amigaos4__ */
 
@@ -296,7 +313,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLengt
 
 	if ((Length = strlen(a_pcDest)) > 0)
 	{
-		if ((Length + 1 + strlen(a_pccSource)) <= a_iDestLength)
+		if ((Length + 1 + strlen(a_pccSource)) <= a_iDestSize)
 		{
 			RetVal = ETrue;
 
@@ -318,7 +335,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_iDestLengt
 
 	else
 	{
-		if (strlen(a_pccSource) <= a_iDestLength)
+		if (strlen(a_pccSource) <= a_iDestSize)
 		{
 			RetVal = ETrue;
 
