@@ -250,59 +250,64 @@ TInt RApplication::Main()
 						X = (Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft);
 						Y = (Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop);
 
-						/* See if this is a double click.  If it is then we need to send the */
-						/* EStdMouseDoubleClick message to the client window and not do anything else */
+						/* Only handle the mouse event if it is within the bounds of the client area */
 
-						if (Code == SELECTDOWN)
+						if ((X >= 0) && (Y >= 0))
 						{
-							IIntuition->CurrentTime(&SecondSeconds, &SecondMicros);
+							/* See if this is a double click.  If it is then we need to send the */
+							/* EStdMouseDoubleClick message to the client window and not do anything else */
 
-							/* Only handle this as a double click if the second click is at the same */
-							/* X and Y position as the first */
-
-							if ((X == m_iLastX) && (Y == m_iLastY))
+							if (Code == SELECTDOWN)
 							{
-								/* Double click? */
+								IIntuition->CurrentTime(&SecondSeconds, &SecondMicros);
 
-								if (IIntuition->DoubleClick(m_ulMainSeconds, m_ulMainMicros, SecondSeconds, SecondMicros))
+								/* Only handle this as a double click if the second click is at the same */
+								/* X and Y position as the first */
+
+								if ((X == m_iLastX) && (Y == m_iLastY))
 								{
-									/* Yep!  Signal this and reset the double click time to avoid a third */
-									/* click getting treated as a double click */
+									/* Double click? */
 
-									DoubleClicked = ETrue;
-									m_ulMainSeconds = m_ulMainMicros = 0;
+									if (IIntuition->DoubleClick(m_ulMainSeconds, m_ulMainMicros, SecondSeconds, SecondMicros))
+									{
+										/* Yep!  Signal this and reset the double click time to avoid a third */
+										/* click getting treated as a double click */
 
-									/* And send the appropriate message to the client window */
+										DoubleClicked = ETrue;
+										m_ulMainSeconds = m_ulMainMicros = 0;
 
-									Window->HandlePointerEvent(X, Y, EStdMouseDoubleClick);
+										/* And send the appropriate message to the client window */
+
+										Window->HandlePointerEvent(X, Y, EStdMouseDoubleClick);
+									}
+								}
+
+								/* If not a double click, save the time amd mouse position for checking next time */
+
+								if (!(DoubleClicked))
+								{
+									m_ulMainSeconds = SecondSeconds;
+									m_ulMainMicros = SecondMicros;
+									m_iLastX = X;
+									m_iLastY = Y;
 								}
 							}
 
-							/* If not a double click, save the time amd mouse position for checking next time */
+							/* If a double click wasn't handled then send the appropriate message to the */
+							/* client window */
 
-							if (!(DoubleClicked))
+							if (((Code == SELECTDOWN) && (!(DoubleClicked))) || (Code == SELECTUP))
 							{
-								m_ulMainSeconds = SecondSeconds;
-								m_ulMainMicros = SecondMicros;
+								/* Send the message */
+
+								MouseEvent = (Code == SELECTDOWN) ? EStdMouseDown : EStdMouseUp;
+								Window->HandlePointerEvent(X, Y, MouseEvent);
+
+								/* And save the mouse position for next time */
+
 								m_iLastX = X;
 								m_iLastY = Y;
 							}
-						}
-
-						/* If a double click wasn't handled then send the appropriate message to the */
-						/* client window */
-
-						if (((Code == SELECTDOWN) && (!(DoubleClicked))) || (Code == SELECTUP))
-						{
-							/* Send the message */
-
-							MouseEvent = (Code == SELECTDOWN) ? EStdMouseDown : EStdMouseUp;
-							Window->HandlePointerEvent(X, Y, MouseEvent);
-
-							/* And save the mouse position for next time */
-
-							m_iLastX = X;
-							m_iLastY = Y;
 						}
 
 						break;
@@ -310,8 +315,15 @@ TInt RApplication::Main()
 
 					case WMHI_MOUSEMOVE :
 					{
-						Window->HandlePointerEvent((Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft),
-							(Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop), EStdMouseMove);
+						X = (Window->m_poWindow->MouseX - Window->m_poWindow->BorderLeft);
+						Y = (Window->m_poWindow->MouseY - Window->m_poWindow->BorderTop);
+
+						/* Only handle the mouse event if it is within the bounds of the client area */
+
+						if ((X >= 0) && (Y >= 0))
+						{
+							Window->HandlePointerEvent(X, Y, EStdMouseMove);
+						}
 
 						break;
 					}
