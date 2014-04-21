@@ -735,16 +735,41 @@ const char *Utils::Extension(const char *a_pccFileName)
 	return(RetVal);
 }
 
-/* Written: Thursday 22-Jul-2010 8:11 am */
+/**
+ * Finds the file name contained within a fully qualified path.
+ * This function will scan backwards through a fully qualified path, looking for any kind of directory
+ * separator.  When found, this separator is considered the separator between the path part of a fully
+ * qualified file name, and the file name part of the fully qualified file name.  The pointer to this
+ * file name will then be returned.  If the path passed in does not contain any path separators (ie. it
+ * contains no path) then the entire path will be returned.
+ *
+ * As an example, the following Amiga OS, UNIX and Windows paths will all result in "file.txt" being
+ * returned by the function.  All paths are recognised by this function on all systems on which
+ * The Framework runs:
+ *
+ * work:file.txt
+ * work:path/file.txt
+ * /file.txt
+ * /path/file.txt
+ * c:\\file.txt
+ * c:\\path\\file.txt
+ *
+ * @date	Thursday 22-Jul-2010 8:11 am
+ * @param	a_pccPath	Pointer to the fully qualified path to be scanned
+ * @return	Pointer to the file name component of the path
+ */
 
 const char *Utils::FilePart(const char *a_pccPath)
 {
 	char Char;
 	const char *RetVal;
 
+	/* Iterate through the string passed in from its very end, looking for any kind of directory separator, */
+	/* whether valid for Amiga OS, UNIX or Windows */
+
 	RetVal = (a_pccPath + strlen(a_pccPath));
 
-	while (RetVal > a_pccPath)
+	while (RetVal >= a_pccPath)
 	{
 		Char = *RetVal;
 
@@ -756,6 +781,14 @@ const char *Utils::FilePart(const char *a_pccPath)
 		}
 
 		--RetVal;
+	}
+
+	/* If no directory separator was found, we will be pointing to just before the start of the string.  In this */
+	/* case, return the entire string passed in */
+
+	if (RetVal < a_pccPath)
+	{
+		++RetVal;
 	}
 
 	return(RetVal);

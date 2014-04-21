@@ -32,9 +32,17 @@ int main()
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
+	FileName = Utils::FilePart("/*.txt");
+	test(strlen(FileName) > 0);
+	test(strcmp(FileName, "*.txt") == 0);
+
 	FileName = Utils::FilePart("some_volume:*.txt");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
+
+	FileName = Utils::FilePart(":~(*.info)");
+	test(strlen(FileName) > 0);
+	test(strcmp(FileName, "~(*.info)") == 0);
 
 	/* Test #2: Extract an extension from a file name with Utils::Extension() */
 
