@@ -1370,7 +1370,23 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #endif /* _DEBUG */
 
-// TODO: CAW - This is going to break AMC + standardise on errors + this pulls in a reference to File.cpp!
+/**
+ * Loads a file into memory in its entirity.
+ * This is a convenience function that can be used to load a file into memory.  The file's size will
+ * be checked, just the right amount of memory allocated, and the file fill be loaded.  A single byte
+ * is allocated than is required and this has a 0 placed into it.  This is to make it easier to parse
+ * text files, as it can be depended upon that there is a NULL terminator at the end of the file.
+ *
+ * The ptr to the allocated buffer is returned to the user in *a_ppucBuffer and it is up to the user
+ * to delete [] this memory.
+ *
+ * @param	a_pccFileName	Ptr to the name of the file to be opened
+ * @param	a_ppucBuffer	Ptr to a variable into which to place the ptr to the allocated buffer
+ * @return	The size of the file in bytes, not including the NULL terminator, if successful
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::Open() or RFile::Read()
+ */
+
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 {
 	unsigned char *Buffer;
@@ -1393,8 +1409,6 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 			{
 				if ((RetVal = File.Read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
 				{
-					RetVal = KErrNone;
-
 					/* NULL terminate the buffer and save its ptr for the calling client */
 
 					Buffer[Entry.iSize] = '\0';
@@ -1414,7 +1428,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 			/* If any error occurred, free the buffer as it won't get passed back to the client */
 
-			if (RetVal != KErrNone)
+			if (RetVal < 0)
 			{
 				delete [] Buffer;
 			}
@@ -1425,12 +1439,6 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 			Utils::Info("Utils::LoadFile() => Out of memory");
 		}
-	}
-	else
-	{
-		RetVal = KErrNotFound;
-
-		Utils::Info("Utils::LoadFile() => Unable to get information about file \"%s\"", a_pccFileName);
 	}
 
 	return(RetVal);
