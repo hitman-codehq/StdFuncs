@@ -1378,7 +1378,7 @@ void Utils::Info(const char *a_pccMessage, ...)
  * text files, as it can be depended upon that there is a NULL terminator at the end of the file.
  *
  * The ptr to the allocated buffer is returned to the user in *a_ppucBuffer and it is up to the user
- * to delete [] this memory.
+ * to delete [] this memory.  If the function fails to load the file, a_ppucBuffer will be set to NULL.
  *
  * @param	a_pccFileName	Ptr to the name of the file to be opened
  * @param	a_ppucBuffer	Ptr to a variable into which to place the ptr to the allocated buffer
@@ -1392,6 +1392,10 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 	unsigned char *Buffer;
 	TInt RetVal;
 	TEntry Entry;
+
+	/* Assume failure */
+
+	*a_ppucBuffer = NULL;
 
 	/* Obtain information about the file, such as its size */
 
