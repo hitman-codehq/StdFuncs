@@ -1435,6 +1435,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 			if (RetVal < 0)
 			{
 				delete [] Buffer;
+				*a_ppucBuffer = NULL;
 			}
 		}
 		else
