@@ -121,6 +121,10 @@ SOURCE=.\StdConfigFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdCRC.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdDialog.cpp
 # End Source File
 # Begin Source File
@@ -222,6 +226,10 @@ SOURCE=.\StdClipboard.h
 # Begin Source File
 
 SOURCE=.\StdConfigFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdCRC.h
 # End Source File
 # Begin Source File
 
