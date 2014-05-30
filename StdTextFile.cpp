@@ -10,8 +10,9 @@ int RTextFile::Open(const char *a_pccFileName)
 
 	/* Load the entire file into memory */
 
-	if ((RetVal = Utils::LoadFile(a_pccFileName, (unsigned char **) &m_pcBuffer)) == KErrNone)
+	if ((RetVal = Utils::LoadFile(a_pccFileName, (unsigned char **) &m_pcBuffer)) >= 0)
 	{
+		RetVal = KErrNone;
 		m_pcBufferPtr = m_pcBuffer;
 	}
 	else
