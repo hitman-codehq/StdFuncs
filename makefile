@@ -18,15 +18,15 @@ UNAME = $(shell uname)
 ifeq ($(UNAME), AmigaOS)
 
 OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdDialog.o $(OBJ)/StdFileRequester.o \
-	$(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o \
-	$(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o \
-	$(OBJ)/Test.o $(OBJ)/Time.o $(OBJ)/Utils.o
+	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
+	$(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
+	$(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o \
+	$(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Time.o $(OBJ)/Utils.o
 
 else
 
-OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-	$(OBJ)/StdConfigFile.o $(OBJ)/StdPool.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o \
+OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/StdConfigFile.o \
+	$(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o \
 	$(OBJ)/Time.o $(OBJ)/Utils.o
 
 endif

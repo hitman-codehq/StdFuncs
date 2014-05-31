@@ -26,7 +26,7 @@ MOC_DIR = $$OBJECTS_DIR
 DEFINES -= UNICODE
 
 SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
-	StdApplication.cpp StdClipboard.cpp StdConfigFile.cpp StdDialog.cpp StdFileRequester.cpp \
+	StdApplication.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileRequester.cpp \
 	StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp \
 	StdImage.cpp StdPool.cpp StdStringList.cpp StdTextFile.cpp StdWildcard.cpp StdWindow.cpp Test.cpp \
 	Time.cpp Utils.cpp
