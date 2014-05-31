@@ -844,10 +844,10 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 #endif /* __amigaos4__ */
 
 /**
- * Obtains information about a given file.
- * This function is useful for obtaining directory listing type information about a single
- * file, without the overhead of having to use the RDir class to do so.  It will query the
- * given filename, which can be either relative or absolute, and will place the information
+ * Obtains information about a given file or directory.
+ * This function is useful for obtaining directory listing type information about a single file
+ * or directory, without the overhead of having to use the RDir class to do so.  It will query
+ * the given filename, which can be either relative or absolute, and will place the information
  * about it into the TEntry structure that is passed in.  This will then contain all of the
  * same information that would be in the TEntry structure had it been filled in by the RDir
  * class.
@@ -983,9 +983,20 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 					a_poEntry->Set(S_ISDIR(Stat.st_mode), S_ISLNK(Stat.st_mode), Stat.st_size, Stat.st_mode, DateTime);
 					a_poEntry->iPlatformDate = Stat.st_mtime;
 
-					/* Copy the filename into the TEntry structure */
+					/* If the name of the directory is the special case of the root directory then return just '/' */
 
-					strcpy(a_poEntry->iName, FilePart(a_pccFileName));
+					if (ProgDirName[Length - 1] == '/')
+					{
+						a_poEntry->iName[0] = '/';
+						a_poEntry->iName[1] = '\0';
+					}
+
+					/* Otherwise copy the filename into the TEntry structure */
+
+					else
+					{
+						strcpy(a_poEntry->iName, FilePart(ProgDirName));
+					}
 				}
 			}
 
