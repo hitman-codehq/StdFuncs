@@ -24,11 +24,11 @@ private:
 
 #elif defined(__linux__)
 
-	TInt		m_oHandle;		/* Handle to the open file or 0 if closed */
+	TInt		m_oHandle;	/* Handle to the open file or 0 if closed */
 
 #else /* ! __linux__ */
 
-	HANDLE	m_oHandle;		/* Handle to the open file or 0 if closed */
+	HANDLE	m_oHandle;		/**< Handle to the open file or 0 if closed */
 
 #endif /* ! __linux__ */
 

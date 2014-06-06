@@ -399,13 +399,17 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 	return(RetVal);
 }
 
-/* Written: Friday 02-Jan-2009 10:20 pm */
-/* @param	a_pcucBuffer	Ptr to the buffer to read the data into */
-/*			a_iLength		Number of bytes in the buffer to be read */
-/* @return	Number of bytes read, if successful, otherwise KErrGeneral */
-/* Reads a number of bytes from the file.  There must be sufficient data in the file to be */
-/* able to satisfy the read request, or the function will fail.  It is safe to try and write */
-/* 0 bytes.  In this case 0 will be returned */
+/**
+ * Reads a number of bytes from the file.
+ * Reads a number of bytes from the file.  There must be sufficient data in the file to be
+ * able to satisfy the read request, or the function will fail.  It is safe to try and write
+ * 0 bytes.  In this case 0 will be returned.
+ *
+ * @date	Friday 02-Jan-2009 10:20 pm
+ * @param	a_pucBuffer		Ptr to the buffer to read the data into
+ * @param	a_iLength		Number of bytes in the buffer to be read
+ * @return	Number of bytes read, if successful, otherwise KErrGeneral
+ */
 
 TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 {
@@ -460,14 +464,18 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 	return(RetVal);
 }
 
-/* Written: Friday 02-Jan-2009 10:29 pm */
-/* @param	a_pcucBuffer	Ptr to the buffer to be written to the file */
-/*			a_iLength		Number of bytes in the buffer to be written */
-/* @return	Number of bytes written, if successful, otherwise KErrGeneral */
-/* Writes a number of bytes to the file.  The file must have been opened in a writeable mode, */
-/* either by using RFile::Open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the */
-/* latter two cases, files are always opened as writeable, regardless of the file mode passed in. */
-/* It is safe to try and write 0 bytes.  In this case 0 will be returned */
+/**
+ * Writes a number of bytes to the file.
+ * Writes a number of bytes to the file.  The file must have been opened in a writeable mode,
+ * either by using RFile::Open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the
+ * latter two cases, files are always opened as writeable, regardless of the file mode passed in.
+ * It is safe to try and write 0 bytes.  In this case 0 will be returned
+ *
+ * @date	Friday 02-Jan-2009 10:29 pm
+ * @param	a_pcucBuffer	Ptr to the buffer to be written to the file
+ * @param	a_iLength		Number of bytes in the buffer to be written
+ * @return	Number of bytes written, if successful, otherwise KErrGeneral
+ */
 
 TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
@@ -526,8 +534,12 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 	return(RetVal);
 }
 
-/* Written: Friday 02-Jan-2009 8:58 pm */
-/* Closes a file that has been created for reading & writing, or opened for reading. */
+/**
+ * Closes a file when access is no longer required.
+ * Closes a file that has been created for reading & writing, or opened for reading.
+ *
+ * @date	Friday 02-Jan-2009 8:58 pm
+ */
 
 void RFile::Close()
 {
