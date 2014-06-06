@@ -1057,7 +1057,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 							else
 							{
-								strcpy(a_poEntry->iName, Utils::FilePart(a_pccFileName));
+								strcpy(a_poEntry->iName, Utils::FilePart(ProgDirName));
 							}
 						}
 					}
