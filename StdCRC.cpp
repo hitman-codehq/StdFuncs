@@ -56,12 +56,13 @@ void RCRC::Init()
  * @pre		RCRC::Init() must have been previously called
  *
  * @date	Saturday 17-May-2014 11:00 am
+ * @param	a_uiStartCRC	Value of CRC with which to start.  Use 0 to begin with
  * @param	a_pucBuffer		Ptr to the block of data for which to calculate the CRC
  * @param	a_uiSize		Size of the block of data passed in, in bytes
  * @return	The 32 CRC value of the block of data
  */
 
-TUint RCRC::CRC32(unsigned char *a_pucBuffer, TUint a_uiSize)
+TUint RCRC::CRC32(TUint a_uiStartCRC, unsigned char *a_pucBuffer, TUint a_uiSize)
 {
 	unsigned char Data;
 	TUint Index, RetVal;
@@ -72,7 +73,7 @@ TUint RCRC::CRC32(unsigned char *a_pucBuffer, TUint a_uiSize)
 
 	/* Iterate through the buffer passed in and calculate its CRC */
 
-	RetVal = 0;
+	RetVal = a_uiStartCRC;
 
 	for (Index = 0; Index < a_uiSize; ++Index)
 	{

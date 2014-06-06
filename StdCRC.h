@@ -27,7 +27,7 @@ public:
 
 	void Init();
 
-	TUint CRC32(unsigned char *a_pucBuffer, TUint a_uiSize);
+	TUint CRC32(TUint a_uiStartCRC, unsigned char *a_pucBuffer, TUint a_uiSize);
 };
 
 #endif /* ! STDCRC_H */
