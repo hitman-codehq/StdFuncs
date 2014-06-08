@@ -104,13 +104,13 @@ public:
 	}
 
 	// TODO: CAW - This will mess up the Count() function + write a test case for this whole class
-	void MoveList(StdList<T> *a_poList)
+	void MoveList(StdList<T> *a_poSourceList)
 	{
-		m_oTail.m_poPrev->m_poNext = a_poList->m_oHead.m_poNext;
-		a_poList->m_oHead.m_poNext->m_poPrev = m_oTail.m_poPrev;
+		m_oTail.m_poPrev->m_poNext = a_poSourceList->m_oHead.m_poNext;
+		a_poSourceList->m_oHead.m_poNext->m_poPrev = m_oTail.m_poPrev;
 
-		a_poList->m_oTail.m_poPrev->m_poNext = &m_oTail;
-		m_oTail.m_poPrev = a_poList->m_oTail.m_poPrev;
+		a_poSourceList->m_oTail.m_poPrev->m_poNext = &m_oTail;
+		m_oTail.m_poPrev = a_poSourceList->m_oTail.m_poPrev;
 	}
 
 	T *RemHead()
