@@ -57,6 +57,38 @@ public:
 		++m_iCount;
 	}
 
+	/**
+	 * Appends nodes from one list to the end of another list.
+	 * This function will append all of the nodes in a given list to the end of this list.  After the append has
+	 * been performed, the source list will be completely empty of nodes and can be reused without any further
+	 * reinitialisation.  The count of nodes in this list will be the count before the append operation, plus
+	 * however many nodes were in the source list.
+	 *
+	 * @param	a_poSourceList	Pointer to the list from which to append the nodes
+	 */
+
+	void AppendList(StdList<T> *a_poSourceList)
+	{
+		/* Only do anything if the source list actually contains any nodes, to avoid appending the non moveable */
+		/* head and tail nodes */
+
+		if (a_poSourceList->Count() > 0)
+		{
+			m_oTail.m_poPrev->m_poNext = a_poSourceList->m_oHead.m_poNext;
+			a_poSourceList->m_oHead.m_poNext->m_poPrev = m_oTail.m_poPrev;
+
+			a_poSourceList->m_oTail.m_poPrev->m_poNext = &m_oTail;
+			m_oTail.m_poPrev = a_poSourceList->m_oTail.m_poPrev;
+
+			m_iCount += a_poSourceList->m_iCount;
+
+			/* The source list no longer owns the nodes but still points to them, so reset it back to */
+			/* a completely empty state so that it can be reused */
+
+			a_poSourceList->Reset();
+		}
+	}
+
 	TInt Count() const
 	{
 		return(m_iCount);
@@ -103,14 +135,37 @@ public:
 		return((a_poCurrent->m_oStdListNode.m_poNext != &m_oTail) ? a_poCurrent->m_oStdListNode.m_poNext->m_poThis : NULL);
 	}
 
-	// TODO: CAW - This will mess up the Count() function + write a test case for this whole class
+	/**
+	 * Moves nodes from one list to another list.
+	 * This function will move all of the nodes in a given list into this list.  After the move has been
+	 * been performed, the source list will be completely empty of nodes and can be reused without any further
+	 * reinitialisation.
+	 *
+	 * Any nodes present in this list when the operation is performed will be discarded and thrown away.  It
+	 * is the callers responsibility to free these nodes if required and no check is performed to see if there
+	 * are any nodes already present on this list when this function is called!
+	 *
+	 * @date	Thursday 12-Jun-2014 6:40 am, Code HQ Ehinger Tor
+	 * @param	a_poSourceList	Pointer to the list from which to move the nodes
+	 */
+
 	void MoveList(StdList<T> *a_poSourceList)
 	{
-		m_oTail.m_poPrev->m_poNext = a_poSourceList->m_oHead.m_poNext;
-		a_poSourceList->m_oHead.m_poNext->m_poPrev = m_oTail.m_poPrev;
+		/* Only do anything if the source list actually contains any nodes, to avoid moving the non moveable */
+		/* head and tail nodes */
 
-		a_poSourceList->m_oTail.m_poPrev->m_poNext = &m_oTail;
-		m_oTail.m_poPrev = a_poSourceList->m_oTail.m_poPrev;
+		if (a_poSourceList->Count() > 0)
+		{
+			m_oHead.m_poNext = a_poSourceList->m_oHead.m_poNext;
+			m_oTail.m_poPrev = a_poSourceList->m_oTail.m_poPrev;
+			m_oTail.m_poPrev->m_poNext = &m_oTail;
+			m_iCount = a_poSourceList->m_iCount;
+
+			/* The source list no longer owns the nodes but still points to them, so reset it back to */
+			/* a completely empty state so that it can be reused */
+
+			a_poSourceList->Reset();
+		}
 	}
 
 	T *RemHead()
