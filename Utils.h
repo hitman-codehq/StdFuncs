@@ -13,10 +13,6 @@
 
 #endif /* _MSC_VER */
 
-/* Forward declaration to avoid including Dir.h */
-
-class TEntry;
-
 /* Types of message boxes that can be opened with Utils::MessageBox() */
 
 enum TMessageBoxType
