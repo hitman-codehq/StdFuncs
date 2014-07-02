@@ -157,8 +157,11 @@ public:
 		if (a_poSourceList->Count() > 0)
 		{
 			m_oHead.m_poNext = a_poSourceList->m_oHead.m_poNext;
+			m_oHead.m_poNext->m_poPrev = &m_oHead;
+
 			m_oTail.m_poPrev = a_poSourceList->m_oTail.m_poPrev;
 			m_oTail.m_poPrev->m_poNext = &m_oTail;
+
 			m_iCount = a_poSourceList->m_iCount;
 
 			/* The source list no longer owns the nodes but still points to them, so reset it back to */
