@@ -119,6 +119,10 @@ SOURCE=..\StdList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\StdStringList.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\Test.h
 # End Source File
 # Begin Source File
