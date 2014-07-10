@@ -20,6 +20,11 @@ struct StdListNode
 template <class T>
 class StdList
 {
+	/* Typedef for a function pointer that is used for comparing two nodes in a linked list. */
+	/* The comparison function should return negative if the first node is less than the second */
+
+	typedef int (*CompareFunction)(const T *a_poFirst, const T *a_poSecond);
+
 private:
 
 	StdListNode<T>			m_oHead;		/* Dummy node representing head of the list */
@@ -54,6 +59,39 @@ public:
 		m_oTail.m_poPrev->m_poNext = &a_poNode->m_oStdListNode;
 		m_oTail.m_poPrev = &a_poNode->m_oStdListNode;
 
+		++m_iCount;
+	}
+
+	/**
+	 * Removes a single node from one list and appends it to another.
+	 * This function will remove a node from one list and append it to the end of another list.
+	 * It will take care of updating all links in both the source and destination lists, as well as
+	 * the metadata regarding the number of nodes in the two lists.  The source list is passed in
+	 * as a parameter and the destination is implicitly the current list.
+	 *
+	 * @date	Friday 27-Jun-2014 7:20 am, Code HQ Ehinger Tor
+	 * @param	a_poSourceList	Pointer to the list from which to append the node
+	 * @param	a_poSourceItem	Pointer to the list node to be appended to the destination list
+	 */
+
+	void AppendItem(StdList<T> *a_poSourceList, StdListNode<T> *a_poSourceItem)
+	{
+		StdListNode<T> *OldPrev, *OldNext;
+
+		/* Remove the node from the source list */
+
+		OldPrev = a_poSourceItem->m_poPrev;
+		OldNext = a_poSourceItem->m_poNext;
+		OldPrev->m_poNext = OldNext;
+		OldNext->m_poPrev = OldPrev;
+		--a_poSourceList->m_iCount;
+
+		/* And insert it into the destination list */
+
+		a_poSourceItem->m_poPrev = m_oTail.m_poPrev;
+		a_poSourceItem->m_poNext = &m_oTail;
+		m_oTail.m_poPrev->m_poNext = a_poSourceItem;
+		m_oTail.m_poPrev = a_poSourceItem;
 		++m_iCount;
 	}
 
@@ -225,6 +263,120 @@ public:
 		m_oHead.m_poNext = &m_oTail;
 		m_oTail.m_poPrev = &m_oHead;
 		m_iCount = 0;
+	}
+
+	/**
+	 * Sorts a list into order using a user defined sort key.
+	 * This function will use the so-called merge sort as developed by Simon Tatham of Putty fame.
+	 * in order to sort a list in-place.  After it has been called, the list will contain the same
+	 * number of nodes as before, but they will be sorted into order.  It uses a user supplied function
+	 * to compare the nodes in order to determine which node is "less" and which node is "more".  That
+	 * is, the node that is "less" will be sorted such that it is before the node that is "more".
+	 *
+	 * @date	Friday 27-Jun-2014 7:12 am, Code HQ Ehinger Tor
+	 * @param	a_poCompare		Pointer to a user defined function that will compare two nodes
+	 */
+
+	void Sort(CompareFunction a_poCompare)
+	{
+		TBool Merged;
+		TInt Index, InSize, NumMerges, PSize, QSize;
+		StdList<T> List;
+		StdListNode<T> *P, *Q, *E, *Tail;
+
+		Merged = ETrue;
+		InSize = 1;
+
+		do
+		{
+			P = m_oHead.m_poNext;
+			Tail = NULL;
+
+			/* Count number of merges we do in this pass */
+
+			NumMerges = 0;
+
+			while (P != &m_oTail)
+			{
+				/* There exists a merge to be done */
+
+				Merged = EFalse;
+				NumMerges++;
+
+				/* Step `InSize' places along from P */
+
+				Q = P;
+				PSize = 0;
+
+				for (Index = 0; Index < InSize; ++Index)
+				{
+					++PSize;
+					Q = Q->m_poNext;
+
+					if (Q == &m_oTail)
+					{
+						break;
+					}
+				}
+
+				/* If Q hasn't fallen off end, we have two lists to merge */
+
+				QSize = InSize;
+
+				/* Now we have two lists; merge them */
+
+				while (PSize > 0 || (QSize > 0 && Q != &m_oTail))
+				{
+					/* Decide whether next element of merge comes from P or Q */
+
+					if (PSize == 0)
+					{
+						/* P is empty; E must come from Q */
+
+						E = Q; Q = Q->m_poNext; --QSize;
+					}
+					else if (QSize == 0 || Q == &m_oTail)
+					{
+						/* Q is empty; E must come from P */
+
+						E = P; P = P->m_poNext; --PSize;
+					}
+					else if (a_poCompare(P->m_poThis, Q->m_poThis) <= 0)
+					{
+						/* First element of P is lower (or same); e must come from P */
+
+						E = P; P = P->m_poNext; --PSize;
+					}
+					else
+					{
+						/* First element of Q is lower; E must come from Q */
+
+						E = Q; Q = Q->m_poNext; --QSize;
+					}
+
+					/* Add the next element to the merged list */
+
+					Merged = ETrue;
+					List.AppendItem(this, E);
+					Tail = E;
+				}
+
+				/* Now P has stepped `InSize' places along, and Q has too */
+
+				P = Q;
+			}
+
+			/* The list has been partially sorted and moved into "List" to move it back into this list in preparation */
+			/* for the next iteration */
+
+			MoveList(&List);
+
+			/* Repeat the sort, merging lists twice the size.  If we only did one merge this iteration then the */
+			/* while statement below will trigger and we will exit the loop */
+
+			InSize *= 2;
+		}
+		while (NumMerges > 1);
 	}
 };
 

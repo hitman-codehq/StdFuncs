@@ -20,7 +20,7 @@ static const char *g_apccDoubleUnsortedStrings[NUM_NODES * 2] =
 
 static const char *g_apccSortedStrings[NUM_NODES] =
 {
-	"Eight", "Five", "Four", "Nine", "One", "Seven", "Six", "Three", "Ten", "Two"
+	"Eight", "Five", "Four", "Nine", "One", "Seven", "Six", "Ten", "Three", "Two"
 };
 
 class CNode
@@ -63,6 +63,13 @@ static void CheckList(StdList<CNode> &a_roList, const char **a_ppccStrings, TInt
 	test(Index == a_iNumStrings);
 }
 
+/* Written: Wednesday 09-Jul-2014 6:29 am, Code HQ Ehinger Tor */
+
+static int CompareNodes(const CNode *a_poFirst, const CNode *a_poSecond)
+{
+	return strcmp(a_poFirst->m_pccName, a_poSecond->m_pccName);
+}
+
 /* Written: Sunday 08-Jun-2014 12:21 pm, on train to Ammersee */
 
 static void CreateList(StdList<CNode> &a_roList, const char **a_ppccStrings)
@@ -102,19 +109,15 @@ static void TestAppend()
 	Test.Next("Test that one list can be appended to the end of another list");
 
 	CreateList(Source1, g_apccUnsortedStrings);
-	Test.Printf("Checking list %x\n", &Source1);
 	CheckList(Source1, g_apccUnsortedStrings, NUM_NODES);
 
 	CreateList(Source2, g_apccUnsortedStrings);
-	Test.Printf("Checking list %x\n", &Source2);
 	CheckList(Source2, g_apccUnsortedStrings, NUM_NODES);
 
 	List.AppendList(&Source1);
-	Test.Printf("Checking list %x\n", &List);
 	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
 
 	List.AppendList(&Source2);
-	Test.Printf("Checking list %x\n", &Source2);
 	CheckList(List, g_apccDoubleUnsortedStrings, (NUM_NODES * 2));
 
 	test(Source1.Count() == 0);
@@ -149,11 +152,9 @@ static void TestMove()
 	Test.Next("Test that nodes can be moved from one list to another");
 
 	CreateList(SourceList, g_apccUnsortedStrings);
-	Test.Printf("Checking list %x\n", &SourceList);
 	CheckList(SourceList, g_apccUnsortedStrings, NUM_NODES);
 
 	List.MoveList(&SourceList);
-	Test.Printf("Checking list %x\n", &List);
 	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
 
 	test(SourceList.Count() == 0);
@@ -170,6 +171,32 @@ static void TestMove()
 	FreeList(List);
 }
 
+/* Written: Friday 27-Jun-2014 7:12 am, Code HQ Ehinger Tor */
+
+static void TestSort()
+{
+	StdList<CNode> List;
+
+	/* Test #4: Test sorting a list alphabetically */
+
+	Test.Next("Test sorting a list alphabetically");
+
+	/* First ensure that an empty list can be handled */
+
+	List.Sort(CompareNodes);
+
+	/* Create a list containing NUM_NODES unsorted strings, sort it and ensure that it is sorted as expected */
+
+	CreateList(List, g_apccUnsortedStrings);
+	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
+
+	List.Sort(CompareNodes);
+
+	CheckList(List, g_apccSortedStrings, NUM_NODES);
+
+	FreeList(List);
+}
+
 int main()
 {
 	Test.Title();
@@ -177,6 +204,7 @@ int main()
 
 	TestAppend();
 	TestMove();
+	TestSort();
 
 	Test.End();
 
