@@ -148,7 +148,7 @@ public:
 
 	/* Written: Friday 10-Aug-2012 7:42 am, Code HQ Ehinger Tor */
 
-	bool IsOnList(T *a_poNode) const
+	TBool IsOnList(T *a_poNode) const
 	{
 		return(a_poNode->m_oStdListNode.m_poPrev != NULL);
 	}
@@ -212,8 +212,6 @@ public:
 	T *RemHead()
 	{
 		T *RetVal;
-
-		// TODO: CAW - Assert the node is on a list, here and for others
 
 		if (m_oHead.m_poNext != &m_oTail)
 		{
