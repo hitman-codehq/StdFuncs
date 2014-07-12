@@ -65,7 +65,7 @@ static void CheckList(StdList<CNode> &a_roList, const char **a_ppccStrings, TInt
 
 /* Written: Wednesday 09-Jul-2014 6:29 am, Code HQ Ehinger Tor */
 
-static int CompareNodes(const CNode *a_poFirst, const CNode *a_poSecond)
+static TInt CompareNodes(const CNode *a_poFirst, const CNode *a_poSecond)
 {
 	return strcmp(a_poFirst->m_pccName, a_poSecond->m_pccName);
 }
