@@ -90,13 +90,13 @@ int main()
 #ifdef __amigaos4__
 
 	TestScan("#?");
-	TestScan("#?.dsw", 1, 3054);
+	TestScan("#?.dsw", 1, 3336);
 	TestScan("SomeDir/#?.txt", 1, 174);
 
 #else /* ! __amigaos4__ */
 
 	TestScan("*");
-	TestScan("*.dsw", 1, 3054);
+	TestScan("*.dsw", 1, 3336);
 	TestScan("SomeDir/*.txt", 1, 174);
 
 #endif /* ! __amigaos4__ */
