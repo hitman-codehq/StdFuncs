@@ -23,7 +23,7 @@ class StdList
 	/* Typedef for a function pointer that is used for comparing two nodes in a linked list. */
 	/* The comparison function should return negative if the first node is less than the second */
 
-	typedef int (*CompareFunction)(const T *a_poFirst, const T *a_poSecond);
+	typedef TInt (*CompareFunction)(const T *a_poFirst, const T *a_poSecond);
 
 private:
 
@@ -266,7 +266,7 @@ public:
 	/**
 	 * Sorts a list into order using a user defined sort key.
 	 * This function will use the so-called merge sort as developed by Simon Tatham of Putty fame.
-	 * in order to sort a list in-place.  After it has been called, the list will contain the same
+	 * in order to sort a list in situ.  After it has been called, the list will contain the same
 	 * number of nodes as before, but they will be sorted into order.  It uses a user supplied function
 	 * to compare the nodes in order to determine which node is "less" and which node is "more".  That
 	 * is, the node that is "less" will be sorted such that it is before the node that is "more".
@@ -277,18 +277,15 @@ public:
 
 	void Sort(CompareFunction a_poCompare)
 	{
-		TBool Merged;
 		TInt Index, InSize, NumMerges, PSize, QSize;
 		StdList<T> List;
-		StdListNode<T> *P, *Q, *E, *Tail;
+		StdListNode<T> *P, *Q, *E;
 
-		Merged = ETrue;
 		InSize = 1;
 
 		do
 		{
 			P = m_oHead.m_poNext;
-			Tail = NULL;
 
 			/* Count number of merges we do in this pass */
 
@@ -298,7 +295,6 @@ public:
 			{
 				/* There exists a merge to be done */
 
-				Merged = EFalse;
 				NumMerges++;
 
 				/* Step `InSize' places along from P */
@@ -354,9 +350,7 @@ public:
 
 					/* Add the next element to the merged list */
 
-					Merged = ETrue;
 					List.AppendItem(this, E);
-					Tail = E;
 				}
 
 				/* Now P has stepped `InSize' places along, and Q has too */
