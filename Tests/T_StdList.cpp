@@ -183,7 +183,7 @@ static void TestSort()
 
 	/* First ensure that an empty list can be handled */
 
-	List.Sort(CompareNodes);
+	List.Sort(CompareNodes, NULL);
 
 	/* Create a list containing NUM_NODES unsorted strings, sort it and ensure that it is sorted as expected */
 

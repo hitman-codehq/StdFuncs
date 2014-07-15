@@ -2,6 +2,8 @@
 #ifndef DIR_H
 #define DIR_H
 
+/** @file */
+
 #include "StdList.h"
 #include "Time.h"
 
@@ -10,6 +12,15 @@
 #include <dirent.h>
 
 #endif /* __linux__ */
+
+/** File sorting possibilities for files returned by RDir::Read() */
+
+enum TDirSortOrder
+{
+	EDirSortNone,			/**< No sorting */
+	EDirSortAscending,		/**< Alphabetical sorting in ascending order */
+	EDirSortDescending		/**< Alphabetical sorting in descending order */
+};
 
 /* An instance of this class represents a directory or filename and its associated */
 /* attributes, such as name etc.  It is filled in by the RDir class */
@@ -79,6 +90,8 @@ public:
 
 	TEntry *Append(const char *a_pccName);
 
+	static TInt CompareEntries(const TEntry *a_poFirst, const TEntry *a_poSecond, void *a_pvUserData);
+
 	TInt Count() const;
 
 	const TEntry &operator[](TInt a_iIndex) const;
@@ -90,6 +103,8 @@ public:
 	void Purge();
 
 	void Remove(const TEntry *a_poEntry);
+
+	void Sort(enum TDirSortOrder a_eSortOrder);
 };
 
 /* A class for scanning directories for directory and file entries */
@@ -138,7 +153,7 @@ public:
 	void Close();
 
 	// TODO: CAW - Is it possible to make this more Symbian like?
-	TInt Read(TEntryArray *&a_rpoEntries);
+	TInt Read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone);
 };
 
 #endif /* ! DIR_H */

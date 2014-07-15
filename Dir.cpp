@@ -17,7 +17,12 @@
 #include <string.h>
 #include "Dir.h"
 
-// TODO: CAW - Add Utils::Info() calls all though here and RFile (check others) but only in debug mode?  Consistency!
+/** Structure containing information regarding the desired sort order */
+
+struct SSortInfo
+{
+	enum TDirSortOrder m_eSortOrder;	/**< Sort order originally passed to TEntryArray::Sort() */
+};
 
 /* Written: Saturday 03-Nov-2007 7:27 pm */
 
@@ -193,6 +198,41 @@ TEntry *TEntryArray::Append(const char *a_pccName)
 	return(Entry);
 }
 
+/**
+ * Compares two directory entries and returns whether one is "less" than the other.
+ * This function is used by the TEntryArray::Sort() function as a callback when the list of
+ * TEntry structures is being sorted.  The sort function calls it in order to determine in which
+ * order to sort the nodes in the list.  The return value will depend on the sort mode being used.
+ *
+ * @date	Saturday 12-Jul-2014 6:59 am, Code HQ Ehinger Tor
+ * @param	a_poFirst		Pointer to the first node to be compared
+ * @param	a_poSecond		Pointer to the second node to be compared
+ * @param	a_pvUserData	Pointer to a SSortInfo structure that was passed to StdList::Sort()
+ * @return	Returns a negative value to indicate that the first node should go first on the list,
+ *			else a positive value to indicate that the second node should go first
+ */
+
+TInt TEntryArray::CompareEntries(const TEntry *a_poFirst, const TEntry *a_poSecond, void *a_pvUserData)
+{
+	TInt RetVal;
+	struct SSortInfo *SortInfo;
+
+	SortInfo = (struct SSortInfo *) a_pvUserData;
+
+	ASSERTM((SortInfo != NULL), "TEntryArray::CompareEntries() => User data passed in is invalid");
+
+	if (SortInfo->m_eSortOrder == EDirSortAscending)
+	{
+		RetVal = strcmp(a_poFirst->iName, a_poSecond->iName);
+	}
+	else
+	{
+		RetVal = strcmp(a_poSecond->iName, a_poFirst->iName);
+	}
+
+	return(RetVal);
+}
+
 /* Written: Saturday 03-Nov-2007 6:18 pm */
 
 TInt TEntryArray::Count() const
@@ -249,6 +289,27 @@ void TEntryArray::Purge()
 void TEntryArray::Remove(const TEntry *a_poEntry)
 {
 	iEntries.Remove((TEntry *) a_poEntry);
+}
+
+/**
+ * Sorts the array of file entries.
+ * This function will sort the array of file entries in one of a number of ways, as
+ * specified by the a_eSortOrder parameter.  The entries are sorted in situ.
+ *
+ * @date	Saturday 12-Jul-2014 7:23 am, Code HQ Ehinger Tor
+ * @param	a_eSortOrder	Order in which to sort, as specified by the TDirSortOrder enum
+ */
+
+void TEntryArray::Sort(enum TDirSortOrder a_eSortOrder)
+{
+	struct SSortInfo SortInfo;
+
+	/* Setup a structure containing information regarding the sort order and call the link list's */
+	/* sorting function */
+
+	SortInfo.m_eSortOrder = a_eSortOrder;
+
+	iEntries.Sort(CompareEntries, &SortInfo);
 }
 
 /* Written: Saturday 03-Nov-2007 5:24 pm */
@@ -670,24 +731,30 @@ void RDir::Close()
 	iSingleEntryOk = EFalse;
 }
 
-/* Written: Saturday 03-Nov-2007 5:38 pm */
-/* @param	a_roEntries	Reference to a ptr into which to place a ptr to the */
-/*						array of entries read by this function */
-/* @return	KErrNone if successful */
-/*			KErrNoMemory if not enough memory was available */
-/*			KErrGeneral if some other unspecified error occurred */
-/* Scans a directory that has been prepared with RDir::Open() and populates a list */
-/* with all of the entries found.  This list is then returned to the calling client */
-/* code */
+/**
+ * Scans a directory for file and directory entries.
+ * Scans a directory that has been prepared with RDir::Open() and populates a list
+ * with all of the entries found.  This list is then returned to the calling client
+ * code.
+ *
+ * @date	Saturday 03-Nov-2007 5:38 pm
+ * @param	a_rpoEntries	Reference to a ptr into which to place a ptr to the
+ *							array of entries read by this function
+ * @param	a_eSortOrder	Enumeration specifying the order in which to sort the files.
+ *							EDirSortNone is used by default
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
 
-TInt RDir::Read(TEntryArray *&a_roEntries)
+TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 {
 	TInt RetVal;
 
 	/* Assume success */
 
 	RetVal = KErrNone;
-	a_roEntries = &iEntries;
+	a_rpoEntries = &iEntries;
 
 #ifdef __amigaos4__
 
@@ -959,6 +1026,13 @@ TInt RDir::Read(TEntryArray *&a_roEntries)
 	}
 
 #endif /* ! __linux__ */
+
+	/* Sort the list before returning it, if requested */
+
+	if (a_eSortOrder != EDirSortNone)
+	{
+		iEntries.Sort(a_eSortOrder);
+	}
 
 	return(RetVal);
 }

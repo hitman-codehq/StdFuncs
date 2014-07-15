@@ -23,7 +23,7 @@ class StdList
 	/* Typedef for a function pointer that is used for comparing two nodes in a linked list. */
 	/* The comparison function should return negative if the first node is less than the second */
 
-	typedef TInt (*CompareFunction)(const T *a_poFirst, const T *a_poSecond);
+	typedef TInt (*CompareFunction)(const T *a_poFirst, const T *a_poSecond, void *a_pvUserData);
 
 private:
 
@@ -273,9 +273,10 @@ public:
 	 *
 	 * @date	Friday 27-Jun-2014 7:12 am, Code HQ Ehinger Tor
 	 * @param	a_poCompare		Pointer to a user defined function that will compare two nodes
+	 * @param	a_pvUserData	Pointer to user specific data to be passed to comparison function
 	 */
 
-	void Sort(CompareFunction a_poCompare)
+	void Sort(CompareFunction a_poCompare, void *a_pvUserData)
 	{
 		TInt Index, InSize, NumMerges, PSize, QSize;
 		StdList<T> List;
@@ -335,7 +336,7 @@ public:
 
 						E = P; P = P->m_poNext; --PSize;
 					}
-					else if (a_poCompare(P->m_poThis, Q->m_poThis) <= 0)
+					else if (a_poCompare(P->m_poThis, Q->m_poThis, a_pvUserData) <= 0)
 					{
 						/* First element of P is lower (or same); e must come from P */
 
