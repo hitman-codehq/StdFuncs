@@ -338,7 +338,7 @@ public:
 					}
 					else if (a_poCompare(P->m_poThis, Q->m_poThis, a_pvUserData) <= 0)
 					{
-						/* First element of P is lower (or same); e must come from P */
+						/* First element of P is lower (or same); E must come from P */
 
 						E = P; P = P->m_poNext; --PSize;
 					}
