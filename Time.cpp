@@ -69,9 +69,9 @@ TInt64 TTime::Int64() const
 
 /* Written: Wednesday 17-Jun-2009 7:50 am */
 
-TTime &TTime::operator=(const TDateTime &a_oDateTime)
+TTime &TTime::operator=(const TDateTime &a_roDateTime)
 {
-	iDateTime = a_oDateTime;
+	iDateTime = a_roDateTime;
 
 	return(*this);
 }

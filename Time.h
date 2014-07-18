@@ -56,13 +56,13 @@ public:
 
 	TTime() { }
 
-	TTime(const TDateTime &a_oDateTime);
+	TTime(const TDateTime &a_roDateTime);
 
 	TDateTime DateTime() const { return(iDateTime); }
 
 	TInt64 Int64() const;
 
-	TTime &operator=(const TDateTime &a_oDateTime);
+	TTime &operator=(const TDateTime &a_roDateTime);
 
 	TBool operator==(const TTime &a_roTime) const;
 
