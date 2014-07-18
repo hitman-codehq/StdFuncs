@@ -60,9 +60,13 @@ public:
 
 	TDateTime DateTime() const { return(iDateTime); }
 
+	TInt64 Int64() const;
+
 	TTime &operator=(const TDateTime &a_oDateTime);
 
 	TBool operator==(TTime a_oTime) const;
+
+	TBool operator>(const TTime &a_roTime) const;
 };
 
 #endif /* ! TIME_H */
