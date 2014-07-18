@@ -107,10 +107,6 @@ SOURCE=..\File.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\Inferno\InfList.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\MungWall.h
 # End Source File
 # Begin Source File
