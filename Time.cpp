@@ -78,11 +78,11 @@ TTime &TTime::operator=(const TDateTime &a_oDateTime)
 
 /* Written: Monday 13-Jul-2009 6:28 am */
 
-TBool TTime::operator==(TTime a_oTime) const
+TBool TTime::operator==(const TTime &a_roTime) const
 {
-	return((iDateTime.Year() == a_oTime.iDateTime.Year()) && (iDateTime.Month() == a_oTime.iDateTime.Month()) &&
-		(iDateTime.Day() == a_oTime.iDateTime.Day()) && (iDateTime.Hour() == a_oTime.iDateTime.Hour()) &&
-		(iDateTime.Minute() == a_oTime.iDateTime.Minute()) && (iDateTime.Second() == a_oTime.iDateTime.Second()));
+	return((iDateTime.Year() == a_roTime.iDateTime.Year()) && (iDateTime.Month() == a_roTime.iDateTime.Month()) &&
+		(iDateTime.Day() == a_roTime.iDateTime.Day()) && (iDateTime.Hour() == a_roTime.iDateTime.Hour()) &&
+		(iDateTime.Minute() == a_roTime.iDateTime.Minute()) && (iDateTime.Second() == a_roTime.iDateTime.Second()));
 }
 
 /**
@@ -93,7 +93,7 @@ TBool TTime::operator==(TTime a_oTime) const
  * relatively expensive routine in terms of CPU cycles.
  *
  * @date	Wednesday 16-Jul-2014 6:29 am
- * @param	Date and time with which to compare the current date and time
+ * @param	a_roTime	Date and time with which to compare the current date and time
  * @return	ETrue if the current date and time is greater than that passed in, else EFalse
  */
 

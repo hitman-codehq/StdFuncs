@@ -64,7 +64,7 @@ public:
 
 	TTime &operator=(const TDateTime &a_oDateTime);
 
-	TBool operator==(TTime a_oTime) const;
+	TBool operator==(const TTime &a_roTime) const;
 
 	TBool operator>(const TTime &a_roTime) const;
 };
