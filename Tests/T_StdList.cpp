@@ -65,8 +65,10 @@ static void CheckList(StdList<CNode> &a_roList, const char **a_ppccStrings, TInt
 
 /* Written: Wednesday 09-Jul-2014 6:29 am, Code HQ Ehinger Tor */
 
-static TInt CompareNodes(const CNode *a_poFirst, const CNode *a_poSecond)
+static TInt CompareNodes(const CNode *a_poFirst, const CNode *a_poSecond, void *a_pvUserData)
 {
+	(void) a_pvUserData;
+
 	return strcmp(a_poFirst->m_pccName, a_poSecond->m_pccName);
 }
 
@@ -190,7 +192,7 @@ static void TestSort()
 	CreateList(List, g_apccUnsortedStrings);
 	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
 
-	List.Sort(CompareNodes);
+	List.Sort(CompareNodes, NULL);
 
 	CheckList(List, g_apccSortedStrings, NUM_NODES);
 
