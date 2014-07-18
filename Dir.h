@@ -18,8 +18,12 @@
 enum TDirSortOrder
 {
 	EDirSortNone,			/**< No sorting */
-	EDirSortAscending,		/**< Alphabetical sorting in ascending order */
-	EDirSortDescending		/**< Alphabetical sorting in descending order */
+	EDirSortNameAscending,	/**< Sort alphabetically in ascending order */
+	EDirSortNameDescending,	/**< Sort alphabetically in descending order */
+	EDirSortSizeAscending,	/**< Sort from smallest to largest */
+	EDirSortSizeDescending,	/**< Sort from largest to smallest */
+	EDirSortDateAscending,	/**< Sort from oldest to newest */
+	EDirSortDateDescending	/**< Sort from newest to oldest */
 };
 
 /* An instance of this class represents a directory or filename and its associated */

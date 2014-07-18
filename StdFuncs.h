@@ -54,6 +54,16 @@ typedef signed int TInt;
 typedef unsigned int TUint;
 typedef int TBool;
 
+#ifdef WIN32
+
+typedef signed __int64 TInt64;
+
+#else /* ! WIN32 */
+
+typedef signed long long TInt64;
+
+#endif /* ! WIN32 */
+
 /* Values for use with TBool */
 
 #define ETrue 1

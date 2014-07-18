@@ -221,9 +221,25 @@ TInt TEntryArray::CompareEntries(const TEntry *a_poFirst, const TEntry *a_poSeco
 
 	ASSERTM((SortInfo != NULL), "TEntryArray::CompareEntries() => User data passed in is invalid");
 
-	if (SortInfo->m_eSortOrder == EDirSortAscending)
+	if (SortInfo->m_eSortOrder == EDirSortNameAscending)
 	{
 		RetVal = strcmp(a_poFirst->iName, a_poSecond->iName);
+	}
+	else if (SortInfo->m_eSortOrder == EDirSortSizeAscending)
+	{
+		RetVal = (a_poFirst->iSize - a_poSecond->iSize);
+	}
+	else if (SortInfo->m_eSortOrder == EDirSortSizeDescending)
+	{
+		RetVal = (a_poSecond->iSize - a_poFirst->iSize);
+	}
+	else if (SortInfo->m_eSortOrder == EDirSortDateAscending)
+	{
+		RetVal = (a_poFirst->iModified > a_poSecond->iModified);
+	}
+	else if (SortInfo->m_eSortOrder == EDirSortDateDescending)
+	{
+		RetVal = (a_poSecond->iModified > a_poFirst->iModified);
 	}
 	else
 	{
