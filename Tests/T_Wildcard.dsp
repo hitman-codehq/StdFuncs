@@ -111,6 +111,10 @@ SOURCE=..\StdList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\StdTime.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\StdWildcard.h
 # End Source File
 # Begin Source File

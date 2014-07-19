@@ -115,6 +115,10 @@ SOURCE=..\StdPool.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\StdTime.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\Test.h
 # End Source File
 # Begin Source File

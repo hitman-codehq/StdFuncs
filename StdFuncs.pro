@@ -33,8 +33,8 @@ SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
 
 HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdClipboard.h \
 	StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h \
-	StdImage.h StdList.h StdPool.h StdReaction.h StdStringList.h StdTextFile.h StdWildcard.h StdWindow.h \
-	Test.h Time.h Utils.h
+	StdImage.h StdList.h StdPool.h StdReaction.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h \
+	StdWindow.h Test.h Utils.h
 
 HEADERS += Qt/StdGadgetSlider.h
 HEADERS += Qt/StdWindow.h

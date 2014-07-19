@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W4 /GX- /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W4 /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
 # ADD RSC /l 0x809 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W4 /Gm /GX- /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /W4 /Gm /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
 # ADD RSC /l 0x809 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -169,6 +169,10 @@ SOURCE=.\StdTextFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdTime.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdWildcard.cpp
 # End Source File
 # Begin Source File
@@ -178,10 +182,6 @@ SOURCE=.\StdWindow.cpp
 # Begin Source File
 
 SOURCE=.\Test.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Time.cpp
 # End Source File
 # Begin Source File
 
@@ -277,6 +277,10 @@ SOURCE=.\StdTextFile.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\StdTime.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdWildcard.h
 # End Source File
 # Begin Source File
@@ -286,10 +290,6 @@ SOURCE=.\StdWindow.h
 # Begin Source File
 
 SOURCE=.\Test.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Time.h
 # End Source File
 # Begin Source File
 
