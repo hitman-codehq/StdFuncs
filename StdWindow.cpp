@@ -2741,7 +2741,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 		if (SystemParametersInfo(SPI_GETWORKAREA, 0, &Rect, 0))
 		{
 			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
-				Rect.right, Rect.bottom, 0, 0, Instance, 0)) != NULL)
+				Rect.right, Rect.bottom, NULL, NULL, Instance, NULL)) != NULL)
 			{
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
