@@ -62,7 +62,7 @@ public:
 
 	int SetDataStart(int a_iMaxLength);
 
-	void AppendData(const char *a_pcData, int a_iOffset, int a_iLength);
+	void AppendData(const char *a_pcData, TInt a_iOffset, TInt a_iLength);
 
 	void SetDataEnd();
 

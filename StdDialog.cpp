@@ -9,7 +9,7 @@
 
 /* Written: Saturday 21-Aug-2010 12:21 pm */
 
-static int CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
+static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	int HiWord, LoWord, RetVal, Width, Height, WindowWidth, WindowHeight;
 	RECT Size;
