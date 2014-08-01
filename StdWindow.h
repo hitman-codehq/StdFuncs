@@ -190,6 +190,8 @@ public:
 		return(m_poApplication);
 	}
 
+	void BringToFront();
+
 	void ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth);
 
 	void DrawNow();

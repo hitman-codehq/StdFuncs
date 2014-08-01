@@ -1815,6 +1815,25 @@ TBool CWindow::CtrlPressed()
 
 }
 
+/**
+ * Brings the window to the top of the Z-Order, so it is in front of all other windows.
+ * This function will move the window represented by the current instance of this class to be
+ * on top of all other windows in the system.
+ *
+ * @date	Friday 18-Jul-2014 11:55 am, on board ICE 578 train to Frankfurt Flughafen
+ */
+
+void CWindow::BringToFront()
+{
+
+#ifdef WIN32
+
+	SetForegroundWindow(m_poWindow);
+
+#endif /* WIN32 */
+
+}
+
 /* Written: Wednesday 14-Jul-2011 6:14 am, Code HQ-by-Thames */
 
 void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
@@ -2743,6 +2762,13 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
 				Rect.right, Rect.bottom, NULL, NULL, Instance, NULL)) != NULL)
 			{
+				/* Normally Windows does not allow processes to bring themselves to the front unless they are */
+				/* processing an input related event.  This interferes with our ability to bring ourselves to */
+				/* the front when a second instance of the application is launched, so give the current process */
+				/* permission to bring itself to the front */
+
+				AllowSetForegroundWindow(GetCurrentProcessId());
+
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
 				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
