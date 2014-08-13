@@ -2767,7 +2767,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 				/* the front when a second instance of the application is launched, so give the current process */
 				/* permission to bring itself to the front */
 
-				AllowSetForegroundWindow(GetCurrentProcessId());
+				//AllowSetForegroundWindow(GetCurrentProcessId());
 
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
