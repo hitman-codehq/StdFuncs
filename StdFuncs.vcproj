@@ -335,6 +335,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdCRC.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdDialog.cpp"
 				>
 				<FileConfiguration
@@ -499,6 +503,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdRendezvous.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StdStringList.cpp"
 				>
 			</File>
@@ -521,6 +529,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\StdTime.cpp"
+				>
 			</File>
 			<File
 				RelativePath="StdWildcard.cpp"
@@ -564,26 +576,6 @@
 			</File>
 			<File
 				RelativePath="Test.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Time.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -664,6 +656,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdCRC.h"
+				>
+			</File>
+			<File
 				RelativePath="StdDialog.h"
 				>
 			</File>
@@ -696,11 +692,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdRendezvous.h"
+				>
+			</File>
+			<File
 				RelativePath=".\StdStringList.h"
 				>
 			</File>
 			<File
 				RelativePath="StdTextFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StdTime.h"
 				>
 			</File>
 			<File
@@ -713,10 +717,6 @@
 			</File>
 			<File
 				RelativePath="Test.h"
-				>
-			</File>
-			<File
-				RelativePath="Time.h"
 				>
 			</File>
 			<File
