@@ -3,6 +3,7 @@
 #include "StdApplication.h"
 #include "StdGadgets.h"
 #include "StdReaction.h"
+#include "StdRendezvous.h"
 #include "StdWindow.h"
 #include <string.h>
 
@@ -605,6 +606,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
+	COPYDATASTRUCT *CopyData;
 
 	/* Return 0 by default for processed messages */
 
@@ -976,6 +978,20 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		case WM_SIZE :
 		{
 			Window->InternalResize(LOWORD(a_oLParam), HIWORD(a_oLParam));
+
+			break;
+		}
+
+		case WM_COPYDATA :
+		{
+			/* Let the RRendezvous class know that a rendevous has been received */
+
+			CopyData = (COPYDATASTRUCT *) a_oLParam;
+			g_oRendezvous.RendezvousReceived((unsigned char *) CopyData->lpData, CopyData->cbData);
+
+			/* And indicate that the message has been processed */
+
+			RetVal = 1;
 
 			break;
 		}
@@ -2767,7 +2783,11 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 				/* the front when a second instance of the application is launched, so give the current process */
 				/* permission to bring itself to the front */
 
-				//AllowSetForegroundWindow(GetCurrentProcessId());
+#if _WIN32_WINNT > 0x501
+
+				AllowSetForegroundWindow(GetCurrentProcessId());
+
+#endif
 
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
