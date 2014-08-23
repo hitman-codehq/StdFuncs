@@ -367,6 +367,8 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 		PRINTF("Assertion Failure: %s\n", a_pccMessage);
 	}
 
+	va_end(Args);
+
 #ifndef __amigaos4__
 
 	/* When an assertion happens we want to exit the system as if we allow execution */
@@ -377,7 +379,6 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 #endif /* ! __amigaos4__ */
 
-	va_end(Args);
 }
 
 #endif /* _DEBUG */
