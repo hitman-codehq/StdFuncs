@@ -1844,7 +1844,7 @@ void CWindow::BringToFront()
 
 #ifdef WIN32
 
-	SetForegroundWindow(m_poWindow);
+	DEBUGCHECK((SetForegroundWindow(m_poWindow) != FALSE), "CWindow::BringToFront() => Unable to set foreground window");
 
 #endif /* WIN32 */
 
@@ -2778,17 +2778,6 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
 				Rect.right, Rect.bottom, NULL, NULL, Instance, NULL)) != NULL)
 			{
-				/* Normally Windows does not allow processes to bring themselves to the front unless they are */
-				/* processing an input related event.  This interferes with our ability to bring ourselves to */
-				/* the front when a second instance of the application is launched, so give the current process */
-				/* permission to bring itself to the front */
-
-#if _WIN32_WINNT > 0x501
-
-				AllowSetForegroundWindow(GetCurrentProcessId());
-
-#endif
-
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
 				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
