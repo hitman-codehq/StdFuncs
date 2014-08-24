@@ -1483,16 +1483,22 @@ void Utils::NormalisePath(char *a_pcPath)
 	}
 }
 
-/* Written: Saturday 12-Mar-2011 11:00 am */
-/* @param	a_pccTitle			Ptr to the title to be displayed in the mesage box */
-/* @param	a_pccMessage		Ptr to the message to be displayed.  This can contain printf() style %d */
-/*								specifiers that will be processed and matched with arguments pass in in the */
-/*								a_oArgs varargs list */
-/* @param	a_eMessageBoxType	Type of message box to displays, as specified by the TMessageBoxType enumeration */
-/* @return	IDOK, IDCANCEL, IDYES or IDNO if successful, or 0 if the message box could not be opened */
-/* Opens a message box to prompt the user with a question or simply to display information.  Different types */
-/* of message boxes may be opened, which contain combinations of Ok, Cancel, Yes and No buttons according to */
-/* the a_eMessageBoxType passed in */
+/**
+ * Displays a generic message box and waits for input.
+ * Opens a message box to prompt the user with a question or simply to display information.  Different types
+ * of message boxes may be opened, which contain combinations of Ok, Cancel, Yes and No buttons according to
+ * the a_eMessageBoxType passed in.
+ *
+ * @date	Saturday 12-Mar-2011 11:00 am
+ * @param	a_pccTitle			Ptr to the title to be displayed in the mesage box
+ * @param	a_pccMessage		Ptr to the message to be displayed.  This can contain printf() style %d
+ *								specifiers that will be processed and matched with arguments pass in in the
+ *								a_oArgs varargs list
+ * @param	a_eMessageBoxType	Type of message box to displays, as specified by the TMessageBoxType enumeration
+ * @param	a_oArgs				List of arguments with which to populate the printf() style %d specifiers
+ * @return	IDOK, IDCANCEL, IDYES or IDNO if successful, indicating which button was pressed
+ * @return	0 if the message box could not be opened
+ */
 
 TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs)
 {
@@ -2126,15 +2132,19 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 
 #endif /* __amigaos4__ */
 
-/* Written: Thursday 16-Aug-2012 12:55 pm */
-/* @param	a_pccFileName	Ptr to the name of the file to be made deleteable */
-/* @return	KErrNone if successful */
-/*			KErrNotFound if the file could not be found */
-/*			KErrGeneral if some other unspecified error occurred */
-/* Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly */
-/* different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On UNIX it sets */
-/* the current user's 'w' bit and on Windows it clears the read only, system and hidden bits by */
-/* setting the file type to normal, thus clearing all bits */
+/**
+ * Removes write protection from a file.
+ * Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly
+ * different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On UNIX it sets
+ * the current user's 'w' bit and on Windows it clears the read only, system and hidden bits by
+ * setting the file type to normal, thus clearing all bits.
+ *
+ * @date	Thursday 16-Aug-2012 12:55 pm
+ * @param	a_pccFileName	Ptr to the name of the file to be made deleteable
+ * @return	KErrNone if successful
+ * @return	KErrNotFound if the file could not be found
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
 
 TInt Utils::SetDeleteable(const char *a_pccFileName)
 {

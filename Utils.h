@@ -2,6 +2,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+/** @file */
+
 #include <stdarg.h>
 #include "Dir.h"
 
@@ -13,11 +15,19 @@
 
 #endif /* _MSC_VER */
 
-/* Types of message boxes that can be opened with Utils::MessageBox() */
+/**
+ * Types of message boxes that can be opened with Utils::MessageBox().
+ * The type of the message box is determined by how many buttons it contains;  this is defined
+ * by this enumeration.  When the user closes a message box it will return a value that indicates
+ * which button was clicked.  This will be one of IDOK, IDCANCEL, IDYES or IDNO.
+ */
 
 enum TMessageBoxType
 {
-	EMBTOk, EMBTOkCancel, EMBTYesNo, EMBTYesNoCancel
+	EMBTOk,			/**< Single Ok button */
+	EMBTOkCancel,	/**< Ok and Cancel buttons */
+	EMBTYesNo,		/**< Yes and No buttons */
+	EMBTYesNoCancel	/**< Yes, No and Cancel buttons */
 };
 
 /* Export some globals for use elsewhere */
