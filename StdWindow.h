@@ -71,6 +71,9 @@ class CWindow
 {
 private:
 
+	TInt				m_iCursorX;					/**< Current X position of the cursor */
+	TInt				m_iCursorY;					/**< Current Y position of the cursor */
+	TInt				m_iCursorHeight;			/**< Height of the cursor to be displayed */
 	TBool				m_bFillBackground;			/* ETrue to fill background when drawing */
 	CWindow				*m_poNext;					/* Ptr to next window in list */
 
@@ -169,6 +172,7 @@ public:
 
 	CWindow(RApplication *a_poApplication)
 	{
+		m_iCursorHeight = 16;
 		m_bFillBackground = ETrue;
 		m_poApplication = a_poApplication;
 	}
@@ -240,6 +244,8 @@ public:
 	void RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand);
 
 	void RethinkLayout();
+
+	void SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight);
 
 	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
 

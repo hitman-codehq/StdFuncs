@@ -655,6 +655,22 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			break;
 		}
 
+		case WM_SETFOCUS :
+		{
+			/* Create a native Windows cursor and if successful, show it and position it at its assigned */
+			/* X and Y positions */
+
+			if (CreateCaret(Window->m_poWindow, NULL, 0, Window->m_iCursorHeight))
+			{
+				if (ShowCaret(Window->m_poWindow) == TRUE)
+				{
+					SetCaretPos(Window->m_iCursorX, Window->m_iCursorY);
+				}
+			}
+
+			break;
+		}
+
 		case WM_CLOSE :
 		{
 			/* Allow the client window itself to handle the close */
@@ -907,6 +923,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* of preprocessing */
 
 			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
+
+			break;
+		}
+
+		case WM_KILLFOCUS :
+		{
+			/* Destroy the native Windows cursor as the window is losing focus */
+
+			DestroyCaret();
 
 			break;
 		}
@@ -3111,6 +3136,37 @@ void CWindow::RethinkLayout()
 	}
 
 #endif /* ! __amigaos4__ */
+
+}
+
+/**
+ * Sets the position and size of the cursor to be displayed.
+ * On systems that use a native cursor, this function will set the position and size of
+ * the cursor.  It will then move the native cursor to the position specified.  On systems
+ * that do not have a native cursor, this function does nothing.
+ *
+ * @date	Monday 05-Jan-2015 6:44 am
+ * @param	a_iX		X position at which to display the cursor
+ * @param	a_iY		Y position at which to display the cursor
+ * @param	a_iHeight	Height of the cursor in pixels
+ */
+
+void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
+{
+
+	/* Save the the position and height of the cursor */
+
+	m_iCursorX = a_iX;
+	m_iCursorY = a_iY;
+	m_iCursorHeight = a_iHeight;
+
+#ifdef WIN32
+
+	/* And set the position of the native Windows cursor */
+
+	SetCaretPos(a_iX, a_iY);
+
+#endif /* WIN32 */
 
 }
 

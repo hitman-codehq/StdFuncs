@@ -456,6 +456,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 #elif defined(WIN32)
 
+	TInt X, Y;
 	SIZE Size;
 
 	/* Given the X position of the cursor, determine the number of pixels between the left of */
@@ -464,9 +465,12 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pccText, a_iX, &Size))
 	{
-		/* And draw the cursor! */
+		X = (m_iXOffset + Size.cx);
+		Y = (m_iYOffset + (a_iY * m_iHeight));
 
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + Size.cx), (m_iYOffset + (a_iY * m_iHeight)), Cursor, 1);
+		/* And move the cursor to the calculated position */
+
+		m_poWindow->SetCursorInfo(X, Y, m_iHeight);
 	}
 
 #endif /* WIN32 */
