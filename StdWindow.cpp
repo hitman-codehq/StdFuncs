@@ -3145,7 +3145,7 @@ void CWindow::RethinkLayout()
  * the cursor.  It will then move the native cursor to the position specified.  On systems
  * that do not have a native cursor, this function does nothing.
  *
- * @date	Monday 05-Jan-2015 6:44 am
+ * @date	Monday 05-Jan-2015 6:44 am, Leoneck Hotel Zurich
  * @param	a_iX		X position at which to display the cursor
  * @param	a_iY		Y position at which to display the cursor
  * @param	a_iHeight	Height of the cursor in pixels
