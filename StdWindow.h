@@ -136,7 +136,7 @@ private:
 
 	void InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMenuItem *a_pcoMenuItem);
 
-	char *InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem);
+	const char *InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem);
 
 	TInt RemoveAccelerator(TInt a_iCommand);
 

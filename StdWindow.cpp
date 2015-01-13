@@ -1253,7 +1253,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 #else /* ! QT_GUI_LIB */
 
-	char *Label;
+	const char *Label;
 	TInt Length;
 	HMENU DropdownMenu;
 
@@ -2433,7 +2433,7 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
  * @return	Ptr to a string containing the label if successful, else NULL if no memory
  */
 
-char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem)
+const char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem)
 {
 	char *RetVal;
 	TInt Length;
@@ -3246,7 +3246,7 @@ void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TI
 
 #else /* ! QT_GUI_LIB */
 
-	char *Label;
+	const char *Label;
 	HMENU DropdownMenu;
 	struct SStdMenuItem MenuItem;
 
