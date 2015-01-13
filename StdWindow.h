@@ -28,7 +28,8 @@ enum TStdMenuItemType
 	EStdMenuItem,						/* An item on a menu  - must be 2 to match NM_ITEM */
 	EStdMenuCheck,						/* A checked menu item */
 	EStdMenuSeparator,					/* A separator bar */
-	EStdMenuSubMenu						/* A popout submenu */
+	EStdMenuSubMenu,					/* A popout submenu */
+	EStdMenuSubMenuEnd					/* Special value that ends a submenu definition */
 };
 
 /* Each instance of this structure represents an Amiga OS menu mapping */

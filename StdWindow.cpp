@@ -1655,7 +1655,7 @@ TBool CWindow::CreateMenus()
 	char *Label;
 	TInt Index, Length, NumAccelerators;
 	ACCEL *Accelerators;
-	HMENU DropdownMenu, PopupMenu;
+	HMENU DropdownMenu, PopupMenu, TopLevelMenu;
 
 	ASSERTM((m_poMenu == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
@@ -1666,7 +1666,7 @@ TBool CWindow::CreateMenus()
 
 	if ((m_poMenu = CreateMenu()) != NULL)
 	{
-		DropdownMenu = NULL;
+		DropdownMenu = TopLevelMenu = NULL;
 
 		do
 		{
@@ -1674,7 +1674,7 @@ TBool CWindow::CreateMenus()
 
 			if (MenuItem->m_eType == EStdMenuTitle)
 			{
-				if ((DropdownMenu = CreatePopupMenu()) != NULL)
+				if ((DropdownMenu = TopLevelMenu = CreatePopupMenu()) != NULL)
 				{
 					DEBUGCHECK((AppendMenu(m_poMenu, MF_POPUP, (UINT_PTR) DropdownMenu, MenuItem->m_pccLabel) != FALSE),
 						"CWindow::CreateMenus() => Unable to append new menu");
@@ -1710,6 +1710,14 @@ TBool CWindow::CreateMenus()
 
 					break;
 				}
+			}
+
+			/* If this is the special value that ends a submenu definition then change back to adding menu items to */
+			/* the dropdown menu */
+
+			else if (MenuItem->m_eType == EStdMenuSubMenuEnd)
+			{
+				DropdownMenu = TopLevelMenu;
 			}
 
 			/* Otherwise add a new menu option to an already existing dropdown menu */
