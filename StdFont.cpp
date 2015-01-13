@@ -93,12 +93,13 @@ RFont::RFont(CWindow *a_poWindow)
  * to be called, but no other functions.
  *
  * @date	Sunday 31-May-2010 3:38 pm
+ * @param	a_iSize		Size of the font to be opened, in points
  * @param	a_pccFont	Ptr to the name of the font to be opened, which is platform specific.  If NULL
  *						then a platform specific generic courier style font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 
-TInt RFont::Open(const char *a_pccFont)
+TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 {
 	TInt RetVal;
 
@@ -209,7 +210,7 @@ TInt RFont::Open(const char *a_pccFont)
 		/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
 		/* that uses that size */
 
-		Height = -MulDiv(10, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
+		Height = -MulDiv(a_iSize, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
 
 		// TODO: CAW - This is an expensive routine - can we shorten it?
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
