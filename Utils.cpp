@@ -2093,7 +2093,6 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 
 		while ((ExamineData = IDOS->ExamineDir(Context)) != NULL)
 		{
-			// TODO: CAW - There was a bug with this. What about directory links?
 			if ((EXD_IS_FILE(ExamineData)) || (EXD_IS_LINK(ExamineData)))
 			{
 				if (a_bScanFiles)
