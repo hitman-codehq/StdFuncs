@@ -1075,7 +1075,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 			RetVal = KErrNotSupported;
 		}
 
-		/* And free the resolved filename, but only if it contained the prefix */
+		/* And free the resolved filename, but only if it contained the PROGDIR: prefix */
 
 		if (ProgDirName != a_pccFileName)
 		{
