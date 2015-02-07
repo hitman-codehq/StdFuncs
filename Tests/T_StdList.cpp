@@ -143,6 +143,56 @@ static void TestAppend()
 	FreeList(List);
 }
 
+/* Written: Saturday 07-Jan-2015 8:05 am, Code HQ Ehinger Tor */
+
+static void TestIndex()
+{
+	TInt Index;
+	CNode *Node;
+	StdList<CNode> List;
+
+	/* Test #6: Test array style indexing functionality */
+
+	Test.Next("Test array style indexing functionality");
+
+	/* Create a list containing NUM_NODES strings and index it by known string position */
+
+	CreateList(List, g_apccUnsortedStrings);
+
+	/* Ensure accessing out of bounds nodes fails */
+
+	Node = List[-1];
+	test(Node == NULL);
+
+	Node = List[NUM_NODES];
+	test(Node == NULL);
+
+	/* Check that the first and last nodes match those returned by GetHead() and GetTail() */
+
+	Node = List.GetHead();
+	test(Node != NULL);
+	test(Node == List[0]);
+
+	Node = List.GetTail();
+	test(Node != NULL);
+	test(Node == List[NUM_NODES - 1]);
+
+	/* And check the node in the middle is returned correctly */
+
+	Node = List.GetHead();
+	test(Node != NULL);
+
+	for (Index = 0; Index < 4; ++Index)
+	{
+		Node = List.GetSucc(Node);
+		test(Node != NULL);
+	}
+
+	test(Node == List[4]);
+
+	FreeList(List);
+}
+
 /* Written: Sunday 08-Jun-2014 12:24 pm, on train to Ammersee */
 
 static void TestMove()
@@ -207,6 +257,7 @@ int main()
 	TestAppend();
 	TestMove();
 	TestSort();
+	TestIndex();
 
 	Test.End();
 

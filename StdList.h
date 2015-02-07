@@ -371,6 +371,43 @@ public:
 		}
 		while (NumMerges > 1);
 	}
+
+	/**
+	 * Iterates through a list to find an item at a given index.
+	 * This is a convenience function that allows the caller to obtain an item in the list,
+	 * based on its index in the list, thus treating the list as though it is an array.  It
+	 * goes without saying that this function is inefficient as it must search through the
+	 * list to find the item and does not (and can not) simply index it like a real array.
+	 * Thus, it is for use in situations where convenience is more important than speed.
+	 *
+	 * @date	Tuesday 27-Jan-2015 7:05 am, Code HQ Ehinger Tor
+	 * @param	a_iIndex	Index of the item in the list to obtain
+	 * @return	A ptr to the item at the index specified, else NULL if the index is out of range
+	 */
+
+	T *operator[](TInt a_iIndex)
+	{
+		TInt Index;
+		T *RetVal;
+
+		/* Starting from the first item in the list, iterate through the list until the item */
+		/* at the requested index is found */
+
+		Index = 0;
+		RetVal = GetHead();
+
+		while (RetVal)
+		{
+			if (Index++ == a_iIndex)
+			{
+				break;
+			}
+
+			RetVal = GetSucc(RetVal);
+		}
+
+		return(RetVal);
+	}
 };
 
 #endif /* ! STDLIST_H */
