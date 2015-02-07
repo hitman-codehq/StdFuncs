@@ -1291,7 +1291,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 
 			/* And free the temporary buffer used for the menu item labels */
 
-			delete [] Label;
+			delete [] (char *) Label;
 		}
 		else
 		{
@@ -3278,7 +3278,7 @@ void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TI
 
 			/* And free the temporary buffer used for the menu item label */
 
-			delete [] Label;
+			delete [] (char *) Label;
 		}
 	}
 
