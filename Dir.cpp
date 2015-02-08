@@ -553,73 +553,86 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #elif defined(__linux__)
 
+	char *ProgDirName, *ToOpen;
 	TInt Length, FileNameOffset;
 
 	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
 	if (!(iSingleEntryOk))
 	{
-		/* Allocate a buffer to hold the path part of the directory and save the path and */
-		/* wildcard (if any) into it */
+		/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-		Length = strlen(a_pccPattern);
-
-		if ((iPathBuffer = new char[Length + 1]) != NULL)
+		if ((ProgDirName = Utils::ResolveProgDirName(a_pccPattern)) != NULL)
 		{
-			strcpy(iPathBuffer, a_pccPattern);
-			FileNameOffset = (Utils::FilePart(iPathBuffer) - iPathBuffer);
+			/* Allocate a buffer to hold the path part of the directory and save the path and */
+			/* wildcard (if any) into it */
 
-			/* If there is a wildcard present then extract it */
+			Length = strlen(ProgDirName);
 
-			if ((strstr(iPathBuffer, "*")) || (strstr(iPathBuffer, "?")))
+			if ((iPathBuffer = new char[Length + 1]) != NULL)
 			{
-				/* If FileNameOffset is > 0 then there is a path component so extract both it */
-				/* and the pattern */
+				strcpy(iPathBuffer, ProgDirName);
+				FileNameOffset = (Utils::FilePart(iPathBuffer) - iPathBuffer);
 
-				if (FileNameOffset > 0)
+				/* If there is a wildcard present then extract it */
+
+				if ((strstr(iPathBuffer, "*")) || (strstr(iPathBuffer, "?")))
 				{
-					iPathBuffer[FileNameOffset - 1] = '\0';
-					iPath = iPathBuffer;
-					iPattern = &iPathBuffer[FileNameOffset];
+					/* If FileNameOffset is > 0 then there is a path component so extract both it */
+					/* and the pattern */
+
+					if (FileNameOffset > 0)
+					{
+						iPathBuffer[FileNameOffset - 1] = '\0';
+						iPath = iPathBuffer;
+						iPattern = &iPathBuffer[FileNameOffset];
+					}
+
+					/* Otherwise there is only a pattern */
+
+					else
+					{
+						iPath = &iPathBuffer[Length];
+						iPattern = iPathBuffer;
+					}
 				}
 
-				/* Otherwise there is only a pattern */
+				/* There is no wildcard so extract only the path and set the pattern to empty */
 
 				else
 				{
-					iPath = &iPathBuffer[Length];
-					iPattern = iPathBuffer;
+					iPath = iPathBuffer;
+					iPattern = &iPathBuffer[Length];
+				}
+
+				/* UNIX will not scan a directory represented by an empty string so if this has */
+				/* been passed in then convert it to a "." for compatibility with the RDir API */
+
+				ToOpen = iPath;
+
+				if (*ToOpen == '\0')
+				{
+					ToOpen = ".";
+				}
+
+				/* Open the directory for scanning.  We don't do any actual scanning here - that will */
+				/* be done in Read() */
+
+				if ((iDir = opendir(ToOpen)) != NULL)
+				{
+					RetVal = KErrNone;
+				}
+				else
+				{
+					RetVal = KErrNotFound;
 				}
 			}
 
-			/* There is no wildcard so extract only the path and set the pattern to empty */
+			/* And free the resolved filename, but only if it contained the PROGDIR: prefix */
 
-			else
+			if (ProgDirName != a_pccPattern)
 			{
-				iPath = iPathBuffer;
-				iPattern = &iPathBuffer[Length];
-			}
-
-			/* UNIX will not scan a directory represented by an empty string so if this has */
-			/* been passed in then convert it to a "." for compatibility with the RDir API */
-
-			a_pccPattern = iPath;
-
-			if (*a_pccPattern == '\0')
-			{
-				a_pccPattern = ".";
-			}
-
-			/* Open the directory for scanning.  We don't do any actual scanning here - that will */
-			/* be done in Read() */
-
-			if ((iDir = opendir(a_pccPattern)) != NULL)
-			{
-				RetVal = KErrNone;
-			}
-			else
-			{
-				RetVal = KErrNotFound;
+				delete[] ProgDirName;
 			}
 		}
 		else
