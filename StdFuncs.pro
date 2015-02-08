@@ -28,12 +28,12 @@ DEFINES -= UNICODE
 SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
 	StdApplication.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileRequester.cpp \
 	StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp \
-	StdImage.cpp StdPool.cpp StdStringList.cpp StdTextFile.cpp StdWildcard.cpp StdWindow.cpp Test.cpp \
-	Time.cpp Utils.cpp
+	StdImage.cpp StdPool.cpp StdRendezvous.cpp StdStringList.cpp StdTextFile.cpp StdTime.cpp StdWildcard.cpp \
+	StdWindow.cpp Test.cpp Utils.cpp
 
 HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdClipboard.h \
-	StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h \
-	StdImage.h StdList.h StdPool.h StdReaction.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h \
+	StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h StdImage.h StdList.h \
+	StdPool.h StdReaction.h StdRendezvous.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h \
 	StdWindow.h Test.h Utils.h
 
 HEADERS += Qt/StdGadgetSlider.h
