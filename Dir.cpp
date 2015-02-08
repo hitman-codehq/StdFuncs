@@ -432,6 +432,7 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 /* "*.cpp" */
 /* "SomeFile" */
 /* "SomeDir/SomeFile.txt" */
+/* "PROGDIR:" */
 
 TInt RDir::Open(const char *a_pccPattern)
 {
@@ -629,7 +630,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #else /* ! __linux__ */
 
-	char *Path;
+	char *Path, *ProgDirName;
 	const char *FileName;
 	TInt Length;
 	WIN32_FIND_DATA FindData;
@@ -638,54 +639,64 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	if (!(iSingleEntryOk))
 	{
-		/* Allocate a buffer large enough to hold the path to be scanned and the */
-		/* wildcard pattern used to scan it (wildcard + \0" == 5 bytes) */
+		/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-		Length = (strlen(a_pccPattern) + 5);
-
-		if ((Path = new char[Length]) != NULL)
+		if ((ProgDirName = Utils::ResolveProgDirName(a_pccPattern)) != NULL)
 		{
-			/* We may or may not need to append a wildcard, depending on whether there */
-			/* is already one in the pattern passed in, so determine this and build a */
-			/* wildcard pattern to scan for as appropriate */
+			/* Allocate a buffer large enough to hold the path to be scanned and the */
+			/* wildcard pattern used to scan it (wildcard + \0" == 5 bytes) */
 
-			FileName = Utils::FilePart(a_pccPattern);
+			Length = (strlen(ProgDirName) + 5);
 
-			if (!(strstr(FileName, "*")) && (!(strstr(FileName, "?"))))
+			if ((Path = new char[Length]) != NULL)
 			{
-				strcpy(Path, a_pccPattern);
-				DEBUGCHECK((Utils::AddPart(Path, "*.*", Length) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
-			}
-			else
-			{
-				strcpy(Path, a_pccPattern);
-			}
+				/* We may or may not need to append a wildcard, depending on whether there */
+				/* is already one in the pattern passed in, so determine this and build a */
+				/* wildcard pattern to scan for as appropriate */
 
-			/* Scan the directory using the wildcard and find the first entry */
+				FileName = Utils::FilePart(ProgDirName);
 
-			if ((iHandle = FindFirstFile(Path, &FindData)) != INVALID_HANDLE_VALUE)
-			{
-				RetVal = AppendDirectoryEntry(&FindData);
-			}
-			else
-			{
-				if (GetLastError() == ERROR_FILE_NOT_FOUND)
+				if (!(strstr(FileName, "*")) && (!(strstr(FileName, "?"))))
 				{
-					RetVal = KErrNone;
+					strcpy(Path, ProgDirName);
+					DEBUGCHECK((Utils::AddPart(Path, "*.*", Length) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
 				}
 				else
 				{
-					RetVal = KErrNotFound;
+					strcpy(Path, ProgDirName);
 				}
+
+				/* Scan the directory using the wildcard and find the first entry */
+
+				if ((iHandle = FindFirstFile(Path, &FindData)) != INVALID_HANDLE_VALUE)
+				{
+					RetVal = AppendDirectoryEntry(&FindData);
+				}
+				else
+				{
+					if (GetLastError() == ERROR_FILE_NOT_FOUND)
+					{
+						RetVal = KErrNone;
+					}
+					else
+					{
+						RetVal = KErrNotFound;
+					}
+				}
+
+				delete [] Path;
+			}
+			else
+			{
+				Utils::Info("RDir::Open() => Out of memory");
 			}
 
-			delete [] Path;
-		}
-		else
-		{
-			Utils::Info("RDir::Open() => Out of memory");
+			/* And free the resolved filename, but only if it contained the PROGDIR: prefix */
 
-			RetVal = KErrNoMemory;
+			if (ProgDirName != a_pccPattern)
+			{
+				delete[] ProgDirName;
+			}
 		}
 	}
 

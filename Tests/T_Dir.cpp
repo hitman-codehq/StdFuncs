@@ -61,7 +61,7 @@ static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSi
 
 int main()
 {
-	int Result;
+	TInt Index, Result;
 	RFile File;
 	TEntry Entry;
 
@@ -206,6 +206,43 @@ int main()
 
 	test(BaflUtils::DeleteFile("TimeFile.txt") == KErrNone);
 	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
+
+	/* Test #13: Ensure that scanning PROGDIR: works */
+
+	Test.Next("Ensure that scanning PROGDIR: works");
+
+	/* Obtain a listing of the PROGDIR: directory and ensure that it contains at least one */
+	/* entry.  If not then it must failed as at least the test executable should be there */
+
+	test(g_oDir.Open("PROGDIR:") == KErrNone);
+	test(g_oDir.Read(Entries) == KErrNone);
+	test(Entries->Count() > 0);
+
+	/* Scan through the entries and find the test executable, which by definition *must* be present */
+
+	for (Index = 0; Index < Entries->Count(); ++Index)
+	{
+
+#ifdef WIN32
+
+		if (strcmp((*Entries)[Index].iName, "T_Dir.exe") == 0)
+
+#else /* ! WIN32 */
+
+		if (strcmp((*Entries)[Index].iName, "T_Dir") == 0)
+
+#endif /* ! WIN32 */
+
+		{
+			Test.Printf("Found file \"%s\"\n", (*Entries)[Index].iName);
+
+			break;
+		}
+	}
+
+	test(Index < Entries->Count());
+
+	g_oDir.Close();
 
 	Test.End();
 
