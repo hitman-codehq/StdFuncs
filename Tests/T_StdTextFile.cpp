@@ -2,6 +2,7 @@
 #include <StdFuncs.h>
 #include <StdTextFile.h>
 #include <Test.h>
+#include <string.h>
 
 static RTest Test("T_StdTextFile");	/* Class to use for testing and reporting results */
 static RTextFile TextFile;			/* RTextFile class is global for easy reuse */
