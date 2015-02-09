@@ -23,7 +23,7 @@ endif
 
 LFLAGS += -L../$(OBJ)
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STRINGLIST) $(T_UTILS) $(T_WILDCARD)
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_UTILS) $(T_WILDCARD)
 
 T_ARGS = $(OBJ)/T_Args
 
@@ -36,6 +36,8 @@ T_FILE = $(OBJ)/T_File
 T_LEX = $(OBJ)/T_Lex
 
 T_POOL = $(OBJ)/T_Pool
+
+T_STDTEXTFILE = $(OBJ)/T_StdTextFile
 
 T_STRINGLIST = $(OBJ)/T_StringList
 
@@ -54,6 +56,8 @@ T_FILE_OBJECTS = $(OBJ)/T_File.o
 T_LEX_OBJECTS = $(OBJ)/T_Lex.o
 
 T_POOL_OBJECTS = $(OBJ)/T_Pool.o
+
+T_STDTEXTFILE_OBJECTS = $(OBJ)/T_StdTextFile.o
 
 T_STRINGLIST_OBJECTS = $(OBJ)/T_StringList.o
 
@@ -94,6 +98,11 @@ $(T_LEX): $(T_LEX_OBJECTS) ../$(OBJ)/libStdFuncs.a
 $(T_POOL): $(T_POOL_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_POOL_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	@strip -R.comment $@.debug -o $@
+
+$(T_STDTEXTFILE): $(T_STDTEXTFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_STDTEXTFILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	@strip -R.comment $@.debug -o $@
 
 $(T_STRINGLIST): $(T_STRINGLIST_OBJECTS) ../$(OBJ)/libStdFuncs.a
