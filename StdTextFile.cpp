@@ -2,17 +2,53 @@
 #include "StdFuncs.h"
 #include "StdTextFile.h"
 
-/* Written: Friday 23-Jul-2010 8:00 am */
+/**
+ * Opens a text file and prepares it for reading.
+ * This function will open a file and will parse through it in order to prepare it for later
+ * reading, using the RTextFile::GetLine() function.
+ *
+ * @date	Friday 23-Jul-2010 8:00 am
+ * @param	a_pccFileName	Name of the text file to be opened
+ * @return	KErrNone if the file was loaded and parsed successfully
+ * @return	Otherwise any of the errors returned by Utils::LoadFile()
+ */
 
-int RTextFile::Open(const char *a_pccFileName)
+TInt RTextFile::Open(const char *a_pccFileName)
 {
-	int RetVal;
+	TInt RetVal;
 
 	/* Load the entire file into memory */
 
-	if ((RetVal = Utils::LoadFile(a_pccFileName, (unsigned char **) &m_pcBuffer)) >= 0)
+	if ((RetVal = m_iSize = Utils::LoadFile(a_pccFileName, (unsigned char **) &m_pcBuffer)) >= 0)
 	{
+		/* Indicate success */
+
 		RetVal = KErrNone;
+
+		/* Now iterate through the file until EOF, CR or LF is found and break the file into lines */
+		/* thate are separated by NULL terminators */
+
+		m_pcBufferPtr = m_pcBuffer;
+		m_pcBufferEnd = (m_pcBuffer + m_iSize);
+
+		while (m_pcBufferPtr < m_pcBufferEnd)
+		{
+			while ((*m_pcBufferPtr != 0x0d) && (*m_pcBufferPtr != 0x0a))
+			{
+				++m_pcBufferPtr;
+			}
+
+			/* NULL terminate the line and point the current line pointer to the next line */
+
+			*m_pcBufferPtr = '\0';
+			++m_pcBufferPtr;
+
+			if (*m_pcBufferPtr == 0x0a)
+			{
+				++m_pcBufferPtr;
+			}
+		}
+
 		m_pcBufferPtr = m_pcBuffer;
 	}
 	else
@@ -23,7 +59,13 @@ int RTextFile::Open(const char *a_pccFileName)
 	return(RetVal);
 }
 
-/* Written: Friday 23-Jul-2010 8:02 am */
+/**
+ * Closes the file and free any resources associated with it.
+ * This function should be called when the user has finished with the class instance.  It will free all
+ * resources associated with the class instance and the instance should no longer be used after this call.
+ *
+ * @date	Friday 23-Jul-2010 8:02 am
+ */
 
 void RTextFile::Close()
 {
@@ -31,50 +73,66 @@ void RTextFile::Close()
 	m_pcBuffer = m_pcBufferPtr = NULL;
 }
 
-/* Written: Friday 23-Jul-2010 8:05 am */
-/* Finds the next available line in the file, NULL terminates it and returns a ptr to it */
-/* @return	A ptr to the start of the next available line else NULL if there are no more lines */
+/**
+ * Gets the next line in the file.
+ * Finds the next available line in the file, NULL terminates it and returns a pointer to it.
+ *
+ * @date	Friday 23-Jul-2010 8:05 am
+ * @return	A pointer to the start of the next available line else NULL if there are no more lines
+ */
 
-char *RTextFile::GetLine()
+const char *RTextFile::GetLine()
 {
 	char *RetVal;
 
-	/* Get a ptr to the start of the current line, which is what will be returned */
+	/* Ensure that we are not already at the EOF */
 
-	RetVal = m_pcBufferPtr;
-
-	/* Now iterate through the current line until EOF, CR or LF is found */
-
-	while ((*m_pcBufferPtr != '\0') && (*m_pcBufferPtr != 0x0d) && (*m_pcBufferPtr != 0x0a))
+	if (m_pcBufferPtr < m_pcBufferEnd)
 	{
-		++m_pcBufferPtr;
-	}
+		/* Return a pointer to the current line */
 
-	/* If any valid characters were found then NULL terminate the current line and move the */
-	/* current line ptr to the next line */
+		RetVal = m_pcBufferPtr;
 
-	if (m_pcBufferPtr > RetVal)
-	{
-		if (*m_pcBufferPtr != '\0')
+		/* Now iterate through the current line until EOF, CR or LF is found.  It is guaranteed that */
+		/* the file is NULL terminated, even if it is a zero byte file, as Utils::LoadFile() will do */
+		/* this for us */
+
+		while (*m_pcBufferPtr != '\0')
 		{
-			/* NULL terminate the line and point the current line ptr to the next line */
-
-			*m_pcBufferPtr = '\0';
 			++m_pcBufferPtr;
+		}
 
-			if (*m_pcBufferPtr == 0x0a)
-			{
-				++m_pcBufferPtr;
-			}
+		/* Skip over the previous NULL terminator and LF (if present) at the EOL */
+
+		if ((m_pcBufferPtr < m_pcBufferEnd) && (*m_pcBufferPtr == '\0'))
+		{
+			++m_pcBufferPtr;
+		}
+
+		if ((m_pcBufferPtr < m_pcBufferEnd) && (*m_pcBufferPtr == '\n'))
+		{
+			++m_pcBufferPtr;
 		}
 	}
-
-	/* Otherwise indicate that we have reached the EOF */
-
 	else
 	{
 		RetVal = NULL;
 	}
 
 	return(RetVal);
+}
+
+/**
+ * Rewinds the internal line pointer to the start of the file.
+ * This function is useful when a file has been partially or completely read and the user wishes to reread
+ * it from the beginning.  Calling this function will reset the internal line pointer to the start of the
+ * file and will put the class instance back into the state it was in immediately after RTextFile::Open()
+ * was called.
+ *
+ * @date	Wednesday 24-Dec-2014 11:55 am, 325 On George
+ */
+
+void RTextFile::Rewind()
+{
+	m_pcBufferPtr = m_pcBuffer;
 }
