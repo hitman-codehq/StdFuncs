@@ -1385,9 +1385,9 @@ void Utils::Info(const char *a_pccMessage, ...)
 /**
  * Loads a file into memory in its entirity.
  * This is a convenience function that can be used to load a file into memory.  The file's size will
- * be checked, just the right amount of memory allocated, and the file fill be loaded.  A single byte
- * is allocated than is required and this has a 0 placed into it.  This is to make it easier to parse
- * text files, as it can be depended upon that there is a NULL terminator at the end of the file.
+ * be checked and just the right amount of memory will be allocated.  A single byte more than required
+ * is allocated and this has a 0 placed into it.  This is to make it easier to parse text files, as it
+ * can be depended upon that there is a NULL terminator at the end of the file.
  *
  * The ptr to the allocated buffer is returned to the user in *a_ppucBuffer and it is up to the user
  * to delete [] this memory.  If the function fails to load the file, a_ppucBuffer will be set to NULL.
