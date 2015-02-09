@@ -96,7 +96,7 @@ int main()
 #else /* ! __amigaos4__ */
 
 	TestScan("*");
-	TestScan("*.dsw", 1, 3336);
+	TestScan("*.dsw", 1, 3626);
 	TestScan("SomeDir/*.txt", 1, 174);
 
 #endif /* ! __amigaos4__ */
