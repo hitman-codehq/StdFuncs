@@ -2955,8 +2955,6 @@ TInt CWindow::RemoveAccelerator(TInt a_iCommand)
 
 		if (Index < NumAccelerators)
 		{
-			RetVal = KErrNone;
-
 			/* Save a ptr to the old accelerator table and create a new one, only deleting the */
 			/* old one if creation of the new was successful */
 
