@@ -699,7 +699,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			Command = LOWORD(a_oWParam);
 
 			/* In Windows, all menu items are checkable, but we only want to toggle the checkmark */
-			/* on menu items of type EStdMenuCheck.  So we must search our own menu list fo the */
+			/* on menu items of type EStdMenuCheck.  So we must search our own menu list for the */
 			/* menu item to determine whether it is checkable */
 
 			MenuItem = Window->m_poApplication->MenuItems();
@@ -1578,7 +1578,7 @@ TBool CWindow::CreateMenus()
 
 #elif defined(QT_GUI_LIB)
 
-	QMenu *DropdownMenu, *PopupMenu;
+	QMenu *DropdownMenu, *PopupMenu, *TopLevelMenu;
 	QString Shortcut;
 
 #ifdef _DEBUG
@@ -1589,7 +1589,7 @@ TBool CWindow::CreateMenus()
 
 #endif /* _DEBUG */
 
-	DropdownMenu = NULL;
+	DropdownMenu = TopLevelMenu = NULL;
 
 	do
 	{
@@ -1599,7 +1599,7 @@ TBool CWindow::CreateMenus()
 		{
 			/* And add the new drop down menu to the window's menu bar */
 
-			if ((DropdownMenu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
+			if ((DropdownMenu = TopLevelMenu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
 			{
 				Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
 
@@ -1632,6 +1632,14 @@ TBool CWindow::CreateMenus()
 
 				break;
 			}
+		}
+
+		/* If this is the special value that ends a submenu definition then change back to adding menu items to */
+		/* the dropdown menu */
+
+		else if (MenuItem->m_eType == EStdMenuSubMenuEnd)
+		{
+			DropdownMenu = TopLevelMenu;
 		}
 
 		/* Otherwise add a new menu option to an already existing dropdown menu */
