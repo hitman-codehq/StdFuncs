@@ -3167,21 +3167,30 @@ void CWindow::RethinkLayout()
 
 void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
 {
-
-	/* Save the the position and height of the cursor */
+	/* Save the the position of the cursor */
 
 	m_iCursorX = a_iX;
 	m_iCursorY = a_iY;
-	m_iCursorHeight = a_iHeight;
 
 #ifdef WIN32
 
-	/* And set the position of the native Windows cursor */
+	/* If the size of the cursor has changed, create a new native Windows cursor in the requested size */
+
+	if (m_iCursorHeight != a_iHeight)
+	{
+		if (CreateCaret(m_poWindow, NULL, 0, a_iHeight))
+		{
+			ShowCaret(m_poWindow);
+		}
+	}
+
+	/* And show the cursor at its requested position */
 
 	SetCaretPos(a_iX, a_iY);
 
 #endif /* WIN32 */
 
+	m_iCursorHeight = a_iHeight;
 }
 
 /**
