@@ -92,6 +92,8 @@ RFont::RFont(CWindow *a_poWindow)
  * After this function has been called, the RFont::Width() and RFont::Height() functions are able
  * to be called, but no other functions.
  *
+ * @pre		Size of the font passed in must be larger than zero
+ *
  * @date	Sunday 31-May-2010 3:38 pm
  * @param	a_iSize		Size of the font to be opened, in points
  * @param	a_pccFont	Ptr to the name of the font to be opened, which is platform specific.  If NULL
@@ -102,6 +104,8 @@ RFont::RFont(CWindow *a_poWindow)
 TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 {
 	TInt RetVal;
+
+	ASSERTM((a_iSize > 0), "RFont::Open() => a_iSize must be > 0");
 
 #ifdef __amigaos4__
 
