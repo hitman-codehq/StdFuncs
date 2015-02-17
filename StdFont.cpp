@@ -161,7 +161,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 	/* Create a monospace font in the desired point size */
 
-	if ((m_poFont = new QFont(a_pccFont, 10)) != NULL)
+	if ((m_poFont = new QFont(a_pccFont, a_iSize)) != NULL)
 	{
 		RetVal = KErrNone;
 
