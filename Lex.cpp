@@ -179,6 +179,8 @@ char *TLex::NextToken()
  * In the case where no token is returned, the contents of a_piLength will be set
  * to 0.  This is a non destructive routine.
  *
+ * @pre		a_piLength must not be NULL
+ *
  * @date	Thursday 22-Nov-2012 6:12 am
  * @param	a_piLength	A ptr to a variable into which to place the length of the token
  * @return	The next token available in the TLex instance, or NULL if there are none
@@ -192,6 +194,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	TInt Index, QuoteIndex;
 
 	ASSERTM((m_pccString != NULL), "TLex::NextToken() => String to parse not initialised");
+	ASSERTM((a_piLength != NULL), "TLex::NextToken() => Address of length variable must be given");
 
 	/* Assume the token will be extracted from the start of the string */
 
