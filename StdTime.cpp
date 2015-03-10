@@ -30,6 +30,37 @@ TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, T
 }
 
 /**
+ * Initialises the TTime to the current local time.
+ * Queries the operating system for the current local time and assigns it to this instance
+ * of the TTime class.
+ *
+ * @date	Wednesday 04-Mar-2015 07:32 am, Code HQ Ehinger Tor
+ */
+
+void TTime::HomeTime()
+{
+
+#ifdef __amigaos4__
+
+#elif defined(__linux__)
+
+#else /* ! __linux__ */
+
+	SYSTEMTIME SystemTime;
+
+	/* Get the current time from Windows and build up a TDateTime structure representing that time */
+
+	GetLocalTime(&SystemTime);
+	TDateTime DateTime(SystemTime.wYear, (TMonth) SystemTime.wMonth, SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
+
+#endif /* ! __linux__ */
+
+	/* And assign it to both the human readable and internal representations of the date and time */
+
+	Set(DateTime);
+}
+
+/**
  * Calculates the number of microseconds that have elapsed since 01.01.01.
  * This function will convert the current date and time to a 64 bit count of the number
  * of microseconds that have elapsed since the start of the 1st millenium.  It is a
@@ -42,36 +73,54 @@ TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, T
 
 TInt64 TTime::Int64() const
 {
+	return(iTime);
+}
+
+/**
+ * Initialises the human readable and internal representations of the date and time.
+ * This is an internal helper function that will save the human readable TDateTime structure
+ * passed in and will then calculate the number of microseconds that have elapsed since 01.01.01,
+ * saving the resulting value.  This allows both the human and machine readable versions of
+ * the date and time to be accessed without requiring calculations.  Note that this is a
+ * relatively expensive routine as it must perform conversion calculations.
+ *
+ * @date	Thursday 05-Apr-2015 06:25 am, Code HQ Ehinger Tor
+ * @param	a_roDateTime	Reference to the structure containing the current date and time
+ */
+
+void TTime::Set(const TDateTime &a_roDateTime)
+{
 	TInt Index;
-	TInt64 RetVal;
+
+	/* Save the human readable TDateTime structure passed in */
+
+	iDateTime = a_roDateTime;
 
 	/* Calculate the number of microseconds representing seconds, minutes, hours and days */
 
-	RetVal = (iDateTime.Second() * MICROSECONDS_PER_SECOND);
-	RetVal += (iDateTime.Minute() * MICROSECONDS_PER_MINUTE);
-	RetVal += (iDateTime.Hour() * MICROSECONDS_PER_HOUR);
-	RetVal += ((iDateTime.Day() - 1) * MICROSECONDS_PER_DAY);
+	iTime = (iDateTime.Second() * MICROSECONDS_PER_SECOND);
+	iTime += (iDateTime.Minute() * MICROSECONDS_PER_MINUTE);
+	iTime += (iDateTime.Hour() * MICROSECONDS_PER_HOUR);
+	iTime += ((iDateTime.Day() - 1) * MICROSECONDS_PER_DAY);
 
 	/* Each month has a different number of days in it so we must calculate the number of */
 	/* microseconds that represent each separate month */
 
 	for (Index = 0; Index < iDateTime.Month(); ++Index)
 	{
-		RetVal += (g_aiDaysPerMonth[Index] * MICROSECONDS_PER_DAY);
+		iTime += (g_aiDaysPerMonth[Index] * MICROSECONDS_PER_DAY);
 	}
 
 	/* And finally add on the number of microseconds that represent the given year */
 
-	RetVal += ((iDateTime.Year()) * MICROSECONDS_PER_YEAR);
-
-	return(RetVal);
+	iTime += ((iDateTime.Year()) * MICROSECONDS_PER_YEAR);
 }
 
 /* Written: Wednesday 17-Jun-2009 7:50 am */
 
 TTime &TTime::operator=(const TDateTime &a_roDateTime)
 {
-	iDateTime = a_roDateTime;
+	Set(a_roDateTime);
 
 	return(*this);
 }
@@ -80,17 +129,13 @@ TTime &TTime::operator=(const TDateTime &a_roDateTime)
 
 TBool TTime::operator==(const TTime &a_roTime) const
 {
-	return((iDateTime.Year() == a_roTime.iDateTime.Year()) && (iDateTime.Month() == a_roTime.iDateTime.Month()) &&
-		(iDateTime.Day() == a_roTime.iDateTime.Day()) && (iDateTime.Hour() == a_roTime.iDateTime.Hour()) &&
-		(iDateTime.Minute() == a_roTime.iDateTime.Minute()) && (iDateTime.Second() == a_roTime.iDateTime.Second()));
+	return(iTime == a_roTime.Int64());
 }
 
 /**
- * Tests whether this date and time is greater than that passed in.
- * This function will calculate the current date and time as a microsecond count from 01.01.01, and also
- * that of the time passed in, and will use the calculated values to determine whether the current date
- * and time is greater than that passed in.  Due to the amount of calculation involved, this is a
- * relatively expensive routine in terms of CPU cycles.
+ * Tests whether the given date and time is greater than that passed in.
+ * This function will compare the passed in date and time with that of the current instance of this
+ * class and will return whether the passed in date and time is greater.
  *
  * @date	Wednesday 16-Jul-2014 6:29 am
  * @param	a_roTime	Date and time with which to compare the current date and time
@@ -99,5 +144,5 @@ TBool TTime::operator==(const TTime &a_roTime) const
 
 TBool TTime::operator>(const TTime &a_roTime) const
 {
-	return(Int64() > a_roTime.Int64());
+	return(iTime > a_roTime.Int64());
 }

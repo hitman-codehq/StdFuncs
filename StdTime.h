@@ -50,15 +50,20 @@ class TTime
 {
 private:
 
+	TInt64		iTime;		/**< Time since 01.01.01 in microseconds */
 	TDateTime	iDateTime;	/* Internal representation of the time */
+
+private:
+
+	void Set(const TDateTime &a_roDateTime);
 
 public:
 
 	TTime() { }
 
-	TTime(const TDateTime &a_roDateTime);
-
 	TDateTime DateTime() const { return(iDateTime); }
+
+	void HomeTime();
 
 	TInt64 Int64() const;
 
