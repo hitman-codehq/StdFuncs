@@ -1,6 +1,6 @@
 
-#ifndef TIME_H
-#define TIME_H
+#ifndef STDTIME_H
+#define STDTIME_H
 
 /* The months of the year, to be used by TDateTime */
 
@@ -16,12 +16,12 @@ class TDateTime
 {
 private:
 
-	TInt	iYear;		/* The current year */
-	TInt	iMonth;		/* The month of the current year, starting with 0 */
-	TInt	iDay;		/* The day of the current month */
-	TInt	iHour;		/* The hour of the current day */
-	TInt	iMinute;	/* The minute of the current day */
-	TInt	iSecond;	/* The second of the current minute */
+	TInt	iYear;		/**< The current year */
+	TInt	iMonth;		/**< The month of the current year, starting with 0 */
+	TInt	iDay;		/**< The day of the current month */
+	TInt	iHour;		/**< The hour of the current day */
+	TInt	iMinute;	/**< The minute of the current day */
+	TInt	iSecond;	/**< The second of the current minute */
 
 public:
 
@@ -51,7 +51,7 @@ class TTime
 private:
 
 	TInt64		iTime;		/**< Time since 01.01.01 in microseconds */
-	TDateTime	iDateTime;	/* Internal representation of the time */
+	TDateTime	iDateTime;	/**< Internal representation of the time */
 
 private:
 
@@ -74,4 +74,4 @@ public:
 	TBool operator>(const TTime &a_roTime) const;
 };
 
-#endif /* ! TIME_H */
+#endif /* ! STDTIME_H */
