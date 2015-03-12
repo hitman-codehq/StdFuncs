@@ -10,6 +10,12 @@ enum TMonth
 	EJuly, EAugust, ESeptember, EOctober, ENovember, EDecember
 };
 
+/* Various useful tables of time and date related information */
+
+extern const char *g_apccDays[];
+extern const TInt g_aiDaysPerMonth[];
+extern const char *g_apccMonths[];
+
 /* A class designed to hold the date and time in a human readable form */
 
 class TDateTime

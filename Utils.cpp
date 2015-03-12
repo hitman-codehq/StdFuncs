@@ -52,17 +52,6 @@
 
 #define PRINTF printf
 
-#ifndef __amigaos4__
-
-/* List of month names for use by Utils::TimeToString() */
-
-static const char *g_apccMonths[] =
-{
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
-
-#endif /* ! __amigaos4__ */
-
 /* Amiga style suffix that can be prepended to filenames to resolve */
 /* them to the directory of the executable that is using the file */
 

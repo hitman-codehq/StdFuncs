@@ -10,11 +10,25 @@
 #define MICROSECONDS_PER_DAY (MICROSECONDS_PER_HOUR * 24)
 #define MICROSECONDS_PER_YEAR (MICROSECONDS_PER_DAY * 365)
 
-/** List of days per month for use by TTime::Int64() */
+/** List of names of days of the week */
 
-static const TInt g_aiDaysPerMonth[] =
+const char *g_apccDays[] =
+{
+	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+};
+
+/** List of number of days in each month of the year */
+
+const TInt g_aiDaysPerMonth[] =
 {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+};
+
+/** List of names of months of the year */
+
+const char *g_apccMonths[] =
+{
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 /* Written: Wednesday 17-Jun-2009 7:30 am */
