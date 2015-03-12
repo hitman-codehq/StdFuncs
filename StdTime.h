@@ -17,7 +17,7 @@ class TDateTime
 private:
 
 	TInt	iYear;		/**< The current year */
-	TInt	iMonth;		/**< The month of the current year, starting with 0 */
+	TMonth	iMonth;		/**< The month of the current year, starting with 0 */
 	TInt	iDay;		/**< The day of the current month */
 	TInt	iHour;		/**< The hour of the current day */
 	TInt	iMinute;	/**< The minute of the current day */
@@ -25,10 +25,10 @@ private:
 
 public:
 
-	// TODO: CAW - Double check all this stuff in the SDL
 	TDateTime()
 	{
-		iYear = iMonth = iDay = iHour = iMinute = iSecond = 0;
+		iYear = iDay = iHour = iMinute = iSecond = 0;
+		iMonth = EJanuary;
 	}
 
 	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMicroSecond);
@@ -39,11 +39,15 @@ public:
 
 	TInt Day() const { return(iDay); }
 
+	TInt DayOfWeek() const;
+
 	TInt Hour() const { return(iHour); }
 
 	TInt Minute() const { return(iMinute); }
 
 	TInt Second() const { return(iSecond); }
+
+	static TBool IsLeapYear(TInt a_iYear);
 };
 
 class TTime

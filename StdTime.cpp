@@ -30,6 +30,96 @@ TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, T
 }
 
 /**
+ * Calculates the current day of the week.
+ * This function will calculate the day of the week specified by the current instance of the
+ * TDateTime structure, as an index starting from Sunday.  ie. Sunday will return 0, Monday
+ * will return 1 etc. up until Saturday, which will return 6.
+ *
+ * Note that this is an expensive routine as the day of the week is only calculated when this
+ * is called and it must count the number of days that have passed since 01.01.01 in order to
+ * determine the answer.
+ *
+ * @date	Wednesday 11-Mar-2015 06:16 am, Code HQ Ehinger Tor
+ * @return	The day of the week, starting from 0
+ */
+
+TInt TDateTime::DayOfWeek() const
+{
+	TInt Index, NumDays;
+
+	NumDays = 0;
+
+	/* Determine the number of days that have passed from 01.01.01 to the current year and month */
+
+	for (Index = 1; Index < iYear; ++Index)
+	{
+		NumDays += (TDateTime::IsLeapYear(Index)) ? 366 : 365;
+	}
+
+	for (Index = 0; Index < iMonth; ++Index)
+	{
+		NumDays += g_aiDaysPerMonth[Index];
+	}
+
+	/* Take into account whether the current year is a leap year.  If it is and the current day is after */
+	/* February then we need to add 1 day */
+
+	if (TDateTime::IsLeapYear(iYear))
+	{
+		if (iMonth > EFebruary)
+		{
+			++NumDays;
+		}
+	}
+
+	/* And finally the current day of the month */
+
+	NumDays += iDay;
+
+	/* Divide by the number of days per week and take the remainder and we have the current day of the week */
+
+	return(NumDays % 7);
+}
+
+/**
+ * Returns whether the given year is a leap year.
+ * This function will calculate whether the year specified is a leap year.
+ *
+ * @date	Thursday 05-Feb-2015 07:20 am, Code HQ Ehinger Tor
+ * @param	a_iYear		The year to be checked
+ * @return	ETrue if the year is a leap year, else EFalse
+ */
+
+TBool TDateTime::IsLeapYear(TInt a_iYear)
+{
+	TBool LeapYear = EFalse;
+
+	/* If the year specified is evenly divisible by four then it is a leap year */
+
+	if ((a_iYear % 4) == 0)
+	{
+		/* Unless it is the first year of a new century (ie. 1900).  Then it is not a leap year */
+
+		if ((a_iYear % 100) == 0)
+		{
+			/* But there is the special case that the first year of a century that is divisible by 400 */
+			/* (ie. 2000) is a leap year */
+
+			if ((a_iYear % 400) == 0)
+			{
+				LeapYear = ETrue;
+			}
+		}
+		else
+		{
+			LeapYear = ETrue;
+		}
+	}
+
+	return(LeapYear);
+}
+
+/**
  * Initialises the TTime to the current local time.
  * Queries the operating system for the current local time and assigns it to this instance
  * of the TTime class.
@@ -51,7 +141,7 @@ void TTime::HomeTime()
 	/* Get the current time from Windows and build up a TDateTime structure representing that time */
 
 	GetLocalTime(&SystemTime);
-	TDateTime DateTime(SystemTime.wYear, (TMonth) SystemTime.wMonth, SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
+	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
 
 #endif /* ! __linux__ */
 
