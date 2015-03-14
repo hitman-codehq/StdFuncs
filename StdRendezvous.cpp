@@ -29,7 +29,21 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 
 	RetVal = EFalse;
 
-#ifdef WIN32
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement and remove warning prevention casts
+	(void) a_pccName;
+	(void) a_pucData;
+	(void) a_iDataSize;
+
+#elif defined(QT_GUI_LIB)
+
+	// TODO: CAW - Implement and remove warning prevention casts
+	(void) a_pccName;
+	(void) a_pucData;
+	(void) a_iDataSize;
+
+#else /* ! QT_GUI_LIB */
 
 	COPYDATASTRUCT CopyData;
 	HWND Window;
@@ -68,7 +82,7 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 		SendMessage(Window, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &CopyData);
 	}
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }
