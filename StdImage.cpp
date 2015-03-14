@@ -87,7 +87,9 @@ TInt RStdImage::Open(const char *a_pccFileName)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_pccFileName;
+
 	return(KErrNotFound);
 
 #else /* ! __linux__ */
