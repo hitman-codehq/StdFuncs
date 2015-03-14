@@ -157,11 +157,12 @@ void TTime::HomeTime()
 	GetLocalTime(&SystemTime);
 	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
 
-#endif /* ! __linux__ */
-
 	/* And assign it to both the human readable and internal representations of the date and time */
 
 	Set(DateTime);
+
+#endif /* ! __linux__ */
+
 }
 
 /**
