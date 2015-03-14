@@ -553,7 +553,8 @@ TInt RDir::Open(const char *a_pccPattern)
 
 #elif defined(__linux__)
 
-	char *ProgDirName, *ToOpen;
+	char *ProgDirName;
+	const char *ToOpen;
 	TInt Length, FileNameOffset;
 
 	/* Only try to scan a directory if it wasn't a single filename that was passed in */
