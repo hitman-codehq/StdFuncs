@@ -170,7 +170,8 @@ TInt CDialog::Open(TInt a_iResourceID)
 
 #elif defined(QT_GUI_LIB)
 
-		// TODO: CAW - Implement
+		// TODO: CAW - Implement and remove warning prevention cast
+		(void) a_iResourceID;
 
 #else /* ! QT_GUI_LIB */
 
@@ -273,7 +274,8 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAw - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_iGadgetID;
 
 #else /* ! QT_GUI_LIB */
 
@@ -305,7 +307,9 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention casts
+	(void) a_iGadgetID;
+	(void) a_bEnable;
 
 #else /* ! QT_GUI_LIB */
 
@@ -387,7 +391,9 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_iGadgetID;
+
 	RetVal = 0;
 
 #else /* ! QT_GUI_LIB */
@@ -475,7 +481,10 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention casts
+	(void) a_iGadgetID;
+	(void) a_bGetText;
+
 	Length = 1;
 
 #else /* ! QT_GUI_LIB */
@@ -613,7 +622,8 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_iGadgetID;
 
 #else /* ! QT_GUI_LIB */
 
@@ -660,7 +670,9 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_iGadgetID;
+
 	return(EFalse);
 
 #else /* ! QT_GUI_LIB */
@@ -736,7 +748,8 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention cast
+	(void) a_iGadgetID;
 
 #else /* ! QT_GUI_LIB */
 
@@ -765,7 +778,9 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	// TODO: CAW - Implement and remove warning prevention casts
+	(void) a_iGadgetID;
+	(void) a_pccText;
 
 #else /* ! QT_GUI_LIB */
 
