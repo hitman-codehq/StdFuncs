@@ -110,6 +110,8 @@ public:
 
 	static TInt StringToInt(const char *a_pccString, TInt *a_piResult);
 
+	static void TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime);
+		
 	static TBool TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
 
 	static void TrimString(char *a_pcString);

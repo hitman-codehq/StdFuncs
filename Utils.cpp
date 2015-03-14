@@ -2425,6 +2425,33 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
 	return(RetVal);
 }
 
+/**
+ * Converts an instance of TDateTime to human readable strings.
+ * This function will convert an instance of the TDateTime structure into a human readable
+ * format in two strings - one for the date and one for the time.  Unlike the other overloaded
+ * function of this name, this one does not honour the current locale settings.  It will always
+ * use English words, will insert a day string into the date and use a UK style date format.
+ *
+ * @date	Wednesday 18-Feb-2015 07:08 am, Code HQ Ehinger Tor
+ * @param	a_pcDate		Pointer to string into which to place the date string
+ * @param	a_pcTime		Pointer to a string into which to place the time string
+ * @param	a_roDateTime	Reference to the TDateTime structure to be converted
+ */
+
+void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime)
+{
+	TInt DayOfWeek;
+
+	/* Write out the date and time in the same format as Amiga OS using the FORMAT_DOS format */
+
+	DayOfWeek = a_roDateTime.DayOfWeek();
+
+	sprintf(a_pcDate, "%s %02d-%s-%04d", g_apccDays[DayOfWeek], a_roDateTime.Day(), g_apccMonths[a_roDateTime.Month()],
+		a_roDateTime.Year());
+
+	sprintf(a_pcTime, "%02d:%02d %s", a_roDateTime.Hour(), a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
+}
+
 /* Written: Saturday 23-Jul-2009 06:58 am */
 
 TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
