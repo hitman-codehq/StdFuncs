@@ -1883,11 +1883,19 @@ TBool CWindow::CtrlPressed()
 void CWindow::BringToFront()
 {
 
-#ifdef WIN32
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+
+#elif defined(QT_GUI_LIB)
+
+	// TODO: CAW - Implement
+
+#else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((SetForegroundWindow(m_poWindow) != FALSE), "CWindow::BringToFront() => Unable to set foreground window");
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -3172,7 +3180,7 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
 	m_iCursorX = a_iX;
 	m_iCursorY = a_iY;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	/* If the size of the cursor has changed, create a new native Windows cursor in the requested size */
 
@@ -3188,7 +3196,7 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
 
 	SetCaretPos(a_iX, a_iY);
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	m_iCursorHeight = a_iHeight;
 }
