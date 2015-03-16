@@ -224,7 +224,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 		if (NameOffset > 0)
 		{
 			/* Strip off the trailing '/' or '\\' but NOT the ':' as this is required */
-			/* for correct RAM disk handling on Amiga OS */
+			/* for correct RAM disc handling on Amiga OS */
 
 			if (a_pccFileName[NameOffset - 1] != ':')
 			{

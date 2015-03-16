@@ -121,7 +121,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 	if (m_poWindow->m_poWindow)
 	{
-		/* If a specific font has been specified then try to load it from disk and make it the rastport's */
+		/* If a specific font has been specified then try to load it from disc and make it the rastport's */
 		/* default font */
 
 		if (a_pccFont)

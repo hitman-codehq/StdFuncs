@@ -33,7 +33,7 @@ TInt RTextFile::Open(const char *a_pccFileName)
 
 		while (m_pcBufferPtr < m_pcBufferEnd)
 		{
-			while ((*m_pcBufferPtr != 0x0d) && (*m_pcBufferPtr != 0x0a))
+			while ((m_pcBufferPtr < m_pcBufferEnd) && (*m_pcBufferPtr != 0x0d) && (*m_pcBufferPtr != 0x0a))
 			{
 				++m_pcBufferPtr;
 			}
