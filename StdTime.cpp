@@ -1,6 +1,7 @@
 
 #include "StdFuncs.h"
 #include "StdTime.h"
+#include <time.h>
 
 /* Useful constants used for calculating the current date and time in microseconds */
 
@@ -148,7 +149,17 @@ void TTime::HomeTime()
 
 #elif defined(__linux__)
 
-#else /* ! __linux__ */
+	time_t TimeInSeconds;
+	struct tm *LocalTime;
+
+	/* Get the current time using the POSIX function and build up a TDateTime structure representing that time */
+
+	TimeInSeconds = time(NULL);
+	LocalTime = localtime(&TimeInSeconds);
+	ASSERTM((LocalTime != NULL), "TTime::HomeTime() => Unable to obtain current date and time");
+	TDateTime DateTime((LocalTime->tm_year + 1900), (TMonth) LocalTime->tm_mon, LocalTime->tm_mday, LocalTime->tm_hour, LocalTime->tm_min, LocalTime->tm_sec, 0);
+
+#else /* ! __linux__ */		
 
 	SYSTEMTIME SystemTime;
 
@@ -157,12 +168,11 @@ void TTime::HomeTime()
 	GetLocalTime(&SystemTime);
 	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
 
+#endif /* ! __linux__ */
+
 	/* And assign it to both the human readable and internal representations of the date and time */
 
 	Set(DateTime);
-
-#endif /* ! __linux__ */
-
 }
 
 /**
