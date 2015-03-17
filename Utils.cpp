@@ -208,7 +208,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 
 	char *Name;
 	TInt NameOffset;
-	struct TEntry Entry;
+	TEntry Entry;
 
 	/* Unfortunately UNIX and Amiga OS don't have an error that can be mapped onto KErrPathNotFound */
 	/* so we must do a little extra work here.  Amiga OS needs a little help too */

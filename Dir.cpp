@@ -934,7 +934,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 	TBool Append;
 	TInt Length;
 	struct dirent *DirEnt;
-	struct TEntry *Entry, FileInfo;
+	TEntry *Entry, FileInfo;
 
 	/* Only try to scan a directory if it wasn't a single filename that was passed in */
 
