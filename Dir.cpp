@@ -907,7 +907,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 
 		/* There are not many errors that can be returned from IDOS->ExamineDir(), except ones to */
-		/* indicate that a disk error occurred. Check for anything besides ERROR_NO_MORE_ENTRIES and */
+		/* indicate that a disc error occurred. Check for anything besides ERROR_NO_MORE_ENTRIES and */
 		/* return an error if approrpriate so that client software can abort its attempt to read the */
 		/* directory */
 
