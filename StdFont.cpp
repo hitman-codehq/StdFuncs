@@ -72,12 +72,12 @@ RFont::RFont(CWindow *a_poWindow)
 	m_iBaseline = 0;
 	m_poFont = NULL;
 
-#elif defined(WIN32)
+#else /* ! QT_GUI_LIB */
 
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -185,7 +185,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 		RetVal = KErrGeneral;
 	}
 
-#elif defined(WIN32)
+#else /* ! QT_GUI_LIB */
 
 	TInt Height;
 	TEXTMETRIC TextMetric;
@@ -247,7 +247,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 		Utils::Info("RFont::Open() => Unable to create temporary DC");
 	}
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }
@@ -459,7 +459,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 	m_oPainter.setBackgroundMode(Qt::TransparentMode);
 
-#elif defined(WIN32)
+#else /* ! QT_GUI_LIB */
 
 	TInt X, Y;
 	SIZE Size;
@@ -478,7 +478,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 		m_poWindow->SetCursorInfo(X, Y, m_iHeight);
 	}
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
@@ -539,11 +539,11 @@ void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY
 	QByteArray String(a_pccText, a_iLength);
 	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
-#elif defined(WIN32)
+#else /* ! QT_GUI_LIB */
 
 	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iLength);
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -748,7 +748,7 @@ void RFont::SetHighlight(TBool a_bHighlight)
 		m_oPainter.setBackgroundMode(Qt::TransparentMode);
 	}
 
-#elif defined(WIN32)
+#else /* ! QT_GUI_LIB */
 
 	if (a_bHighlight)
 	{
@@ -761,7 +761,7 @@ void RFont::SetHighlight(TBool a_bHighlight)
 		SetTextColor(m_poWindow->m_poDC, m_oText);
 	}
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 	/* And save the highlight state for l8r use */
 
