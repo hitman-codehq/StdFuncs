@@ -692,6 +692,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StdReaction.h"
+				>
+			</File>
+			<File
 				RelativePath=".\StdRendezvous.h"
 				>
 			</File>
