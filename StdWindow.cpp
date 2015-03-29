@@ -5,6 +5,7 @@
 #include "StdReaction.h"
 #include "StdRendezvous.h"
 #include "StdWindow.h"
+#include <ctype.h>
 #include <string.h>
 
 #ifdef __amigaos4__
@@ -756,7 +757,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 					KeyboardLayout = GetKeyboardLayout(0);
 
-					if (LOBYTE(KeyboardLayout) == LANG_ENGLISH)
+					if (LOWORD(KeyboardLayout) == LANG_ENGLISH)
 					{
 						if (a_oWParam == 123)
 						{
