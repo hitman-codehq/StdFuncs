@@ -51,6 +51,18 @@ extern MungWall oMungWall;
 void *operator new(size_t, const char *, int);
 void *operator new [](size_t, const char *, int);
 
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+
+/* This is heavy wizardry that is required in order to get MungWall working with older MSVC compilers */
+/* such as MSVC 6 and MSVC 2008 and also with the latest C++ compilers such as GCC 4.6.x.  One won't */
+/* compile without these function declarations and one won't compile with them (but only if the Standard */
+/* C++ library is also used! */
+
+void *operator new(size_t);
+void *operator new [](size_t);
+
+#endif
+
 extern "C"
 {
 
@@ -71,7 +83,16 @@ void DebugFreeMem(APTR apBlock, char *pcSourceFile, int iSourceLine, ULONG ulSiz
 #define malloc(ulSize) DebugMalloc(ulSize, __FILE__, __LINE__)
 #define realloc(pvBlock, ulSize) DebugReAlloc(pvBlock, ulSize, __FILE__, __LINE__)
 #define free(pvBlock) DebugFree(pvBlock, __FILE__, __LINE__)
+
+#ifndef MUNGWALL_NO_LINE_TRACKING
+
+/* More heavy wizardry required to allow tracking of file names and line numbers under MSVC 2013. */
+/* This feature doesn't work under older MSVC compilers or under GCC if the Standard C++ library */
+/* is also used! */
+
 #define new new(__FILE__, __LINE__)
+
+#endif
 
 #endif /* defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
