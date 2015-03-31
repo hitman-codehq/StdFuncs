@@ -863,7 +863,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		{
 			/* Scan through the key mappings and find the one that has just been pressed */
 
-			for (Index = 0; Index < NUM_KEYMAPPINGS; ++Index)
+			for (Index = 0; Index < (TInt) NUM_KEYMAPPINGS; ++Index)
 			{
 				if (g_aoKeyMap[Index].m_iNativeKey == (int) a_oWParam)
 				{
@@ -874,7 +874,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* If it was a known key then convert it to the standard value and pass it to the */
 			/* CWindow::OfferKeyEvent() function */
 
-			if (Index < NUM_KEYMAPPINGS)
+			if (Index < (TInt) NUM_KEYMAPPINGS)
 			{
 				Key = g_aoKeyMap[Index].m_iStdKey;
 
@@ -1255,11 +1255,9 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 #else /* ! QT_GUI_LIB */
 
 	const char *Label;
-	TInt Length;
 	HMENU DropdownMenu;
 
 	Label = NULL;
-	Length = 0;
 	DropdownMenu = (HMENU) a_pvDropdownMenu;
 
 	/* If this is a separator then create a separator menu item and add it to the previously */
@@ -1531,7 +1529,7 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 #else /* ! QT_GUI_LIB */
 
-	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != -1),
+	DEBUGCHECK((::CheckMenuItem(GetMenu(m_poWindow), a_iItemID, (a_bEnable) ? MF_CHECKED : MF_UNCHECKED) != (DWORD) -1),
 		"CWindow::CheckMenuItem() => Unable to set menu checkmark state");
 
 #endif /* ! QT_GUI_LIB */
@@ -1662,14 +1660,14 @@ TBool CWindow::CreateMenus()
 #else /* ! QT_GUI_LIB */
 
 	char *Label;
-	TInt Index, Length, NumAccelerators;
+	TInt Index, NumAccelerators;
 	ACCEL *Accelerators;
 	HMENU DropdownMenu, PopupMenu, TopLevelMenu;
 
 	ASSERTM((m_poMenu == NULL), "CWindow::CreateMenus() => Menus can only be created once");
 
 	Label = NULL;
-	Length = NumAccelerators = 0;
+	NumAccelerators = 0;
 
 	/* Create a top level menubar to which drop down menus can be attached */
 
@@ -1995,7 +1993,7 @@ void CWindow::Close()
 
 	if (m_poWindowClass)
 	{
-		DEBUGCHECK((UnregisterClass((LPCTSTR) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::Close() => Unable to unregister window class");
+		DEBUGCHECK((UnregisterClass((LPCTSTR) (DWORD) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::Close() => Unable to unregister window class");
 		m_poWindowClass = 0;
 	}
 

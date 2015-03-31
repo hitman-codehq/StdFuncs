@@ -75,7 +75,7 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 		/* Fill out the structure required by the WM_COPYDATA message and send the message, */
 		/* waiting for it to be processed before returning */
 
-		CopyData.dwData = NULL;
+		CopyData.dwData = 0;
 		CopyData.cbData = a_iDataSize;
 		CopyData.lpData = (void *) a_pucData;
 

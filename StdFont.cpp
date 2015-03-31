@@ -394,18 +394,22 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
 
+#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+
 	char Space[1] = { ' ' };
 	const char *Cursor;
+
+	/* Draw the text or a space instead as requested */
+
+	Cursor = (a_iDrawCharacter) ? &a_pccText[a_iX] : Space;
+
+#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	/* Invert the current highlight state before drawing the cursor and draw the letter under */
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
 	/* use ETrue and EFalse so that the cursor works within highlighted blocks of text as well */
 
 	SetHighlight(!(m_bHighlight));
-
-	/* Draw the text or a space instead as requested */
-
-	Cursor = (a_iDrawCharacter) ? &a_pccText[a_iX] : Space;
 
 #ifdef __amigaos4__
 
