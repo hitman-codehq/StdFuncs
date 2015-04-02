@@ -203,68 +203,59 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 #else /* ! QT_GUI_LIB */
 
 	TInt Offset, ParentWidth;
-	INITCOMMONCONTROLSEX InitCommonControls;
 	RECT Rect;
 
 	/* Register the status bar window control class so that we can use it */
 
-	InitCommonControls.dwSize = sizeof(InitCommonControls);
-	InitCommonControls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControls();
 
-	if (InitCommonControlsEx(&InitCommonControls))
+	/* Create the underlying Windows control */
+
+	m_poGadget = CreateWindowEx(0, STATUSCLASSNAME, NULL, (SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE),
+		0, 0, 0, 0, m_poParentWindow->m_poWindow, NULL, NULL, NULL);
+
+	if (m_poGadget)
 	{
-		/* Create the underlying Windows control */
+		/* Convert the parts offsets from percentages to pixel widths as required by the underlying */
+		/* Windows control */
 
-		m_poGadget = CreateWindowEx(0, STATUSCLASSNAME, NULL, (SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE),
-			0, 0, 0, 0, m_poParentWindow->m_poWindow, NULL, NULL, NULL);
+		Offset = 0;
+		ParentWidth = m_poParentWindow->InnerWidth();
 
-		if (m_poGadget)
+		for (Index = 0; Index < a_iNumParts; ++Index)
 		{
-			/* Convert the parts offsets from percentages to pixel widths as required by the underlying */
-			/* Windows control */
+			a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
+			Offset += a_piPartsOffsets[Index];
+		}
 
-			Offset = 0;
-			ParentWidth = m_poParentWindow->InnerWidth();
+		/* And subdivide it into the requested number of parts */
 
-			for (Index = 0; Index < a_iNumParts; ++Index)
+		if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
+		{
+			m_iNumParts = a_iNumParts;
+
+			/* Determine the dimensions of the gadget and save them for l8r */
+
+			if (GetClientRect(m_poGadget, &Rect))
 			{
-				a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
-				Offset += a_piPartsOffsets[Index];
-			}
+				RetVal = KErrNone;
 
-			/* And subdivide it into the requested number of parts */
-
-			if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
-			{
-				m_iNumParts = a_iNumParts;
-
-				/* Determine the dimensions of the gadget and save them for l8r */
-
-				if (GetClientRect(m_poGadget, &Rect))
-				{
-					RetVal = KErrNone;
-
-					m_iWidth = (Rect.right - Rect.left);
-					m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
-				}
-				else
-				{
-					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
-				}
+				m_iWidth = (Rect.right - Rect.left);
+				m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
 			}
 			else
 			{
-				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
+				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
 			}
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar");
+			Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
 		}
 	}
 	else
 	{
-		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to initialise common controls library");
+		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar");
 	}
 
 #endif /* ! QT_GUI_LIB */
