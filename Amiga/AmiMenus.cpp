@@ -369,10 +369,18 @@ TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel
 					/* Start by getting a ptr to the first menu item on the drop down menu (ie. The one after the */
 					/* menu title) and searching for the submenu ordinal ID */
 
+					Index = 0;
 					TempMenu = (DropdownMenu + 1);
 
-					for (Index = 0; Index <= a_iSubOrdinal; ++Index)
+					while (Index <= a_iSubOrdinal)
 					{
+						/* This might be a submenu of the menu - if so then don't count it in the search */
+
+						if (TempMenu->nm_Type != NM_SUB)
+						{
+							++Index;
+						}
+
 						++TempMenu;
 					}
 
