@@ -55,7 +55,8 @@ CAmiMenus *CAmiMenus::New(CWindow *a_poWindow, const struct SStdMenuItem *a_pcoM
 
 TInt CAmiMenus::Construct()
 {
-	TInt Index, Menu, Item, NumMenuItems, RetVal;
+	TBool SubMenu;
+	TInt Index, Menu, Item, NumMenuItems, RetVal, SubItem, NewMenuIndex;
 	const struct SStdMenuItem *MenuItem;
 	struct NewMenu *NewMenus, *NewMenuItem;
 
@@ -89,8 +90,10 @@ TInt CAmiMenus::Construct()
 
 		if ((m_poNewMenus = NewMenus = new NewMenu[NumMenuItems]) != NULL)
 		{
+			SubMenu = EFalse;
 			Menu = -1;
-			Item = 0;
+			NewMenuIndex = 0;
+			Item = SubItem = 0;
 
 			for (Index = 0; Index < NumMenuItems; ++Index)
 			{
@@ -103,20 +106,41 @@ TInt CAmiMenus::Construct()
 					++Menu;
 					Item = -1;
 				}
-				else
+
+				/* If we have found a EStdMenuSubMenuEnd then increment the index of the next menu */
+				/* item and disable creating subitems */
+
+				else if (MenuItem[Index].m_eType == EStdMenuSubMenuEnd)
+				{
+					++Item;
+					SubItem = 0;
+					SubMenu = EFalse;
+				}
+				else if (MenuItem[Index].m_eType != EStdMenuSubMenu)
 				{
 					++Item;
 				}
 
-				/* Populate the NewMenu structure for the menu item we are inserting */
+				/* Populate the NewMenu structure for the menu item we are inserting, but only if it is */
+				/* of type EStdMenuSubMenuEnd, as these are just for internal use */
 
-				NewMenuItem = &NewMenus[Index];
-				AddItem(&MenuItem[Index], NewMenuItem, EFalse);
+				if (MenuItem[Index].m_eType != EStdMenuSubMenuEnd)
+				{
+					NewMenuItem = &NewMenus[NewMenuIndex];
+					AddItem(&MenuItem[Index], NewMenuItem, SubMenu);
 
-				/* Now populate the SStdMenuMapping structure */
+					/* Now populate the SStdMenuMapping structure */
 
-				m_poMenuMappings[Index].m_iID = MenuItem[Index].m_iCommand;
-				m_poMenuMappings[Index].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, 0);
+					m_poMenuMappings[NewMenuIndex].m_iID = MenuItem[Index].m_iCommand;
+					m_poMenuMappings[NewMenuIndex].m_ulFullMenuNum = FULLMENUNUM(Menu, Item, SubItem);
+
+					++NewMenuIndex;
+
+					if (MenuItem[Index].m_eType == EStdMenuSubMenu)
+					{
+						SubMenu = ETrue;
+					}
+				}
 			}
 
 			/* The NewMenu structures have been initialised so create the Intuition specific menus */
