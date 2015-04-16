@@ -603,6 +603,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	TBool Handled;
 	HKL KeyboardLayout;
 	LRESULT RetVal;
+	UINT VirtualKey;
 	const struct SStdMenuItem *MenuItem;
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
@@ -917,6 +918,21 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				else
 				{
 					m_bAltPressed = m_bCtrlPressed = EFalse;
+				}
+			}
+
+			/* Now take the horribleness to the next level.  Certain keys (including the mysterious */
+			/* VK_OEM_MINUS key) are simply not passed to WM_CHAR if the control key is pressed.  But */
+			/* we need these keys and they work without special treatment on other operating systems. */
+			/* So we have to look out for them individually and simulate a WM_CHAR event if found */
+
+			if ((m_bCtrlPressed) && (a_uiMessage == WM_KEYDOWN))
+			{
+				if ((a_oWParam == VK_SUBTRACT) || (a_oWParam == VK_ADD) || (a_oWParam == VK_OEM_MINUS))
+				{
+					VirtualKey = MapVirtualKey(a_oWParam, MAPVK_VK_TO_CHAR);
+
+					Window->OfferKeyEvent(VirtualKey, ETrue);
 				}
 			}
 
