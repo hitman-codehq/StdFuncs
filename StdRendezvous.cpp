@@ -70,7 +70,7 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 		GetWindowThreadProcessId(Window, &ProcessID);
 		DEBUGCHECK((AllowSetForegroundWindow(ProcessID) != FALSE), "RRendezvous::Rendezvous() => Unable to assign set foreground ability to target");
 
-#endif
+#endif /* _WIN32_WINNT_WIN2K */
 
 		/* Fill out the structure required by the WM_COPYDATA message and send the message, */
 		/* waiting for it to be processed before returning */
