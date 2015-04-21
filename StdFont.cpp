@@ -403,7 +403,11 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 	Cursor = (a_iDrawCharacter) ? &a_pccText[a_iX] : Space;
 
-#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+
+	(void) a_iDrawCharacter;
+
+#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	/* Invert the current highlight state before drawing the cursor and draw the letter under */
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
