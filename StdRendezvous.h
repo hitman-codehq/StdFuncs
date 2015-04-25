@@ -2,12 +2,22 @@
 #ifndef STDRENDEZVOUS_H
 #define STDRENDEZVOUS_H
 
+#ifdef QT_GUI_LIB
+
+#include "Qt/StdLocalSocket.h"
+
+#endif /* QT_GUI_LIB */
+
+/* Forward declaration to reduce the # of includes required */
+
+class RApplication;
+
 /**
  * Mixin class for indicating when a rendezvous has been received.
  * Client code that is interested in receiving callbacks when a rendezvous has been received
- * from another program should derive from this class and implement the RendezvousReceived()
- * method.  I should then register an instance of the class with the RRendezvous class, which
- * will then call the overloaded method when a rendezvous is received.
+ * from another process should derive from this class and implement the MesageReceived()
+ * method.  It should then register an instance of the class with the RRendezvous class
+ * using RRendezvous::SetObserver().
  */
 
 class MRendezvousObserver
@@ -34,16 +44,33 @@ public:
  * application also has an instance of the RRendezvous class embedded in it).
  */
 
+#ifdef QT_GUI_LIB
+
+class RRendezvous : public MLocalSocketObserver
+
+#else /* ! QT_GUI_LIB */
+
 class RRendezvous
+
+#endif /* ! QT_GUI_LIB */
+
 {
+private:
+
 	const char			*m_pccName;		/**< Name of this rendezvous port */
 	MRendezvousObserver	*m_poObserver;	/**< Pointer to client to notify when rendezvous received */
 
+#ifdef QT_GUI_LIB
+
+	RLocalSocket		m_oLocalSocket;	/**< Local socket for use in communicating between processes */
+
+#endif /* QT_GUI_LIB */
+
 public:
 
-	TBool Rendezvous(const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize);
+	TBool Rendezvous(RApplication *a_poApplication, const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize);
 
-	void RendezvousReceived(const unsigned char *a_pcucData, TInt a_iDataSize);
+	void MessageReceived(const unsigned char *a_pcucData, TInt a_iDataSize);
 
 	void SetObserver(MRendezvousObserver *a_poObserver);
 };

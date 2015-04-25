@@ -1034,7 +1034,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Let the RRendezvous class know that a rendevous has been received */
 
 			CopyData = (COPYDATASTRUCT *) a_oLParam;
-			g_oRendezvous.RendezvousReceived((unsigned char *) CopyData->lpData, CopyData->cbData);
+			g_oRendezvous.MessageReceived((unsigned char *) CopyData->lpData, CopyData->cbData);
 
 			/* And indicate that the message has been processed */
 

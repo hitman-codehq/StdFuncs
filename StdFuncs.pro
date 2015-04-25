@@ -31,10 +31,13 @@ SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
 	StdImage.cpp StdPool.cpp StdRendezvous.cpp StdStringList.cpp StdTextFile.cpp StdTime.cpp StdWildcard.cpp \
 	StdWindow.cpp Test.cpp Utils.cpp
 
+SOURCES += Qt/StdLocalSocket.cpp
+
 HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdClipboard.h \
 	StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h StdImage.h StdList.h \
 	StdPool.h StdReaction.h StdRendezvous.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h \
 	StdWindow.h Test.h Utils.h
 
+HEADERS += Qt/StdLocalSocket.h
 HEADERS += Qt/StdGadgetSlider.h
 HEADERS += Qt/StdWindow.h
