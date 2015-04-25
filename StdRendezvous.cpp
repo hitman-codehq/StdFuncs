@@ -14,12 +14,12 @@ RRendezvous g_oRendezvous;	/* Class to allow communication between instances of 
  * @pre		a_pccName must be non NULL
  * @date	Sunday 09-Feb-2014 10:44 am, on board RE 57179 train to Munich Deutsches Museum
  * @param	a_pccName	Name that identifies the target program to which to send the message
- * @param	a_pucData	Pointer to the data to be sent to the program
+ * @param	a_pcucData	Pointer to the data to be sent to the program
  * @param	a_iDataSize	Size of the data to be sent, in bytes
  * @return	ETrue if the message was sent successfully, else EFalse
  */
 
-TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucData, TInt a_iDataSize)
+TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize)
 {
 	TBool RetVal;
 
@@ -33,14 +33,14 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 
 	// TODO: CAW - Implement and remove warning prevention casts
 	(void) a_pccName;
-	(void) a_pucData;
+	(void) a_pcucData;
 	(void) a_iDataSize;
 
 #elif defined(QT_GUI_LIB)
 
 	// TODO: CAW - Implement and remove warning prevention casts
 	(void) a_pccName;
-	(void) a_pucData;
+	(void) a_pcucData;
 	(void) a_iDataSize;
 
 #else /* ! QT_GUI_LIB */
@@ -77,7 +77,7 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
 
 		CopyData.dwData = 0;
 		CopyData.cbData = a_iDataSize;
-		CopyData.lpData = (void *) a_pucData;
+		CopyData.lpData = (void *) a_pcucData;
 
 		SendMessage(Window, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &CopyData);
 	}
@@ -94,15 +94,15 @@ TBool RRendezvous::Rendezvous(const char *a_pccName, const unsigned char *a_pucD
  * Otherwise, the function will return without doing anything.
  *
  * @date	Sunday 09-Feb-2014 11:10 am, on board RE 57179 train to Munich Deutsches Museum
- * @param	a_pucData	Pointer to the data sent by the sending program
+ * @param	a_pcucData	Pointer to the data sent by the sending program
  * @param	a_iDataSize	Size of the data sent, in bytes
  */
 
-void RRendezvous::RendezvousReceived(const unsigned char *a_pucData, TInt a_iDataSize)
+void RRendezvous::RendezvousReceived(const unsigned char *a_pcucData, TInt a_iDataSize)
 {
 	if (m_poObserver)
 	{
-		m_poObserver->RendezvousReceived(a_pucData, a_iDataSize);
+		m_poObserver->RendezvousReceived(a_pcucData, a_iDataSize);
 	}
 }
 

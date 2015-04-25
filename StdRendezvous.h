@@ -14,7 +14,7 @@ class MRendezvousObserver
 {
 public:
 
-	virtual void RendezvousReceived(const unsigned char *a_pucData, TInt a_iDataSize) = 0;
+	virtual void RendezvousReceived(const unsigned char *a_pcucData, TInt a_iDataSize) = 0;
 };
 
 /**
@@ -41,9 +41,9 @@ class RRendezvous
 
 public:
 
-	TBool Rendezvous(const char *a_pccName, const unsigned char *a_pucData, TInt a_iDataSize);
+	TBool Rendezvous(const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize);
 
-	void RendezvousReceived(const unsigned char *a_pucData, TInt a_iDataSize);
+	void RendezvousReceived(const unsigned char *a_pcucData, TInt a_iDataSize);
 
 	void SetObserver(MRendezvousObserver *a_poObserver);
 };
