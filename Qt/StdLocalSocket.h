@@ -24,6 +24,15 @@ public:
 	virtual void MessageReceived(const unsigned char *a_pcucData, int a_iDataSize) = 0;
 };
 
+/**
+ * Class for making local socket connections for IPC use.
+ * This class allows applications to connect to one another in order to send and receive arbitrary
+ * data.  This data can be anything but will usually be used for some sort of IPC using a custom
+ * protocol.  Sockets are identified by a unique name.  Whichever instance of the application first
+ * opens a socket of a given unique name will become the server.  Future instances of the application
+ * that open the same socket will automatically connect to the server and will become clients.
+ */
+
 class RLocalSocket : public QObject
 {
 	Q_OBJECT;
