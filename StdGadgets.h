@@ -12,7 +12,7 @@
 
 #endif /* QT_GUI_LIB */
 
-/* Forward declaration to reduce the # of includes required */
+/* Forward declarations to reduce the # of includes required */
 
 class CStdGadgetLayout;
 class CWindow;
