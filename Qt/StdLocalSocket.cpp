@@ -113,7 +113,7 @@ TInt RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
 {
 	TInt RetVal;
 
-	/* Create an instance of a local server with can be used for listening for new connections */
+	/* Create an instance of a local server that can be used for listening for new connections */
 
 	if ((m_poLocalServer = new QLocalServer(a_poApplication->Application())) != NULL)
 	{
@@ -157,7 +157,7 @@ TInt RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
  * called when the message is received.
  *
  * @date	Saturday 25-Apr-2015 10:53 am, Code HQ Ehinger Tor
- * @param	a_poObserver	Pointer to client function to be called when message is received
+ * @param	a_poObserver	Pointer to client function to be called when a message is received
  */
 
 void RLocalSocket::SetObserver(MLocalSocketObserver *a_poObserver)
