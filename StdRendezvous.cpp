@@ -73,7 +73,7 @@ TInt RRendezvous::Open(const char *a_pccName)
 		/* Only try to create a named message port if it does not already exist.  If the port already */
 		/* exists then the server is running, so we will be a client */
 
-		if ((MsgPort = IExec->FindPort(a_pccName)) == NULL)
+		if ((MsgPort = IExec->FindPort(m_pcName)) == NULL)
 		{
 			if ((m_poMsgPort = IExec->CreateMsgPort()) != NULL)
 			{
@@ -180,20 +180,16 @@ ULONG RRendezvous::GetSignal()
  * program and this will be mapped or copied into the target program's address space so that it
  * can be accessed.
  *
- * @pre		a_pccName must be non NULL
  * @date	Sunday 09-Feb-2014 10:44 am, on board RE 57179 train to Munich Deutsches Museum
  * @param	a_poApplication	Pointer to the parent application under which the program is running
- * @param	a_pccName		Name that identifies the target program to which to send the message
  * @param	a_pcucData		Pointer to the data to be sent to the program
  * @param	a_iDataSize		Size of the data to be sent, in bytes
  * @return	ETrue if the message was sent successfully, else EFalse
  */
 
-TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize)
+TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char *a_pcucData, TInt a_iDataSize)
 {
 	TBool RetVal;
-
-	ASSERTM((a_pccName != NULL), "RRendezvous::Rendezvous() => Name of target program must not be NULL");
 
 	/* Assume failure */
 
@@ -238,7 +234,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const char *a_pccNa
 
 				IExec->Forbid();
 
-				if ((MsgPort = IExec->FindPort(a_pccName)) != NULL)
+				if ((MsgPort = IExec->FindPort(m_pcName)) != NULL)
 				{
 					RetVal = ETrue;
 
@@ -268,7 +264,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const char *a_pccNa
 	/* Open a local socket with which to read and write messages and let it know to call us when a */
 	/* message is received */
 
-	if (m_oLocalSocket.Open(a_pccName, a_poApplication) == KErrNone)
+	if (m_oLocalSocket.Open(m_pcName, a_poApplication) == KErrNone)
 	{
 		m_oLocalSocket.SetObserver(this);
 
@@ -290,7 +286,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const char *a_pccNa
 
 	/* Find a handle to the main window of the target program, based on the name passed in */
 
-	if ((Window = FindWindow(a_pccName, a_pccName)) != NULL)
+	if ((Window = FindWindow(m_pcName, m_pcName)) != NULL)
 	{
 		/* Indicate success.  Unfortunately SendMessage() does not return a value to indicate that */
 		/* is could or could not send the message, so we have to assume that it was successful */

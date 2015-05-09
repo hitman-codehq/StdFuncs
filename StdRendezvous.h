@@ -89,7 +89,7 @@ public:
 
 #endif /* __amigaos4__ */
 
-	TBool Rendezvous(RApplication *a_poApplication, const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize);
+	TBool Rendezvous(RApplication *a_poApplication, const unsigned char *a_pcucData, TInt a_iDataSize);
 
 	void MessageReceived(const unsigned char *a_pcucData, TInt a_iDataSize);
 
