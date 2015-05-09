@@ -2,8 +2,176 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdRendezvous.h"
+#include <string.h>
 
 RRendezvous g_oRendezvous;	/* Class to allow communication between instances of programs */
+
+/**
+ * RRendezvous constructor.
+ * Initialises the members of the class to their default values.
+ *
+ * @date	Sunday 03-May-2015 8:53 am, Code HQ Ehinger Tor
+ */
+
+RRendezvous::RRendezvous()
+{
+	m_pcName = NULL;
+	m_poObserver = NULL;
+
+#ifdef __amigaos4__
+
+	m_poMsgPort = NULL;
+	m_bPortAdded = EFalse;
+
+#endif /*__amigaos4__ */
+
+}
+
+/**
+ * RRendezvous destructor.
+ * Frees any resources associated with the class.
+ *
+ * @date	Saturday 09-May-2015 7:26 am, Code HQ Ehinger Tor
+ */
+
+RRendezvous::~RRendezvous()
+{
+	Close();
+}
+
+/**
+ * Allocates system resources required to make a rendezvous.
+ * This method will allocate whatever underlying operating system resources are required in order
+ * to make a rendezvous.  The process that calls this method first will automatically become the
+ * server, and any subsequent processes that call it will become clients.  Clients can then
+ * rendezvous with the server, but not the other way around.
+ *
+ * @date	Friday 01-May-2015 1:39 pm, Code HQ Ehinger Tor
+ * @param	a_pccName		The name to be used for the rendezvous port
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
+
+TInt RRendezvous::Open(const char *a_pccName)
+{
+	TInt RetVal;
+	struct MsgPort *MsgPort;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+#ifdef __amigaos4__
+
+	/* Save the name of the port in persistent memory */
+
+	if ((m_pcName = new char[strlen(a_pccName) + 1]) != NULL)
+	{
+		strcpy(m_pcName, a_pccName);
+
+		/* Only try to create a named message port if it does not already exist.  If the port already */
+		/* exists then the server is running, so we will be a client */
+
+		if ((MsgPort = IExec->FindPort(a_pccName)) == NULL)
+		{
+			if ((m_poMsgPort = IExec->CreateMsgPort()) != NULL)
+			{
+				/* Initialise the message port so that it has a name, a priority (for speedy lookups) and */
+				/* will signal our task when a message is received.  Add it to Amiga OS's public port list */
+
+				m_poMsgPort->mp_Node.ln_Name = m_pcName;
+				m_poMsgPort->mp_Node.ln_Pri = 1;
+				m_poMsgPort->mp_SigTask = IExec->FindTask(NULL);
+				m_poMsgPort->mp_Flags = 0;
+				IExec->AddPort(m_poMsgPort);
+				m_bPortAdded = ETrue;
+			}
+			else
+			{
+				RetVal = KErrGeneral;
+
+				delete [] m_pcName;
+				m_pcName = NULL;
+			}
+		}
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+	}
+
+#endif /* __amigaos4__ */
+
+	return(RetVal);
+}
+
+/**
+ * Frees any resources associated with the class.
+ * This method performs the same functions as the destructor, but allows the user to call it when
+ * manual deinitialisation of the class is required.  After completion, the class instance can be
+ * reused by calling RRendezvous::Open() again.
+ *
+ * @date	Friday 01-May-2015 1:39 pm, Code HQ Ehinger Tor
+ */
+
+void RRendezvous::Close()
+{
+	delete [] m_pcName;
+	m_pcName = NULL;
+
+#ifdef __amigaos4__
+
+	/* Remove the message port from the public list and free it, if required.  Reset its variables so */
+	/* that the class can be reused again */
+
+	if (m_poMsgPort)
+	{
+		if (m_bPortAdded)
+		{
+			m_bPortAdded = EFalse;
+			IExec->RemPort(m_poMsgPort);
+		}
+
+		IExec->DeleteMsgPort(m_poMsgPort);
+		m_poMsgPort = NULL;
+	}
+
+#endif /* __amigaos4__ */
+
+}
+
+#ifdef __amigaos4__
+
+/**
+ * Returns the message port on which to listen for a rendezvous.
+ * This is an Amiga OS specific function that will return the message port on which the server should wait
+ * to receive rendezvous from clients.
+ *
+ * @date	Saturday 09-May-2015 11:27 am, Code HQ Ehinger Tor
+ * @return	The message port on which to wait for a rendezvous
+ */
+
+struct MsgPort *RRendezvous::GetMessagePort()
+{
+	return(m_poMsgPort);
+}
+
+/**
+ * Returns the signal for which to listen for a rendezvous.
+ * This is an Amiga OS specific function that will return the signal for which the server should wait
+ * to receive rendezvous from clients.
+ *
+ * @date	Saturday 09-May-2015 11:09 am, Code HQ Ehinger Tor
+ * @return	The signal on which to wait for a rendezvous
+ */
+
+ULONG RRendezvous::GetSignal()
+{
+	return((m_poMsgPort) ? (1 << m_poMsgPort->mp_SigBit) : 0);
+}
+
+#endif /* __amigaos4__ */
 
 /**
  * Rendezvous with a program of a given name.
@@ -33,10 +201,67 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const char *a_pccNa
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement and remove warning prevention casts
-	(void) a_pccName;
-	(void) a_pcucData;
-	(void) a_iDataSize;
+	char *Buffer, *Data;
+	struct Message *Message;
+	struct MsgPort *MsgPort;
+
+	(void) a_poApplication;
+
+	/* Only send the message if we are the client, or we will end up sending the message to ourselves. */
+	/* If we are the server then m_poMsgPort will be non NULL */
+
+	if (m_poMsgPort == NULL)
+	{
+		/* Allocate a buffer large enough to hold the Message structure and the data to be sent */
+
+		if ((Buffer = new char[sizeof(struct Message) + a_iDataSize]) != NULL)
+		{
+			Message = (struct Message *) Buffer;
+			Message->mn_Length = (sizeof(struct Message) + a_iDataSize);
+
+			/* If any data was specified then append it to the message structure */
+
+			if (a_iDataSize > 0)
+			{
+				Data = (char *) (Message + 1);
+				memcpy(Data, a_pcucData, a_iDataSize);
+			}
+
+			/* Create a reply port that can be used by the server to indicate that a message has been */
+			/* received and processed */
+
+			if ((Message->mn_ReplyPort = IExec->CreateMsgPort()) != NULL)
+			{
+				/* The FindPort() function must be protected by a Forbid()/Permit() pair.  However, we must only */
+				/* send the message with interrupts disabled or the server will never be able to process the */
+				/* received message.  So send the message and enable interrupts before waiting for the response */
+
+				IExec->Forbid();
+
+				if ((MsgPort = IExec->FindPort(a_pccName)) != NULL)
+				{
+					RetVal = ETrue;
+
+					IExec->PutMsg(MsgPort, Message);
+				}
+
+				IExec->Permit();
+
+				/* Listen for a response, but only if the message was successfully sent */
+
+				if (RetVal)
+				{
+					IExec->Wait(1 << Message->mn_ReplyPort->mp_SigBit);
+				}
+
+				/* Delete the reply port, now that we are finished with it */
+
+				IExec->DeleteMsgPort(Message->mn_ReplyPort);
+			}
+
+			delete [] Buffer;
+		}
+	}
 
 #elif defined(QT_GUI_LIB)
 

@@ -2,6 +2,7 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdReaction.h"
+#include "StdRendezvous.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos4__
@@ -131,12 +132,14 @@ TInt RApplication::Main()
 #ifdef __amigaos4__
 
 	char KeyBuffer[5];
-	TInt InnerWidth, InnerHeight, Index, ItemID, NumChars, X, Y;
+	const unsigned char *Data;
+	TInt DataSize, InnerWidth, InnerHeight, Index, ItemID, NumChars, X, Y;
 	TBool DoubleClicked, ExecutedShortcut, KeyDown;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
 	UWORD Code;
 	struct InputEvent *InputEvent, ShortcutEvent;
 	struct MenuItem *MenuItem;
+	struct Message *Message;
 	CWindow *Window;
 	TStdMouseEvent MouseEvent;
 
@@ -144,7 +147,24 @@ TInt RApplication::Main()
 
 	do
 	{
-		Signal = IExec->Wait(m_ulWindowSignals);
+		Signal = IExec->Wait(m_ulWindowSignals | g_oRendezvous.GetSignal());
+
+		/* Check to see if a message was received by the rendezvous port */
+
+		if (Signal & g_oRendezvous.GetSignal())
+		{
+			Message = IExec->GetMsg(g_oRendezvous.GetMessagePort());
+
+			/* Extract the payload from the message and let the RRendezvous class know that a message was received */
+
+			DataSize = (Message->mn_Length - sizeof(struct Message));
+			Data = (DataSize > 0) ? (unsigned char *) (Message + 1) : NULL;
+			g_oRendezvous.MessageReceived(Data, DataSize);
+
+			/* And reply to the client, to let it know that the message has been processed */
+
+			IExec->ReplyMsg(Message);
+		}
 
 		Window = m_poWindows;
 

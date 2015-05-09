@@ -57,16 +57,37 @@ class RRendezvous
 {
 private:
 
-	const char			*m_pccName;		/**< Name of this rendezvous port */
+	char				*m_pcName;		/**< Name of this rendezvous port */
 	MRendezvousObserver	*m_poObserver;	/**< Pointer to client to notify when rendezvous received */
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos4__
+
+	struct MsgPort		*m_poMsgPort;	/**< Port used by the server for rendezvous */
+	TBool				m_bPortAdded;	/**< ETrue if the port was added to the public message port list */
+
+#elif defined(QT_GUI_LIB)
 
 	RLocalSocket		m_oLocalSocket;	/**< Local socket for use in communicating between processes */
 
 #endif /* QT_GUI_LIB */
 
 public:
+
+	RRendezvous();
+
+	~RRendezvous();
+
+	TInt Open(const char *a_pccName);
+
+	void Close();
+
+#ifdef __amigaos4__
+
+	struct MsgPort *GetMessagePort();
+
+	ULONG GetSignal();
+
+#endif /* __amigaos4__ */
 
 	TBool Rendezvous(RApplication *a_poApplication, const char *a_pccName, const unsigned char *a_pcucData, TInt a_iDataSize);
 
