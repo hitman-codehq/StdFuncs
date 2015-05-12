@@ -97,7 +97,7 @@ RFont::RFont(CWindow *a_poWindow)
  * @date	Sunday 31-May-2010 3:38 pm
  * @param	a_iSize		Size of the font to be opened, in points
  * @param	a_pccFont	Ptr to the name of the font to be opened, which is platform specific.  If NULL
- *						then a platform specific generic courier style font will be selected
+ *						then a platform specific generic monospaced font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 
@@ -109,7 +109,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 #ifdef __amigaos4__
 
-	struct TextAttr TextAttr = { a_pccFont, 0, 0, 0 };
+	struct TextAttr TextAttr;
 
 	ASSERTM(m_poWindow, "RFont::Open() => Window handle not set");
 
@@ -126,9 +126,10 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 		if (a_pccFont)
 		{
-			/* Use the same size font as the currently selected one */
-
-			TextAttr.ta_YSize = m_poWindow->m_poWindow->RPort->Font->tf_YSize;
+			TextAttr.ta_Name = a_pccFont;
+			TextAttr.ta_YSize = a_iSize;
+			TextAttr.ta_Style = 0;
+			TextAttr.ta_Flags = 0;
 
 			/* And try to open the font */
 
