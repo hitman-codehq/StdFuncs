@@ -424,12 +424,14 @@ TInt RApplication::Main()
 							{
 								if (KeyDown)
 								{
-									/* Copy the InputEvent and remove any qualifiers associated with it.  This makes */
-									/* it easier to find out what key was pressed without having to concern ourselves */
-									/* with upper/lower case or changes made by the control key being pressed */
+									/* Copy the InputEvent and remove any control/alt qualifiers associated with it.  This */
+									/* makes it easier to find out what key was pressed without having to concern ourselves */
+									/* with changes made by the control or alt keys being pressed.  However, we do want to */
+									/* keep the shift qualifiers as filtering out these prevents control key combinations */
+									/* that involve shifted characters */
 
 									ShortcutEvent = *InputEvent;
-									ShortcutEvent.ie_Qualifier = 0;
+									ShortcutEvent.ie_Qualifier &= (IEQUALIFIER_LSHIFT | IEQUALIFIER_RSHIFT);
 
 									/* Cook the raw key press and pass it to the CAmiMenus class to execute any */
 									/* menu item shortcuts that match the key that was just pressed */
