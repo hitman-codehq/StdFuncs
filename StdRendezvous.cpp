@@ -56,19 +56,20 @@ RRendezvous::~RRendezvous()
 TInt RRendezvous::Open(const char *a_pccName)
 {
 	TInt RetVal;
-	struct MsgPort *MsgPort;
 
 	/* Assume success */
 
 	RetVal = KErrNone;
-
-#ifdef __amigaos4__
 
 	/* Save the name of the port in persistent memory */
 
 	if ((m_pcName = new char[strlen(a_pccName) + 1]) != NULL)
 	{
 		strcpy(m_pcName, a_pccName);
+
+#ifdef __amigaos4__
+
+		struct MsgPort *MsgPort;
 
 		/* Only try to create a named message port if it does not already exist.  If the port already */
 		/* exists then the server is running, so we will be a client */
@@ -95,13 +96,14 @@ TInt RRendezvous::Open(const char *a_pccName)
 				m_pcName = NULL;
 			}
 		}
+
+#endif /* __amigaos4__ */
+
 	}
 	else
 	{
 		RetVal = KErrNoMemory;
 	}
-
-#endif /* __amigaos4__ */
 
 	return(RetVal);
 }
