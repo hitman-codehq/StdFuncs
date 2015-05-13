@@ -285,6 +285,8 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 	COPYDATASTRUCT CopyData;
 	HWND Window;
 
+	(void) a_poApplication;
+
 	/* Find a handle to the main window of the target program, based on the name passed in */
 
 	if ((Window = FindWindow(m_pcName, m_pcName)) != NULL)
