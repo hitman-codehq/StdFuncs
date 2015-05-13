@@ -1909,7 +1909,12 @@ void CWindow::BringToFront()
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	/* The Qt version of this method is a little strange as it depends on the underlying X11 server.  Calling */
+	/* QWidget::activateWindow() should normally be enough, but this does not guarantee that the X11 server will */
+	/* bring the window to the front.  So we have to also call QWidget::raise() to make sure */
+
+	m_poWindow->raise();
+	m_poWindow->activateWindow();
 
 #else /* ! QT_GUI_LIB */
 
