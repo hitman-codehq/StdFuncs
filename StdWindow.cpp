@@ -1100,7 +1100,7 @@ CWindow::~CWindow()
 
 void CWindow::Activate()
 {
-	ASSERTM(m_poWindow, "CWindow::Activate() => Window must be already open");
+	ASSERTM(m_poWindow, "CWindow::Activate() => Window must already be open");
 
 #ifdef __amigaos4__
 
@@ -1894,18 +1894,28 @@ TBool CWindow::CtrlPressed()
 
 /**
  * Brings the window to the top of the Z-Order, so it is in front of all other windows.
- * This function will move the window represented by the current instance of this class to be
- * on top of all other windows in the system.
+ * This method will move the window represented by the current instance of this class to be
+ * on top of all other windows in the system.  On Amiga OS, this will also bring the window's
+ * screen to the front, if the window is running on its own screen.
+ *
+ * @pre		The window must already have been created
  *
  * @date	Friday 18-Jul-2014 11:55 am, on board ICE 578 train to Frankfurt Flughafen
  */
 
 void CWindow::BringToFront()
 {
+	ASSERTM(m_poWindow, "CWindow::BringToFront() => Window must already be open");
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
+	/* First bring the screen to the front */
+
+	IIntuition->ScreenToFront(m_poWindow->WScreen);
+
+	/* And then activate the window */
+
+	Activate();
 
 #elif defined(QT_GUI_LIB)
 
@@ -2050,7 +2060,7 @@ void CWindow::CompleteOpen()
 
 #ifdef __amigaos4__
 
-	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must be already open");
+	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must already be open");
 
 	/* Get the window's signal so that we can wait until an event occurs */
 
