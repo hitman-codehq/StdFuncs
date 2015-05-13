@@ -84,7 +84,6 @@ TInt RRendezvous::Open(const char *a_pccName)
 				m_poMsgPort->mp_Node.ln_Name = m_pcName;
 				m_poMsgPort->mp_Node.ln_Pri = 1;
 				m_poMsgPort->mp_SigTask = IExec->FindTask(NULL);
-				m_poMsgPort->mp_Flags = 0;
 				IExec->AddPort(m_poMsgPort);
 				m_bPortAdded = ETrue;
 			}
