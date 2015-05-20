@@ -38,28 +38,28 @@ class CStdGadget
 {
 protected:
 
-	TBool					m_bHidden;			/* ETrue if the gadget is hidden */
-	TInt					m_iGadgetID;		/* Unique ID of the gadget */
-	TInt					m_iX;				/* X and Y positions of the gadget, relative */
-	TInt					m_iY;				/* to the top left hand corner of the client area */
-	TInt					m_iWidth;			/* Width of the gadget in pixels */
-	TInt					m_iHeight;			/* Height of the gadget in pixels */
-	TInt					m_iMinHeight;		/* Minimum height of the gadget in pixels */
-	CStdGadgetLayout		*m_poParentLayout;	/* Ptr to CStdGadgetLayout that owns this gadget */
-	CWindow					*m_poParentWindow;	/* Ptr to window that owns this gadget */
-	enum TStdGadgetType		m_iGadgetType;		/* Type of gadget */
+	TBool					m_bHidden;			/**< ETrue if the gadget is hidden */
+	TInt					m_iGadgetID;		/**< Unique ID of the gadget */
+	TInt					m_iX;				/**< X and Y positions of the gadget, relative */
+	TInt					m_iY;				/**< to the top left hand corner of the client area */
+	TInt					m_iWidth;			/**< Width of the gadget in pixels */
+	TInt					m_iHeight;			/**< Height of the gadget in pixels */
+	TInt					m_iMinHeight;		/**< Minimum height of the gadget in pixels */
+	CStdGadgetLayout		*m_poParentLayout;	/**< Ptr to CStdGadgetLayout that owns this gadget */
+	CWindow					*m_poParentWindow;	/**< Ptr to window that owns this gadget */
+	enum TStdGadgetType		m_iGadgetType;		/**< Type of gadget */
 
 #ifdef __amigaos4__
 
-	Object					*m_poGadget;		/* Ptr to underlying BOOPSI gadget */
+	Object					*m_poGadget;		/**< Ptr to underlying BOOPSI gadget */
 
 #elif defined(QT_GUI_LIB)
 
-	QWidget					*m_poGadget;		/* Ptr to underlying Qt widget */
+	QWidget					*m_poGadget;		/**< Ptr to underlying Qt widget */
 
 #elif defined(WIN32)
 
-	HWND					m_poGadget;			/* Ptr to the underlying Windows control */
+	HWND					m_poGadget;			/**< Ptr to the underlying Windows control */
 
 #endif /* WIN32 */
 
@@ -71,7 +71,7 @@ private:
 
 public:
 
-	StdListNode<CStdGadget>	m_oStdListNode;		/* Standard list node */
+	StdListNode<CStdGadget>	m_oStdListNode;		/**< Standard list node */
 
 	virtual ~CStdGadget();
 
@@ -116,15 +116,15 @@ class CStdGadgetLayout : public CStdGadget
 {
 private:
 
-	TInt					m_iWeight;			/* Weight of the layout gadget */
-	MStdGadgetLayoutObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
-	StdList<CStdGadget>		m_oGadgets;			/* List of gadgets manually added to the window */
+	TInt					m_iWeight;				/**< Weight of the layout gadget */
+	MStdGadgetLayoutObserver *m_poClient;			/**< Ptr to client to notify when gadget changes */
+	StdList<CStdGadget>		m_oGadgets;				/**< List of gadgets manually added to the window */
 
 #ifdef QT_GUI_LIB
 
-	QGridLayout				*m_poLayout;		/* Ptr to underlying Qt widget.  Usually this is */
-												/* stored in m_poGadget but unfortunately QLayout */
-												/* derived objects do not derive from QWidget */
+	QGridLayout				*m_poLayout;			/**< Ptr to underlying Qt widget.
+														 Usually this is stored in m_poGadget but unfortunately
+														 QLayout derived objects do not derive from QWidget */
 
 #endif /* QT_GUI_LIB */
 
@@ -145,7 +145,7 @@ private:
 
 public:
 
-	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/* Standard list node */
+	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
 
 	static CStdGadgetLayout *New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient);
 
@@ -184,13 +184,13 @@ class CStdGadgetSlider : public CStdGadget
 {
 private:
 
-	TInt		m_iMaxRange;					/* Maximum X/Y position of the slider */
-	TInt		m_iPageSize;					/* Number of characters/lines/pixels per page */
-	MStdGadgetSliderObserver *m_poClient;		/* Ptr to client to notify when gadget changes */
+	TInt		m_iMaxRange;					/**< Maximum X/Y position of the slider */
+	TInt		m_iPageSize;					/**< Number of characters/lines/pixels per page */
+	MStdGadgetSliderObserver *m_poClient;		/**< Ptr to client to notify when gadget changes */
 
 #ifdef QT_GUI_LIB
 
-	CQtSlider	m_oSlider;						/* Helper class for listening for signals */
+	CQtSlider	m_oSlider;						/**< Helper class for listening for signals */
 
 #endif /* QT_GUI_LIB */
 
@@ -238,16 +238,16 @@ class CStdGadgetStatusBar : public CStdGadget
 {
 private:
 
-	char		**m_ppcPartsText;				/* Ptr to an array of ptrs to text strings */
-	TInt		m_iNumParts;					/* # of parts within the gadget */
+	char		**m_ppcPartsText;				/**< Ptr to an array of ptrs to text strings */
+	TInt		m_iNumParts;					/**< Number of parts within the gadget */
 
 #ifdef __amigaos4__
 
-	Object		**m_poPartsGadgets;				/* Ptr to an array of ptrs to parts labels */
+	Object		**m_poPartsGadgets;				/**< Ptr to an array of ptrs to parts labels */
 
 #elif defined(QT_GUI_LIB)
 
-	QLabel		**m_poPartsGadgets;				/* Ptr to an array of ptrs to parts labels */
+	QLabel		**m_poPartsGadgets;				/**< Ptr to an array of ptrs to parts labels */
 
 #endif /*__amigaos4__ */
 

@@ -10,9 +10,9 @@
 template <class T>
 struct StdListNode
 {
-	StdListNode<T>	*m_poPrev;				/* Ptr to the previous node on the list */
-	StdListNode<T>	*m_poNext;				/* Ptr to the next node on the list */
-	T				*m_poThis;				/* Ptr to C++ class on the list */
+	StdListNode<T>	*m_poPrev;				/**< Ptr to the previous node on the list */
+	StdListNode<T>	*m_poNext;				/**< Ptr to the next node on the list */
+	T				*m_poThis;				/**< Ptr to C++ class on the list */
 };
 
 /* Template class for a generic list */
@@ -27,9 +27,9 @@ class StdList
 
 private:
 
-	StdListNode<T>			m_oHead;		/* Dummy node representing head of the list */
-	StdListNode<T>			m_oTail;		/* Dummy node representing tail of the list */
-	TInt					m_iCount;		/* # of items in the list */
+	StdListNode<T>			m_oHead;		/**< Dummy node representing head of the list */
+	StdListNode<T>			m_oTail;		/**< Dummy node representing tail of the list */
+	TInt					m_iCount;		/**< Number of items in the list */
 
 public:
 

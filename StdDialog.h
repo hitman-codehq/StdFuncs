@@ -12,7 +12,7 @@ class CDialog;
 
 enum TStdEventType
 {
-	EStdEventChange = 0x0300		/* Gadget contents have changed */
+	EStdEventChange = 0x0300		/**< Gadget contents have changed */
 };
 
 #ifdef __amigaos4__
@@ -21,8 +21,8 @@ enum TStdEventType
 
 struct SStdGadgetMapping
 {
-	Object	*m_poGadget;			/* Ptr to BOOPSI gadget */
-	TInt	m_iID;					/* Integer ID of the gadget */
+	Object	*m_poGadget;			/**< Ptr to BOOPSI gadget */
+	TInt	m_iID;					/**< Integer ID of the gadget */
 };
 
 #endif /* __amigaos4__ */
@@ -42,19 +42,19 @@ class CDialog : public CWindow
 {
 private:
 
-	MDialogObserver			*m_poDialogObserver;	/* Ptr to dialog's observer to notify of events */
+	MDialogObserver			*m_poDialogObserver;	/**< Ptr to dialog's observer to notify of events */
 
 protected:
 
-	char					*m_pcTextBuffer;		/* Scratch buffer containing last obtained text */
-	TInt					m_iTextBufferLength;	/* Length of scratch buffer */
-	struct SStdGadgetMapping *m_poGadgetMappings;	/* Array of gadget ID -> APTR mappings */
-	TInt					m_iNumGadgetMappings;	/* # of entries in m_poGadgetMappings */
+	char					*m_pcTextBuffer;		/**< Scratch buffer containing last obtained text */
+	TInt					m_iTextBufferLength;	/**< Length of scratch buffer */
+	struct SStdGadgetMapping *m_poGadgetMappings;	/**< Array of gadget ID -> APTR mappings */
+	TInt					m_iNumGadgetMappings;	/**< Number of entries in m_poGadgetMappings */
 
 #ifdef __amigaos4__
 
-	struct SGWork			*m_poEditHookData;		/* If non NULL, a string gadget is being edited */
-	Object					*m_poRootGadget;		/* Ptr to root layout gadget */
+	struct SGWork			*m_poEditHookData;		/**< If non NULL, a string gadget is being edited */
+	Object					*m_poRootGadget;		/**< Ptr to root layout gadget */
 
 #endif /* __amigaos4__ */
 
@@ -112,7 +112,7 @@ public:
 
 #endif /* __amigaos4__ */
 
-	/* Functions can be implemented by client software */
+	/* Functions that can be implemented by client software */
 
 	virtual void HandleEvent(enum TStdEventType /*a_eEventID*/, TInt /*a_iGadgetID*/) { }
 

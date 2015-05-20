@@ -19,25 +19,25 @@ class RClipboard
 {
 private:
 
-	const char	*m_pccGetData;			/* Ptr to data being read */
-	const char	*m_pccCurrentGetData;	/* Ptr to current line of clipboard data being read */
-	char		*m_pcSetData;			/* Ptr to buffer containing data to be written */
+	const char	*m_pccGetData;			/**< Ptr to data being read */
+	const char	*m_pccCurrentGetData;	/**< Ptr to current line of clipboard data being read */
+	char		*m_pcSetData;			/**< Ptr to buffer containing data to be written */
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
-	TInt		m_iDataSize;			/* Size of buffer to be written */
+	TInt		m_iDataSize;			/**< Size of buffer to be written */
 
 #else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
-	HANDLE		m_poHandle;				/* Handle to data to be written */
+	HANDLE		m_poHandle;				/**< Handle to data to be written */
 
 #endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 #ifdef QT_GUI_LIB
 
-	QByteArray	m_oGetData;				/* Data returned by QClipboard::text() and pointed to */
-										/* by m_pccGetData.  This must remain persistent and hence */
-										/* must be stored here */
+	QByteArray	m_oGetData;				/**< Data returned by QClipboard::text().
+											 The data is read and is pointed to by m_pccGetData.  This must
+											 remain persistent and hence must be stored here */
 
 #endif /* QT_GUI_LIB */
 

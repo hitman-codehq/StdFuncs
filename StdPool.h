@@ -12,7 +12,7 @@ class CBufferNode
 {
 public:
 
-	StdListNode<CBufferNode>	m_oStdListNode;		/* Standard list node */
+	StdListNode<CBufferNode>	m_oStdListNode;		/**< Standard list node */
 };
 
 /* Class used for allocating small fixed size objects from an area of preallocated */
@@ -25,18 +25,18 @@ class CPoolNode
 {
 public:
 
-	StdListNode<CPoolNode>	m_oStdListNode;		/* Standard list node */
+	StdListNode<CPoolNode>	m_oStdListNode;			/**< Standard list node */
 };
 
 class RStdPool
 {
 private:
 
-	TBool					m_bExtensible;		/* ETrue if pool can be extended beyond its initial size */
-	TInt					m_iNumItems;		/* # of items in each block of items */
-	TInt					m_iSize;			/* Size of the nodes in the pool */
-	StdList<CBufferNode>	m_oBuffers;			/* List of buffers used by the pool */
-	StdList<CPoolNode>		m_oNodes;			/* List of free nodes in the pool */
+	TBool					m_bExtensible;			/**< ETrue if pool can be extended beyond its initial size */
+	TInt					m_iNumItems;			/**< Number of items in each block of items */
+	TInt					m_iSize;				/**< Size of the nodes in the pool */
+	StdList<CBufferNode>	m_oBuffers;				/**< List of buffers used by the pool */
+	StdList<CPoolNode>		m_oNodes;				/**< List of free nodes in the pool */
 
 public:
 

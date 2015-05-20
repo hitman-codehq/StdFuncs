@@ -32,7 +32,7 @@ enum TMessageBoxType
 
 /* Export some globals for use elsewhere */
 
-extern TBool g_bUsingGUI;	/* ETrue if running a GUI based program */
+extern TBool g_bUsingGUI;	/**< ETrue if running a GUI based program */
 
 typedef TBool (*ScanFunc)(const char *a_pccFileName, void *a_pvUserData);
 
@@ -111,7 +111,7 @@ public:
 	static TInt StringToInt(const char *a_pccString, TInt *a_piResult);
 
 	static void TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime);
-		
+
 	static TBool TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
 
 	static void TrimString(char *a_pcString);

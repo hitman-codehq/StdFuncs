@@ -170,8 +170,8 @@ typedef unsigned long COLORREF;
 
 struct SKeyMapping
 {
-	TInt	m_iStdKey;			/* Standard keycode */
-	TInt	m_iNativeKey;		/* Native keycode */
+	TInt	m_iStdKey;			/**< Standard keycode */
+	TInt	m_iNativeKey;		/**< Native keycode */
 };
 
 #include "Utils.h"

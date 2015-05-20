@@ -11,9 +11,9 @@ class RFileRequester
 {
 private:
 
-	char	*m_pcDirectoryName;						/* Ptr to directory name extracted from fully qualified */
-													/* filename passed into RFileRequester::GetFileName() */
-	char	m_acFileName[MAX_FILEREQUESTER_PATH];	/* Fully qualified filename of file selected by user */
+	char	*m_pcDirectoryName;						/**< Ptr to directory name extracted from fully qualified
+														 filename passed into RFileRequester::GetFileName() */
+	char	m_acFileName[MAX_FILEREQUESTER_PATH];	/**< Fully qualified filename of file selected by user */
 
 public:
 

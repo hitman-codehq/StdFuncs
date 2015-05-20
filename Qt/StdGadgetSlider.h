@@ -21,7 +21,7 @@ class CQtSlider : public QObject
 
 private:
 
-	CStdGadgetSlider	*m_poParentSlider;	/* Ptr to framework slider that uses this Qt slider */
+	CStdGadgetSlider	*m_poParentSlider;	/**< Ptr to framework slider that uses this Qt slider */
 
 public:
 

@@ -23,21 +23,21 @@ class RApplication;
 
 enum TStdMenuItemType
 {
-	EStdMenuEnd,						/* Marker to indicate the end of the menu list */
-	EStdMenuTitle,						/* A menu - must be 1 to match NM_TITLE */
-	EStdMenuItem,						/* An item on a menu  - must be 2 to match NM_ITEM */
-	EStdMenuCheck,						/* A checked menu item */
-	EStdMenuSeparator,					/* A separator bar */
-	EStdMenuSubMenu,					/* A popout submenu */
-	EStdMenuSubMenuEnd					/* Special value that ends a submenu definition */
+	EStdMenuEnd,							/**< Marker to indicate the end of the menu list */
+	EStdMenuTitle,							/**< A menu - must be 1 to match NM_TITLE */
+	EStdMenuItem,							/**< An item on a menu  - must be 2 to match NM_ITEM */
+	EStdMenuCheck,							/**< A checked menu item */
+	EStdMenuSeparator,						/**< A separator bar */
+	EStdMenuSubMenu,						/**< A popout submenu */
+	EStdMenuSubMenuEnd						/**< Special value that ends a submenu definition */
 };
 
 /* Each instance of this structure represents an Amiga OS menu mapping */
 
 struct SStdMenuMapping
 {
-	TInt	m_iID;						/* Integer ID of the menu */
-	ULONG	m_ulFullMenuNum;			/* FULLMENUNUM of the menu, useable for OffMenu() etc */
+	TInt	m_iID;							/**< Integer ID of the menu */
+	ULONG	m_ulFullMenuNum;				/**< FULLMENUNUM of the menu, useable for OffMenu() etc */
 };
 
 /* Structure defining a single menu item to be dynamically created */
@@ -75,53 +75,53 @@ private:
 	TInt				m_iCursorX;					/**< Current X position of the cursor */
 	TInt				m_iCursorY;					/**< Current Y position of the cursor */
 	TInt				m_iCursorHeight;			/**< Height of the cursor to be displayed */
-	TBool				m_bFillBackground;			/* ETrue to fill background when drawing */
-	CWindow				*m_poNext;					/* Ptr to next window in list */
+	TBool				m_bFillBackground;			/**< ETrue to fill background when drawing */
+	CWindow				*m_poNext;					/**< Ptr to next window in list */
 
 #ifdef __amigaos4__
 
-	struct Hook			m_oIDCMPHook;				/* IDCMP hook for watching gadgets such as sliders */
-	Object				*m_poRootGadget;			/* layout.gadget containing the window's gadgets */
+	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
+	Object				*m_poRootGadget;			/**< layout.gadget containing the window's gadgets */
 
 #elif defined(WIN32)
 
-	ATOM				m_poWindowClass;			/* Window's class, returned from RegisterClass() */
-	HMENU				m_poMenu;					/* Handle to window's menu bar */
+	ATOM				m_poWindowClass;			/**< Window's class, returned from RegisterClass() */
+	HMENU				m_poMenu;					/**< Handle to window's menu bar */
 
 #endif /* WIN32 */
 
 protected:
 
-	static TBool		m_bAltPressed;				/* ETrue if alt is currently pressed */
-	static TBool		m_bCtrlPressed;				/* ETrue if ctrl is currently pressed */
-	static TBool		m_bShiftPressed;			/* ETrue if shift is currently pressed */
+	static TBool		m_bAltPressed;				/**< ETrue if alt is currently pressed */
+	static TBool		m_bCtrlPressed;				/**< ETrue if ctrl is currently pressed */
+	static TBool		m_bShiftPressed;			/**< ETrue if shift is currently pressed */
 
-	TBool				m_bOpen;					/* ETrue if window is open */
-	TInt				m_iInnerWidth;				/* Width of window, minus left and right borders */
-	TInt				m_iInnerHeight;				/* Height of window, minus top and bottom borders */
-	StdList<CStdGadgetLayout>	m_oGadgets;			/* List of layout gadgets manually added to the window */
-	RApplication		*m_poApplication;			/* Ptr to application that owns this window */
+	TBool				m_bOpen;					/**< ETrue if window is open */
+	TInt				m_iInnerWidth;				/**< Width of window, minus left and right borders */
+	TInt				m_iInnerHeight;				/**< Height of window, minus top and bottom borders */
+	StdList<CStdGadgetLayout>	m_oGadgets;			/**< List of layout gadgets manually added to the window */
+	RApplication		*m_poApplication;			/**< Ptr to application that owns this window */
 
 public:
 
 #ifdef __amigaos4__
 
-	CAmiMenus			*m_poAmiMenus;				/* Ptr to instance of Amiga menu helper class */
-	Object				*m_poWindowObj;				/* Ptr to underlying Reaction window */
-	struct Window		*m_poWindow;				/* Ptr to underlying Intuition window */
+	CAmiMenus			*m_poAmiMenus;				/**< Ptr to instance of Amiga menu helper class */
+	Object				*m_poWindowObj;				/**< Ptr to underlying Reaction window */
+	struct Window		*m_poWindow;				/**< Ptr to underlying Intuition window */
 
 #elif defined(QT_GUI_LIB)
 
-	CQtWindow			*m_poWindow;				/* Ptr to underlying Qt window */
-	CQtCentralWidget	*m_poCentralWidget;			/* Ptr to underlying Qt central widget */
+	CQtWindow			*m_poWindow;				/**< Ptr to underlying Qt window */
+	CQtCentralWidget	*m_poCentralWidget;			/**< Ptr to underlying Qt central widget */
 
 #elif defined(WIN32)
 
-	HACCEL				m_poAccelerators;			/* Ptr to application's accelerator table, if any */
-	HWND				m_poWindow;					/* Ptr to underlying Windows window */
-	HDC					m_poDC;						/* Device context and paint structure into which to */
-	PAINTSTRUCT			m_oPaintStruct;				/* render;  valid only during calls to CWindow::Draw() */
-	static CWindow		*m_poActiveDialog;			/* Ptr to currently active dialog, if any */
+	HACCEL				m_poAccelerators;			/**< Ptr to application's accelerator table, if any */
+	HWND				m_poWindow;					/**< Ptr to underlying Windows window */
+	HDC					m_poDC;						/**< Device context and paint structure into which to */
+	PAINTSTRUCT			m_oPaintStruct;				/**< render;  valid only during calls to CWindow::Draw() */
+	static CWindow		*m_poActiveDialog;			/**< Ptr to currently active dialog, if any */
 
 #endif /* WIN32 */
 
@@ -258,7 +258,7 @@ public:
 
 	static TBool ShiftPressed();
 
-	/* Functions can be implemented by client software */
+	/* Functions that can be implemented by client software */
 
 	virtual void Activated(TBool /*a_bActivated*/) { }
 

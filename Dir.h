@@ -33,25 +33,25 @@ class TEntry
 {
 public:
 
-	StdListNode<TEntry>	m_oStdListNode;		/* Standard list node */
-	char				iName[MAX_PATH];	/* Name of the file */
-	TBool				iIsDir;				/* ETrue if entry is a directory */
-	TBool				iIsLink;			/* ETrue if entry is a link */
-	TUint				iSize;				/* File size in bytes */
-	TUint				iAttributes;		/* Protection attributes, in Amiga/UNIX/Windows format */
-	TTime				iModified;			/* Time and date of the file */
+	StdListNode<TEntry>	m_oStdListNode;		/**< Standard list node */
+	char				iName[MAX_PATH];	/**< Name of the file */
+	TBool				iIsDir;				/**< ETrue if entry is a directory */
+	TBool				iIsLink;			/**< ETrue if entry is a link */
+	TUint				iSize;				/**< File size in bytes */
+	TUint				iAttributes;		/**< Protection attributes, in Amiga/UNIX/Windows format */
+	TTime				iModified;			/**< Time and date of the file */
 
 #ifdef __amigaos4__
 
-	struct DateStamp	iPlatformDate;		/* Date and time in Amiga specific format */
+	struct DateStamp	iPlatformDate;		/**< Date and time in Amiga specific format */
 
 #elif defined(__linux__)
 
-	time_t				iPlatformDate;		/* Date and time in UNIX specific format */
+	time_t				iPlatformDate;		/**< Date and time in UNIX specific format */
 
 #else /* ! __linux__ */
 
-	FILETIME			iPlatformDate;		/* Date and time in Windows specific format */
+	FILETIME			iPlatformDate;		/**< Date and time in Windows specific format */
 
 #endif /* ! __linux__ */
 
@@ -83,7 +83,7 @@ class TEntryArray
 {
 private:
 
-	StdList<TEntry>		iEntries;	/* List of entries */
+	StdList<TEntry>		iEntries;	/**< List of entries */
 
 public:
 
@@ -119,26 +119,26 @@ private:
 
 #ifdef __amigaos4__
 
-	char			*iPath;			/* Path to directory being scanned, minus wildcard */
-	char			*iPattern;		/* Pattern to be used for MatchPatternNoCase() */
-	APTR			iContext;		/* Context used for scanning directory */
+	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
+	char			*iPattern;		/**< Pattern to be used for MatchPatternNoCase() */
+	APTR			iContext;		/**< Context used for scanning directory */
 
 #elif defined(__linux__)
 
-	char			*iPathBuffer;	/* Ptr to memory used by iPath and iPattern buffers */
-	char			*iPath;			/* Path to directory being scanned, minus wildcard */
-	char			*iPattern;		/* Pattern to be used for pattern matching in RDir::Read() */
-	DIR				*iDir;
+	char			*iPathBuffer;	/**< Ptr to memory used by iPath and iPattern buffers */
+	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
+	char			*iPattern;		/**< Pattern to be used for pattern matching in RDir::Read() */
+	DIR				*iDir;			/**< Pointer to object used for scanning directory */
 
 #else /* ! __linux__ */
 
-	HANDLE			iHandle;		/* Handle used for scanning directory */
+	HANDLE			iHandle;		/**< Handle used for scanning directory */
 
 #endif /* ! __linux__ */
 
-	TEntry			iSingleEntry;	/* If a single entry is being examined, Open() will populate this */
-	TBool			iSingleEntryOk;	/* ETrue if the contents of iSingleEntry are valid, else EFalse */
-	TEntryArray		iEntries;		/* Array of TEntry classes containing directory and file information */
+	TEntry			iSingleEntry;	/**< If a single entry is being examined, Open() will populate this */
+	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */
+	TEntryArray		iEntries;		/**< Array of TEntry classes containing directory and file information */
 
 private:
 

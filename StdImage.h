@@ -17,17 +17,17 @@ class RStdImage
 {
 private:
 
-	TInt			m_iWidth;		/* Width and height of the image, as determined from */
-	TInt			m_iHeight;		/* the image file upon loading */
+	TInt			m_iWidth;		/**< Width and height of the image, as determined from */
+	TInt			m_iHeight;		/**< the image file upon loading */
 
 #ifdef __amigaos4__
 
-	Object			*m_poBitMapObj;	/* Datatype object representing the loaded image */
-	struct BitMap	*m_poBitMap;	/* BitMap data extracted from the bitmap datatype */
+	Object			*m_poBitMapObj;	/**< Datatype object representing the loaded image */
+	struct BitMap	*m_poBitMap;	/**< BitMap data extracted from the bitmap datatype */
 
 #elif defined(WIN32)
 
-	HBITMAP			m_poBitmap;		/* Handle to Windows bitmap representing the loaded image */
+	HBITMAP			m_poBitmap;		/**< Handle to Windows bitmap representing the loaded image */
 
 #endif /* WIN32 */
 

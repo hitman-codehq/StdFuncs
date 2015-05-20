@@ -6,7 +6,7 @@ class RWildcard
 {
 private:
 
-	const char	*m_pccWildcard;	/* Ptr to raw wildcard to match */
+	const char	*m_pccWildcard;	/**< Ptr to raw wildcard to match */
 
 public:
 

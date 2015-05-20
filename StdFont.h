@@ -27,47 +27,47 @@ private:
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
-	TInt		m_iBaseline;	/* Distance from the top of char to baseline */
+	TInt		m_iBaseline;		/**< Distance from the top of char to baseline */
 
 #endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos4__
 
 	LONG		m_alPens[STDFONT_NUM_COLOURS]; /* Array of pens found using IGraphics->ObtainBestPen() */
-	struct TextFont	*m_poFont;		/* Amiga font with which to render */
-	struct TextFont *m_poOldFont;	/* Default system font used for rendering text */
+	struct TextFont	*m_poFont;		/**< Amiga font with which to render */
+	struct TextFont *m_poOldFont;	/**< Default system font used for rendering text */
 
 #elif defined(QT_GUI_LIB)
 
-	QPainter	m_oPainter;		/* Object used for rendering text to the screen */
-	QColor		m_oBackground;	/* Background and text colours at the time */
-	QColor		m_oText;		/* that RFont.Begin() was called */
-	QFont		*m_poFont;		/* Qt font with which to render */
+	QPainter	m_oPainter;			/**< Object used for rendering text to the screen */
+	QColor		m_oBackground;		/**< Background and text colours at the time */
+	QColor		m_oText;			/**< that RFont.Begin() was called */
+	QFont		*m_poFont;			/**< Qt font with which to render */
 
 #elif defined(WIN32)
 
-	HDC			m_poDC;			/* Ptr to temporary DC, if required */
-	HFONT		m_poFont;		/* Windows font with which to render */
-	HFONT		m_poOldFont;	/* Windows font previously selected into window */
-	COLORREF	m_oBackground;	/* Background and text colours at the time */
-	COLORREF	m_oText;		/* that RFont.Begin() was callsed */
+	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
+	HFONT		m_poFont;			/**< Windows font with which to render */
+	HFONT		m_poOldFont;		/**< Windows font previously selected into window */
+	COLORREF	m_oBackground;		/**< Background and text colours at the time */
+	COLORREF	m_oText;			/**< that RFont.Begin() was called */
 
 #endif /* WIN32 */
 
 #ifdef _DEBUG
 
-	TBool		m_bBeginCalled;	/* ETrue if RFont::Begin() has been called */
+	TBool		m_bBeginCalled;		/**< ETrue if RFont::Begin() has been called */
 
 #endif /* _DEBUG */
 
-	TBool		m_bHighlight;	/* ETrue if text will be drawn highlighted, else EFalse */
-	TInt		m_iClipWidth;	/* Number of pixels to draw horizontally before clipping */
-	TInt		m_iClipHeight;	/* Number of pixels to draw vertically before clipping */
-	TInt		m_iWidth;		/* Width of a character in pixels.  Valid only for monospace fonts */
-	TInt		m_iHeight;		/* Height of a character in pixels */
-	TInt		m_iXOffset;		/* Offset from left of window at which to print */
-	TInt		m_iYOffset;		/* Offset from top of window at which to print */
-	CWindow		*m_poWindow;	/* Ptr to window into which to render */
+	TBool		m_bHighlight;		/**< ETrue if text will be drawn highlighted, else EFalse */
+	TInt		m_iClipWidth;		/**< Number of pixels to draw horizontally before clipping */
+	TInt		m_iClipHeight;		/**< Number of pixels to draw vertically before clipping */
+	TInt		m_iWidth;			/**< Width of a character in pixels.  Valid only for monospace fonts */
+	TInt		m_iHeight;			/**< Height of a character in pixels */
+	TInt		m_iXOffset;			/**< Offset from left of window at which to print */
+	TInt		m_iYOffset;			/**< Offset from top of window at which to print */
+	CWindow		*m_poWindow;		/**< Ptr to window into which to render */
 
 public:
 
