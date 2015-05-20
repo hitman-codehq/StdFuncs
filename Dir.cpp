@@ -414,25 +414,29 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 
 #endif /* WIN32 */
 
-/* Written: Saturday 03-Nov-2007 4:43 pm */
-/* @param	a_pccPattern	OS specific path and wildcard to scan */
-/* @return	KErrNone if directory was opened successfully */
-/*			KErrNotFound if the directory or file could not be opened for scanning */
-/*			KErrNoMemory if not enough memory was available */
-/*			KErrGeneral if some other unspecified error occurred */
-/* This function prepares to scan a file or directory.  The a_pccPattern parameter can */
-/* refer to either a directory name, a single filename, a wildcard pattern or a combination */
-/* thereof.  Examples are: */
-/* */
-/* "" */
-/* "." */
-/* "SomeDir" */
-/* "SomeDir/" */
-/* "*" */
-/* "*.cpp" */
-/* "SomeFile" */
-/* "SomeDir/SomeFile.txt" */
-/* "PROGDIR:" */
+/**
+ * Opens an object for scanning.
+ * This function prepares to scan a file or directory.  The a_pccPattern parameter can
+ * refer to either a directory name, a single filename, a wildcard pattern or a combination
+ * thereof.  Examples are:
+ *
+ * ""\n
+ * "."\n
+ * "SomeDir"\n
+ * "SomeDir/"\n
+ * "*"\n
+ * "*.cpp"\n
+ * "SomeFile"\n
+ * "SomeDir/SomeFile.txt"\n
+ * "PROGDIR:"\n
+ *
+ * @date	Saturday 03-Nov-2007 4:43 pm
+ * @param	a_pccPattern	OS specific path and wildcard to scan
+ * @return	KErrNone if directory was opened successfully
+ * @return	KErrNotFound if the directory or file could not be opened for scanning
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
 
 TInt RDir::Open(const char *a_pccPattern)
 {
