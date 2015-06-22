@@ -69,6 +69,53 @@ TBool g_bUsingGUI;
 
 CWindow	*g_poRootWindow;
 
+#ifdef WIN32
+
+/**
+ * Callback function used by EnumDisplayMonitors().
+ * This function is called by the windows EnumDisplayMonitors() function for each display that is
+ * attached to the host computer.  This enables the client to obtain the dimensions of each display.
+ * It is used by the Utils::GetScreenSize() function when querying the display on which a particular
+ * window is opened.
+ *
+ * @date	Tuesday 10-Jun-2015 6:30 am, Code HQ Ehinger Tor
+ * @param	a_poMonitor		Handle of a structure that represents a display attached to the system
+ * @param	a_poDC			Handle of the device context passed into EnumDisplayMonitors()
+ * @param	a_poRect		Pointer to the RECT passed into EnumDisplayMonitors()
+ * @param	a_lData			32 bit user data passed into EnumDisplayMonitors(), in our case a pointer
+ * 							to the SRect structure into which to place information about the display
+ * @return	Always FALSE to stop the scan, as we are only interested in the first display found
+ */
+
+static BOOL CALLBACK MonitorEnumProc(HMONITOR a_poMonitor, HDC /*a_poDC*/, LPRECT /*a_poRect*/, LPARAM a_lData)
+{
+	struct SRect *ScreenSize;
+	MONITORINFO MonitorInfo;
+
+	/* Get a pointer to the SRect to be filled out */
+
+	ScreenSize = (struct SRect *) a_lData;
+
+	/* And query the system for the size of the display that was just passed in */
+
+	MonitorInfo.cbSize = sizeof(MonitorInfo);
+
+	if (GetMonitorInfo(a_poMonitor, &MonitorInfo))
+	{
+		ScreenSize->m_iTop = MonitorInfo.rcMonitor.top;
+		ScreenSize->m_iLeft = MonitorInfo.rcMonitor.left;
+		ScreenSize->m_iWidth = (MonitorInfo.rcMonitor.right - MonitorInfo.rcMonitor.left);
+		ScreenSize->m_iHeight = (MonitorInfo.rcMonitor.bottom - MonitorInfo.rcMonitor.top);
+	}
+
+	/* Always return FALSE to stop the scan.  We are only interested in querying the first display in */
+	/* the system as this is the one that matches the window that was passed to EnumDisplayMonitors() */
+
+	return(FALSE);
+}
+
+#endif /* WIN32 */
+
 /**
  *
  * Maps the OS's last error onto one of The Framework's standard errors.
@@ -1079,10 +1126,26 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 	return(RetVal);
 }
 
-/* Written: Saturday 08-May-2010 3:16 pm */
+/**
+ * Queries the system for the size of the display.
+ * This function allows the caller to obtain the size of the display on which it is running.  For
+ * single monitor systems this is simple enough, but for multiple monitor systems it is a little
+ * more complex.  For these, a window must be passed to this function and the function will return
+ * the size of the screen on which that window was opened.  This is simply a mechanism for choosing
+ * which of the attached displays should be considered the "main" display for which to return
+ * information.
+ *
+ * @date	Saturday 08-May-2010 3:16 pm, Code HQ Ehinger Tor
+ * @param	a_roScreenSize	Reference to a structure in which to return the information
+ * @param	a_poWindow		Pointer to the application's main window.  Only required for multiple
+ *							screen systems
+ */
 
-void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
+void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 {
+	a_roScreenSize.m_iLeft = a_roScreenSize.m_iTop = 0;
+	a_roScreenSize.m_iWidth = 640;
+	a_roScreenSize.m_iHeight = 480;
 
 #ifdef __amigaos4__
 
@@ -1090,8 +1153,8 @@ void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
 
 	if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
 	{
-		*a_piWidth = Screen->Width;
-		*a_piHeight = Screen->Height;
+		a_roScreenSize.m_iWidth = Screen->Width;
+		a_roScreenSize.m_iHeight = Screen->Height;
 
 		IIntuition->UnlockPubScreen(NULL, Screen);
 	}
@@ -1105,21 +1168,58 @@ void Utils::GetScreenSize(TInt *a_piWidth, TInt *a_piHeight)
 
 #else /* ! __linux__ */
 
-	RECT Rect;
+	TInt InnerWidth, OuterWidth, Width, Height;
+	RECT ClientRect, WindowRect;
 
-	if (GetWindowRect(GetDesktopWindow(), &Rect))
+	/* If a window was passed in then query the system for the display on which that window was opened */
+
+	if (a_poWindow)
 	{
-		*a_piWidth = (Rect.right - Rect.left);
-		*a_piHeight = (Rect.bottom - Rect.top);
+		/* GetSystemMetrics(SM_CXSIZEFRAME) is broken from Windows Vista onwards, so to obtain the size of */
+		/* the window borders we must calculate it by subtracting the size of the window's client area from */
+		/* the size of the window itself */
+
+		if (GetWindowRect(a_poWindow->m_poWindow, &WindowRect))
+		{
+			if (GetClientRect(a_poWindow->m_poWindow, &ClientRect))
+			{
+				OuterWidth = (WindowRect.right - WindowRect.left);
+				InnerWidth = (ClientRect.right - ClientRect.left);
+				Width = (OuterWidth - InnerWidth);
+
+				/* If the window is maximised then only the client area is visible.  The borders are still */
+				/* actually present but are now outside the bounds of the display.  In this case we must adjust */
+				/* the size of the window or it will stretch across more than one display and we will obtain */
+				/* the size information about the wrong display */
+
+				if ((WindowRect.left < 0) || (WindowRect.top < 0))
+				{
+					WindowRect.left += Width;
+					WindowRect.top += Height;
+					WindowRect.right -= Width;
+					WindowRect.bottom -= Height;
+				}
+
+				/* Query the system for the size of the display on which the window was opened */
+
+				EnumDisplayMonitors(NULL, &WindowRect, MonitorEnumProc, (LPARAM) &a_roScreenSize);
+			}
+		}
+	}
+
+	/* Otherwise just return the size of the default desktop display */
+
+	else
+	{
+		if (GetWindowRect(GetDesktopWindow(), &WindowRect))
+		{
+			a_roScreenSize.m_iWidth = (WindowRect.right - WindowRect.left);
+			a_roScreenSize.m_iHeight = (WindowRect.bottom - WindowRect.top);
+		}
 	}
 
 #endif /* ! __linux__ */
 
-	else
-	{
-		*a_piWidth = 640;
-		*a_piHeight = 480;
-	}
 }
 
 /* Written: Thursday 09-Jul-2009 06:58 am */

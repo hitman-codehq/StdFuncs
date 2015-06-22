@@ -11,7 +11,8 @@
 
 static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
-	int HiWord, LoWord, RetVal, Width, Height, WindowWidth, WindowHeight;
+	TInt HiWord, LoWord, RetVal, WindowWidth, WindowHeight;
+	struct SRect ScreenSize;
 	RECT Size;
 
 	CDialog *Dialog;
@@ -37,12 +38,13 @@ static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPa
 
 			/* Determine the size of the screen and centre the dialog in the middle of it */
 
-			Utils::GetScreenSize(&Width, &Height);
+			Utils::GetScreenSize(ScreenSize, g_poRootWindow);
 			GetWindowRect(a_poWindow, &Size);
 			WindowWidth = (Size.right - Size.left);
 			WindowHeight = (Size.bottom - Size.top);
 
-			DEBUGCHECK(SetWindowPos(a_poWindow, 0, ((Width - WindowWidth) / 2), ((Height - WindowHeight) / 2), 0, 0,
+			DEBUGCHECK(SetWindowPos(a_poWindow, 0, (ScreenSize.m_iLeft + ((ScreenSize.m_iWidth - WindowWidth) / 2)),
+				(ScreenSize.m_iTop + ((ScreenSize.m_iHeight - WindowHeight) / 2)), 0, 0,
 				(SWP_NOZORDER | SWP_NOSIZE)), "DialogProc() => SetWindowPos() failed");
 
 			/* Allow the concrete class to peform any dialog initialisation it needs to */

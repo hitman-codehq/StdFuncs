@@ -30,6 +30,10 @@ enum TMessageBoxType
 	EMBTYesNoCancel	/**< Yes, No and Cancel buttons */
 };
 
+/* Forward declaration to reduce the # of includes required */
+
+class CWindow;
+
 /* Export some globals for use elsewhere */
 
 extern TBool g_bUsingGUI;	/**< ETrue if running a GUI based program */
@@ -62,7 +66,7 @@ public:
 
 	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry);
 
-	static void GetScreenSize(TInt *a_piWidth, TInt *a_piHeight);
+	static void GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow = NULL);
 
 	static TBool GetShellHeight(TInt *a_piHeight);
 

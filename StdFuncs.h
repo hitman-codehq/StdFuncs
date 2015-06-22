@@ -174,6 +174,21 @@ struct SKeyMapping
 	TInt	m_iNativeKey;		/**< Native keycode */
 };
 
+/**
+ * Generic structure used for representing rectangles.
+ * This struct is used whenever there is a need for a generic representation of a rectangle.  Normally
+ * the rectangle is measured in pixels, but depending on the function using this structure, another
+ * measurement may be used if required.
+ */
+
+struct SRect
+{
+	TInt	m_iLeft;			/**< Left edge of the rectangle */
+	TInt	m_iTop;				/**< Top edge of the rectangle */
+	TInt	m_iWidth;			/**< Width of the rectangle, in pixels */
+	TInt	m_iHeight;			/**< Height of the rectangle, in pixels */
+};
+
 #include "Utils.h"
 
 #endif /* ! STDFUNCS_H */
