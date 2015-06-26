@@ -216,41 +216,49 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	if (m_poGadget)
 	{
-		/* Convert the parts offsets from percentages to pixel widths as required by the underlying */
-		/* Windows control */
+		/* Create a copy of the offset array for use if the window is resized, in which case the positions */
+		/* of the parts need to be recalculated based on the new size */
 
-		Offset = 0;
-		ParentWidth = m_poParentWindow->InnerWidth();
-
-		for (Index = 0; Index < a_iNumParts; ++Index)
+		if ((m_piPartsOffsets = new TInt[a_iNumParts]) != NULL)
 		{
-			a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
-			Offset += a_piPartsOffsets[Index];
-		}
+			memcpy(m_piPartsOffsets, a_piPartsOffsets, (a_iNumParts * sizeof(TInt)));
 
-		/* And subdivide it into the requested number of parts */
+			/* Convert the parts offsets from percentages to pixel widths as required by the underlying */
+			/* Windows control */
 
-		if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
-		{
-			m_iNumParts = a_iNumParts;
+			Offset = 0;
+			ParentWidth = m_poParentWindow->InnerWidth();
 
-			/* Determine the dimensions of the gadget and save them for l8r */
-
-			if (GetClientRect(m_poGadget, &Rect))
+			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
-				RetVal = KErrNone;
+				a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
+				Offset += a_piPartsOffsets[Index];
+			}
 
-				m_iWidth = (Rect.right - Rect.left);
-				m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
+			/* Subdivide the status bar into the requested number of parts at the requested positions */
+
+			if (SendMessage(m_poGadget, SB_SETPARTS, a_iNumParts, (LPARAM) a_piPartsOffsets))
+			{
+				m_iNumParts = a_iNumParts;
+
+				/* And determine the dimensions of the gadget and save them for l8r */
+
+				if (GetClientRect(m_poGadget, &Rect))
+				{
+					RetVal = KErrNone;
+
+					m_iWidth = (Rect.right - Rect.left);
+					m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
+				}
+				else
+				{
+					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
+				}
 			}
 			else
 			{
-				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
+				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
 			}
-		}
-		else
-		{
-			Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
 		}
 	}
 	else
@@ -303,6 +311,8 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetStatusBar::~CStdGadgetStatusBar() => Cannot destroy native status bar gadget");
 	}
 
+	delete[] m_piPartsOffsets;
+
 #endif /* ! QT_GUI_LIB */
 
 	/* Free the content of the parts, if allocated */
@@ -337,6 +347,69 @@ const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
 	RetVal = (m_ppcPartsText[a_iPart]) ? m_ppcPartsText[a_iPart] : "";
 
 	return(RetVal);
+}
+
+/**
+ * Sets the width and height of the gadget in pixels.
+ * This is an override of the parent CStdGadget::SetSize() function.  It will call the same named
+ * method in the parent class to perform the sizing operation and will then recalculate the
+ * positions of the parts within the status bar gadget to reflect the new size.
+ *
+ * @date	Tuesday 23-Jun-2015 06:47 am, Code HQ Ehinger Tor
+ * @param	a_iWidth		Width of the gadget in pixels
+ * @param	a_iHeight		Height of the gadget in pixels
+ */
+
+void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
+{
+
+#ifndef WIN32
+
+	(void) a_iWidth;
+	(void) a_iHeight;
+
+#else /* WIN32 */
+
+	TInt Index, Offset, ParentWidth, *PartsOffsets;
+	RECT Rect;
+
+	/* Call the parent method to perform the sizing operation */
+
+	CStdGadget::SetSize(a_iWidth, a_iHeight);
+
+	/* Allocate a tempoary array in which to calculate the pixel offsets of the parts */
+
+	if ((PartsOffsets = new TInt[m_iNumParts]) != NULL)
+	{
+		Offset = 0;
+		ParentWidth = m_poParentWindow->InnerWidth();
+
+		/* Convert the percentage offsets of the parts into pixel offsets */
+
+		for (Index = 0; Index < m_iNumParts; ++Index)
+		{
+			PartsOffsets[Index] = (TInt)(Offset + (m_piPartsOffsets[Index] / 100.0f * ParentWidth));
+			Offset += PartsOffsets[Index];
+		}
+
+		/* Subdivide the status bar into the requested number of parts at the requested positions */
+
+		if (SendMessage(m_poGadget, SB_SETPARTS, m_iNumParts, (LPARAM) PartsOffsets))
+		{
+			/* And determine the dimensions of the gadget and save them for l8r */
+
+			if (GetClientRect(m_poGadget, &Rect))
+			{
+				m_iWidth = (Rect.right - Rect.left);
+				m_iHeight = m_iMinHeight = (Rect.bottom - Rect.top);
+			}
+		}
+
+		delete[] PartsOffsets;
+	}
+
+#endif /* WIN32 */
+
 }
 
 /* Written: Saturday 30-Apr-2011 8:51 am */

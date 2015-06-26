@@ -67,7 +67,9 @@ private:
 
 	void SetPosition(TInt a_iX, TInt a_iY);
 
-	void SetSize(TInt a_iWidth, TInt a_iHeight);
+protected:
+
+	virtual void SetSize(TInt a_iWidth, TInt a_iHeight);
 
 public:
 
@@ -249,7 +251,12 @@ private:
 
 	QLabel		**m_poPartsGadgets;				/**< Ptr to an array of ptrs to parts labels */
 
-#endif /*__amigaos4__ */
+#else /* ! QT_GUI_LIB */
+
+	TInt		*m_piPartsOffsets;				/**< Pointer to an array of offsets of the parts in
+													 the status bar (as percentages) */
+
+#endif /* ! QT_GUI_LIB */
 
 private:
 
@@ -262,6 +269,8 @@ private:
 	}
 
 	TInt Construct(TInt a_iNumParts, TInt *a_piPartsOffsets);
+
+	void SetSize(TInt a_iWidth, TInt a_iHeight);
 
 public:
 

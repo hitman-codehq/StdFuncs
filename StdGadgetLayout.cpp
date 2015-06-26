@@ -278,6 +278,7 @@ void CStdGadgetLayout::RethinkLayout()
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{
 			Gadget->SetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
+			Gadget->SetSize(-1, InnerWidth);
 		}
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
