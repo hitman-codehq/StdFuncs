@@ -1176,7 +1176,7 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 	if (a_poWindow)
 	{
 		/* GetSystemMetrics(SM_CXSIZEFRAME) is broken from Windows Vista onwards, so to obtain the size of */
-		/* the window borders we must calculate it by subtracting the size of the window's client area from */
+		/* the window borders we must calculate them by subtracting the size of the window's client area from */
 		/* the size of the window itself */
 
 		if (GetWindowRect(a_poWindow->m_poWindow, &WindowRect))
@@ -1186,6 +1186,12 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 				OuterWidth = (WindowRect.right - WindowRect.left);
 				InnerWidth = (ClientRect.right - ClientRect.left);
 				Width = (OuterWidth - InnerWidth);
+
+				/* For the horizontal borders the trick above does not work due to the presence of the title bar */
+				/* so perform the hideous (but working) hack of multiplying the border height by 2.  Thankfully */
+				/* this code will never run on a pre-Vista system.  Ugh! */
+
+				Height = (GetSystemMetrics(SM_CYSIZEFRAME) * 2);
 
 				/* If the window is maximised then only the client area is visible.  The borders are still */
 				/* actually present but are now outside the bounds of the display.  In this case we must adjust */
