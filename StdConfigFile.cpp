@@ -143,7 +143,7 @@ CSection *CSection::FindSection(const char *a_pccName)
 
 		do
 		{
-			if (stricmp(RetVal->m_pcName, a_pccName) == 0)
+			if (_stricmp(RetVal->m_pcName, a_pccName) == 0)
 			{
 				break;
 			}
@@ -197,7 +197,7 @@ CKey *CSection::FindKey(const char *a_pccName)
 
 		do
 		{
-			if (stricmp(RetVal->m_pcName, a_pccName) == 0)
+			if (_stricmp(RetVal->m_pcName, a_pccName) == 0)
 			{
 				break;
 			}
@@ -239,7 +239,7 @@ CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
 
 	while ((RetVal = m_oKeys.GetSucc(RetVal)) != NULL)
 	{
-		if (stricmp(RetVal->m_pcName, a_pccName) == 0)
+		if (_stricmp(RetVal->m_pcName, a_pccName) == 0)
 		{
 			break;
 		}
@@ -355,7 +355,7 @@ CSection *RConfigFile::FindSection(const char *a_pccName)
 	{
 		do
 		{
-			if (stricmp(RetVal->m_pcName, a_pccName) == 0)
+			if (_stricmp(RetVal->m_pcName, a_pccName) == 0)
 			{
 				break;
 			}
@@ -502,7 +502,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 						if (SectionNameLength == (LFIndex - 2))
 						{
-							FoundSection = (strnicmp(&Heading[1], a_pccSectionName, SectionNameLength) == 0);
+							FoundSection = (_strnicmp(&Heading[1], a_pccSectionName, SectionNameLength) == 0);
 						}
 					}
 					else
@@ -532,7 +532,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 						if (SubSectionNameLength == (LFIndex - 2))
 						{
-							FoundSubSection = (strnicmp(&Heading[1], a_pccSubSectionName, SubSectionNameLength) == 0);
+							FoundSubSection = (_strnicmp(&Heading[1], a_pccSubSectionName, SubSectionNameLength) == 0);
 						}
 					}
 					else
@@ -562,7 +562,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 						/* the same length as the target key, to avoid finding keys that are substrings */
 						/* of the token.  ie.  We don't want "Short" to match "ShortKey" */
 
-						if ((TokenLength == KeyNameLength) && (strnicmp(Token, a_pccKeyName, KeyNameLength) == 0))
+						if ((TokenLength == KeyNameLength) && (_strnicmp(Token, a_pccKeyName, KeyNameLength) == 0))
 						{
 							/* Yep!  Ket the key's value, skipping over any whitespace and = signs */
 							/* between the key and its value */

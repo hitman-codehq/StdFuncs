@@ -824,7 +824,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 					for (Arg = 1; Arg < a_iArgC; ++Arg)
 					{
-						if ((ArgV[Arg]) && (!(stricmp(ArgV[Arg], OptionName))))
+						if ((ArgV[Arg]) && (!(_stricmp(ArgV[Arg], OptionName))))
 						{
 							/* Found the option!  Copy it into the args array so that queries by client code */
 							/* return that it has been found and set the temporary copy to NULL so that only */
