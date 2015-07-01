@@ -344,6 +344,10 @@ RDir::RDir()
 	iPathBuffer = iPath = iPattern = NULL;
 	iDir = NULL;
 
+#else /* ! __linux__ */
+
+	iHandle = NULL;
+
 #endif /* __linux__ */
 
 	iSingleEntryOk = EFalse;
