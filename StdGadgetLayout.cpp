@@ -220,6 +220,7 @@ void CStdGadgetLayout::RethinkLayout()
 
 	// TODO: CAW - A VERY temporary solution
 	TInt Height, InnerWidth;
+	RECT Rect;
 	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
 
 	Gadget = m_oGadgets.GetHead();
@@ -278,7 +279,17 @@ void CStdGadgetLayout::RethinkLayout()
 		else if (Gadget->GadgetType() == EStdGadgetStatusBar)
 		{
 			Gadget->SetPosition(-1, (m_iY + m_iHeight - Gadget->Height()));
-			Gadget->SetSize(InnerWidth, -1);
+
+			/* This is a temporary hack.  No matter what I try, setting the status bar width to anything besides */
+			/* (Rect.right - Rect.left) results in disappearing status bars when resizing the window.  This only */
+			/* happens with status bars that are not the bottom most one and only when resizing the window.  The */
+			/* only conclusion I can come to is that status bars do not like being resized in response to a WM_SIZE */
+			/* event.  In the future I will have to write my own custom status bar to avoid this but for now this */
+			/* mostly works as the status bar looks mostly as it should, although it misses a little of its right */
+			/* hand section.  I have wasted enough time on this nonsense!  Ugh. */
+
+			GetWindowRect(Gadget->m_poGadget, &Rect);
+			Gadget->SetSize((Rect.right - Rect.left), -1);
 		}
 
 		Gadget = m_oGadgets.GetSucc(Gadget);
