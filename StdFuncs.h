@@ -7,6 +7,9 @@
 #include <proto/exec.h>
 #include <proto/dos.h>
 
+#define _stricmp(String1, String2) strcasecmp(String1, String2)
+#define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
+
 #elif defined(__linux__)
 
 #include <sys/param.h>
@@ -37,14 +40,14 @@ typedef unsigned char UBYTE;
 
 #endif /* ! __linux__ */
 
-#if !defined(__linux__)
+#ifndef __linux__
 
 /* We used to define this as max() but bizarrely Qt undefines it when you include certain headers! */
 /* So now we use MAX() instead and for UNIX we use the one in sys/param.h */
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#endif /* !defined(__linux) */
+#endif /* ! __linux */
 
 #include "MungWall.h"
 
