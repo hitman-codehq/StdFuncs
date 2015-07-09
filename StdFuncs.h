@@ -47,7 +47,7 @@ typedef unsigned char UBYTE;
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#endif /* ! __linux */
+#endif /* ! __linux__ */
 
 #include "MungWall.h"
 
