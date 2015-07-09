@@ -2673,7 +2673,7 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
 {
-	TInt RetVal, ScreenWidth, ScreenHeight;
+	TInt RetVal;
 	struct SRect ScreenSize;
 
 	/* Assume failure */
@@ -2700,7 +2700,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	m_poWindowObj = (Object *) WindowObject,
 		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
 		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
-		WA_Width, ScreenWidth, WA_Height, ScreenHeight, WA_Activate, TRUE,
+		WA_Width, ScreenSize.m_iWidth, WA_Height, ScreenSize.m_iHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE, WA_SizeGadget, a_bResizeable,
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
