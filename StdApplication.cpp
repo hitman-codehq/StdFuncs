@@ -17,7 +17,7 @@
 static const SKeyMapping g_aoKeyMap[] =
 {
 	{ STD_KEY_SHIFT, 0x60 }, { STD_KEY_SHIFT, 0x61 }, { STD_KEY_CONTROL, 0x63 }, { STD_KEY_ALT, 0x64 },
-	{ STD_KEY_BACKSPACE, 0x41 }, { STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c },
+	{ STD_KEY_ALT, 0x65 }, { STD_KEY_BACKSPACE, 0x41 }, { STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c },
 	{ STD_KEY_DOWN, 0x4d }, { STD_KEY_LEFT, 0x4f }, { STD_KEY_RIGHT, 0x4e },
 	{ STD_KEY_HOME, 0x70 }, { STD_KEY_END, 0x71 }, { STD_KEY_PGUP, 0x48 },
 	{ STD_KEY_PGDN, 0x49 }, { STD_KEY_DELETE, 0x46 }, { STD_KEY_TAB, 0x42 },
@@ -456,7 +456,7 @@ TInt RApplication::Main()
 										/* key and the left alt key.  These alter the cooked key values in unwanted ways so */
 										/* we filter them out */
 
-										if (!(InputEvent->ie_Qualifier & (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT)))
+										if (!(InputEvent->ie_Qualifier & (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT | IEQUALIFIER_RALT)))
 										{
 											ShortcutEvent.ie_Qualifier = InputEvent->ie_Qualifier;
 										}
