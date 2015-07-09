@@ -1149,6 +1149,8 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 
 #ifdef __amigaos4__
 
+	(void) a_poWindow;
+
 	struct Screen *Screen;
 
 	if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
