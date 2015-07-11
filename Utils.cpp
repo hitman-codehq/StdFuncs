@@ -1163,6 +1163,8 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 
 #elif defined(__linux__)
 
+	(void) a_poWindow;
+
 	// TODO: CAW - Implement this
 	if (0)
 	{
