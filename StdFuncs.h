@@ -23,8 +23,8 @@ typedef long LONG;
 typedef unsigned char UBYTE;
 typedef unsigned long ULONG;
 
-#define stricmp(String1, String2) strcasecmp(String1, String2)
-#define strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
+#define _stricmp(String1, String2) strcasecmp(String1, String2)
+#define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
 
 #else /* ! __linux__ */
 
