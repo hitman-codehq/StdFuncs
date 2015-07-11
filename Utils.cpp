@@ -69,7 +69,7 @@ TBool g_bUsingGUI;
 
 CWindow	*g_poRootWindow;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /**
  * Callback function used by EnumDisplayMonitors().
@@ -114,7 +114,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR a_poMonitor, HDC /*a_poDC*/, LPREC
 	return(FALSE);
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /**
  *
@@ -1168,7 +1168,7 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 	{
 	}
 
-#else /* ! __linux__ */
+#elif !defined(QT_GUI_LIB)
 
 	TInt InnerWidth, OuterWidth, Width, Height;
 	RECT ClientRect, WindowRect;
@@ -1226,7 +1226,11 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 		}
 	}
 
-#endif /* ! __linux__ */
+#else /* ! !defined(QT_GUI_LIB) */
+
+	(void) a_poWindow;
+
+#endif /* ! !defined(QT_GUI_LIB) */
 
 }
 

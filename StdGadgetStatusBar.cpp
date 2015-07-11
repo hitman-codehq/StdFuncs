@@ -363,12 +363,7 @@ const char *CStdGadgetStatusBar::GetText(TInt a_iPart)
 void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
 {
 
-#ifndef WIN32
-
-	(void) a_iWidth;
-	(void) a_iHeight;
-
-#else /* WIN32 */
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	TInt Index, Offset, ParentWidth, *PartsOffsets;
 	RECT Rect;
@@ -408,7 +403,12 @@ void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
 		delete[] PartsOffsets;
 	}
 
-#endif /* WIN32 */
+#else /* ! (defined(WIN32) && !defined(QT_GUI_LIB) */
+
+	(void) a_iWidth;
+	(void) a_iHeight;
+
+#endif /* ! (defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 
