@@ -448,25 +448,28 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 	TInt X, Y;
 
-	/* Calculate the position at which to draw the cursor */
+	if (m_poWindow->IsActive())
+	{
+		/* Calculate the position at which to draw the cursor */
 
-	X = (m_iXOffset + (a_iX * m_iWidth));
-	Y = (m_iYOffset + (a_iY * m_iHeight));
+		X = (m_iXOffset + (a_iX * m_iWidth));
+		Y = (m_iYOffset + (a_iY * m_iHeight));
 
-	/* Set the background mode to opaque, as we want to forcibly draw the cursor over the top of the background */
+		/* Set the background mode to opaque, as we want to forcibly draw the cursor over the top of the background */
 
-	m_oPainter.setBackgroundMode(Qt::OpaqueMode);
+		m_oPainter.setBackgroundMode(Qt::OpaqueMode);
 
-	/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
-	/* uses the Y position as the baseline of the font, not as the top */
+		/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
+		/* uses the Y position as the baseline of the font, not as the top */
 
-	QByteArray String(Cursor, 1);
-	m_oPainter.drawText(X, (Y + m_iBaseline), String);
+		QByteArray String(Cursor, 1);
+		m_oPainter.drawText(X, (Y + m_iBaseline), String);
 
-	/* Set the background mode back to transparent so that if there is a pretty transparent background or a */
-	/* gradient in the background it is displayed correctly */
+		/* Set the background mode back to transparent so that if there is a pretty transparent background or a */
+		/* gradient in the background it is displayed correctly */
 
-	m_oPainter.setBackgroundMode(Qt::TransparentMode);
+		m_oPainter.setBackgroundMode(Qt::TransparentMode);
+	}
 
 #else /* ! QT_GUI_LIB */
 

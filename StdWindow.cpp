@@ -73,6 +73,7 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 TBool CWindow::m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
 TBool CWindow::m_bShiftPressed;		/* ETrue if shift is currently pressed */
+TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 
 #ifdef __amigaos4__
 
@@ -550,6 +551,7 @@ void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
 {
 	/* Window focus is changing so let the client know that the window is activating */
 
+	m_poWindow->m_bIsActive = ETrue;
 	m_poWindow->Activated(ETrue);
 }
 
@@ -566,6 +568,7 @@ void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
 {
 	/* Window focus is changing so let the client know that the window is deactivating */
 
+	m_poWindow->m_bIsActive = EFalse;
 	m_poWindow->Activated(EFalse);
 
 	/* Forget about the modifier keypresses as we won't get a key up event for them due */
@@ -2590,6 +2593,21 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 	/* Now let the derived window class know that the window's size has changed */
 
 	Resize(OldInnerWidth, OldInnerHeight);
+}
+
+/**
+ * Returns whether the window is currently active.
+ * Allows client code to query whether the window is the currently active window.  ie.  Whether it
+ * currently has keyboard and mouse focus.  This is useful for things such as deciding whether to draw
+ * the cursor.
+ *
+ * @date	Saturday 11-Jul-2015 07:32 am, Code HQ Ehinger Tor
+ * @return	ETrue if the window is currently active, else EFalse
+ */
+
+TBool CWindow::IsActive()
+{
+	return(m_bIsActive);
 }
 
 /**

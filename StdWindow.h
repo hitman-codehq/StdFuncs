@@ -95,6 +95,7 @@ protected:
 	static TBool		m_bAltPressed;				/**< ETrue if alt is currently pressed */
 	static TBool		m_bCtrlPressed;				/**< ETrue if ctrl is currently pressed */
 	static TBool		m_bShiftPressed;			/**< ETrue if shift is currently pressed */
+	static TBool		m_bIsActive;				/**< ETrue if the window is currently active */
 
 	TBool				m_bOpen;					/**< ETrue if window is open */
 	TInt				m_iInnerWidth;				/**< Width of window, minus left and right borders */
@@ -257,6 +258,8 @@ public:
 	static TBool CtrlPressed();
 
 	static TBool ShiftPressed();
+
+	static TBool IsActive();
 
 	/* Functions that can be implemented by client software */
 
