@@ -188,6 +188,7 @@ TInt RApplication::Main()
 					{
 						/* Window focus is changing so let the client know */
 
+						Window->m_bIsActive = ETrue;
 						Window->Activated(ETrue);
 
 						break;
@@ -211,6 +212,7 @@ TInt RApplication::Main()
 					{
 						/* Window focus is changing so let the client know */
 
+						Window->m_bIsActive = EFalse;
 						Window->Activated(EFalse);
 
 						/* Forget about the modifier keypresses as we won't get a key up event for them due */
