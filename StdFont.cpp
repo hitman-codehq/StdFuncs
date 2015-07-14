@@ -424,23 +424,26 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 	if (m_poWindow->m_poWindow)
 	{
-		/* Calculate the position at which to draw the cursor */
-
-		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
-
-		/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
-
-		if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+		if (m_poWindow->IsActive())
 		{
-			/* Move to the position at which to print, taking into account the left and top border sizes, */
-			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-			/* routine prints at the baseline position, not the top of the font */
+			/* Calculate the position at which to draw the cursor */
 
-			IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+			X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
 
-			/* And draw the cursor! */
+			/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
 
-			IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+			if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+			{
+				/* Move to the position at which to print, taking into account the left and top border sizes, */
+				/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+				/* routine prints at the baseline position, not the top of the font */
+
+				IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+
+				/* And draw the cursor! */
+
+				IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+			}
 		}
 	}
 
