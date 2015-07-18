@@ -2701,17 +2701,18 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
 {
 	TInt RetVal;
-	struct SRect ScreenSize;
 
 	/* Assume failure */
 
 	RetVal = KErrGeneral;
 
+#ifdef __amigaos4__
+
+	struct SRect ScreenSize;
+
 	/* Get the size of the screen so we can open the window filling its full size */
 
 	Utils::GetScreenSize(ScreenSize);
-
-#ifdef __amigaos4__
 
 	ASSERTM((a_pccScreenName != NULL), "CWindow::Open() => Screen name must be specified");
 
