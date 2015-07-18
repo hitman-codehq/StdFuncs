@@ -932,7 +932,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			UINT VirtualKey;
 
-			if (m_bCtrlPressed)
+			if ((m_bCtrlPressed) && (!m_bAltPressed))
 			{
 				if ((a_oWParam == VK_SUBTRACT) || (a_oWParam == VK_ADD) || (a_oWParam == VK_OEM_MINUS))
 				{
