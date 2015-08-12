@@ -7,6 +7,9 @@
 
 #include <proto/diskfont.h>
 #include <proto/graphics.h>
+#include <graphics/gfxmacros.h>
+
+#define AREA_SIZE 200
 
 #elif defined(QT_GUI_LIB)
 
@@ -414,35 +417,89 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
 	/* use ETrue and EFalse so that the cursor works within highlighted blocks of text as well */
 
-	SetHighlight(!(m_bHighlight));
+	if (m_poWindow->IsActive())
+	{
+		SetHighlight(!(m_bHighlight));
+	}
 
 #ifdef __amigaos4__
 
-	TInt X;
+	TInt X, Y;
+	PLANEPTR PlanePtr;
+	ULONG OldDrawMode;
+	WORD AreaBuffer[AREA_SIZE];
+	struct AreaInfo AreaInfo;
+	struct TmpRas TmpRas;
+
+	uint16 DitherData[] = { 0x5555, 0xaaaa };
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
 	if (m_poWindow->m_poWindow)
 	{
-		if (m_poWindow->IsActive())
+		/* Calculate the position at which to draw the cursor */
+
+		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
+		Y = (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight));
+
+		/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
+
+		if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
 		{
-			/* Calculate the position at which to draw the cursor */
+			/* Move to the position at which to print, taking into account the left and top border sizes, */
+			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
+			/* routine prints at the baseline position, not the top of the font */
 
-			X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
+			IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (Y + m_iBaseline));
 
-			/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
+			/* If the window is active then draw the cursor over the text as normal */
 
-			if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+			if (m_poWindow->IsActive())
 			{
-				/* Move to the position at which to print, taking into account the left and top border sizes, */
-				/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-				/* routine prints at the baseline position, not the top of the font */
-
-				IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
-
-				/* And draw the cursor! */
-
 				IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+			}
+			else
+			{
+				/* Otherwise draw the cursor in a greyed out state.  Start by allocating a raster */
+				/* that can be used for the dithered flood fill and initialise it */
+
+				if ((PlanePtr = IGraphics->AllocRaster(16, 16)) != NULL)
+				{
+					IGraphics->InitArea(&AreaInfo, AreaBuffer, ((AREA_SIZE * 2) / 5));
+					IGraphics->InitTmpRas(&TmpRas, PlanePtr, ((16 * 16) / 8));
+
+					/* Set a dithered drawing mode and initialise the drawing information into the RastPort */
+
+					SetAfPt(m_poWindow->m_poWindow->RPort, DitherData, 1);
+					m_poWindow->m_poWindow->RPort->AreaInfo = &AreaInfo;
+					m_poWindow->m_poWindow->RPort->TmpRas = &TmpRas;
+
+					/* Draw a dithered cursor where the solid one would normally be */
+
+					IGraphics->AreaMove(m_poWindow->m_poWindow->RPort, X, Y);
+					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
+					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), Y);
+					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), (Y + m_iHeight - 1));
+					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, (Y + m_iHeight - 1));
+					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
+					IGraphics->AreaEnd(m_poWindow->m_poWindow->RPort);
+
+					/* Remove the dithered drawing mode */
+
+					m_poWindow->m_poWindow->RPort->TmpRas = NULL;
+					m_poWindow->m_poWindow->RPort->AreaInfo = NULL;
+					SetAfPt(m_poWindow->m_poWindow->RPort, NULL, 0);
+
+					/* And draw the text over the top of the dithered cursor, ensuring that the dithering */
+					/* is not overwritten */
+
+					OldDrawMode = IGraphics->GetDrMd(m_poWindow->m_poWindow->RPort);
+					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, JAM1);
+					IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, OldDrawMode);
+
+					IGraphics->FreeRaster(PlanePtr, 16, 16);
+				}
 			}
 		}
 	}
@@ -498,7 +555,10 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
 
-	SetHighlight(!(m_bHighlight));
+	if (m_poWindow->IsActive())
+	{
+		SetHighlight(!(m_bHighlight));
+	}
 }
 
 /* Written: Sunday 09-May-2010 6:57 pm */
