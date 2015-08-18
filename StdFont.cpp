@@ -22,6 +22,73 @@
 
 static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
+/**
+ * Callback function for the EnumFontFamiliesEx() function.
+ * This function is called for each font in the list of available fonts when the user has
+ * called the EnumFontFamiliesEx() function.  It will check to see if the font specified is
+ * a bitmap based font and, if so, will add its size to a list of available font sizes.
+ * This allows the RFont class to determine whether a requested font size is valid.
+ *
+ * @date	Friday 07-Aug-2015 9:03 am, Henry's Coffee World (Hirschstraße)
+ * @param	a_poEnumLogFont		Pointer to a structure containing information about the font
+ * @param	a_poNewTextMetric	Pointer to information regarding the sizes of the font
+ * @param	a_iFontType			The type of the font (bitmap or vector)
+ * @param	a_oLParam			Pointer to the RFont instance that initiated the enumeration
+ * @return	1 to continue enumerating fonts, else 0
+ */
+
+TInt CALLBACK RFont::FontNameProc(ENUMLOGFONTEX *a_poEnumLogFont, NEWTEXTMETRICEX *a_poNewTextMetric, TInt a_iFontType, LPARAM a_oLParam)
+{
+	TInt Index, Height, LogHeight, RetVal;
+	RFont *Font;
+
+	(void) a_poEnumLogFont;
+
+	/* By default we want to know about the next available font */
+
+	RetVal = 1;
+
+	/* We are only interested in bitmap fonts */
+
+	if (a_iFontType != TRUETYPE_FONTTYPE)
+	{
+		Font = (RFont *) a_oLParam;
+
+		/* First, check to see if the list is full and if so, end the scan */
+
+		if (Font->m_iNumSizes == (sizeof(Font->m_aiFontSizes) / sizeof(Font->m_aiFontSizes[0])))
+		{
+			RetVal = 0;
+		}
+		else
+		{
+			/* Determine the logical and physical size of the font */
+
+			LogHeight = a_poNewTextMetric->ntmTm.tmHeight;
+			Height = MulDiv(LogHeight, 72, GetDeviceCaps(Font->m_poWindow->m_poDC, LOGPIXELSY));
+
+			/* Search through the list of font sizes to see if it is already in there */
+
+			for (Index = 0; Index < Font->m_iNumSizes; ++Index)
+			{
+				if (Font->m_aiFontSizes[Index] == Height)
+				{
+					break;
+				}
+			}
+
+			/* If the font is not already in the list then add it */
+
+			if (Index == Font->m_iNumSizes)
+			{
+				Font->m_aiFontSizes[Font->m_iNumSizes++] = Height;
+			}
+		}
+	}
+
+	return(RetVal);
+}
+
 /* Written: Sunday 31-May-2010 1:41 pm */
 
 RFont::RFont(CWindow *a_poWindow)
@@ -77,6 +144,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 #else /* ! QT_GUI_LIB */
 
+	m_iNumSizes = 0;
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
@@ -775,6 +843,107 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 #endif /* ! QT_GUI_LIB */
 
+}
+
+/**
+ * Obtains the next smaller or larger available font size.
+ * This function returns the next smaller or larger available font size, which is guaranteed
+ * to be able to be displayed.  For vector fonts that size is simply one point smaller or larger
+ * than the size passed in, as vector fonts can be scaled to any size.  For bitmap fonts, the
+ * available sizes for the currently selected font are enumerated and the size returned is one
+ * of these sizes.  This guarantees that the size used by the RFont class is able to be displayed.
+ *
+ * @pre		RFont::Open() must have already been called
+ *
+ * @date	Monday 17-Aug-2015 7:00 am, Code HQ Ehinger Tor
+ * @param	a_iSize			The current size of the font in pixels
+ * @param	a_bLarger		ETrue to return the next larger size, or EFalse for the next smaller
+ * @return	The next smaller or larger size of the font, as requested
+ */
+
+TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
+{
+	TInt Index, RetVal;
+
+	RetVal = a_iSize;
+
+#ifdef _WIN32
+
+	LOGFONT LogFont;
+
+	ASSERTM((m_pccName != NULL), "RFont::GetNextSize() => RFont::Open() must have already been called");
+
+	/* Prepare a structure for enumerating the current font and call the enumeration function */
+
+	ZeroMemory(&LogFont, sizeof(LogFont));
+	LogFont.lfCharSet = DEFAULT_CHARSET;
+	LogFont.lfWeight = FW_NORMAL;
+	LogFont.lfPitchAndFamily = (FF_DONTCARE | FIXED_PITCH);
+	strcpy(LogFont.lfFaceName, m_pccName);
+
+	EnumFontFamiliesEx(m_poWindow->m_poDC, &LogFont, (FONTENUMPROC) FontNameProc, (LPARAM) this, 0);
+
+#endif /* _WIN32 */
+
+	/* If the next larger size is requested, scan forwards through the array of sizes until it */
+	/* is found.  If it is not found then return the size passed in */
+
+	if (a_bLarger)
+	{
+		if (m_iNumSizes > 0)
+		{
+			for (Index = 0; Index < m_iNumSizes; ++Index)
+			{
+				if (m_aiFontSizes[Index] > a_iSize)
+				{
+					RetVal = m_aiFontSizes[Index];
+
+					break;
+				}
+			}
+		}
+
+		/* There are no font sizes in the array so a vector font is in use.  Simply return one size larger */
+
+		else
+		{
+			++RetVal;
+		}
+	}
+
+	/* Otherwise the next smaller size is requested, so scan backwards through the array of sizes until */
+	/* it is found.  If it is not found then return the size passed in */
+
+	else
+	{
+		if (m_iNumSizes > 0)
+		{
+			for (Index = (m_iNumSizes - 1); Index >= 0; --Index)
+			{
+				if (m_aiFontSizes[Index] < a_iSize)
+				{
+					RetVal = m_aiFontSizes[Index];
+
+					break;
+				}
+			}
+		}
+
+		/* There are no font sizes in the array so a vector font is in use.  Simply return one size smaller, */
+		/* and ensure that it is not 0 points in size */
+
+		else
+		{
+			--RetVal;
+
+			if (RetVal <= 0)
+			{
+				RetVal = 1;
+			}
+		}
+	}
+
+	return(RetVal);
 }
 
 /* Written: Saturday 21-Aug-2010 8:27 pm */

@@ -46,7 +46,8 @@ private:
 
 #elif defined(WIN32)
 
-	const char	*m_pccName;			/**< The name of the font */
+	TInt		m_aiFontSizes[100];	/**< Array of available font sizes */
+	TInt		m_iNumSizes;		/**< Number of valid sizes in m_aiFontSizes */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
 	HFONT		m_poFont;			/**< Windows font with which to render */
 	HFONT		m_poOldFont;		/**< Windows font previously selected into window */
@@ -61,6 +62,7 @@ private:
 
 #endif /* _DEBUG */
 
+	const char	*m_pccName;			/**< The name of the font */
 	TBool		m_bHighlight;		/**< ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_iClipWidth;		/**< Number of pixels to draw horizontally before clipping */
 	TInt		m_iClipHeight;		/**< Number of pixels to draw vertically before clipping */
@@ -88,6 +90,8 @@ public:
 
 	void DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY);
 
+	TInt GetNextSize(TInt a_iSize, TBool a_bLarger);
+
 	TInt Width()
 	{
 		return(m_iWidth);
@@ -101,6 +105,13 @@ public:
 	void SetHighlight(TBool a_bHighlight);
 
 	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);
+
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	static TInt CALLBACK FontNameProc(ENUMLOGFONTEX *a_poEnumLogFont, NEWTEXTMETRICEX *a_poNewTextMetric, TInt a_iFontType, LPARAM a_oLParam);
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
 };
 
 #endif /* ! STDFONT_H */
