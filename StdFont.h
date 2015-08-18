@@ -46,6 +46,7 @@ private:
 
 #elif defined(WIN32)
 
+	const char	*m_pccName;			/**< The name of the font */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
 	HFONT		m_poFont;			/**< Windows font with which to render */
 	HFONT		m_poOldFont;		/**< Windows font previously selected into window */
@@ -73,7 +74,7 @@ public:
 
 	RFont(CWindow *a_poWindow);
 
-	TInt Open(TInt a_iSize, const char *a_pccFont = NULL);
+	TInt Open(TInt a_iSize, const char *a_pccName);
 
 	void Close();
 

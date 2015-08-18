@@ -99,12 +99,12 @@ RFont::RFont(CWindow *a_poWindow)
  *
  * @date	Sunday 31-May-2010 3:38 pm
  * @param	a_iSize		Size of the font to be opened, in points
- * @param	a_pccFont	Ptr to the name of the font to be opened, which is platform specific.  If NULL
+ * @param	a_pccName	Ptr to the name of the font to be opened, which is platform specific.  If NULL
  *						then a platform specific generic monospaced font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 
-TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
+TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 {
 	TInt RetVal;
 
@@ -127,9 +127,9 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 		/* If a specific font has been specified then try to load it from disc and make it the rastport's */
 		/* default font */
 
-		if (a_pccFont)
+		if (a_pccName)
 		{
-			TextAttr.ta_Name = a_pccFont;
+			TextAttr.ta_Name = a_pccName;
 			TextAttr.ta_YSize = a_iSize;
 			TextAttr.ta_Style = 0;
 			TextAttr.ta_Flags = 0;
@@ -143,7 +143,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 			}
 			else
 			{
-				Utils::Info("RFont::Open() => Unable to open font \"%s\"", a_pccFont);
+				Utils::Info("RFont::Open() => Unable to open font \"%s\"", a_pccName);
 			}
 		}
 
@@ -158,14 +158,14 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 	/* If no font has been specified then use "Monospace" */
 
-	if (!(a_pccFont))
+	if (!(a_pccName))
 	{
-		a_pccFont = "Monospace";
+		a_pccName = "Monospace";
 	}
 
 	/* Create a monospace font in the desired point size */
 
-	if ((m_poFont = new QFont(a_pccFont, a_iSize)) != NULL)
+	if ((m_poFont = new QFont(a_pccName, a_iSize)) != NULL)
 	{
 		RetVal = KErrNone;
 
@@ -210,10 +210,12 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 		/* If no font has been specified then use "Courier" which is as ugly as sin but has been */
 		/* the default on Brunel since day one and fits lots of lines on my netbook! */
 
-		if (!(a_pccFont))
+		if (!(a_pccName))
 		{
-			a_pccFont = "Courier";
+			a_pccName = "Courier";
 		}
+
+		m_pccName = a_pccName;
 
 		/* Convert the font size from the desired point size to pixels per inch and attempt to open a font */
 		/* that uses that size */
@@ -222,7 +224,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccFont)
 
 		// TODO: CAW - This is an expensive routine - can we shorten it?
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), a_pccFont)) != NULL)
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), a_pccName)) != NULL)
 		{
 			DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
 		}
