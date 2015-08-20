@@ -934,9 +934,26 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if ((m_bCtrlPressed) && (!m_bAltPressed))
 			{
-				if ((a_oWParam == VK_SUBTRACT) || (a_oWParam == VK_ADD) || (a_oWParam == VK_OEM_MINUS))
+				if ((a_oWParam == VK_SUBTRACT) || (a_oWParam == VK_ADD) || (a_oWParam == VK_OEM_MINUS) || (a_oWParam == VK_OEM_PLUS))
 				{
 					VirtualKey = MapVirtualKey(a_oWParam, MAPVK_VK_TO_CHAR);
+
+					/* Horribleness++.  It turns out that two of our "mysterious" keys are always mapped to their */
+					/* unshifted state, even if the shift key is pressed.  There is no function I could find that */
+					/* will these map correctly, so for these two keys we will perform a manual shift to get the */
+					/* required keys */
+
+					if (ShiftPressed())
+					{
+						if (VirtualKey == '-')
+						{
+							VirtualKey = '_';
+						}
+						else if (VirtualKey == '=')
+						{
+							VirtualKey = '+';
+						}
+					}
 
 					Window->OfferKeyEvent(VirtualKey, (a_uiMessage == WM_KEYDOWN));
 				}
