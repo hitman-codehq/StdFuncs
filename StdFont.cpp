@@ -22,6 +22,8 @@
 
 static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
 /**
  * Callback function for the EnumFontFamiliesEx() function.
  * This function is called for each font in the list of available fonts when the user has
@@ -88,6 +90,8 @@ TInt CALLBACK RFont::FontNameProc(ENUMLOGFONTEX *a_poEnumLogFont, NEWTEXTMETRICE
 
 	return(RetVal);
 }
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /* Written: Sunday 31-May-2010 1:41 pm */
 

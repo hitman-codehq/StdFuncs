@@ -46,8 +46,6 @@ private:
 
 #elif defined(WIN32)
 
-	TInt		m_aiFontSizes[100];	/**< Array of available font sizes */
-	TInt		m_iNumSizes;		/**< Number of valid sizes in m_aiFontSizes */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
 	HFONT		m_poFont;			/**< Windows font with which to render */
 	HFONT		m_poOldFont;		/**< Windows font previously selected into window */
@@ -64,6 +62,8 @@ private:
 
 	const char	*m_pccName;			/**< The name of the font */
 	TBool		m_bHighlight;		/**< ETrue if text will be drawn highlighted, else EFalse */
+	TInt		m_aiFontSizes[20];	/**< Array of available font sizes */
+	TInt		m_iNumSizes;		/**< Number of valid sizes in m_aiFontSizes */
 	TInt		m_iClipWidth;		/**< Number of pixels to draw horizontally before clipping */
 	TInt		m_iClipHeight;		/**< Number of pixels to draw vertically before clipping */
 	TInt		m_iWidth;			/**< Width of a character in pixels.  Valid only for monospace fonts */
