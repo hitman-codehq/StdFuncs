@@ -9,7 +9,7 @@
 #include <proto/graphics.h>
 #include <graphics/gfxmacros.h>
 
-#define AREA_SIZE 200
+#define NUM_VERTICES 6
 
 #elif defined(QT_GUI_LIB)
 
@@ -501,7 +501,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	TInt X, Y;
 	PLANEPTR PlanePtr;
 	ULONG OldDrawMode;
-	WORD AreaBuffer[AREA_SIZE];
+	WORD AreaBuffer[(NUM_VERTICES * 5) / 2];
 	struct AreaInfo AreaInfo;
 	struct TmpRas TmpRas;
 
@@ -539,7 +539,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 
 				if ((PlanePtr = IGraphics->AllocRaster(16, 16)) != NULL)
 				{
-					IGraphics->InitArea(&AreaInfo, AreaBuffer, ((AREA_SIZE * 2) / 5));
+					IGraphics->InitArea(&AreaInfo, AreaBuffer, NUM_VERTICES);
 					IGraphics->InitTmpRas(&TmpRas, PlanePtr, ((16 * 16) / 8));
 
 					/* Set a dithered drawing mode and initialise the drawing information into the RastPort */
