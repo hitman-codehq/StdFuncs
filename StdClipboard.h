@@ -27,11 +27,11 @@ private:
 
 	TInt		m_iDataSize;			/**< Size of buffer to be written */
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#elif defined(WIN32)
 
 	HANDLE		m_poHandle;				/**< Handle to data to be written */
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* defined(WIN32) */
 
 #ifdef QT_GUI_LIB
 
@@ -48,11 +48,11 @@ public:
 		m_pccGetData = m_pccCurrentGetData = NULL;
 		m_pcSetData = NULL;
 
-#if !defined(__amigaos4__) && !defined(QT_GUI_LIB)
+#ifdef WIN32
 
 		m_poHandle = NULL;
 
-#endif /* !defined(__amigaos4__) && !defined(QT_GUI_LIB) */
+#endif /* WIN32 */
 
 	}
 

@@ -26,11 +26,11 @@ private:
 
 	QApplication	*m_poApplication;			/**< Ptr to underlying Qt application */
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	HWND			m_poCurrentDialog;			/**< Ptr to window handle of currently active dialog, if any */
 
-#endif /* ! QT_GUI_LIB */
+#endif /* defined(WIN32) */
 
 	const struct SStdMenuItem *m_pcoMenuItems;	/**< Ptr to a list of structures describing the application's menus */
 

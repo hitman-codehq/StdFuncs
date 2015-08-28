@@ -280,7 +280,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 		}
 	}
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	COPYDATASTRUCT CopyData;
 	HWND Window;
@@ -321,7 +321,13 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 		SendMessage(Window, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &CopyData);
 	}
 
-#endif /* ! QT_GUI_LIB */
+#else /* ! defined(WIN32) */
+
+	(void) a_poApplication;
+	(void) a_pcucData;
+	(void) a_iDataSize;
+
+#endif /* ! defined(WIN32) */
 
 	return(RetVal);
 }
