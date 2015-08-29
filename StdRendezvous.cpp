@@ -4,6 +4,12 @@
 #include "StdRendezvous.h"
 #include <string.h>
 
+#ifdef __amigaos4__
+
+#include <exec/exectags.h>
+
+#endif /* __amigaos4__ */
+
 RRendezvous g_oRendezvous;	/* Class to allow communication between instances of programs */
 
 /**
@@ -76,15 +82,13 @@ TInt RRendezvous::Open(const char *a_pccName)
 
 		if ((MsgPort = IExec->FindPort(m_pcName)) == NULL)
 		{
-			if ((m_poMsgPort = IExec->CreateMsgPort()) != NULL)
-			{
-				/* Initialise the message port so that it has a name, a priority (for speedy lookups) and */
-				/* will signal our task when a message is received.  Add it to Amiga OS's public port list */
+			/* Create a message port that has a name, is on the public port list, a priority (for speedy lookups) and that */
+			/* will signal our task when a message is received */
 
-				m_poMsgPort->mp_Node.ln_Name = m_pcName;
-				m_poMsgPort->mp_Node.ln_Pri = 1;
-				m_poMsgPort->mp_SigTask = IExec->FindTask(NULL);
-				IExec->AddPort(m_poMsgPort);
+			m_poMsgPort = (struct MsgPort *) IExec->AllocSysObjectTags(ASOT_PORT, ASOPORT_Name, m_pcName, ASOPORT_Pri, 1, TAG_DONE);
+
+			if (m_poMsgPort)
+			{
 				m_bPortAdded = ETrue;
 			}
 			else
@@ -134,7 +138,7 @@ void RRendezvous::Close()
 			IExec->RemPort(m_poMsgPort);
 		}
 
-		IExec->DeleteMsgPort(m_poMsgPort);
+		IExec->FreeSysObject(ASOT_PORT, m_poMsgPort);
 		m_poMsgPort = NULL;
 	}
 
@@ -227,7 +231,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 			/* Create a reply port that can be used by the server to indicate that a message has been */
 			/* received and processed */
 
-			if ((Message->mn_ReplyPort = IExec->CreateMsgPort()) != NULL)
+			if ((Message->mn_ReplyPort = (struct MsgPort *) IExec->AllocSysObjectTags(ASOT_PORT, TAG_DONE)) != NULL)
 			{
 				/* The FindPort() function must be protected by a Forbid()/Permit() pair.  However, we must only */
 				/* send the message with interrupts disabled or the server will never be able to process the */
@@ -253,7 +257,7 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 				/* Delete the reply port, now that we are finished with it */
 
-				IExec->DeleteMsgPort(Message->mn_ReplyPort);
+				IExec->FreeSysObject(ASOT_PORT, Message->mn_ReplyPort);
 			}
 
 			delete [] Buffer;
