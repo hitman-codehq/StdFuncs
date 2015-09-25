@@ -99,12 +99,6 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
-#ifdef _DEBUG
-
-	m_bHighlight = EFalse;
-
-#endif /* _DEBUG */
-
 	m_bHighlight = EFalse;
 	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
 	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
