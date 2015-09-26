@@ -8,6 +8,7 @@
 #include <proto/diskfont.h>
 #include <proto/graphics.h>
 #include <graphics/gfxmacros.h>
+#include <string.h>
 
 #define NUM_VERTICES 6
 
@@ -101,7 +102,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 	m_bHighlight = EFalse;
 	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
-	m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
+	m_iNumSizes = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
 #ifdef __amigaos4__
@@ -142,7 +143,6 @@ RFont::RFont(CWindow *a_poWindow)
 
 #else /* ! QT_GUI_LIB */
 
-	m_iNumSizes = 0;
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
@@ -190,10 +190,18 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 
 	if (m_poWindow->m_poWindow)
 	{
-		/* If a specific font has been specified then try to load it from disc and make it the rastport's */
-		/* default font */
+		/* If no font has been specified then use "DejaVu Sans Mono" */
 
-		if (a_pccName)
+		if (a_pccName == NULL)
+		{
+			a_pccName = "DejaVu Sans Mono.font";
+		}
+
+		/* If the requested is different to the current one, or if it has a different size then try */
+		/* to load it from disc and make it the rastport's default font */
+
+		if ((strcmp(a_pccName, m_poWindow->m_poWindow->RPort->Font->tf_Message.mn_Node.ln_Name) != 0) ||
+			(a_iSize != m_poWindow->m_poWindow->RPort->Font->tf_YSize))
 		{
 			TextAttr.ta_Name = a_pccName;
 			TextAttr.ta_YSize = a_iSize;
