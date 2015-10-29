@@ -17,6 +17,7 @@ private:
 	char			*m_pcCommandLine;		/**< Buffer for emulating CLI command line when running from Workbench */
 	char			*m_pcProjectFileName;	/**< Name of project icon that was started with the program, if any */
 	TInt			m_iMagicOption;			/**< Index of magic option, if any */
+	TInt			m_iNumMagicArgs;		/**< Number of entries in the magic option array */
 	TInt			m_iNumArgs;				/**< Number of entries in the iArgs array */
 	LONG			*m_plArgs;				/**< Array of LONGs into which to place ptrs to arguments */
 	struct RDArgs	*m_poRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading arguments */

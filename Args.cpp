@@ -16,13 +16,17 @@
 #include <string.h>
 #include "Args.h"
 
+/* The magic argument array is extended by this many new slots each time it runs out of slots */
+
+#define NUM_NEW_ARGS 10
+
 /* Written: Sunday 04-Nov-2007 11:48 am */
 
 RArgs::RArgs()
 {
 	m_pcArgumentBuffer = m_pcCommandLine = m_pcProjectFileName = NULL;
 	m_iMagicOption = -1;
-	m_iNumArgs = 0;
+	m_iNumMagicArgs = m_iNumArgs = 0;
 	m_plArgs = NULL;
 	m_poRDArgs = m_poTTRDArgs = m_poInputRDArgs = NULL;
 }
@@ -480,8 +484,9 @@ void RArgs::Close()
 		/* points to an array of ptrs to arguments and this array is owned by the magic */
 		/* option itself.  Thus we must cast the data for the option in order to delete it */
 
-		delete [] (char **) (m_plArgs[m_iMagicOption]);
+		delete [] (char **) m_plArgs[m_iMagicOption];
 		m_iMagicOption = -1;
+		m_iNumMagicArgs = 0;
 	}
 
 #endif /* ! __amigaos4__ */
@@ -776,6 +781,8 @@ const char *RArgs::MultiArgument(TInt a_iIndex)
 
 		if (MultiArguments)
 		{
+			ASSERTM(((a_iIndex >= 0) && (a_iIndex < CountMultiArguments())), "RArgs::MultiArgument() => a_iIndex is out of range");
+
 			RetVal = MultiArguments[a_iIndex];
 		}
 	}
@@ -796,8 +803,8 @@ const char *RArgs::ProjectFileName()
 
 TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
-	char **ArgV, *OptionName, **Arguments, Type;
-	TInt Arg, Index, Offset, RetVal;
+	char **ArgV, *OptionName, **Arguments, **NewMagicArgs, **Ptr, Type;
+	TInt Arg, Index, NumArgs, Offset, RetVal;
 
 	/* Assume success */
 
@@ -940,34 +947,92 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 							if ((ArgV[Arg]) && (strlen(ArgV[Arg]) > 0))
 							{
+								/* If no magic argument space has been allocated then allocate enough space */
+								/* to hold NUM_NEW_ARGS to begin with */
+
 								if (!(m_plArgs[m_iMagicOption]))
 								{
-									m_plArgs[m_iMagicOption] = (LONG) new char *[10]; // TODO: CAW
-									char **Ptr = (char **) m_plArgs[m_iMagicOption];
-									*Ptr = NULL;
+									m_plArgs[m_iMagicOption] = (LONG) new char *[NUM_NEW_ARGS];
+
+									if (m_plArgs[m_iMagicOption])
+									{
+										m_iNumMagicArgs = NUM_NEW_ARGS;
+										*(char **) m_plArgs[m_iMagicOption] = NULL;
+									}
 								}
+
+								/* Continue only if memory is available */
 
 								if (m_plArgs[m_iMagicOption])
 								{
-									char **Ptr = (char **) m_plArgs[m_iMagicOption];
+									/* Scan through the magic argument array and find an empty slot into which to */
+									/* place the argument that was passed in */
+
+									Ptr = (char **) m_plArgs[m_iMagicOption];
+									NumArgs = 0;
 
 									while (*Ptr)
 									{
 										++Ptr;
+										++NumArgs;
 									}
 
-									*Ptr = ArgV[Arg];
-									*(Ptr + 1) = NULL;
+									/* If we are out of space in the magic argument array then extend it by NUM_NEW_ARGS entries */
 
-									ArgV[Arg] = NULL;
+									if (NumArgs >= (m_iNumMagicArgs - 1))
+									{
+										NewMagicArgs = new char *[m_iNumMagicArgs + NUM_NEW_ARGS];
+
+										if (NewMagicArgs)
+										{
+											/* Copy the pointers to the already extracted arguments into the new array and free */
+											/* the memory for the old array */
+
+											memcpy(NewMagicArgs, (void *) m_plArgs[m_iMagicOption], (m_iNumMagicArgs * sizeof(LONG)));
+											delete [] (char **) m_plArgs[m_iMagicOption];
+
+											/* Save the pointer to the new array and adjust its total element count */
+
+											m_plArgs[m_iMagicOption] = (LONG) NewMagicArgs;
+											m_iNumMagicArgs += NUM_NEW_ARGS;
+
+											/* And calculate a pointer to the next free slot into which to place an argument */
+
+											Ptr = (((char **) m_plArgs[m_iMagicOption]) + NumArgs);
+										}
+										else
+										{
+											RetVal = KErrNoMemory;
+										}
+									}
+
+									if (RetVal == KErrNone)
+									{
+										/* Extract the argument into the magic argument array's slot and remove the argument */
+										/* from the input argument list */
+
+										*Ptr = ArgV[Arg];
+										*(Ptr + 1) = NULL;
+										ArgV[Arg] = NULL;
+									}
 								}
+								else
+								{
+									RetVal = KErrNoMemory;
+								}
+							}
+
+							if (RetVal != KErrNone)
+							{
+								break;
 							}
 						}
 					}
 
 					delete [] OptionName;
 				}
-				else
+
+				if (RetVal != KErrNone)
 				{
 					break;
 				}

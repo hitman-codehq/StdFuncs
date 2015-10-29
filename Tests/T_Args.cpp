@@ -43,6 +43,15 @@ static const char *g_pccMultiArgV[] =
 
 #define MULTI_ARGV_COUNT 4
 
+/* Fake command line for testing 10 or more multiple source options */
+
+static const char *g_pccMagicMultiArgV[] =
+{
+	"T_Args", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"
+};
+
+#define MULTI_MAGIC_ARGV_COUNT 12
+
 /* Template for use in obtaining multiple source filenames */
 
 static const char g_accMultiSourceTemplate[] = "SOURCE/A/M,DEST/A";
@@ -167,6 +176,7 @@ int main()
 	CHECK_ARG(Args[1], "Dest Dir");
 	test(Args[2] != 0);
 
+	delete [] OneString;
 	Args.Close();
 
 	/* Test #7: Test not passing in a parameter for an /A option */
@@ -218,7 +228,29 @@ int main()
 
 	Args.Close();
 
-	delete [] OneString;
+	/* Test #8: Ensure that passing in 10 or more multiple source options works */
+
+	Test.Next("Ensure that passing in 10 or more multiple source options works");
+
+	Result = Args.Open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMagicMultiArgV, MULTI_MAGIC_ARGV_COUNT);
+	test(Result == KErrNone);
+
+	/* Ensure that the string arguments have been read as expected */
+
+	CHECK_ARG(Args[0], "One");
+	CHECK_ARG(Args[1], "Eleven");
+
+	/* Now check that the multi arguments have been read ok */
+
+	test(Args.CountMultiArguments() == (MULTI_MAGIC_ARGV_COUNT - 2));
+
+	for (Index = 0; Index < (MULTI_MAGIC_ARGV_COUNT - 2); ++Index)
+	{
+		CHECK_ARG(Args.MultiArgument(Index), g_pccMagicMultiArgV[Index + 1]);
+	}
+
+	Args.Close();
+
 	Test.End();
 
 	return(RETURN_OK);
