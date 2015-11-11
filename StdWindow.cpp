@@ -252,6 +252,10 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 				if ((CWindow::m_bCtrlPressed) && (!(CWindow::m_bAltPressed)))
 				{
+					/* Convert the key to lower case */
+
+					Key |= 0x60;
+
 					/* Determine the current input locale */
 
 					QLocale KeyboardLayout = QApplication::keyboardInputLocale();
@@ -741,6 +745,8 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if ((m_bCtrlPressed) && (!(m_bAltPressed)))
 			{
+				/* Convert the key to lower case */
+
 				a_oWParam |= 0x60;
 
 				/* This is awful hackiness taken to the next level.  For reasons unknown, the '[' */
