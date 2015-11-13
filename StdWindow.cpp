@@ -3023,11 +3023,11 @@ TInt CWindow::RemoveAccelerator(TInt a_iCommand)
 {
 	TInt Index, NumAccelerators, RemainingAccelerators, RetVal;
 	ACCEL *Accelerators;
-	HACCEL OldAccelerators;
+	HACCEL NewAccelerators;
 
 	/* Assume failure */
 
-	RetVal = KErrNotFound;
+	RetVal = KErrGeneral;
 
 	/* Determine how many accelerators are in the current accelerator table and allocate */
 	/* enough memory to represent those accelerators */
@@ -3058,22 +3058,29 @@ TInt CWindow::RemoveAccelerator(TInt a_iCommand)
 
 		if (Index < NumAccelerators)
 		{
-			/* Save a ptr to the old accelerator table and create a new one, only deleting the */
-			/* old one if creation of the new was successful */
+			/* Create a new accelerator table that does not contain the deleted accelerator */
 
-			OldAccelerators = m_poAccelerators;
-
-			if ((m_poAccelerators = CreateAcceleratorTable(Accelerators, (NumAccelerators - 1))) != NULL)
+			if ((NewAccelerators = CreateAcceleratorTable(Accelerators, (NumAccelerators - 1))) != NULL)
 			{
 				RetVal = KErrNone;
 
-				/* The new accelerator table was created successfully so delete the old one */
+				/* The new accelerator table was created successfully so delete the old one and take */
+				/* the new one into use */
 
-				DestroyAcceleratorTable(OldAccelerators);
+				DestroyAcceleratorTable(m_poAccelerators);
+				m_poAccelerators = NewAccelerators;
 			}
+		}
+		else
+		{
+			RetVal = KErrNotFound;
 		}
 
 		delete [] Accelerators;
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
 	}
 
 	return(RetVal);
@@ -3150,8 +3157,19 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 		DEBUGCHECK((RemoveMenu(DropdownMenu, a_iCommand, MF_BYCOMMAND) != FALSE),
 			"CWindow::RemoveMenuItem() => Unable to remove menu item");
 
-		DEBUGCHECK((RemoveAccelerator(a_iCommand) == KErrNone), "CWindow::RemoveMenuItem() => Unable to remove accelerator");
+#ifdef _DEBUG
+
+		TInt Result;
+
+		Result = RemoveAccelerator(a_iCommand);
+		DEBUGCHECK(((Result == KErrNone) || (Result == KErrNotFound)), "CWindow::RemoveMenuItem() => Unable to remove accelerator");
 	}
+
+#else /* ! _DEBUG */
+
+	RemoveAccelerator(a_iCommand);
+
+#endif /* ! _DEBUG */
 
 #endif /* ! QT_GUI_LIB */
 
