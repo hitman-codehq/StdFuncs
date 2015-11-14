@@ -3163,13 +3163,14 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 		Result = RemoveAccelerator(a_iCommand);
 		DEBUGCHECK(((Result == KErrNone) || (Result == KErrNotFound)), "CWindow::RemoveMenuItem() => Unable to remove accelerator");
-	}
 
 #else /* ! _DEBUG */
 
-	RemoveAccelerator(a_iCommand);
+		RemoveAccelerator(a_iCommand);
 
 #endif /* ! _DEBUG */
+
+	}
 
 #endif /* ! QT_GUI_LIB */
 
