@@ -766,7 +766,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 					KeyboardLayout = GetKeyboardLayout(0);
 
-					if (LOBYTE(KeyboardLayout) == LANG_ENGLISH)
+					if (LOBYTE((DWORD) KeyboardLayout) == LANG_ENGLISH)
 					{
 						if (a_oWParam == 123)
 						{
