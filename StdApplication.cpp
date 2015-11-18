@@ -12,9 +12,13 @@
 #include <proto/keymap.h>
 #include <ctype.h>
 
-/* Array of key mappings for mapping Amiga keys onto standard keys */
+/* Array of key mappings for mapping Amiga keys onto standard keys.  Amiga OS differentiates between left alt and */
+/* right alt.  When handling keyboard input, we will treat the right alt key differently depending on whether the */
+/* keyboard layout has an alt or an alt-gr key, so keep track of the index of this entry in this array with a #define */
 
-static const SKeyMapping g_aoKeyMap[] =
+#define RALT_INDEX 4
+
+static SKeyMapping g_aoKeyMap[] =
 {
 	{ STD_KEY_SHIFT, 0x60 }, { STD_KEY_SHIFT, 0x61 }, { STD_KEY_CONTROL, 0x63 }, { STD_KEY_ALT, 0x64 },
 	{ STD_KEY_ALT, 0x65 }, { STD_KEY_BACKSPACE, 0x41 }, { STD_KEY_ENTER, 0x44 }, { STD_KEY_UP, 0x4c },
@@ -92,7 +96,23 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 
 	m_pcoMenuItems = a_pcoMenuItems;
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos4__
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+	m_bUseAltGr = ETrue;
+
+	/* If the keyboard layout has an alt-gr key then filter out the mapping that would convert it */
+	/* to a normal alt key on keybords without an alt-gr key */
+
+	if (m_bUseAltGr)
+	{
+		g_aoKeyMap[RALT_INDEX].m_iNativeKey = 0x64;
+	}
+
+#elif defined(QT_GUI_LIB)
 
 	/* Create an instance of the Qt application class, which is used to control the program */
 	/* under Qt.  We have our own argument handling so pass in fake argc and argv arguments */
@@ -136,7 +156,7 @@ TInt RApplication::Main()
 	TInt DataSize, InnerWidth, InnerHeight, Index, ItemID, NumChars, X, Y;
 	TBool DoubleClicked, ExecutedShortcut, KeyDown;
 	ULONG Result, Signal, SecondSeconds, SecondMicros;
-	UWORD Code;
+	UWORD Code, QualifierMask;
 	struct InputEvent *InputEvent, ShortcutEvent;
 	struct MenuItem *MenuItem;
 	struct Message *Message;
@@ -458,7 +478,19 @@ TInt RApplication::Main()
 										/* key and the left alt key.  These alter the cooked key values in unwanted ways so */
 										/* we filter them out */
 
-										if (!(InputEvent->ie_Qualifier & (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT | IEQUALIFIER_RALT)))
+										QualifierMask = (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT);
+
+										/* If we are using a keyboard that does not have an alt-gr key then we also filter */
+										/* the right alt key out from processing so that it acts like the left alt key.  If */
+										/* the keyboard has an alt-gr key then we want it to be cooked so that we receive */
+										/* the special characters that it generates */
+
+										if (!m_bUseAltGr)
+										{
+											QualifierMask |= IEQUALIFIER_RALT;
+										}
+
+										if (!(InputEvent->ie_Qualifier & QualifierMask))
 										{
 											ShortcutEvent.ie_Qualifier = InputEvent->ie_Qualifier;
 										}
