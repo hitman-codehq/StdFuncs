@@ -873,7 +873,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 
 	RetVal = a_iSize;
 
-#ifdef _WIN32
+#ifdef WIN32
 
 	LOGFONT LogFont;
 
@@ -889,7 +889,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 
 	EnumFontFamiliesEx(m_poWindow->m_poDC, &LogFont, (FONTENUMPROC) FontNameProc, (LPARAM) this, 0);
 
-#endif /* _WIN32 */
+#endif /* WIN32 */
 
 	/* If the next larger size is requested, scan forwards through the array of sizes until it */
 	/* is found.  If it is not found then return the size passed in */
