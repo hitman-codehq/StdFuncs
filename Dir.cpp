@@ -878,16 +878,25 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 							/* Obtain the size of the file that the link points to */
 
-							if ((RetVal = Utils::GetFileInfo(LinkName, &LinkEntry)) == KErrNone)
+							RetVal = Utils::GetFileInfo(LinkName, &LinkEntry);
+							delete [] LinkName;
+
+							/* If we obtained the information successfully then save the size of the file */
+							/* to which the link points.  If the target of the link does not exist then do */
+							/* not treat this as an error and leave the size of the file as 0 */
+
+							if (RetVal == KErrNone)
 							{
 								Size = LinkEntry.iSize;
+							}
+							else if (RetVal == KErrNotFound)
+							{
+								RetVal = KErrNone;
 							}
 							else
 							{
 								break;
 							}
-
-							delete [] LinkName;
 						}
 						else
 						{
