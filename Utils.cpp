@@ -1890,7 +1890,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 		/* Get the fully qualified name of the file (if the lock was obtained successfully) */
 		/* or the path of the current directory (if it wasn't) */
 
-		if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH) == 0)
+		if (IDOS->DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH) == 0)
 		{
 			Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
 
