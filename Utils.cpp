@@ -1569,6 +1569,47 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 	return(RetVal);
 }
 
+/**
+ * Creates a soft link to a file.
+ * This function will create a soft link to a destination file.  The destination file does not
+ * need to exist at the time of link creation.  Both the source and destination file names can
+ * be either absolute or relative.
+ *
+ * @date	Monday 11-Jan-2016 07:09 am, Code HQ Ehinger Tor
+ * @param	a_pccSource		Pointer to the name of the link to create
+ * @param	a_pccDest		Pointer to the name of the file to which to link to
+ * @return	KErrNone if the link was created successfully
+ * @return	KErrGeneral if the link was not able to be created
+ */
+
+TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
+{
+	TInt RetVal;
+
+	/* Assume success */
+
+	RetVal = KErrNone;
+
+#ifdef __amigaos4__
+
+	if (IDOS->MakeLink(a_pccSource, (void *) a_pccDest, LINK_SOFT) == 0)
+	{
+		RetVal = KErrGeneral;
+	}
+
+#elif defined(__linux__)
+
+	RetVal = KErrGeneral;
+
+#else /* ! __linux__ */
+
+	RetVal = KErrGeneral;
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
+
 /* Written: Wednesday 09-Mar-2011 6:27 am */
 /* @param	a_pcPath Ptr to qualified path to be normalised */
 /* Iterates through all the characters of a qualified path and converts any instances of the '\' */

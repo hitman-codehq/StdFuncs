@@ -88,6 +88,8 @@ public:
 
 	static TInt LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer);
 
+	static TInt MakeLink(const char *a_pccSource, const char *a_pccDest);
+
 	static TInt MapLastError();
 
 	static TInt MapLastFileError(const char *a_pccFileName);
