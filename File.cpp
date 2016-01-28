@@ -44,7 +44,8 @@ RFile::RFile()
  * @date	Friday 02-Jan-2009 8:54 pm
  * @param	a_pccFileName	Ptr to the name of the file to be created
  * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
- *							API and is ignored (but should be EFileWrite for consistency)
+ *							API and is ignored (but should be EFileWrite for consistency); one of 
+ *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
  * @return	KErrInUse if the file or directory is in use
@@ -205,7 +206,8 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
  * @date	Monday 19-Apr-2010 6:26 am
  * @param	a_pccFileName	Ptr to the name of the file to be created
  * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
- *							API and is ignored (but should be EFileWrite for consistency)
+ *							API and is ignored (but should be EFileWrite for consistency); one of
+ *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
  * @return	KErrInUse if the file or directory is in use
@@ -244,7 +246,7 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  *
  * @date	Friday 02-Jan-2009 8:57 pm
  * @param	a_pccFileName	Ptr to the name of the file to be opened
- * @param	a_uiFileMode	Mode in which to open the file
+ * @param	a_uiFileMode	Mode in which to open the file; one of the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
  * @return	KErrInUse if the file or directory is in use
