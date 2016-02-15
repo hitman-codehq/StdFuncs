@@ -35,6 +35,8 @@ public:
 
 	StdListNode<TEntry>	m_oStdListNode;		/**< Standard list node */
 	char				iName[MAX_PATH];	/**< Name of the file */
+	char				iLink[MAX_PATH];	/**< Resolved link to the file, if it is a link.  Note: This field is only
+												 filled out by Utils::GetFileInfo(), not by methods in RDir */
 	TBool				iIsDir;				/**< ETrue if entry is a directory */
 	TBool				iIsLink;			/**< ETrue if entry is a link */
 	TUint				iSize;				/**< File size in bytes */

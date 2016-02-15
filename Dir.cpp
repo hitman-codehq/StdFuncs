@@ -28,7 +28,7 @@ struct SSortInfo
 
 TEntry::TEntry()
 {
-	iName[0] = '\0';
+	iName[0] = iLink[0] = '\0';
 	iIsDir = iIsLink = EFalse;
 	iSize = 0;
 	iAttributes = 0;
@@ -394,8 +394,8 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 
 				/* And populate the TEntry structure with the rest of the information */
 
-				// TODO: CAW - Link stuff, here and in Utils.cpp.  Can this be a reusable function?
-				Entry->Set((a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, a_poFindData->nFileSizeLow, a_poFindData->dwFileAttributes, DateTime);
+				Entry->Set((a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), (a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT),
+					a_poFindData->nFileSizeLow, a_poFindData->dwFileAttributes, DateTime);
 				Entry->iPlatformDate = a_poFindData->ftLastWriteTime;
 			}
 			else
