@@ -64,7 +64,7 @@ public:
 
 	static TBool FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory);
 
-	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry);
+	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bResolveLink = ETrue);
 
 	static void GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow = NULL);
 
@@ -88,6 +88,8 @@ public:
 
 	static TInt LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer);
 
+	static void LocalisePath(char *a_pcPath);
+
 	static TInt MakeLink(const char *a_pccSource, const char *a_pccDest);
 
 	static TInt MapLastError();
@@ -108,7 +110,7 @@ public:
 
 	static TInt SetDeleteable(const char *a_pccFileName);
 
-	static TInt SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry);
+	static TInt SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
 
 	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);
 

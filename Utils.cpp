@@ -270,7 +270,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 
 		if (NameOffset > 0)
 		{
-			/* Strip off the trailing '/' or '\\' but NOT the ':' as this is required */
+			/* Strip off the trailing '/' or '\' but NOT the ':' as this is required */
 			/* for correct RAM disc handling on Amiga OS */
 
 			if (a_pccFileName[NameOffset - 1] != ':')
@@ -905,13 +905,15 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
  * @date	Saturday 04-Jul-2009 9:20 pm
  * @param	a_pccFileName	Ptr to the name of the file for which to obtain information
  * @param	a_poEntry		Ptr to the TEntry structure into which to place the information
+ * @param	a_bResolveLink	ETrue to return information about the target of the link, else EFalse
+ *							for information about the link itself.  ETrue by default
  * @return	KErrNone if the information was obtained successfully
  * @return	KErrNotFound if the file could not be found
  * @return	KErrNotSupported if the specified path ends with a '/' or '\'
  * @return	KErrPathNotFound if an Amiga OS style PROGDIR: prefix could not be resolved
  */
 
-TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
+TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bResolveLink)
 {
 	char *ProgDirName;
 	TBool PathOk;
@@ -1039,14 +1041,23 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 #else /* ! __linux__ */
 
+			DWORD Flags;
 			BY_HANDLE_FILE_INFORMATION FileInformation;
 			HANDLE FindHandle, Handle;
 			SYSTEMTIME SystemTime;
 			WIN32_FIND_DATA FindData;
 
-			/* Open the file and determine its properties */
+			/* Open the file itself or - in case the file is a link - possibly the file that the link points to, and */
+			/* determine its properties */
 
-			if ((Handle = CreateFile(ProgDirName, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) != INVALID_HANDLE_VALUE)
+			Flags = FILE_FLAG_BACKUP_SEMANTICS;
+
+			if (!a_bResolveLink)
+			{
+				Flags |= FILE_FLAG_OPEN_REPARSE_POINT;
+			}
+
+			if ((Handle = CreateFile(ProgDirName, 0, 0, NULL, OPEN_EXISTING, Flags, NULL)) != INVALID_HANDLE_VALUE)
 			{
 				if (GetFileInformationByHandle(Handle, &FileInformation))
 				{
@@ -1063,8 +1074,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 
 						/* Fill in the file's properties in the TEntry structure */
 
-						a_poEntry->Set((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), 0, FileInformation.nFileSizeLow,
-							FileInformation.dwFileAttributes, DateTime);
+						a_poEntry->Set((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT),
+							FileInformation.nFileSizeLow, FileInformation.dwFileAttributes, DateTime);
 						a_poEntry->iPlatformDate = FileInformation.ftLastWriteTime;
 
 						/* Try to find the file so that we can obtain its "real" name, which may vary by case */
@@ -1095,6 +1106,18 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry)
 							else
 							{
 								strcpy(a_poEntry->iName, Utils::FilePart(ProgDirName));
+							}
+						}
+
+						/* See if the file is a link and if so, return information about the file to which the link points */
+
+						TEntry TargetFile;
+
+						if (a_poEntry->IsLink())
+						{
+							if ((RetVal = Utils::GetFileInfo(a_pccFileName, &TargetFile)) == KErrNone)
+							{
+								strcpy(a_poEntry->iLink, TargetFile.iName);
 							}
 						}
 					}
@@ -1570,6 +1593,46 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 }
 
 /**
+ * Converts a path to native format.
+ * Iterates through all the characters of a qualified path and converts any instances of the '/'
+ * and '\' directory separator character to either '/' when running under UNIX or Amiga OS or to
+ * '\' when running under Windows.
+ *
+ * @date	Monday 15-Feb-2016 07:30 am, Code HQ Ehinger Tor
+ * @param	a_pcPath		Pointer to qualified path to be localised
+ */
+
+void Utils::LocalisePath(char *a_pcPath)
+{
+	TInt Index, Length;
+
+	/* Iterate through all the characters of the path and localise any instances of '\' to '/' */
+
+	Length = strlen(a_pcPath);
+
+	for (Index = 0; Index < Length; ++Index)
+	{
+
+#ifdef WIN32
+
+		if (a_pcPath[Index] == '/')
+		{
+			a_pcPath[Index] = '\\';
+		}
+
+#else /* ! WIN32 */
+
+		if (a_pcPath[Index] == '\\')
+		{
+			a_pcPath[Index] = '/';
+		}
+
+#endif /* ! WIN32 */
+
+	}
+}
+
+/**
  * Creates a soft link to a file.
  * This function will create a soft link to a destination file.  The destination file does not
  * need to exist at the time of link creation.  Both the source and destination file names can
@@ -1579,6 +1642,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
  * @param	a_pccSource		Pointer to the name of the link to create
  * @param	a_pccDest		Pointer to the name of the file to which to link to
  * @return	KErrNone if the link was created successfully
+ * @return	KErrNoMemory if not enough memory was available
  * @return	KErrGeneral if the link was not able to be created
  */
 
@@ -1603,17 +1667,51 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 
 #else /* ! __linux__ */
 
-	RetVal = KErrGeneral;
+	char *DestFileName;
+
+	(void) a_pccSource;
+
+	/* The Framework works with the '/' but this does not work when creating links in Windows, so */
+	/* we must copy the qualified link target into a temporary buffer and localise it so that it */
+	/* contains only the '\' path separator */
+
+	if ((DestFileName = new char[strlen(a_pccDest) + 1]) != NULL)
+	{
+		strcpy(DestFileName, a_pccDest);
+		LocalisePath(DestFileName);
+
+		/* Now create the symbolic link using the localised path */
+
+#ifdef _WIN32_WINNT_LONGHORN
+
+		if (CreateSymbolicLink(a_pccSource, DestFileName, 0) == 0)
+
+#endif /* _WIN32_WINNT_LONGHORN */
+
+		{
+			RetVal = KErrGeneral;
+		}
+
+		delete[] DestFileName;
+	}
+	else
+	{
+		RetVal = KErrNoMemory;
+	}
 
 #endif /* ! __linux__ */
 
 	return(RetVal);
 }
 
-/* Written: Wednesday 09-Mar-2011 6:27 am */
-/* @param	a_pcPath Ptr to qualified path to be normalised */
-/* Iterates through all the characters of a qualified path and converts any instances of the '\' */
-/* directory separator charater to '/' to make parsing easier */
+/**
+ * Converts a path to normalised (UNIX/Amiga OS) format.
+ * Iterates through all the characters of a qualified path and converts any instances of the '\'
+ * directory separator charater to '/' to make parsing easier.
+ *
+ * @date	Wednesday 09-Mar-2011 6:27 am
+ * @param	a_pcPath	Pointer to qualified path to be normalised
+ */
 
 void Utils::NormalisePath(char *a_pcPath)
 {
@@ -1994,12 +2092,51 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 
 #else /* ! __linux__ */
 
-	TBool RemoveSlash;
 	DWORD Length;
 
 	/* Assume failure */
 
 	RetVal = NULL;
+
+#ifdef _WIN32_WINNT_LONGHORN
+
+	HANDLE Handle;
+
+	/* Open the file so that we can query information about it.  We use the FILE_FLAG_OPEN_REPARSE_POINT as this */
+	/* function can be used to query information about links so we do not want to resolve them */
+
+	if ((Handle = CreateFile(a_pccFileName, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) != INVALID_HANDLE_VALUE)
+	{
+		/* Allocate a buffer into which to place the real name of the file and query Windows for that name */
+
+		if ((RetVal = new char[MAX_PATH]) != NULL)
+		{
+			if (GetFinalPathNameByHandle(Handle, RetVal, (MAX_PATH - 1), 0) > 0)
+			{
+				/* Strip off the unwanted \\?\ at the start of the returned name */
+
+				if (strncmp(RetVal, "\\\\?\\", 4) == 0)
+				{
+					Length = (strlen(RetVal) - 4);
+					memmove(RetVal, (RetVal + 4), Length);
+					RetVal[Length] = '\0';
+				}
+
+				NormalisePath(RetVal);
+			}
+			else
+			{
+				delete[] RetVal;
+				RetVal = NULL;
+			}
+
+			CloseHandle(Handle);
+		}
+	}
+
+#else /* ! _WIN32_WINNT_LONGHORN */
+
+	TBool RemoveSlash;
 
 	/* Determine now much memory is required to hold the fully qualified */
 	/* path and allocate a buffer of the required size */
@@ -2049,6 +2186,8 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 	{
 		Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
 	}
+
+#endif /* ! _WIN32_WINNT_LONGHORN */
 
 #endif /* ! __linux__ */
 
@@ -2337,7 +2476,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 
 /* Written: Saturday 18-Jul-2009 8:06 am */
 
-TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
+TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink)
 {
 	TInt RetVal;
 
@@ -2371,11 +2510,20 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry)
 
 #else /* ! __linux__ */
 
+	DWORD Flags;
 	HANDLE Handle;
 
-	/* Open a handle to the file and set its datestamp to that passed in */
+	/* Open the file itself or - in case the file is a link - possibly the file that the link points to, and */
+	/* set its datestamp to that passed in */
 
-	if ((Handle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL)) != INVALID_HANDLE_VALUE)
+	Flags = FILE_FLAG_BACKUP_SEMANTICS;
+
+	if (!a_bResolveLink)
+	{
+		Flags |= FILE_FLAG_OPEN_REPARSE_POINT;
+	}
+
+	if ((Handle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, Flags, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		if (SetFileTime(Handle, &a_roEntry.iPlatformDate, &a_roEntry.iPlatformDate, &a_roEntry.iPlatformDate))
 		{
