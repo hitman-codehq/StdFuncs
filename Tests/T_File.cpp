@@ -198,33 +198,7 @@ int main()
 
 	File.Close();
 
-	/* Test #5: Ensure opening a wildcard fails as expected */
-
-	Test.Next("Ensure opening a wildcard fails as expected");
-
-	Result = File.Open("*.h", EFileRead);
-	test(Result == KErrNotFound);
-
-	Result = File.Open("*.h", EFileWrite);
-	test(Result == KErrNotFound);
-
-	Result = File.Create("*.h", EFileRead);
-	test(Result == KErrNotFound);
-
-#ifdef __amigaos4__
-
-	Result = File.Open("#?.h", EFileRead);
-	test(Result == KErrNotFound);
-
-	Result = File.Open("#?.h", EFileWrite);
-	test(Result == KErrNotFound);
-
-	Result = File.Create("#?.h", EFileRead);
-	test(Result == KErrNotFound);
-
-#endif /* __amigaos4__ */
-
-	/* Test #6: Ensure that the PROGDIR: prefix works with RFile::Open() */
+	/* Test #5: Ensure that the PROGDIR: prefix works with RFile::Open() */
 
 	Test.Next("Ensure that the PROGDIR: prefix works with RFile::Open()");
 

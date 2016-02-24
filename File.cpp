@@ -44,7 +44,7 @@ RFile::RFile()
  * @date	Friday 02-Jan-2009 8:54 pm
  * @param	a_pccFileName	Ptr to the name of the file to be created
  * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
- *							API and is ignored (but should be EFileWrite for consistency); one of 
+ *							API and is ignored (but should be EFileWrite for consistency); one of
  *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
@@ -65,37 +65,28 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	TEntry Entry;
 
-	/* Opening wildcards are not supported by our API although Amiga OS allows it! */
+	/* Only create the file if it does not already exist.  Amiga OS does not */
+	/* have a mode that allows us to do this so we have to manually perform a */
+	/* check ourselves */
 
-	if ((strstr(a_pccFileName, "#") == NULL) && (strstr(a_pccFileName, "?") == NULL) && (strstr(a_pccFileName, "*") == NULL))
+	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
 	{
-		/* Only create the file if it does not already exist.  Amiga OS does not */
-		/* have a mode that allows us to do this so we have to manually perform a */
-		/* check ourselves */
-
-		if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
+		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
 		{
-			if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
-			{
-				RetVal = KErrNone;
+			RetVal = KErrNone;
 
-				m_uiFileMode = EFileWrite;
-			}
-			else
-			{
-				/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
-
-				RetVal = Utils::MapLastFileError(a_pccFileName);
-			}
+			m_uiFileMode = EFileWrite;
 		}
 		else
 		{
-			RetVal = KErrAlreadyExists;
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 	}
 	else
 	{
-		RetVal = KErrNotFound;
+		RetVal = KErrAlreadyExists;
 	}
 
 #elif defined(__linux__)
@@ -268,46 +259,37 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #ifdef __amigaos4__
 
-		/* Opening wildcards are not supported by our API although Amiga OS allows it! */
+		/* Open the existing file.  We want to open it as having an exclusive lock */
+		/* and being read only if EFileWrite is not specified but neither of */
+		/* these features are supported by Amiga OS so we will emulate them l8r */
 
-		if ((strstr(ResolvedFileName, "#") == NULL) && (strstr(ResolvedFileName, "?") == NULL) && (strstr(ResolvedFileName, "*") == NULL))
+		if ((m_oHandle = IDOS->Open(ResolvedFileName, MODE_OLDFILE)) != 0)
 		{
-			/* Open the existing file.  We want to open it as having an exclusive lock */
-			/* and being read only if EFileWrite is not specified but neither of */
-			/* these features are supported by Amiga OS so we will emulate them l8r */
+			/* And change the shared lock to an exclusive lock as our API only */
+			/* supports opening files exclusively */
 
-			if ((m_oHandle = IDOS->Open(ResolvedFileName, MODE_OLDFILE)) != 0)
+			if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
 			{
-				/* And change the shared lock to an exclusive lock as our API only */
-				/* supports opening files exclusively */
+				RetVal = KErrNone;
 
-				if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
-				{
-					RetVal = KErrNone;
+				/* Save the read/write mode for l8r use */
 
-					/* Save the read/write mode for l8r use */
-
-					m_uiFileMode = a_uiFileMode;
-				}
-				else
-				{
-					Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
-
-					RetVal = KErrGeneral;
-
-					Close();
-				}
+				m_uiFileMode = a_uiFileMode;
 			}
 			else
 			{
-				/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
 
-				RetVal = Utils::MapLastFileError(a_pccFileName);
+				RetVal = KErrGeneral;
+
+				Close();
 			}
 		}
 		else
 		{
-			RetVal = KErrNotFound;
+			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
+
+			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 
 #elif defined(__linux__)
