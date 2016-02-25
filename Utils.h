@@ -102,7 +102,7 @@ public:
 
 	static void NormalisePath(char *a_pcPath);
 
-	static char *ResolveFileName(const char *a_pccFileName);
+	static char *ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName = EFalse);
 
 	static char *ResolveProgDirName(const char *a_pccFileName);
 

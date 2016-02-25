@@ -1990,18 +1990,22 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
  * path to determine its type.
  *
  * @date	Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor
- * @param	a_pccFileName	Ptr to filename to be resolved
- * @return	Ptr to the fully qualified name of the filename passed in,
+ * @param	a_pccFileName		Pointer to filename to be resolved
+ * @param	a_bGetDeviceName	ETrue to return the underlying device name,
+ *								instead of the volume name, on systems that
+ *								support this.  EFalse by default
+ * @return	Pointer to the fully qualified name of the filename passed in,
  *			if successful, else NULL
  */
 
-char *Utils::ResolveFileName(const char *a_pccFileName)
+char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 {
 	char *RetVal;
 
 #ifdef __amigaos4__
 
 	TBool LockedFile;
+	TInt Result;
 	BPTR Lock;
 
 	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
@@ -2027,9 +2031,19 @@ char *Utils::ResolveFileName(const char *a_pccFileName)
 		}
 
 		/* Get the fully qualified name of the file (if the lock was obtained successfully) */
-		/* or the path of the current directory (if it wasn't) */
+		/* or the path of the current directory (if it wasn't), taking into account whether */
+		/* the user wants the device name or the volume name */
 
-		if (IDOS->DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH) == 0)
+		if (a_bGetDeviceName)
+		{
+			Result = IDOS->DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH);
+		}
+		else
+		{
+			Result = IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH);
+		}
+
+		if (Result == 0)
 		{
 			Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
 
