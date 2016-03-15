@@ -1663,7 +1663,10 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 
 #elif defined(__linux__)
 
-	RetVal = KErrGeneral;
+	if (symlink(a_pccDest, a_pccSource) != 0)
+	{
+		RetVal = KErrGeneral;
+	}
 
 #else /* ! __linux__ */
 
