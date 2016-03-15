@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 #include "File.h"
 
 #ifdef __amigaos4__
@@ -2510,13 +2511,26 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 
 #elif defined(__linux__)
 
-	struct utimbuf Time;
+	int Result;
+	struct timeval TimeVal[2];
 
 	/* Set both the access and modification time of the file to the time passed in */
 
-	Time.actime = Time.modtime = a_roEntry.iPlatformDate;
+	TimeVal[0].tv_sec = TimeVal[1].tv_sec = a_roEntry.iPlatformDate;
+	TimeVal[0].tv_usec = TimeVal[1].tv_usec = 0;
 
-	if (utime(a_pccFileName, &Time) == 0)
+	/* Set the time stamp of either the file itself, or the link that points to it, as requested */
+
+	if (a_bResolveLink)
+	{
+		Result = utimes(a_pccFileName, TimeVal);
+	}
+	else
+	{
+		Result = lutimes(a_pccFileName, TimeVal);
+	}
+
+	if (Result == 0)
 	{
 		RetVal = KErrNone;
 	}
