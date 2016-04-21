@@ -2769,7 +2769,8 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
  * This function will convert an instance of the TDateTime structure into a human readable
  * format in two strings - one for the date and one for the time.  Unlike the other overloaded
  * function of this name, this one does not honour the current locale settings.  It will always
- * use English words, will insert a day string into the date and use a UK style date format.
+ * use English words, will insert a day string into the date, will use a UK style date format
+ * and will use 12 hour time format.
  *
  * @date	Wednesday 18-Feb-2015 07:08 am, Code HQ Ehinger Tor
  * @param	a_pcDate		Pointer to string into which to place the date string
@@ -2779,7 +2780,7 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
 
 void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime)
 {
-	TInt DayOfWeek;
+	TInt DayOfWeek, Hour;
 
 	/* Write out the date and time in the same format as Amiga OS using the FORMAT_DOS format */
 
@@ -2788,7 +2789,17 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDa
 	sprintf(a_pcDate, "%s %02d-%s-%04d", g_apccDays[DayOfWeek], a_roDateTime.Day(), g_apccMonths[a_roDateTime.Month()],
 		a_roDateTime.Year());
 
-	sprintf(a_pcTime, "%02d:%02d %s", a_roDateTime.Hour(), a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
+	/* Do some special processing to take into account that we are printing in 12 hour time format. */
+	/* 13:00 becomes 1:00 and 0 am/pm becomes 12 am/pm etc. */
+
+	Hour = (a_roDateTime.Hour() > 12) ? (a_roDateTime.Hour() - 12) : a_roDateTime.Hour();
+
+	if (Hour == 0)
+	{
+		Hour = 12;
+	}
+
+	sprintf(a_pcTime, "%d:%02d %s", Hour, a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
 }
 
 /* Written: Saturday 23-Jul-2009 06:58 am */
