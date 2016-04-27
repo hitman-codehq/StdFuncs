@@ -1,0 +1,27 @@
+Keyboard mappings for Windows, showing which "special" keys get sent
+multiple times and which get sent only once.  'x' denotes that the key
+is sent multiple times
+
+English:
+
+                KeyDown  Char
+-_                       x
+=+                       x
+Shift      -_            x
+Shift      =+            x
+Ctrl       -_   x
+Ctrl       =+   x
+Ctrl Shift -_   x        x
+Ctrl Shift =+   x
+
+German:
+
+                KeyDown  Char
+-_                       x
+=+                       x
+Shift      -_            x
+Shift      =+            x
+Ctrl       -_   x
+Ctrl       =+   x        x
+Ctrl Shift -_   x        x
+Ctrl Shift =+   x
