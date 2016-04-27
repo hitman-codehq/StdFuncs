@@ -936,6 +936,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* we need these keys and they work without special treatment on other operating systems. */
 			/* So we have to look out for them individually and simulate a WM_CHAR event if found */
 
+			TBool OfferKey;
 			UINT VirtualKey;
 
 			if ((m_bCtrlPressed) && (!m_bAltPressed))
@@ -944,7 +945,42 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				{
 					VirtualKey = MapVirtualKey(a_oWParam, MAPVK_VK_TO_CHAR);
 
-					/* Horribleness++.  It turns out that two of our "mysterious" keys are always mapped to their */
+					/* Determine the current input locale */
+
+					KeyboardLayout = GetKeyboardLayout(0);
+
+					/* Do some deep magic based on some empirical investigation into what special key get sent */
+					/* by Windows multiple times in which keyboard mappings.  If there is a logic to this, I */
+					/* I don't get it */
+
+					if (LOBYTE((DWORD) KeyboardLayout) == LANG_ENGLISH)
+					{
+						if ((ShiftPressed()) && (a_oWParam == VK_OEM_MINUS))
+						{
+							OfferKey = EFalse;
+						}
+						else
+						{
+							OfferKey = ETrue;
+						}
+					}
+					else
+					{
+						if ((ShiftPressed()) && (a_oWParam == VK_OEM_MINUS))
+						{
+							OfferKey = EFalse;
+						}
+						else if ((!ShiftPressed()) && (a_oWParam == VK_OEM_PLUS))
+						{
+							OfferKey = EFalse;
+						}
+						else
+						{
+							OfferKey = ETrue;
+						}
+					}
+
+					/* Horribleness++.  It turns out that three of our "mysterious" keys are always mapped to their */
 					/* unshifted state, even if the shift key is pressed.  There is no function I could find that */
 					/* will these map correctly, so for these two keys we will perform a manual shift to get the */
 					/* required keys */
@@ -959,9 +995,22 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 						{
 							VirtualKey = '+';
 						}
+
+						/* The final nightmare inconsistency is only valid in German keyboard layouts */
+
+						else if ((LOBYTE((DWORD) KeyboardLayout) == LANG_GERMAN) && (VirtualKey == '+'))
+						{
+							VirtualKey = '*';
+						}
 					}
 
-					Window->OfferKeyEvent(VirtualKey, (a_uiMessage == WM_KEYDOWN));
+					/* Offer the key to the client only if it has been determined that it is not one of the */
+					/* keys that will also be sent by WM_CHAR */
+
+					if (OfferKey)
+					{
+						Window->OfferKeyEvent(VirtualKey, (a_uiMessage == WM_KEYDOWN));
+					}
 				}
 
 				/* Number keys also do not generate a WM_CHAR if the control key is pressed, so again we */
