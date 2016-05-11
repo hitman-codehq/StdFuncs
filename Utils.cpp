@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <syslog.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
@@ -29,7 +30,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
 #include "File.h"
 
 #ifdef __amigaos4__
