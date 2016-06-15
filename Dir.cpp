@@ -34,6 +34,33 @@ TEntry::TEntry()
 	iAttributes = 0;
 }
 
+/**
+* Clears a file's archive attribute.
+* Clears a file's archive attribute, thus indicating that the file has been archived and is no
+* longer changed on disk.  The next time the file is edited by a program, the archive attribute
+* will again be set, indicating to backup software that the file needs to be backed up.
+* This function currently only performs an action on Windows.
+*
+* @date	Thursday 09-Jun-2016 06:44 am, Code HQ Ehinger Tor
+*/
+
+void TEntry::ClearArchive()
+{
+
+#ifdef WIN32
+
+	/* Windows is a little odd with its "normal" file attribute.  A sane implementation would */
+	/* simply consider a file with no attributes to be a normal file, but with Windows a file */
+	/* can be normal while still having special attribute bits set.  So to clear the archive */
+	/* attribute we have to both clear the archive attribute and set the normal attribute */
+
+	iAttributes = (iAttributes & ~FILE_ATTRIBUTE_ARCHIVE);
+	iAttributes |= FILE_ATTRIBUTE_NORMAL;
+
+#endif /* WIN32 */
+
+}
+
 /* Written: Saturday 03-Nov-2007 8:07 pm */
 
 TBool TEntry::IsDir() const

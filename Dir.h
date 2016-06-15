@@ -61,6 +61,8 @@ public:
 
 	TEntry();
 
+	void ClearArchive();
+
 	TBool IsDir() const;
 
 	TBool IsLink() const;
