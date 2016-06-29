@@ -2112,6 +2112,8 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 	DWORD Length;
 
+	(void) a_bGetDeviceName;
+
 	/* Assume failure */
 
 	RetVal = NULL;
@@ -2131,16 +2133,32 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 		{
 			if (GetFinalPathNameByHandle(Handle, RetVal, (MAX_PATH - 1), 0) > 0)
 			{
-				/* Strip off the unwanted \\?\ at the start of the returned name */
+				/* The "\\?\" prefix is used to denote that the path refers to the underlying device namespace */
+				/* rather than the file namespace.  This is not useful to use so we strip it off if it is present */
 
 				if (strncmp(RetVal, "\\\\?\\", 4) == 0)
 				{
-					Length = (strlen(RetVal) - 4);
-					memmove(RetVal, (RetVal + 4), Length);
-					RetVal[Length] = '\0';
+					/* If the path refers to a file on a network drive then it will be in UNC format.  This is not */
+					/* useful for us, so delete the resolved string and we will fall through to using the pre */
+					/* Longhorn functionality below */
+
+					if (strncmp(RetVal, "\\\\?\\UNC", 7) == 0)
+					{
+						delete [] RetVal;
+						RetVal = NULL;
+					}
+					else
+					{
+						Length = (strlen(RetVal) - 4);
+						memmove(RetVal, (RetVal + 4), Length);
+						RetVal[Length] = '\0';
+					}
 				}
 
-				NormalisePath(RetVal);
+				if (RetVal)
+				{
+					NormalisePath(RetVal);
+				}
 			}
 			else
 			{
@@ -2152,60 +2170,64 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 		}
 	}
 
-#else /* ! _WIN32_WINNT_LONGHORN */
+#endif /* _WIN32_WINNT_LONGHORN */
 
 	TBool RemoveSlash;
 
-	/* Determine now much memory is required to hold the fully qualified */
-	/* path and allocate a buffer of the required size */
+	/* If the file name could not be resolved or we are compiling using MSVC6 then fall through */
+	/* to the simplified implementation of this function */
 
-	if ((Length = GetFullPathName(a_pccFileName, 0, NULL, NULL)) > 0)
+	if (!RetVal)
 	{
-		if ((RetVal = new char[Length]) != NULL)
+		/* Determine now much memory is required to hold the fully qualified */
+		/* path and allocate a buffer of the required size */
+
+		if ((Length = GetFullPathName(a_pccFileName, 0, NULL, NULL)) > 0)
 		{
-			/* Convert the filename into a fully qualified path and put it in */
-			/* the allocated buffer */
-
-			if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) > 0)
+			if ((RetVal = new char[Length]) != NULL)
 			{
-				/* Remove any trailing '\' characters at the end of the returned filename.  Windows */
-				/* helpfully converts any '/' passed in to a '\' so we only need to worry about backslashes */
+				/* Convert the filename into a fully qualified path and put it in */
+				/* the allocated buffer */
 
-				RemoveSlash = ETrue;
-
-				/* Have a special check for paths referring to the root directory of a particular drive */
-
-				if ((Length == 3) && (RetVal[1] == ':'))
+				if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) > 0)
 				{
-					RemoveSlash = EFalse;
+					/* Remove any trailing '\' characters at the end of the returned filename.  Windows */
+					/* helpfully converts any '/' passed in to a '\' so we only need to worry about backslashes */
+
+					RemoveSlash = ETrue;
+
+					/* Have a special check for paths referring to the root directory of a particular drive */
+
+					if ((Length == 3) && (RetVal[1] == ':'))
+					{
+						RemoveSlash = EFalse;
+					}
+
+					/* And remove the slash if required */
+
+					if ((RemoveSlash) && (RetVal[Length - 1] == '\\'))
+					{
+						RetVal[Length - 1] = '\0';
+					}
 				}
-
-				/* And remove the slash if required */
-
-				if ((RemoveSlash) && (RetVal[Length - 1] == '\\'))
+				else
 				{
-					RetVal[Length - 1] = '\0';
+					Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
+
+					delete[] RetVal;
+					RetVal = NULL;
 				}
 			}
 			else
 			{
-				Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
-
-				delete [] RetVal;
-				RetVal = NULL;
+				Utils::Info("Utils::ResolveFileName() => Out of memory");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveFileName() => Out of memory");
+			Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
 		}
 	}
-	else
-	{
-		Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
-	}
-
-#endif /* ! _WIN32_WINNT_LONGHORN */
 
 #endif /* ! __linux__ */
 
