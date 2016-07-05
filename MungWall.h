@@ -86,7 +86,7 @@ void DebugFreeMem(APTR apBlock, char *pcSourceFile, int iSourceLine, ULONG ulSiz
 
 #ifndef MUNGWALL_NO_LINE_TRACKING
 
-/* More heavy wizardry required to allow tracking of file names and line numbers under MSVC 2013. */
+/* More heavy wizardry required to allow tracking of filenames and line numbers under MSVC 2013. */
 /* This feature doesn't work under older MSVC compilers or under GCC if the Standard C++ library */
 /* is also used! */
 

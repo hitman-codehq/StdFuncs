@@ -35,9 +35,9 @@ public:
  * instance is started, it will not open its window, but will instead rendezvous with the already
  * running instance, telling it to bring itself to the front.
  *
- * An example of this behaviour is executing a text editor with a file name argument on the
+ * An example of this behaviour is executing a text editor with a filename argument on the
  * command line.  This causes an already running instance of the text editor to load the given
- * file name and to bring itself to the front.  Meanwhile, the second instance of the text editor
+ * filename and to bring itself to the front.  Meanwhile, the second instance of the text editor
  * will quietly exit, making it seem to the user that the two editors have "merged" into one.  As
  * well as for this purpose, the class can be used any time that one program wants to send a
  * message to another application that is running in another address space (as long as the target

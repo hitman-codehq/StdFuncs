@@ -774,11 +774,11 @@ const char *Utils::Extension(const char *a_pccFileName)
 }
 
 /**
- * Finds the file name contained within a fully qualified path.
+ * Finds the filename contained within a fully qualified path.
  * This function will scan backwards through a fully qualified path, looking for any kind of directory
  * separator.  When found, this separator is considered the separator between the path part of a fully
- * qualified file name, and the file name part of the fully qualified file name.  The pointer to this
- * file name will then be returned.  If the path passed in does not contain any path separators (ie. it
+ * qualified filename, and the filename part of the fully qualified filename.  The pointer to this
+ * filename will then be returned.  If the path passed in does not contain any path separators (ie. it
  * contains no path) then the entire path will be returned.
  *
  * As an example, the following Amiga OS, UNIX and Windows paths will all result in "file.txt" being
@@ -794,7 +794,7 @@ const char *Utils::Extension(const char *a_pccFileName)
  *
  * @date	Thursday 22-Jul-2010 8:11 am
  * @param	a_pccPath	Pointer to the fully qualified path to be scanned
- * @return	Pointer to the file name component of the path
+ * @return	Pointer to the filename component of the path
  */
 
 const char *Utils::FilePart(const char *a_pccPath)
@@ -900,7 +900,7 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
  * Note that this function explicitly checks for wildcards being passed in and if detected,
  * returns failure.  If you wish to use wildcards then use the more powerful RDir class instead.
  *
- * @pre		Ptr to file name passed in must not be NULL
+ * @pre		Ptr to filename passed in must not be NULL
  * @pre		Ptr to TEntry structure passed in must not be NULL
  *
  * @date	Saturday 04-Jul-2009 9:20 pm
@@ -920,7 +920,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 	TBool PathOk;
 	TInt Length, RetVal;
 
-	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Ptr to file name passed in must not be NULL");
+	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Ptr to filename passed in must not be NULL");
 	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => TEntry structure passed in must not be NULL");
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
@@ -955,7 +955,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 			struct ClockData ClockData;
 			struct ExamineData *ExamineData;
 
-			/* Querying empty file names is not allowed by our API, even though the Amiga OS ExamineObject() */
+			/* Querying empty filenames is not allowed by our API, even though the Amiga OS ExamineObject() */
 			/* function supports it */
 
 			if (*ProgDirName != '\0')
@@ -1636,7 +1636,7 @@ void Utils::LocalisePath(char *a_pcPath)
 /**
  * Creates a soft link to a file.
  * This function will create a soft link to a destination file.  The destination file does not
- * need to exist at the time of link creation.  Both the source and destination file names can
+ * need to exist at the time of link creation.  Both the source and destination filenames can
  * be either absolute or relative.
  *
  * @date	Monday 11-Jan-2016 07:09 am, Code HQ Ehinger Tor
@@ -2174,7 +2174,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 	TBool RemoveSlash;
 
-	/* If the file name could not be resolved or we are compiling using MSVC6 then fall through */
+	/* If the filename could not be resolved or we are compiling using MSVC6 then fall through */
 	/* to the simplified implementation of this function */
 
 	if (!RetVal)
