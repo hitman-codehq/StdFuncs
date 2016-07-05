@@ -44,9 +44,9 @@ int main()
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "~(*.info)") == 0);
 
-	/* Test #2: Extract an extension from a file name with Utils::Extension() */
+	/* Test #2: Extract an extension from a filename with Utils::Extension() */
 
-	Test.Next("Extract an extension from a file name with Utils::Extension()");
+	Test.Next("Extract an extension from a filename with Utils::Extension()");
 
 	Extension = Utils::Extension("*.txt");
 	test(Extension != NULL);
