@@ -1003,12 +1003,24 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 #elif defined(__linux__)
 
+			char *ResolvedFileName;
+			int Result;
 			struct stat Stat;
 			struct tm *Tm;
 
-			/* Obtain information about the file and convert its last modification time to the local time */
+			/* Open the file itself or - in case the file is a link - possibly the file that the link points to, and */
+			/* determine its properties */
 
-			if (lstat(ProgDirName, &Stat) == 0)
+			if (a_bResolveLink)
+			{
+				Result = stat(ProgDirName, &Stat);
+			}
+			else
+			{
+				Result = lstat(ProgDirName, &Stat);
+			}
+
+			if (Result == 0)
 			{
 				if ((Tm = localtime(&Stat.st_mtime)) != NULL)
 				{
@@ -1036,6 +1048,23 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 					else
 					{
 						strcpy(a_poEntry->iName, FilePart(ProgDirName));
+					}
+
+					/* Assume that the file either is not a link, or that we couldn't resolve it */
+
+					a_poEntry->iLink[0] = '\0';
+
+					/* See if the file is a link and if so, return information about the file to which the link points */
+
+					TEntry TargetFile;
+
+					if (a_poEntry->IsLink())
+					{
+						if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
+						{
+							strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
+							delete[] ResolvedFileName;
+						}
 					}
 				}
 			}
@@ -2076,6 +2105,8 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 	}
 
 #elif defined(__linux__)
+
+	(void) a_bGetDeviceName;
 
 	/* Allocate a buffer large enough to hold the fully qualified filename, as specified */
 	/* by the realpath() manpage */

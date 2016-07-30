@@ -1036,7 +1036,10 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 							strcpy(QualifiedName, iPath);
 							Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
 
-							RetVal = Utils::GetFileInfo(QualifiedName, Entry);
+							/* Pass in EFalse as the a_bResolveLink parameter as we want to get information about the */
+							/* link itself, not the file it points to */
+
+							RetVal = Utils::GetFileInfo(QualifiedName, Entry, EFalse);
 						}
 						else
 						{
