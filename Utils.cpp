@@ -1071,6 +1071,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 #else /* ! __linux__ */
 
+			char *ResolvedFileName;
 			DWORD Flags;
 			BY_HANDLE_FILE_INFORMATION FileInformation;
 			HANDLE FindHandle, Handle;
@@ -1139,15 +1140,20 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 							}
 						}
 
+						/* Assume that the file either is not a link, or that we couldn't resolve it */
+
+						a_poEntry->iLink[0] = '\0';
+
 						/* See if the file is a link and if so, return information about the file to which the link points */
 
 						TEntry TargetFile;
 
 						if (a_poEntry->IsLink())
 						{
-							if ((RetVal = Utils::GetFileInfo(a_pccFileName, &TargetFile)) == KErrNone)
+							if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 							{
-								strcpy(a_poEntry->iLink, TargetFile.iName);
+								strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
+								delete[] ResolvedFileName;
 							}
 						}
 					}
