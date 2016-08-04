@@ -502,7 +502,7 @@ TInt RApplication::Main()
 
 											if ((CWindow::m_bCtrlPressed) && (!(CWindow::m_bAltPressed)))
 											{
-												/* Convert the key to lower case, if it is a */
+												/* Convert the key to lower case, if it is an upper case letter */
 
 												if ((KeyBuffer[0] >= 65) && (KeyBuffer[0] <= 90))
 												{
