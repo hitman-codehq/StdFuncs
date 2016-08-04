@@ -497,6 +497,19 @@ TInt RApplication::Main()
 
 										if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 										{
+											/* If the ctrl key is currently pressed then convert the keycode back to lower case, */
+											/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
+
+											if ((CWindow::m_bCtrlPressed) && (!(CWindow::m_bAltPressed)))
+											{
+												/* Convert the key to lower case, if it is a */
+
+												if ((KeyBuffer[0] >= 65) && (KeyBuffer[0] <= 90))
+												{
+													KeyBuffer[0] |= 0x20;
+												}
+											}
+
 											/* Call the CWindow::OfferKeyEvent() function, passing in only valid ASCII characters */
 
 											if ((KeyBuffer[0] >= 32) && (KeyBuffer[0] <= 254))
