@@ -30,7 +30,7 @@ typedef unsigned long ULONG;
 
 /* Enable newer functionality such as mouse wheel handling */
 
-#define _WIN32_WINNT 0x0600
+#define _WIN32_WINNT _WIN32_WINNT_VISTA
 
 #include <windows.h>
 #include <signal.h>
