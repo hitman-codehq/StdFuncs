@@ -25,11 +25,13 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenuBar>
 
-#endif /* QT_GUI_LIB */
+#elif defined(WIN32)
 
-#ifdef __amigaos4__
+#include <VersionHelpers.h>
 
-#elif defined(QT_GUI_LIB)
+#endif /* WIN32 */
+
+#ifdef QT_GUI_LIB
 
 /* Array of key mappings for mapping Qt keys onto standard keys */
 
@@ -2929,6 +2931,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 #elif defined(WIN32)
 
+	int Height;
 	HINSTANCE Instance;
 	RECT Rect;
 	WNDCLASS WndClass;
@@ -2960,6 +2963,19 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 		if (SystemParametersInfo(SPI_GETWORKAREA, 0, &Rect, 0))
 		{
+			/* This is an awful hack for Windows 10, which seems to include the drop shadows outside the */
+			/* window as a part of the window itself, and which only seems to use drop shadows on the left, */
+			/* right and bottom borders, resulting in non centred windows when opening non maximised.  So */
+			/* for Windows 10, we move the window down a bit to simulate a drop shadow at the top of the */
+			/* window, and make it smaller */
+
+			if (IsWindowsVersionOrGreater(0x0a, 0, 0))
+			{
+				Height = (GetSystemMetrics(SM_CYSIZEFRAME) * 2);
+				Rect.top += Height;
+				Rect.bottom -= Height;
+			}
+
 			if ((m_poWindow = CreateWindow(a_pccTitle, a_pccTitle, WS_OVERLAPPEDWINDOW, Rect.left, Rect.top,
 				Rect.right, Rect.bottom, NULL, NULL, Instance, NULL)) != NULL)
 			{
