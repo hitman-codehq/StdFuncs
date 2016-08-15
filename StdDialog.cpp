@@ -9,7 +9,7 @@
 
 /* Written: Saturday 21-Aug-2010 12:21 pm */
 
-static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
+static INT_PTR CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
 	TInt HiWord, LoWord, RetVal, WindowWidth, WindowHeight;
 	struct SRect ScreenSize;
@@ -23,7 +23,7 @@ static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPa
 
 	/* Get the ptr to the C++ class associated with this window from the window word */
 
-	Dialog = (CDialog *) GetWindowLong(a_poWindow, GWL_USERDATA);
+	Dialog = (CDialog *) GetWindowLongPtr(a_poWindow, GWLP_USERDATA);
 
 	switch (a_uiMessage)
 	{
@@ -32,7 +32,7 @@ static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPa
 			/* Save the ptr to the CDialog derived class and the handle to the dialog's window */
 			/* where we can get to them l8r */
 
-			SetWindowLong(a_poWindow, GWL_USERDATA, a_oLParam);
+			SetWindowLongPtr(a_poWindow, GWLP_USERDATA, a_oLParam);
 			Dialog = (CDialog *) a_oLParam;
 			Dialog->m_poWindow = a_poWindow;
 
@@ -95,7 +95,7 @@ static TInt CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWPa
 			/* Get a ptr to the CDialog derived class and allow it to handle the message.  If */
 			/* it returns > 0 then close the dialog and use this as the dialog's return code */
 
-			Dialog = (CDialog *) GetWindowLong(a_poWindow, GWL_USERDATA);
+			Dialog = (CDialog *) GetWindowLong(a_poWindow, GWLP_USERDATA);
 
 			/* Find out whether this command refers to a notification and the ID of the gadget to */
 			/* which it refers */

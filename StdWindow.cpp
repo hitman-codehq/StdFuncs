@@ -624,7 +624,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 	/* Get the ptr to the C++ class associated with this window from the window word */
 
-	Window = (CWindow *) GetWindowLong(a_poWindow, GWL_USERDATA);
+	Window = (CWindow *) GetWindowLongPtr(a_poWindow, GWLP_USERDATA);
 
 	switch (a_uiMessage)
 	{
@@ -2981,7 +2981,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			{
 				/* Save a ptr to the window handle for use in the WindowProc() routine */
 
-				SetWindowLong(m_poWindow, GWL_USERDATA, (long) this);
+				SetWindowLongPtr(m_poWindow, GWLP_USERDATA, (LONG_PTR) this);
 
 				/* And create the menus specific to this window */
 
