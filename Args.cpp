@@ -584,7 +584,7 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 {
 	char *Arg;
 	const char **RetVal;
-	TInt Index, Offset, NumArgs;
+	TInt Index, NumArgs;
 
 	/* Find out how many arguments are present in the string passed in and add */
 	/* one for the executable name entry */
@@ -605,14 +605,11 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 		/* Iterate through the command line entered and extract each token, NULL terminating it and */
 		/* putting a ptr to it in the ArgV array */
 
-		Offset = 0;
-
 		for (Index = 1; Index < NumArgs; ++Index)
 		{
 			if ((Arg = Lex.NextToken()) != NULL)
 			{
 				RetVal[Index] = Arg;
-				Offset += (strlen(Arg) + 1);
 			}
 			else
 			{
