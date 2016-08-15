@@ -2944,8 +2944,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	Instance = GetModuleHandle(NULL);
 	WndClass.style = CS_DBLCLKS;
 	WndClass.lpfnWndProc = WindowProc;
-	WndClass.cbClsExtra = 10;
-	WndClass.cbWndExtra = 20;
+	WndClass.cbClsExtra = 0;
+	WndClass.cbWndExtra = 0;
 	WndClass.hInstance = Instance;
 	WndClass.hIcon = 0;
 	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
