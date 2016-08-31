@@ -698,22 +698,20 @@ TInt Utils::Detach()
 char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
 {
 	char *RetVal;
+	size_t Length;
 
 	ASSERTM((a_pccString != NULL), "Utils::DuplicateString() => Ptr to string passed in must not be NULL");
 
 	/* If no length has been passed in then determine the length of the string */
 
-	if (a_iLength == -1)
-	{
-		a_iLength = strlen(a_pccString);
-	}
+	Length = (a_iLength == -1) ? strlen(a_pccString) : a_iLength;
 
 	/* Allocate a buffer large enough to hold the string and copy the string */
 
-	if ((RetVal = new char[a_iLength + 1]) != NULL)
+	if ((RetVal = new char[Length + 1]) != NULL)
 	{
-		memcpy(RetVal, a_pccString, a_iLength);
-		RetVal[a_iLength] ='\0';
+		memcpy(RetVal, a_pccString, Length);
+		RetVal[Length] ='\0';
 	}
 
 	return(RetVal);
@@ -917,8 +915,9 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bResolveLink)
 {
 	char *ProgDirName;
+	size_t Length;
 	TBool PathOk;
-	TInt Length, RetVal;
+	TInt RetVal;
 
 	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Ptr to filename passed in must not be NULL");
 	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => TEntry structure passed in must not be NULL");
@@ -1640,7 +1639,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 void Utils::LocalisePath(char *a_pcPath)
 {
-	TInt Index, Length;
+	size_t Index, Length;
 
 	/* Iterate through all the characters of the path and localise any instances of '\' to '/' */
 
@@ -1754,7 +1753,7 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 
 void Utils::NormalisePath(char *a_pcPath)
 {
-	TInt Index, Length;
+	size_t Index, Length;
 
 	/* Iterate through all the characters of the path and pass any instances of '\' to '/' */
 
@@ -2147,7 +2146,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 #else /* ! __linux__ */
 
-	DWORD Length;
+	size_t Length;
 
 	(void) a_bGetDeviceName;
 
@@ -2226,7 +2225,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 				/* Convert the filename into a fully qualified path and put it in */
 				/* the allocated buffer */
 
-				if ((Length = GetFullPathName(a_pccFileName, Length, RetVal, NULL)) > 0)
+				if ((Length = GetFullPathName(a_pccFileName, (DWORD) Length, RetVal, NULL)) > 0)
 				{
 					/* Remove any trailing '\' characters at the end of the returned filename.  Windows */
 					/* helpfully converts any '/' passed in to a '\' so we only need to worry about backslashes */
@@ -2908,7 +2907,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 void Utils::TrimString(char *a_pcString)
 {
 	char *String, *Dest;
-	TInt Length;
+	size_t Length;
 
 	/* Firstly determine if there is any white space at the start of the string that needs to be trimmed */
 
