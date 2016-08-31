@@ -797,7 +797,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if ((a_oWParam >= 32) && (a_oWParam <= 254))
 			{
-				Handled = Window->OfferKeyEvent(a_oWParam, ETrue);
+				Handled = Window->OfferKeyEvent((TInt) a_oWParam, ETrue);
 
 				/* For WM_SYSCHAR we have some special processing to allow client code to override */
 				/* alt+x key combinations while still allowing menu shortcuts to work.  If the client */
@@ -837,7 +837,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
 			/* of preprocessing */
 
-			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_SYSKEYDOWN));
+			Window->OfferRawKeyEvent((TInt) a_oWParam, (a_uiMessage == WM_SYSKEYDOWN));
 
 			/* Have some special processing for the alt key, passing it onto the client code.  Even */
 			/* though the the alt key is not handled through the usual g_aoKeyMap array, to client */
@@ -945,7 +945,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			{
 				if ((a_oWParam == VK_SUBTRACT) || (a_oWParam == VK_ADD) || (a_oWParam == VK_OEM_MINUS) || (a_oWParam == VK_OEM_PLUS))
 				{
-					VirtualKey = MapVirtualKey(a_oWParam, MAPVK_VK_TO_CHAR);
+					VirtualKey = MapVirtualKey((UINT) a_oWParam, MAPVK_VK_TO_CHAR);
 
 					/* Determine the current input locale */
 
@@ -1021,7 +1021,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 				else if ((a_oWParam >= 0x30) && (a_oWParam <= 0x39))
 				{
-					Window->OfferKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
+					Window->OfferKeyEvent((TInt) a_oWParam, (a_uiMessage == WM_KEYDOWN));
 				}
 			}
 
@@ -1030,7 +1030,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
 			/* of preprocessing */
 
-			Window->OfferRawKeyEvent(a_oWParam, (a_uiMessage == WM_KEYDOWN));
+			Window->OfferRawKeyEvent((TInt) a_oWParam, (a_uiMessage == WM_KEYDOWN));
 
 			break;
 		}
@@ -2581,7 +2581,7 @@ void CWindow::InitialiseAccelerator(ACCEL *a_poAccelerator, const struct SStdMen
 const char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuItem)
 {
 	char *RetVal;
-	TInt Length;
+	size_t Length;
 
 	/* Determine the length required for the menu item label.  This will be the length of the */
 	/* base label plus a tab, the length of the qualifier (maximum 6 for "shift+"), the length */
