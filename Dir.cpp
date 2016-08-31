@@ -681,7 +681,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	char *Path, *ProgDirName;
 	const char *FileName;
-	TInt Length;
+	size_t Length;
 	WIN32_FIND_DATA FindData;
 
 	/* Only try to scan a directory if it wasn't a single filename that was passed in */

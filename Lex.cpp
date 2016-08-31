@@ -24,7 +24,7 @@ TLex::TLex(char *a_pcString)
 	m_pcString = a_pcString;
 	m_pccQuotes = "\"'";
 	m_pccWhitespace = " \t";
-	m_iLength = m_iOriginalLength = strlen(a_pcString);
+	m_iLength = m_iOriginalLength = (TInt) strlen(a_pcString);
 	m_iQuotesLength = 2;
 	m_iWhitespaceLength = 2;
 	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
@@ -278,7 +278,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	if (NextToken > RetVal)
 	{
-		*a_piLength = (NextToken - RetVal);
+		*a_piLength = (TInt) (NextToken - RetVal);
 
 		/* If we have found some white space then skip past it.  This is only */
 		/* required for use by the destructive token extractor, which will put */
@@ -396,7 +396,7 @@ void TLex::SetQuotes(const char *a_pccQuotes)
 	ASSERTM((a_pccQuotes != NULL), "TLex::SetQuotes() => Ptr to quote string can not be NULL");
 
 	m_pccQuotes = a_pccQuotes;
-	m_iQuotesLength = strlen(a_pccQuotes);
+	m_iQuotesLength = (TInt) strlen(a_pccQuotes);
 }
 
 /**
@@ -418,5 +418,5 @@ void TLex::SetWhitespace(const char *a_pccWhitespace)
 	ASSERTM((m_pcString == NULL), "TLex::SetWhitespace() => Alternate white space can only be used for non destructive extraction");
 
 	m_pccWhitespace = a_pccWhitespace;
-	m_iWhitespaceLength = strlen(a_pccWhitespace);
+	m_iWhitespaceLength = (TInt) strlen(a_pccWhitespace);
 }
