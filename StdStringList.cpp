@@ -27,7 +27,7 @@ TInt CStdStringList::Append(const char *a_pccString)
 	/* Create a temporary TLex and configure it to use the ';' character as the */
 	/* substring separator */
 
-	TLex Lex(a_pccString, strlen(a_pccString));
+	TLex Lex(a_pccString, (TInt) strlen(a_pccString));
 
 	Lex.SetWhitespace(";");
 
