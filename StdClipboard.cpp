@@ -77,7 +77,7 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 
 	/* Save the length for the calling code */
 
-	*a_piLength = (NextChar - m_pccCurrentGetData);
+	*a_piLength = (TInt) (NextChar - m_pccCurrentGetData);
 
 	/* Check for CR and LF characters and if present, note their presence and skip them */
 
@@ -110,7 +110,7 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 
 /* Written: Thursday 08-Jul-2010 7:06 am */
 
-int RClipboard::SetDataStart(int a_iMaxLength)
+int RClipboard::SetDataStart(size_t a_stMaxLength)
 {
 	int RetVal;
 
@@ -122,10 +122,10 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 
 	/* Allocate a temporary buffer into which the client can write its data */
 
-	if ((m_pcSetData = new char[a_iMaxLength + 1]) != NULL)
+	if ((m_pcSetData = new char[a_stMaxLength + 1]) != NULL)
 	{
 		RetVal = KErrNone;
-		m_iDataSize = a_iMaxLength;
+		m_iDataSize = a_stMaxLength;
 
 		/* Qt needs char * strings to be NULL terminated in order to convert them */
 		/* into a QString so we allocate an extra byte and terminate it here */
@@ -144,12 +144,12 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 		/* byte to NULL terminate the memory block to indicate the end, or Windows will to do */
 		/* funny things to the end of the data, like overwriting an LF with a NULL terminator */
 
-		if ((m_poHandle = GlobalAlloc(GMEM_MOVEABLE, (a_iMaxLength + 1))) != NULL)
+		if ((m_poHandle = GlobalAlloc(GMEM_MOVEABLE, (a_stMaxLength + 1))) != NULL)
 		{
 			if ((m_pcSetData = (char *) GlobalLock(m_poHandle)) != NULL)
 			{
 				RetVal = KErrNone;
-				m_pcSetData[a_iMaxLength] = '\0';
+				m_pcSetData[a_stMaxLength] = '\0';
 			}
 			else
 			{
@@ -176,11 +176,11 @@ int RClipboard::SetDataStart(int a_iMaxLength)
 
 /* Written: Saturday 10-Jul-2010 12:43 pm */
 
-void RClipboard::AppendData(const char *a_pcData, TInt a_iOffset, TInt a_iLength)
+void RClipboard::AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength)
 {
 	ASSERTM((m_pcSetData != NULL), "RClipboard::AppendData() => SetDataStart() must be called first");
 
-	memcpy((m_pcSetData + a_iOffset), a_pcData, a_iLength);
+	memcpy((m_pcSetData + a_iOffset), a_pcData, a_stLength);
 }
 
 /* Written: Saturday 10-Jul-2010 1:34 pm */

@@ -60,9 +60,9 @@ public:
 
 	void Close();
 
-	int SetDataStart(int a_iMaxLength);
+	int SetDataStart(size_t a_stMaxLength);
 
-	void AppendData(const char *a_pcData, TInt a_iOffset, TInt a_iLength);
+	void AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength);
 
 	void SetDataEnd();
 
