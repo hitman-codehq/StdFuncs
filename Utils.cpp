@@ -1427,16 +1427,16 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
  *
  * @date	Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor
  * @param	a_pccBuffer		Ptr to the currently allocated buffer
- * @param	a_iSize			Size in bytes of the new buffer to be allocated
+ * @param	a_stSize		Size in bytes of the new buffer to be allocated
  * @param	a_bCopyContents	ETrue to copy the contents of the old buffer.
  *							If not specified then this is ETrue by default
  * @return	A Ptr to the allocated buffer if successful, else NULL
  */
 
-void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContents)
+void *Utils::GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyContents)
 {
 	char *OldBuffer, *RetVal;
-	TInt Size;
+	size_t Size;
 
 	/* Assume failure */
 
@@ -1451,11 +1451,11 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContent
 		/* The size is stored in the long word just before the ptr that is */
 		/* returned to the user */
 
-		Size = *(TInt *) (a_pccBuffer - 4);
+		Size = *(size_t *) (a_pccBuffer - sizeof(a_stSize));
 
 		/* If the current buffer is large enough then reuse it */
 
-		if (Size >= a_iSize)
+		if (Size >= a_stSize)
 		{
 			RetVal = a_pccBuffer;
 		}
@@ -1474,13 +1474,13 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContent
 	if (!(a_pccBuffer))
 	{
 		// TODO: CAW - How do we ensure this doesn't throw an exception here and for other operating systems?
-		RetVal = new char[a_iSize + 4];
+		RetVal = new char[a_stSize + sizeof(a_stSize)];
 
 		/* Save the size of the buffer in the first long word of the buffer and return */
 		/* a ptr to just after that word to the user */
 
-		*(TInt *) RetVal = a_iSize;
-		RetVal += 4;
+		*(size_t *) RetVal = a_stSize;
+		RetVal += sizeof(a_stSize);
 
 		/* If the buffer was already allocated, copy the old contents into the new buffer */
 		/* if requested, and free the old buffer */
@@ -1492,11 +1492,11 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, TInt a_iSize, TBool a_bCopyContent
 				memcpy(RetVal, OldBuffer, Size);
 			}
 
-			delete [] (OldBuffer - 4);
+			delete [] (OldBuffer - sizeof(a_stSize));
 		}
 	}
 
-	return((void *) RetVal);
+	return(RetVal);
 }
 
 /* Written: Tuesday 28-Feb-2012 9:00 am, Code HQ Ehinger Tor */
