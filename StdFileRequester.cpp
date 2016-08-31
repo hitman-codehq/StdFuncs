@@ -58,8 +58,9 @@ void RFileRequester::Close()
 TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 {
 	const char *DirectoryName, *FileName;
+	size_t Length;
 	TBool Qualified;
-	TInt Length, RetVal;
+	TInt RetVal;
 	CWindow *RootWindow;
 	TEntry Entry;
 
