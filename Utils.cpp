@@ -1507,7 +1507,7 @@ void Utils::FreeTempBuffer(char *a_pccBuffer)
 {
 	if (a_pccBuffer)
 	{
-		delete [] (a_pccBuffer - 4);
+		delete [] (a_pccBuffer - sizeof(size_t));
 	}
 }
 
