@@ -454,9 +454,9 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 	FoundSection = FoundSubSection = EFalse;
 	Buffer = m_pcBuffer;
 	BufferSize = m_iBufferSize;
-	KeyNameLength = strlen(a_pccKeyName);
-	SectionNameLength = strlen(a_pccSectionName);
-	SubSectionNameLength = strlen(a_pccSubSectionName);
+	KeyNameLength = (TInt) strlen(a_pccKeyName);
+	SectionNameLength = (TInt) strlen(a_pccSectionName);
+	SubSectionNameLength = (TInt) strlen(a_pccSubSectionName);
 
 	/* Iterate through the buffer containing the file and extract the key = value pairs */
 	/* until such time as we have found the desired key */
