@@ -44,7 +44,7 @@ class Utils
 {
 public:
 
-	static TBool AddPart(char *a_pcDest, const char *a_pccSource, TUint a_uiDestSize);
+	static TBool AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize);
 
 	static TInt CountTokens(const char *a_pcBuffer);
 

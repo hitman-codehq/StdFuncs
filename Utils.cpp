@@ -323,23 +323,23 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
  * @date	Thursday 16-Jul-2009 3:58 pm
  * @param	a_pcDest	Ptr to the path to which to append the file or directory name
  * @param	a_pccSource	Ptr to the file or directory name to be appended
- * @param	a_uiDestSize	The size of the destination buffer in bytes
+ * @param	a_stDestSize	The size of the destination buffer in bytes
  * @return	ETrue if the file or directory was appended successfully, otherwise EFalse if the destination
  *			buffer was too small to hold the resulting path
  */
 
-TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_uiDestSize)
+TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize)
 {
 	TBool RetVal;
 
 #ifdef __amigaos4__
 
-	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_uiDestSize);
+	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_stDestSize);
 
 #else /* ! __amigaos4__ */
 
 	char Char;
-	TUint Length;
+	size_t Length;
 
 	/* Assume failure */
 
@@ -350,7 +350,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_uiDestSize
 
 	if ((Length = strlen(a_pcDest)) > 0)
 	{
-		if ((Length + 1 + strlen(a_pccSource)) <= a_uiDestSize)
+		if ((Length + 1 + strlen(a_pccSource)) <= a_stDestSize)
 		{
 			RetVal = ETrue;
 
@@ -372,7 +372,7 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, TUint a_uiDestSize
 
 	else
 	{
-		if (strlen(a_pccSource) <= a_uiDestSize)
+		if (strlen(a_pccSource) <= a_stDestSize)
 		{
 			RetVal = ETrue;
 
