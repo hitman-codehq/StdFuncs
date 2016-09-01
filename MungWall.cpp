@@ -37,25 +37,26 @@ static const char acInvalidBlock[] = "*** MungWall alert: Invalid block passed i
 MungWall::~MungWall()
 {
 	void *pvBlock;
-	ULONG ulBytesLeaked, ulNews;
+	size_t stBytesLeaked;
+	ULONG ulNews;
 	struct Arena *paArena;
 
 	if (ulNumNews > 100)
 	{
 		ulNews = ulNumNews;
 		paArena = paFirstArena;
-		ulBytesLeaked = 0;
+		stBytesLeaked = 0;
 
 		while (paArena)
 		{
-			ulBytesLeaked += paArena->stOrigSize;
+			stBytesLeaked += paArena->stOrigSize;
 			pvBlock = ((UBYTE *) paArena + sizeof(struct Arena) + MungeSize);
 			paArena = paArena->paNext;
 			Delete(pvBlock);
 		}
 
-		Utils::Info(acLeakage, ulBytesLeaked, ulNews);
-		printf(acLeakage, ulBytesLeaked, ulNews);
+		Utils::Info(acLeakage, (int) stBytesLeaked, ulNews);
+		printf(acLeakage, (int) stBytesLeaked, ulNews);
 		printf("\n");
 	}
 	else
@@ -262,14 +263,14 @@ void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL b
 /* MungWall::MungeMem will munge a block of memory.     */
 /* Written: Thursday 11-Dec-1997 3:56 pm                */
 /* Passed: pulBuffer => Ptr to the buffer to munge      */
-/*         ulBufferSize => Size of the buffer, in bytes */
+/*         stBufferSize => Size of the buffer, in bytes */
 /********************************************************/
 
-void MungWall::MungeMem(ULONG *pulBuffer, ULONG ulBufferSize)
+void MungWall::MungeMem(ULONG *pulBuffer, size_t stBufferSize)
 {
 	ULONG ulIndex;
 
-	for (ulIndex = 0; ulIndex < (ulBufferSize / 4); ++ulIndex)
+	for (ulIndex = 0; ulIndex < (stBufferSize / 4); ++ulIndex)
 	{
 		pulBuffer[ulIndex] = 0xdeadbeef;
 	}
@@ -291,22 +292,21 @@ void MungWall::MungeMem(ULONG *pulBuffer, ULONG ulBufferSize)
 void *MungWall::New(size_t stSize, const char *pcSourceFile, int iSourceLine)
 {
 	UBYTE *pubBlock;
-	ULONG ulMungedSize = (sizeof(struct Arena) + (MungeSize * 2) + stSize);
+	size_t stMungedSize = (sizeof(struct Arena) + (MungeSize * 2) + stSize);
 	void *pvRetVal = NULL;
 	struct Arena *paBlock;
 
-	pubBlock = (UBYTE *) malloc(ulMungedSize);
+	pubBlock = (UBYTE *) malloc(stMungedSize);
 
 	if (pubBlock)
 	{
-		memset(pubBlock, 0, ulMungedSize);
+		memset(pubBlock, 0, stMungedSize);
 		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena)), MungeSize);
 		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena) + MungeSize + stSize), MungeSize);
 		paBlock = (struct Arena *) pubBlock;
 		paBlock->pcSourceFile = pcSourceFile;
 		paBlock->iSourceLine = iSourceLine;
 		paBlock->stOrigSize = stSize;
-		paBlock->ulMungedSize = ulMungedSize;
 
 		if (paFirstArena)
 		{

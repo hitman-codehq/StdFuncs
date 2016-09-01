@@ -25,7 +25,6 @@ class MungWall
 		const char *pcSourceFile;
 		int iSourceLine;
 		size_t stOrigSize;
-		ULONG ulMungedSize;
 		struct Arena *paPrev;
 		struct Arena *paNext;
 	 };
@@ -35,7 +34,7 @@ class MungWall
 	BOOL CheckBlockValidity(void *);
 	ULONG CheckOverWrite(UBYTE *);
 	void CheckOverWrites(struct Arena *);
-	void MungeMem(ULONG *, ULONG);
+	void MungeMem(ULONG *, size_t);
 
 public:
 
