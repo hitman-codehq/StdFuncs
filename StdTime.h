@@ -22,12 +22,13 @@ class TDateTime
 {
 private:
 
-	TInt	iYear;		/**< The current year */
-	TMonth	iMonth;		/**< The month of the current year, starting with 0 */
-	TInt	iDay;		/**< The day of the current month */
-	TInt	iHour;		/**< The hour of the current day */
-	TInt	iMinute;	/**< The minute of the current day */
-	TInt	iSecond;	/**< The second of the current minute */
+	TInt	iYear;			/**< The current year */
+	TMonth	iMonth;			/**< The month of the current year, starting with 0 */
+	TInt	iDay;			/**< The day of the current month */
+	TInt	iHour;			/**< The hour of the current day */
+	TInt	iMinute;		/**< The minute of the current day */
+	TInt	iSecond;		/**< The second of the current minute */
+	TInt	iMilliSecond;	/**< The millisecond of the current second */
 
 public:
 
@@ -37,7 +38,7 @@ public:
 		iMonth = EJanuary;
 	}
 
-	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMicroSecond);
+	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMilliSecond);
 
 	TInt Year() const { return(iYear); }
 
@@ -52,6 +53,8 @@ public:
 	TInt Minute() const { return(iMinute); }
 
 	TInt Second() const { return(iSecond); }
+
+	TInt MilliSecond() const { return(iMilliSecond); }
 
 	static TBool IsLeapYear(TInt a_iYear);
 };

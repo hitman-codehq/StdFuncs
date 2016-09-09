@@ -5,6 +5,7 @@
 
 /* Useful constants used for calculating the current date and time in microseconds */
 
+#define MICROSECONDS_PER_MILLI_SECOND (TInt64) 1000
 #define MICROSECONDS_PER_SECOND (TInt64) 1000000
 #define MICROSECONDS_PER_MINUTE (MICROSECONDS_PER_SECOND * 60)
 #define MICROSECONDS_PER_HOUR (MICROSECONDS_PER_MINUTE * 60)
@@ -34,7 +35,7 @@ const char *g_apccMonths[] =
 
 /* Written: Wednesday 17-Jun-2009 7:30 am */
 
-TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt /*a_iMicroSecond*/)
+TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMilliSecond)
 {
 	iYear = a_iYear;
 	iMonth = a_iMonth;
@@ -42,6 +43,7 @@ TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, T
 	iHour = a_iHour;
 	iMinute = a_iMinute;
 	iSecond = a_iSecond;
+	iMilliSecond = a_iMilliSecond;
 }
 
 /**
@@ -164,7 +166,7 @@ void TTime::HomeTime()
 	/* Get the current time from Windows and build up a TDateTime structure representing that time */
 
 	GetLocalTime(&SystemTime);
-	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
+	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, SystemTime.wMilliseconds);
 
 #endif /* ! defined(__amigaos4__) || defined(__linux__) */
 
@@ -211,7 +213,8 @@ void TTime::Set(const TDateTime &a_roDateTime)
 
 	/* Calculate the number of microseconds representing seconds, minutes, hours and days */
 
-	iTime = (iDateTime.Second() * MICROSECONDS_PER_SECOND);
+	iTime = (iDateTime.MilliSecond() * MICROSECONDS_PER_MILLI_SECOND);
+	iTime += (iDateTime.Second() * MICROSECONDS_PER_SECOND);
 	iTime += (iDateTime.Minute() * MICROSECONDS_PER_MINUTE);
 	iTime += (iDateTime.Hour() * MICROSECONDS_PER_HOUR);
 	iTime += ((iDateTime.Day() - 1) * MICROSECONDS_PER_DAY);

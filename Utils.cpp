@@ -1100,7 +1100,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 						/* Convert the Windows SYSTEMTIME structure to a TDateTime that the TEntry can use internally */
 
 						TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute,
-							SystemTime.wSecond, 0);
+							SystemTime.wSecond, SystemTime.wMilliseconds);
 
 						/* Fill in the file's properties in the TEntry structure */
 

@@ -417,7 +417,7 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 				/* Convert the Windows time to a generic framework time structure */
 
 				TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay,
-					SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, 0);
+					SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, SystemTime.wMilliseconds);
 
 				/* And populate the TEntry structure with the rest of the information */
 
