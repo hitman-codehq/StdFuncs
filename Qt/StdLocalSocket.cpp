@@ -2,7 +2,7 @@
 #include "../StdFuncs.h"
 #include "../StdApplication.h"
 #include "StdLocalSocket.h"
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 /**
  * RLocalSocket constructor.
