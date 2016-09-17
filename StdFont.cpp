@@ -873,7 +873,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 
 	RetVal = a_iSize;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	LOGFONT LogFont;
 
@@ -889,7 +889,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 
 	EnumFontFamiliesEx(m_poWindow->m_poDC, &LogFont, (FONTENUMPROC) FontNameProc, (LPARAM) this, 0);
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	/* If the next larger size is requested, scan forwards through the array of sizes until it */
 	/* is found.  If it is not found then return the size passed in */
