@@ -7,8 +7,8 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QtGui/QLabel>
-#include <QtGui/QStatusBar>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QStatusBar>
 #include "Qt/StdWindow.h"
 
 #elif defined(WIN32)
