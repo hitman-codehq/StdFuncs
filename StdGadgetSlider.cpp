@@ -11,9 +11,9 @@
 #elif defined(QT_GUI_LIB)
 
 #include "StdApplication.h"
-#include <QtGui/QApplication>
-#include <QtGui/QScrollBar>
-#include <QtGui/QStyle>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QStyle>
 #include "Qt/StdWindow.h"
 
 /**
