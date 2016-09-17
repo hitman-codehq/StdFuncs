@@ -10,7 +10,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtGui/QClipboard>
 
 #endif /* QT_GUI_LIB */
@@ -262,7 +262,7 @@ const char *RClipboard::GetDataStart()
 	/* The data returned by clipboard()->text() needs to be persistent for the life */
 	/* of the RClipboard class, so copy it into a temporary QByteArray */
 
-	m_oGetData = QApplication::clipboard()->text().toAscii();
+	m_oGetData = QApplication::clipboard()->text().toLatin1();
 
 	/* Now return a ptr to the start of the clipboard data */
 
