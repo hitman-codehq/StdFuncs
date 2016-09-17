@@ -36,8 +36,8 @@ static SKeyMapping g_aoKeyMap[] =
 #elif defined(QT_GUI_LIB)
 
 #include <QtCore/QTextCodec>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
 
 /* Fake arguments for the QApplication constructor, which must have them passed in.  We use our */
 /* own argument system so we don't use Qt's.  This makes our argument handling incompatible with */
