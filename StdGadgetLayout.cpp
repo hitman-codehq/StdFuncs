@@ -6,7 +6,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QtGui/QGridLayout>
+#include <QtWidgets/QGridLayout>
 #include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
