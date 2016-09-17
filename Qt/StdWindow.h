@@ -2,8 +2,8 @@
 #ifndef QTSTDWINDOW_H
 #define QTSTDWINDOW_H
 
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMainWindow>
 
 class CWindow;
 
