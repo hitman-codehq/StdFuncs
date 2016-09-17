@@ -11,7 +11,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QMessageBox>
 #include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
@@ -70,7 +70,7 @@ TBool g_bUsingGUI;
 
 CWindow	*g_poRootWindow;
 
-#ifdef _WIN32_WINNT_WIN2K
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /**
  * Callback function used by EnumDisplayMonitors().
@@ -115,7 +115,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR a_poMonitor, HDC /*a_poDC*/, LPREC
 	return(FALSE);
 }
 
-#endif /* _WIN32_WINNT_WIN2K */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /**
  *
