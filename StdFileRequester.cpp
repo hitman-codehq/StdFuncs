@@ -10,7 +10,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include <QtGui/QFileDialog>
+#include <QtWidgets/QFileDialog>
 #include "Qt/StdWindow.h"
 
 #endif /* QT_GUI_LIB */
@@ -303,7 +303,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 		/* Save the filename (which is fully qualified) for l8r use */
 
-		strcpy(m_acFileName, File.toAscii()); // TODO: CAW - Length + strange copy/assert above?
+		strcpy(m_acFileName, File.toLatin1()); // TODO: CAW - Length + strange copy/assert above?
 	}
  	else
 	{
