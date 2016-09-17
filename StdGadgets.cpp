@@ -7,7 +7,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 
 #endif /* QT_GUI_LIB */
 
