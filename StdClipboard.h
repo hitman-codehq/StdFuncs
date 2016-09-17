@@ -48,11 +48,11 @@ public:
 		m_pccGetData = m_pccCurrentGetData = NULL;
 		m_pcSetData = NULL;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 		m_poHandle = NULL;
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	}
 
