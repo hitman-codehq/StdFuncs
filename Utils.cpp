@@ -1420,7 +1420,7 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
  *
  * @date	Wednesday 28-Sep-2016 6:40 am, Code HQ Ehinger Tor
  * @param	a_pcBuffer		Pointer to a buffer into which to place the line of text
- * @param	a_iSize			Size of the buffer in bytes
+ * @param	a_stSize		Size of the buffer in bytes
  * @return	true if the string was obtained successfully, else false
  */
 
