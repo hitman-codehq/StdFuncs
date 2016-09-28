@@ -144,7 +144,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 #else /* ! __amigaos4__ */
 
-		const char **ArgV, *BufferPtr;
+		const char **ArgV;
 		TInt ArgC;
 
 		/* If the user has requested to display the template then do so and request input and parse that instead */
@@ -162,7 +162,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 			/* Obtain the input from the user */
 
-			if ((BufferPtr = gets(Buffer)) != NULL)
+			if (Utils::GetString(Buffer, sizeof(Buffer)))
 			{
 				/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
 				/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
