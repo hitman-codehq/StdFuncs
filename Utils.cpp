@@ -1412,6 +1412,72 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 }
 
 /**
+ * Obtains a line of text from stdin.
+ * This function is an overflow-safe replacement for the deprecated gets() function, that
+ * causes deprecated messages on some compilers and is completely missing from others.  Use
+ * it to obtain a line of text from the stdin input stream.  The string will be placed into
+ * the a_pcBuffer parameter and will be NULL terminated.
+ *
+ * @date	Wednesday 28-Sep-2016 6:40 am, Code HQ Ehinger Tor
+ * @param	a_pcBuffer		Pointer to a buffer into which to place the line of text
+ * @param	a_iSize			Size of the buffer in bytes
+ * @return	true if the string was obtained successfully, else false
+ */
+
+bool Utils::GetString(char *a_pcBuffer, size_t a_stSize)
+{
+	bool Done;
+	size_t Length;
+
+	Done = false;
+	Length = 0;
+
+	/* Loop around and try to obtain input from stdin until we have a full line of text */
+	/* or an error occurs */
+
+	do
+	{
+		if (fgets(&a_pcBuffer[Length], (int) (a_stSize - Length), stdin))
+		{
+			Length = strlen(a_pcBuffer);
+
+			/* If the last character is a '\n' then the user has hit <enter> and we have */
+			/* successfully obtained the line.  Replace the \n with a NULL terminator and */
+			/* break out */
+
+			if (a_pcBuffer[Length - 1] == '\n')
+			{
+				Done = true;
+
+				a_pcBuffer[Length - 1] = '\0';
+			}
+
+			/* If the length is one less then the size of the buffer then the buffer is full */
+			/* so just break out.  The buffer is already NULL terminated */
+
+			else if (Length == (a_stSize - 1))
+			{
+				Done = true;
+			}
+		}
+		else
+		{
+			/* If an error occurred then break out.  If no error occurred then the text has not */
+			/* been read in its entirity so keep reading */
+
+			if (ferror(stdin) != 0)
+			{
+				Done = true;
+			}
+		}
+	} while (!Done);
+
+	/* If all went well then ferror() will return 0 so use this for our return value */
+
+	return(!ferror(stdin));
+}
+
+/**
  * Allocates or reallocates a temporary buffer.
  * This function is useful if you have a situation that calls for a temporary
  * buffer of an unknown and varying size (thus preventing the use of a satic

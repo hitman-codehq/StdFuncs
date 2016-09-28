@@ -70,6 +70,8 @@ public:
 
 	static TBool GetShellHeight(TInt *a_piHeight);
 
+	static bool GetString(char *a_pcBuffer, size_t a_stSize);
+
 	static void *GetTempBuffer(char *a_pccBuffer, size_t a_iSize, TBool a_bCopyContents = ETrue);
 
 	static void FreeTempBuffer(char *a_pccBuffer);
