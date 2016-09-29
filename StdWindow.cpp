@@ -20,10 +20,10 @@
 
 #include "Qt/StdWindow.h"
 #include <QtCore/QLocale>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QMenuBar>
+#include <QtWidgets/QMenuBar>
 
 #elif defined(WIN32)
 
@@ -223,7 +223,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 		if (String.length() >= 1)
 		{
-			Key = (unsigned char) String[0].toAscii();
+			Key = (unsigned char) String[0].toLatin1();
 
 			/* It seems that Qt keyboard handling is just as complex as Windows.  :-( */
 			/* We have to take care of a complex combination of key presses that come in, */
@@ -260,7 +260,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 					/* Determine the current input locale */
 
-					QLocale KeyboardLayout = QApplication::keyboardInputLocale();
+					QLocale KeyboardLayout = QGuiApplication::inputMethod()->locale();
 
 					if (KeyboardLayout.language() == QLocale::German)
 					{
