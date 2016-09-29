@@ -19,7 +19,7 @@ private:
 	TInt			m_iMagicOption;			/**< Index of magic option, if any */
 	TInt			m_iNumMagicArgs;		/**< Number of entries in the magic option array */
 	TInt			m_iNumArgs;				/**< Number of entries in the iArgs array */
-	LONG			*m_plArgs;				/**< Array of LONGs into which to place ptrs to arguments */
+	size_t			*m_pstArgs;				/**< Array of size_ts into which to place pointers to arguments */
 	struct RDArgs	*m_poRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading arguments */
 	struct RDArgs	*m_poTTRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading tooltypes */
 	struct RDArgs	*m_poInputRDArgs;		/**< Structure for use by IDOS->ReadArgs() when reading main() arguments */

@@ -27,7 +27,7 @@ RArgs::RArgs()
 	m_pcArgumentBuffer = m_pcCommandLine = m_pcProjectFileName = NULL;
 	m_iMagicOption = -1;
 	m_iNumMagicArgs = m_iNumArgs = 0;
-	m_plArgs = NULL;
+	m_pstArgs = NULL;
 	m_poRDArgs = m_poTTRDArgs = m_poInputRDArgs = NULL;
 }
 
@@ -41,9 +41,9 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 	m_iNumArgs = a_iNumOptions;
 
-	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
+	/* Allocate an array of size_ts into which ptrs to arguments can be placed */
 
-	if ((m_plArgs = new LONG[m_iNumArgs]) != NULL)
+	if ((m_pstArgs = new size_t[m_iNumArgs]) != NULL)
 	{
 		/* Determine which if option (if any) is the magic multi option */
 
@@ -484,7 +484,7 @@ void RArgs::Close()
 		/* points to an array of ptrs to arguments and this array is owned by the magic */
 		/* option itself.  Thus we must cast the data for the option in order to delete it */
 
-		delete [] (char **) m_plArgs[m_iMagicOption];
+		delete [] (char **) m_pstArgs[m_iMagicOption];
 		m_iMagicOption = -1;
 		m_iNumMagicArgs = 0;
 	}
@@ -493,8 +493,8 @@ void RArgs::Close()
 
 	/* And the array used for ptrs to arguments */
 
-	delete [] m_plArgs;
-	m_plArgs = NULL;
+	delete [] m_pstArgs;
+	m_pstArgs = NULL;
 
 #ifdef __amigaos4__
 
@@ -557,7 +557,7 @@ TInt RArgs::CountMultiArguments()
 	{
 		/* Iterate through the multi argument ptrs and count how many are valid */
 
-		if ((MultiArguments = (const char **) m_plArgs[m_iMagicOption]) != NULL)
+		if ((MultiArguments = (const char **) m_pstArgs[m_iMagicOption]) != NULL)
 		{
 			while (*MultiArguments)
 			{
@@ -774,7 +774,7 @@ const char *RArgs::MultiArgument(TInt a_iIndex)
 
 	if (m_iMagicOption != -1)
 	{
-		MultiArguments = (const char **) m_plArgs[m_iMagicOption];
+		MultiArguments = (const char **) m_pstArgs[m_iMagicOption];
 
 		if (MultiArguments)
 		{
@@ -834,7 +834,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 							/* return that it has been found and set the temporary copy to NULL so that only */
 							/* unused arguments are left after S option extraction */
 
-							m_plArgs[Index] = (LONG) ArgV[Arg];
+							m_pstArgs[Index] = (size_t) ArgV[Arg];
 							ArgV[Arg] = NULL;
 
 							break;
@@ -876,7 +876,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								/* the current A option when queried by client code.  Set the temporary copy to NULL */
 								/* so that it is not reused again for the next A option */
 
-								m_plArgs[Index] = (LONG) ArgV[Arg];
+								m_pstArgs[Index] = (size_t) ArgV[Arg];
 								ArgV[Arg] = NULL;
 
 								break;
@@ -894,12 +894,12 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 							/* If there is a multi argument list present then try and steal an argument */
 
-							if ((m_iMagicOption != -1) && (m_plArgs[m_iMagicOption]))
+							if ((m_iMagicOption != -1) && (m_pstArgs[m_iMagicOption]))
 							{
 								/* Scan through the multi argument list until we either find an argument or */
 								/* reach the end of the list */
 
-								Arguments = (char **) m_plArgs[m_iMagicOption];
+								Arguments = (char **) m_pstArgs[m_iMagicOption];
 
 								while (*Arguments)
 								{
@@ -919,12 +919,12 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								if (*Arguments)
 								{
 									RetVal = KErrNone;
-									m_plArgs[Index] = (LONG) *Arguments;
+									m_pstArgs[Index] = (size_t) *Arguments;
 									*Arguments = NULL;
 								}
 							}
 
-							if (m_plArgs[Index] == 0)
+							if (m_pstArgs[Index] == 0)
 							{
 								Utils::Info("RArgs::ReadArgs() => Option \"%s\" must have an argument", OptionName);
 							}
@@ -947,25 +947,25 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								/* If no magic argument space has been allocated then allocate enough space */
 								/* to hold NUM_NEW_ARGS to begin with */
 
-								if (!(m_plArgs[m_iMagicOption]))
+								if (!(m_pstArgs[m_iMagicOption]))
 								{
-									m_plArgs[m_iMagicOption] = (LONG) new char *[NUM_NEW_ARGS];
+									m_pstArgs[m_iMagicOption] = (size_t) new char *[NUM_NEW_ARGS];
 
-									if (m_plArgs[m_iMagicOption])
+									if (m_pstArgs[m_iMagicOption])
 									{
 										m_iNumMagicArgs = NUM_NEW_ARGS;
-										*(char **) m_plArgs[m_iMagicOption] = NULL;
+										*(char **) m_pstArgs[m_iMagicOption] = NULL;
 									}
 								}
 
 								/* Continue only if memory is available */
 
-								if (m_plArgs[m_iMagicOption])
+								if (m_pstArgs[m_iMagicOption])
 								{
 									/* Scan through the magic argument array and find an empty slot into which to */
 									/* place the argument that was passed in */
 
-									Ptr = (char **) m_plArgs[m_iMagicOption];
+									Ptr = (char **) m_pstArgs[m_iMagicOption];
 									NumArgs = 0;
 
 									while (*Ptr)
@@ -985,17 +985,17 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 											/* Copy the pointers to the already extracted arguments into the new array and free */
 											/* the memory for the old array */
 
-											memcpy(NewMagicArgs, (void *) m_plArgs[m_iMagicOption], (m_iNumMagicArgs * sizeof(LONG)));
-											delete [] (char **) m_plArgs[m_iMagicOption];
+											memcpy(NewMagicArgs, (void *) m_pstArgs[m_iMagicOption], (m_iNumMagicArgs * sizeof(size_t)));
+											delete [] (char **) m_pstArgs[m_iMagicOption];
 
 											/* Save the pointer to the new array and adjust its total element count */
 
-											m_plArgs[m_iMagicOption] = (LONG) NewMagicArgs;
+											m_pstArgs[m_iMagicOption] = (size_t) NewMagicArgs;
 											m_iNumMagicArgs += NUM_NEW_ARGS;
 
 											/* And calculate a pointer to the next free slot into which to place an argument */
 
-											Ptr = (((char **) m_plArgs[m_iMagicOption]) + NumArgs);
+											Ptr = (((char **) m_pstArgs[m_iMagicOption]) + NumArgs);
 										}
 										else
 										{
@@ -1074,9 +1074,9 @@ const char *RArgs::operator[](TInt a_iIndex)
 		/* If the magic option was filled in then extract the first argument that was */
 		/* assigned to the option */
 
-		if (m_plArgs[m_iMagicOption])
+		if (m_pstArgs[m_iMagicOption])
 		{
-			RetVal = *(const char **) m_plArgs[m_iMagicOption];
+			RetVal = *(const char **) m_pstArgs[m_iMagicOption];
 		}
 		else
 		{
@@ -1088,7 +1088,7 @@ const char *RArgs::operator[](TInt a_iIndex)
 
 	else
 	{
-		RetVal = (const char *) m_plArgs[a_iIndex];
+		RetVal = (const char *) m_pstArgs[a_iIndex];
 	}
 
 	return(RetVal);
