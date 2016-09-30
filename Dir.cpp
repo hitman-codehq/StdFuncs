@@ -668,7 +668,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 			if (ProgDirName != a_pccPattern)
 			{
-				delete[] ProgDirName;
+				delete [] ProgDirName;
 			}
 		}
 		else
@@ -744,7 +744,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 			if (ProgDirName != a_pccPattern)
 			{
-				delete[] ProgDirName;
+				delete [] ProgDirName;
 			}
 		}
 	}

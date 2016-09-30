@@ -1062,7 +1062,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 						if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 						{
 							strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
-							delete[] ResolvedFileName;
+							delete [] ResolvedFileName;
 						}
 					}
 				}
@@ -1152,7 +1152,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 							if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 							{
 								strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
-								delete[] ResolvedFileName;
+								delete [] ResolvedFileName;
 							}
 						}
 					}
@@ -1791,7 +1791,7 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 			RetVal = KErrGeneral;
 		}
 
-		delete[] DestFileName;
+		delete [] DestFileName;
 	}
 	else
 	{
@@ -2259,7 +2259,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			}
 			else
 			{
-				delete[] RetVal;
+				delete [] RetVal;
 				RetVal = NULL;
 			}
 
@@ -2311,7 +2311,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 				{
 					Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
 
-					delete[] RetVal;
+					delete [] RetVal;
 					RetVal = NULL;
 				}
 			}

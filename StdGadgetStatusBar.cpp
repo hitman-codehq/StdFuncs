@@ -311,7 +311,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 		DEBUGCHECK((DestroyWindow(m_poGadget) != FALSE), "CStdGadgetStatusBar::~CStdGadgetStatusBar() => Cannot destroy native status bar gadget");
 	}
 
-	delete[] m_piPartsOffsets;
+	delete [] m_piPartsOffsets;
 
 #endif /* ! QT_GUI_LIB */
 
@@ -400,7 +400,7 @@ void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
 			}
 		}
 
-		delete[] PartsOffsets;
+		delete [] PartsOffsets;
 	}
 
 #else /* ! (defined(WIN32) && !defined(QT_GUI_LIB) */
