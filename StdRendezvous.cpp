@@ -300,8 +300,6 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 		RetVal = ETrue;
 
-#ifdef _WIN32_WINNT_WIN2K
-
 		/* Normally Windows does not allow processes to bring themselves to the front unless they are */
 		/* processing an input related event.  This interferes with our ability to bring ourselves to */
 		/* the front when a second instance of the application is launched, so give the target process */
@@ -312,8 +310,6 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 		GetWindowThreadProcessId(Window, &ProcessID);
 		DEBUGCHECK((AllowSetForegroundWindow(ProcessID) != FALSE), "RRendezvous::Rendezvous() => Unable to assign set foreground ability to target");
-
-#endif /* _WIN32_WINNT_WIN2K */
 
 		/* Fill out the structure required by the WM_COPYDATA message and send the message, */
 		/* waiting for it to be processed before returning */

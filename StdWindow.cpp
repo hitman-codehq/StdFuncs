@@ -931,8 +931,6 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				}
 			}
 
-#ifdef _WIN32_WINNT_WIN2K
-
 			/* Now take the horribleness to the next level.  Certain keys (including the mysterious */
 			/* VK_OEM_MINUS key) are simply not passed to WM_CHAR if the control key is pressed.  But */
 			/* we need these keys and they work without special treatment on other operating systems. */
@@ -1024,8 +1022,6 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					Window->OfferKeyEvent((TInt) a_oWParam, (a_uiMessage == WM_KEYDOWN));
 				}
 			}
-
-#endif /* _WIN32_WINNT_WIN2K */
 
 			/* Pass the raw key onto the CWindow::OfferRawKeyEvent() function, without any kind */
 			/* of preprocessing */

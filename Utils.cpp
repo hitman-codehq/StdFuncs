@@ -1268,14 +1268,9 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 					WindowRect.bottom -= Height;
 				}
 
-#ifdef _WIN32_WINNT_WIN2K
-
 				/* Query the system for the size of the display on which the window was opened */
 
 				EnumDisplayMonitors(NULL, &WindowRect, MonitorEnumProc, (LPARAM) &a_roScreenSize);
-
-#endif /* _WIN32_WINNT_WIN2K */
-
 			}
 		}
 	}
