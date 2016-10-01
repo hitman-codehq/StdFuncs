@@ -125,12 +125,12 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 	if ((m_pcSetData = new char[a_stMaxLength + 1]) != NULL)
 	{
 		RetVal = KErrNone;
-		m_iDataSize = a_stMaxLength;
+		m_stDataSize = a_stMaxLength;
 
 		/* Qt needs char * strings to be NULL terminated in order to convert them */
 		/* into a QString so we allocate an extra byte and terminate it here */
 
-		m_pcSetData[m_iDataSize] = '\0';
+		m_pcSetData[m_stDataSize] = '\0';
 	}
 
 #else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
@@ -193,7 +193,7 @@ void RClipboard::SetDataEnd()
 
 	/* Write the block of data to the clipboard */
 
-	ITextClip->WriteClipVector(m_pcSetData, m_iDataSize);
+	ITextClip->WriteClipVector(m_pcSetData, m_stDataSize);
 
 	/* And free the temporary buffer */
 
@@ -202,7 +202,7 @@ void RClipboard::SetDataEnd()
 
 #elif defined(QT_GUI_LIB)
 
-	ASSERTM((m_pcSetData[m_iDataSize] == '\0'), "RClipboard::SetDataEnd() => End of clipboard buffer has been overwritten");
+	ASSERTM((m_pcSetData[m_stDataSize] == '\0'), "RClipboard::SetDataEnd() => End of clipboard buffer has been overwritten");
 
 	/* Write the block of data to the clipboard */
 
