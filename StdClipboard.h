@@ -25,7 +25,7 @@ private:
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
-	TInt		m_iDataSize;			/**< Size of buffer to be written */
+	size_t		m_iDataSize;			/**< Size of buffer to be written */
 
 #elif defined(WIN32)
 
