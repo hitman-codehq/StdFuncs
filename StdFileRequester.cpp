@@ -13,6 +13,12 @@
 #include <QtWidgets/QFileDialog>
 #include "Qt/StdWindow.h"
 
+#else /* ! QT_GUI_LIB */
+
+#include <string>
+
+using namespace std;
+
 #endif /* QT_GUI_LIB */
 
 /* Strings for the file requester's title */
@@ -312,7 +318,9 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 #else /* ! QT_GUI_LIB */
 
+	size_t Index;
 	BOOL GotFileName;
+	string StartDirectory;
 	OPENFILENAME OpenFileName;
 
 	/* Initialise the OPENFILENAME structure to display the last filename we used, if any */
@@ -329,11 +337,25 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 	OpenFileName.hwndOwner = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
 	/* If a directory name has been included in the path passed in then try to open the */
-	/* requester in that directory - if Windows will take any notice of our request! */
+	/* requester in that directory.  For this, the directory needs to be specified using */
+	/* backslashes, even though forward slashes work just fine everywhere else in Windows! */
+	/* So create a temporary path string using backslashes and use that */
 
 	if (DirectoryName)
 	{
-		OpenFileName.lpstrInitialDir = DirectoryName;
+		StartDirectory = DirectoryName;
+
+		for (Index = 0; Index < StartDirectory.length(); ++Index)
+		{
+			if (StartDirectory[Index] == '/')
+			{
+				StartDirectory[Index] = '\\';
+			}
+		}
+
+		/* Use the newly created path for the start directory */
+
+		OpenFileName.lpstrInitialDir = StartDirectory.c_str();
 	}
 
 	/* Query the user for the filename */
