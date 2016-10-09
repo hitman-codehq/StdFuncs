@@ -15,6 +15,8 @@
 
 #else /* ! QT_GUI_LIB */
 
+#undef WIN32_LEAN_AND_MEAN
+#include <commdlg.h>
 #include <string>
 
 using namespace std;
