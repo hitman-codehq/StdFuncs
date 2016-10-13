@@ -68,7 +68,7 @@ public:
 
 	static void GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow = NULL);
 
-	static TBool GetShellHeight(TInt *a_piHeight);
+	static int GetShellHeight();
 
 	static bool GetString(char *a_pcBuffer, size_t a_stSize);
 

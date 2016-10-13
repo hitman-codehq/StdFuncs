@@ -1294,15 +1294,24 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 
 }
 
-/* Written: Thursday 09-Jul-2009 06:58 am */
+/**
+ * Returns the height of the console in which the program is running.
+ * This function will determine the height of the console or shell in which the program is
+ * running, in lines, and will return it.  If there is no console present (for instance, if
+ * the program is a Windows application that uses WinMain() rather than main()) then it will
+ * return -1 to indicate this.
+ *
+ * @date	Thursday 09-Jul-2009 06:58 am
+ * @return	The height of the current console, or -1 if there is no console present
+ */
 
-TBool Utils::GetShellHeight(TInt *a_piHeight)
+int Utils::GetShellHeight()
 {
-	TBool RetVal;
+	int RetVal;
 
 	/* Assume failure */
 
-	RetVal = EFalse;
+	RetVal = -1;
 
 #ifdef __amigaos4__
 
@@ -1382,14 +1391,10 @@ TBool Utils::GetShellHeight(TInt *a_piHeight)
 	{
 		if (GetConsoleScreenBufferInfo(StdOut, &ScreenBufferInfo))
 		{
-			/* Signal success */
-
-			RetVal = ETrue;
-
-			/* And save the height of the console for the caller, converting the zero based line */
+			/* And determine the height of the console for the caller, converting the zero based line */
 			/* number of the bottom most line into a count of lines */
 
-			*a_piHeight = (ScreenBufferInfo.srWindow.Bottom + 1);
+			RetVal = (ScreenBufferInfo.srWindow.Bottom + 1);
 		}
 		else
 		{
