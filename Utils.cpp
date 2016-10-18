@@ -1419,45 +1419,38 @@ int Utils::GetShellHeight()
  * the a_pcBuffer parameter and will be NULL terminated.
  *
  * @date	Wednesday 28-Sep-2016 6:40 am, Code HQ Ehinger Tor
- * @param	a_pcBuffer		Pointer to a buffer into which to place the line of text
- * @param	a_stSize		Size of the buffer in bytes
+ * @param	a_roString		Reference to a string into which to place the line of text
  * @return	true if the string was obtained successfully, else false
  */
 
-bool Utils::GetString(char *a_pcBuffer, size_t a_stSize)
+bool Utils::GetString(std::string &a_roString)
 {
 	bool Done;
-	size_t Length;
-
-	Done = false;
-	Length = 0;
+	char InputBuffer[2];
 
 	/* Loop around and try to obtain input from stdin until we have a full line of text */
 	/* or an error occurs */
 
+	Done = false;
+
 	do
 	{
-		if (fgets(&a_pcBuffer[Length], (int) (a_stSize - Length), stdin))
+		if ((fgets(InputBuffer, sizeof(InputBuffer), stdin)) && (strlen(InputBuffer) == 1))
 		{
-			Length = strlen(a_pcBuffer);
-
 			/* If the last character is a '\n' then the user has hit <enter> and we have */
 			/* successfully obtained the line.  Replace the \n with a NULL terminator and */
 			/* break out */
 
-			if (a_pcBuffer[Length - 1] == '\n')
+			if (InputBuffer[0] == '\n')
 			{
 				Done = true;
-
-				a_pcBuffer[Length - 1] = '\0';
 			}
 
-			/* If the length is one less then the size of the buffer then the buffer is full */
-			/* so just break out.  The buffer is already NULL terminated */
+			/* Otherwise we have a valid character so append it to the input string */
 
-			else if (Length == (a_stSize - 1))
+			else
 			{
-				Done = true;
+				a_roString.push_back(InputBuffer[0]);
 			}
 		}
 		else

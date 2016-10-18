@@ -5,6 +5,7 @@
 /** @file */
 
 #include <stdarg.h>
+#include <string>
 #include "Dir.h"
 
 #ifdef _MSC_VER
@@ -70,7 +71,7 @@ public:
 
 	static int GetShellHeight();
 
-	static bool GetString(char *a_pcBuffer, size_t a_stSize);
+	static bool GetString(std::string &a_roBuffer);
 
 	static void *GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyContents = ETrue);
 
