@@ -152,38 +152,51 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
 		{
-			/* Display the template à la Amiga OS and prompt the user for input */
+			/* The user has requested that the argument template be displayed so check that there is a console */
+			/* available and, if so, display it and try to read some arguments from stdin */
 
-			printf("%s\n", a_pccTemplate);
-
-			/* Obtain the input from the user */
-
-			if (Utils::GetString(m_oArguments))
+			if (Utils::GetShellHeight() != -1)
 			{
-				/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
-				/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
-				/* adds an extra entry for the executable name as the first argument.  This */
-				/* is required so that when we call Open() it will ignore this first argument, */
-				/* for compatibility with argument lists passed into main(), which also have */
-				/* the executable name in argv[0]! */
+				/* Display the template à la Amiga OS and prompt the user for input */
 
-				if ((ArgV = ExtractArguments(&m_oArguments[0], &ArgC)) != NULL)
+				printf("%s\n", a_pccTemplate);
+
+				if (Utils::GetString(m_oArguments))
 				{
-					/* Command line has been input so put the executable's name in the first argument slot and parse */
-					/* it for arguments */
+					/* Extract the arguments from the buffer into an ArgV style pointer array.  This */
+					/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
+					/* adds an extra entry for the executable name as the first argument.  This */
+					/* is required so that when we call Open() it will ignore this first argument, */
+					/* for compatibility with argument lists passed into main(), which also have */
+					/* the executable name in argv[0]! */
 
-					ArgV[0] = a_pccArgV[0];
-					RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
-					delete [] ArgV;
+					if ((ArgV = ExtractArguments(&m_oArguments[0], &ArgC)) != NULL)
+					{
+						/* Command line has been input so put the executable's name in the first argument slot and parse */
+						/* it for arguments */
+
+						ArgV[0] = a_pccArgV[0];
+						RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+						delete [] ArgV;
+					}
+					else
+					{
+						RetVal = KErrNoMemory;
+					}
 				}
 				else
 				{
-					RetVal = KErrNoMemory;
+					RetVal = KErrGeneral;
 				}
 			}
+
+			/* No console is available so just display an informational message in a message box */
+
 			else
 			{
-				RetVal = KErrGeneral;
+				RetVal = KErrNone;
+
+				Utils::MessageBox("Information", "The following template parameters are available:\n\n%s", EMBTOk, a_pccTemplate);
 			}
 		}
 		else
@@ -222,7 +235,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 	const char **ArgV;
 	TInt ArgC, RetVal;
 
-	/* Extract the arguments from the string into an ArgV style ptr array.  This */
+	/* Extract the arguments from the string into an ArgV style pointer array.  This */
 	/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
 	/* adds an extra entry for the executable name as the first argument.  This */
 	/* is required so that when we call Open() it will ignore this first argument, */
