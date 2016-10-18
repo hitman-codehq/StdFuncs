@@ -2,7 +2,7 @@
 TARGET = StdFuncs
 TEMPLATE = lib
 CONFIG += debug_and_release staticlib warn_on
-CONFIG -= exceptions rtti
+CONFIG -= rtti
 
 # Some tricks to get rid of most of the contents of the largish .eh_frame section
 gcc:QMAKE_CXXFLAGS += -fno-asynchronous-unwind-tables
