@@ -23,6 +23,8 @@ private:
 	struct RDArgs	*m_poRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading arguments */
 	struct RDArgs	*m_poTTRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading tooltypes */
 	struct RDArgs	*m_poInputRDArgs;		/**< Structure for use by IDOS->ReadArgs() when reading main() arguments */
+	std::string		m_oArguments;			/**< String into which arguments are read from stdin when ? argument is used.
+												 These are referenced by the m_pstArgs array and must be persistent */
 
 private:
 

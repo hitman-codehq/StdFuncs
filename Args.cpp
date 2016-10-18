@@ -154,15 +154,11 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		{
 			/* Display the template à la Amiga OS and prompt the user for input */
 
-			// TODO: CAW - This doesn't work with WinMain() style programs so NULL termination below is temporary + input buffer?
-			char Buffer[1024];
-
-			Buffer[0] = '\0';
 			printf("%s\n", a_pccTemplate);
 
 			/* Obtain the input from the user */
 
-			if (Utils::GetString(Buffer, sizeof(Buffer)))
+			if (Utils::GetString(m_oArguments))
 			{
 				/* Extract the arguments from the buffer into an ArgV style ptr array.  This */
 				/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
@@ -171,7 +167,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 				/* for compatibility with argument lists passed into main(), which also have */
 				/* the executable name in argv[0]! */
 
-				if ((ArgV = ExtractArguments(Buffer, &ArgC)) != NULL)
+				if ((ArgV = ExtractArguments(&m_oArguments[0], &ArgC)) != NULL)
 				{
 					/* Command line has been input so put the executable's name in the first argument slot and parse */
 					/* it for arguments */
