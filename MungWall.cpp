@@ -22,7 +22,7 @@ class MungWall oMungWall;
 
 /* Error message strings that can be used in multiple places */
 
-static const char acLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %lu bytes in %lu allocation(s) manually";
+static const char acLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %u bytes in %lu allocation(s) manually";
 static const char acStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %d bytes still allocated";
 static const char acStillAllocated[] = "*** MungWall alert: File %s: %d bytes still allocated";
 static const char acInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
@@ -55,8 +55,8 @@ MungWall::~MungWall()
 			Delete(pvBlock);
 		}
 
-		Utils::Info(acLeakage, (int) stBytesLeaked, ulNews);
-		printf(acLeakage, (int) stBytesLeaked, ulNews);
+		Utils::Info(acLeakage, stBytesLeaked, ulNews);
+		printf(acLeakage, stBytesLeaked, ulNews);
 		printf("\n");
 	}
 	else
