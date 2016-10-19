@@ -160,7 +160,6 @@ public:
 
 	void Close();
 
-	// TODO: CAW - Is it possible to make this more Symbian like?
 	TInt Read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone);
 };
 
