@@ -1377,8 +1377,7 @@ int Utils::GetShellHeight()
 #elif defined(__linux__)
 
 	// TODO: CAW - Implement this
-	RetVal = ETrue;
-	*a_piHeight = 50;
+	RetVal = 50;
 
 #else /* ! __linux__ */
 
