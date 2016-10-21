@@ -113,7 +113,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 				/* And try and parse them! */
 
-				if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, m_poInputRDArgs)) != NULL)
+				if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, m_poInputRDArgs)) != NULL)
 				{
 					RetVal = KErrNone;
 				}
@@ -282,7 +282,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 
 	/* Allocate an array of LONGs into which ptrs to arguments can be placed */
 
-	if ((m_plArgs = new LONG[a_iNumOptions]) != NULL)
+	if ((m_pstArgs = new size_t[a_iNumOptions]) != NULL)
 	{
 		/* Save the # of arguments for l8r */
 
@@ -380,11 +380,11 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 						RDArgs->RDA_Source.CS_CurChr = 0;
 
 						/* Now call IDOS->ReadArgs() to parse the CLI argument list.  This will result */
-						/* in the arguments in m_plArgs being populated just as though we were run from */
+						/* in the arguments in m_pstArgs being populated just as though we were run from */
 						/* the CLI and the client software will neither know nor care that we have been */
 						/* run from Workbench! */
 
-						if ((m_poTTRDArgs = IDOS->ReadArgs(a_pccTemplate, m_plArgs, RDArgs)) != NULL)
+						if ((m_poTTRDArgs = IDOS->ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, RDArgs)) != NULL)
 						{
 							RetVal = KErrNone;
 
