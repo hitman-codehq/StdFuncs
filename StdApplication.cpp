@@ -120,19 +120,6 @@ TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
 	m_poApplication = new QApplication(g_iArgC, g_acArgV);
 	RetVal = (m_poApplication != NULL) ? KErrNone : KErrNoMemory;
 
-	/* And set the dreaded code page.  It is crazy but Windows and Linux use two different */
-	/* code pages, thus making it impossible to display the € symbol on both systems! */
-
-#ifdef WIN32
-
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("Windows-1252"));
-
-#else /* ! WIN32 */
-
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("ISO 8859-15"));
-
-#endif /* ! WIN32 */
-
 #else /* ! QT_GUI_LIB */
 
 	/* Assume success */
