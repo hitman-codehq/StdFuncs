@@ -1360,8 +1360,7 @@ int Utils::GetShellHeight()
 
 			if ((Length > 9) && (Buffer[0] == '\x9b'))
 			{
-				RetVal = ETrue;
-				IDOS->StrToLong(&Buffer[5], (LONG *) a_piHeight);
+				IDOS->StrToLong(&Buffer[5], (LONG *) &RetVal);
 			}
 		}
 		else
