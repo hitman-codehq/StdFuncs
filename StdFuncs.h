@@ -193,6 +193,19 @@ struct SRect
 	TInt	m_iHeight;			/**< Height of the rectangle, in pixels */
 };
 
+/**
+* A structure containing information about a dirty region.
+* The region structure is similar to the SRect structure, except that instead of specifying the start of
+* the area and its size, it specifies the start and end of the area.  The area represented in the region
+* is inclusive; that is, the region includes the line or row specified by m_iBottom.
+*/
+
+struct SRegion
+{
+	int			m_iTop;					/**< Top line or row of the region */
+	int			m_iBottom;				/**< Bottom line or row of the region */
+};
+
 #include "Utils.h"
 
 #endif /* ! STDFUNCS_H */

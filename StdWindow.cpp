@@ -2199,6 +2199,7 @@ void CWindow::DrawNow()
 /*			a_iWidth	Width of client area to invalidate.  If -1 then the entire width */
 /*						is invalidated.  This is useful if you don't want to redraw the */
 /*						entire width of the client area for some reason */
+/* @pre		A redraw must not already be in progress when this method is called */
 /* Invalidates a vertical band of the client area and instigates a redraw of that area. */
 /* The bottom of the area, represented by a_iBottom, is considered exclusive, so the area */
 /* redrawn is between a_iTop and (a_iBottom - 1) */
@@ -2212,14 +2213,53 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 #ifdef __amigaos4__
 
 	int Bottom, Top;
+	std::vector<SRegion>::iterator it;
 
 	// TODO: CAW - Temporary until we sort out refreshing the screen
 	(void) a_iWidth;
+
+	ASSERTM(!m_bPerformingRedraw, "CWindow::DrawNow() => New redraws must not be requested during a redraw");
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
 	if (m_poWindow)
 	{
+		/* Iterate through the dirty regions and try to find one that overlaps with the new */
+		/* region that is to be invalidated */
+
+		for (it = m_voDirtyRegions.begin(); it != m_voDirtyRegions.end(); ++it)
+		{
+			if ((a_iTop <= (*it).m_iBottom) && (a_iBottom >= (*it).m_iTop))
+			{
+				break;
+			}
+		}
+
+		/* If the new region overlaps an existing region then extend the existing region to */
+		/* include the area represented by the new one */
+
+		if (it != m_voDirtyRegions.end())
+		{
+			if (a_iTop < (*it).m_iTop)
+			{
+				(*it).m_iTop = a_iTop;
+			}
+
+			if (a_iBottom > (*it).m_iBottom)
+			{
+				(*it).m_iBottom = a_iBottom;
+			}
+		}
+
+		/* Otherwise the new region stands alone, so add it to the list of dirty regions */
+
+		else
+		{
+			SRegion Region = { a_iTop, a_iBottom };
+
+			m_voDirtyRegions.push_back(Region);
+		}
+
 		/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
 		/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
 		/* the rect to draw.  We only fill the background if required to as client code can disable */
@@ -2245,10 +2285,6 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 			//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 		}
 	}
-
-	/* And call the derived rendering function to perform a redraw immediately */
-
-	Draw(a_iTop, a_iBottom);
 
 #elif defined(QT_GUI_LIB)
 
@@ -2367,6 +2403,40 @@ struct Screen *CWindow::GetRootWindowScreen()
 ULONG CWindow::GetSignal()
 {
 	return((m_poWindow) ? (1 << m_poWindow->UserPort->mp_SigBit) : 0);
+}
+
+/**
+ * Calls the client code to redraw regions within the dirty region list.
+ * This method will iterate through the list of regions in the dirty region list and for each one,
+ * will call the client code via the overridden CWindow::Draw() method to draw that region.
+ *
+ * @date	Wednesday 21-Sep-2016 7:02 am, Code HQ Ehinger Tor
+ */
+
+void CWindow::InternalRedraw()
+{
+	std::vector<SRegion>::iterator it;
+
+	/* Set a debug flag to ensure that new redraws are not requested while we are already */
+	/* in the middle of a redraw */
+
+	m_bPerformingRedraw = true;
+
+	/* Iterate through the list of dirty regions and, for each one, call the derived rendering method */
+	/* to perform the actual drawing */
+
+	for (it = m_voDirtyRegions.begin(); it != m_voDirtyRegions.end(); ++it)
+	{
+		Draw((*it).m_iTop, (*it).m_iBottom);
+	}
+
+	/* Indicate that there are no longer any dirty regions to be drawn */
+
+	m_voDirtyRegions.clear();
+
+	/* And clear the protection flag */
+
+	m_bPerformingRedraw = false;
 }
 
 /**

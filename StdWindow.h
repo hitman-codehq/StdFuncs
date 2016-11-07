@@ -2,6 +2,7 @@
 #ifndef STDWINDOW_H
 #define STDWINDOW_H
 
+#include <vector>
 #include "StdGadgets.h"
 
 #ifdef __amigaos4__
@@ -80,6 +81,8 @@ private:
 
 #ifdef __amigaos4__
 
+	bool				m_bPerformingRedraw;		/**< true if we are redrawing the dirty region */
+	std::vector<SRegion>	m_voDirtyRegions;		/**< List of dirty regions waiting to be drawn */
 	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootGadget;			/**< layout.gadget containing the window's gadgets */
 
@@ -151,6 +154,8 @@ private:
 	static struct Screen *GetRootWindowScreen();
 
 	ULONG GetSignal();
+
+	void InternalRedraw();
 
 	struct Menu *Menus();
 

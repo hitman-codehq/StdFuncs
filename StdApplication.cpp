@@ -545,6 +545,13 @@ TInt RApplication::Main()
 						break;
 					}
 				}
+
+				/* If any redraws were requested then they will be waiting in the dirty region list, so perform the redraw now */
+
+				if (Window->m_voDirtyRegions.size() > 0)
+				{
+					Window->InternalRedraw();
+				}
 			}
 		}
 	}
