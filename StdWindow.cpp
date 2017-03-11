@@ -268,11 +268,11 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 						/* real keys rather than these fudged ones.  Note that the "real" keys returned */
 						/* are still not in accordance with the standard, but at least they are consistent! */
 
-						if (Key == 91)
+						if (Key == 123)
 						{
 							Key = (unsigned char) 'ü';
 						}
-						else if (Key == 93)
+						else if (Key == 125)
 						{
 							Key = '+';
 						}
