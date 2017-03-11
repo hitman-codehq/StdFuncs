@@ -20,9 +20,9 @@
 
 #include "Qt/StdWindow.h"
 #include <QtCore/QLocale>
+#include <QtGui/QKeyEvent>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
-#include <QtGui/QKeyEvent>
 #include <QtWidgets/QMenuBar>
 
 #elif defined(WIN32)
