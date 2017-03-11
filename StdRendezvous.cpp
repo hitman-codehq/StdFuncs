@@ -53,13 +53,14 @@ RRendezvous::~RRendezvous()
  * rendezvous with the server, but not the other way around.
  *
  * @date	Friday 01-May-2015 1:39 pm, Code HQ Ehinger Tor
+ * @param	a_poApplication	Pointer to the parent application under which the program is running
  * @param	a_pccName		The name to be used for the rendezvous port
  * @return	KErrNone if successful
  * @return	KErrNoMemory if not enough memory was available
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RRendezvous::Open(const char *a_pccName)
+TInt RRendezvous::Open(RApplication *a_poApplication, const char *a_pccName)
 {
 	TInt RetVal;
 
@@ -74,6 +75,8 @@ TInt RRendezvous::Open(const char *a_pccName)
 		strcpy(m_pcName, a_pccName);
 
 #ifdef __amigaos4__
+
+		(void) a_poApplication;
 
 		struct MsgPort *MsgPort;
 
@@ -100,7 +103,21 @@ TInt RRendezvous::Open(const char *a_pccName)
 			}
 		}
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+		/* Open a local socket with which to read and write messages and let it know to call us when a */
+		/* message is received */
+
+		if (m_oLocalSocket.Open(m_pcName, a_poApplication) == KErrNone)
+		{
+			m_oLocalSocket.SetObserver(this);
+		}
+
+#elif !defined(QT_GUI_LIB)
+
+		(void) a_poApplication;
+
+#endif /* !defined(QT_GUI_LIB) */
 
 	}
 	else
@@ -142,7 +159,13 @@ void RRendezvous::Close()
 		m_poMsgPort = NULL;
 	}
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	/* And close the underlying Qt local socket */
+
+	m_oLocalSocket.Close();
+
+#endif /* QT_GUI_LIB */
 
 }
 
@@ -180,19 +203,18 @@ ULONG RRendezvous::GetSignal()
 
 /**
  * Rendezvous with a program of a given name.
- * This function will rendezvous with particularly named program.  Upon reception of the rendezvous,
+ * This function will rendezvous with a given named program.  Upon reception of the rendezvous,
  * the target program will wake up and process that rendezvous.  Data can be sent to the target
  * program and this will be mapped or copied into the target program's address space so that it
  * can be accessed.
  *
  * @date	Sunday 09-Feb-2014 10:44 am, on board RE 57179 train to Munich Deutsches Museum
- * @param	a_poApplication	Pointer to the parent application under which the program is running
  * @param	a_pcucData		Pointer to the data to be sent to the program
  * @param	a_iDataSize		Size of the data to be sent, in bytes
  * @return	ETrue if the message was sent successfully, else EFalse
  */
 
-TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char *a_pcucData, TInt a_iDataSize)
+TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 {
 	TBool RetVal;
 
@@ -205,8 +227,6 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 	char *Buffer, *Data;
 	struct Message *Message;
 	struct MsgPort *MsgPort;
-
-	(void) a_poApplication;
 
 	/* Only send the message if we are the client, or we will end up sending the message to ourselves. */
 	/* If we are the server then m_poMsgPort will be non NULL */
@@ -266,21 +286,13 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 #elif defined(QT_GUI_LIB)
 
-	/* Open a local socket with which to read and write messages and let it know to call us when a */
-	/* message is received */
+	/* If the socket is the client then send a message to rendezvous with the server */
 
-	if (m_oLocalSocket.Open(m_pcName, a_poApplication) == KErrNone)
+	if (!m_oLocalSocket.IsServer())
 	{
-		m_oLocalSocket.SetObserver(this);
-
-		/* If the socket is the client then send a message to rendezvous with the server */
-
-		if (!m_oLocalSocket.IsServer())
+		if (m_oLocalSocket.Write(a_pcucData, a_iDataSize) == KErrNone)
 		{
-			if (m_oLocalSocket.Write(a_pcucData, a_iDataSize) == KErrNone)
-			{
-				RetVal = ETrue;
-			}
+			RetVal = ETrue;
 		}
 	}
 
@@ -288,8 +300,6 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 	COPYDATASTRUCT CopyData;
 	HWND Window;
-
-	(void) a_poApplication;
 
 	/* Find a handle to the main window of the target program, based on the name passed in */
 
@@ -323,7 +333,6 @@ TBool RRendezvous::Rendezvous(RApplication *a_poApplication, const unsigned char
 
 #else /* ! defined(WIN32) */
 
-	(void) a_poApplication;
 	(void) a_pcucData;
 	(void) a_iDataSize;
 

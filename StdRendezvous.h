@@ -77,7 +77,7 @@ public:
 
 	~RRendezvous();
 
-	TInt Open(const char *a_pccName);
+	TInt Open(RApplication *a_poApplication, const char *a_pccName);
 
 	void Close();
 
@@ -89,7 +89,7 @@ public:
 
 #endif /* __amigaos4__ */
 
-	TBool Rendezvous(RApplication *a_poApplication, const unsigned char *a_pcucData, TInt a_iDataSize);
+	TBool Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize);
 
 	void MessageReceived(const unsigned char *a_pcucData, TInt a_iDataSize);
 
