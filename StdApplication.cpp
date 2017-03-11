@@ -604,6 +604,18 @@ TInt RApplication::Main()
 
 void RApplication::Close()
 {
+
+#ifdef QT_GUI_LIB
+
+	/* Normally it is sufficient to let the QApplication instance be destroyed by the destructor, but */
+	/* this causes problems on Linux due to a well known Qt bug, meaning that we must manually destroy it */
+	/* here to ensure that it is gone by the time main() exits */
+
+	delete m_poApplication;
+	m_poApplication = NULL;
+
+#endif /* QT_GUI_LIB */
+
 }
 
 /* Written: Monday 08-Feb-2010 7:25 am */
