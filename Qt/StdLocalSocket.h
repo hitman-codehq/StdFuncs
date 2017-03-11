@@ -54,6 +54,8 @@ public:
 
 	int Open(const char *a_pccName, RApplication *a_poApplication);
 
+	void Close();
+
 	void SetObserver(MLocalSocketObserver *a_poObserver);
 
 	int Write(const unsigned char *a_pcucData, int a_iDataSize);

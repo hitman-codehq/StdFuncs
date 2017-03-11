@@ -27,7 +27,7 @@ RLocalSocket::RLocalSocket()
 
 RLocalSocket::~RLocalSocket()
 {
-	delete m_poLocalServer;
+	Close();
 }
 
 /**
@@ -148,6 +148,21 @@ TInt RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
 	}
 
 	return(RetVal);
+}
+
+/**
+ * Frees any resources associated with the class.
+ * This method performs the same functions as the destructor, but allows the user to call it when
+ * manual deinitialisation of the class is required.  After completion, the class instance can be
+ * reused by calling RLocalSocket::Open() again.
+ *
+ * @date	Thursday 02-Feb-2017 7:21 am, Code HQ Habersaathstraße
+ */
+
+void RLocalSocket::Close()
+{
+	delete m_poLocalServer;
+	m_poLocalServer = NULL;
 }
 
 /**
