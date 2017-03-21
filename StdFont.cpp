@@ -247,6 +247,13 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 
 		m_poFont->setFixedPitch(true);
 
+		/* And enable full hinting for Qt.  Although in theory hinting only changes the way that */
+		/* characters are displayed, leaving the hinting setting on its default on Qt 5 seems to */
+		/* also change the positioning and width of the characters as well, thus making them no */
+		/* longer monospaced */
+
+		m_poFont->setHintingPreference(QFont::PreferFullHinting);
+
 		/* Determine the width & height of the font */
 
 		QFontMetrics Metrics(*m_poFont);
