@@ -25,7 +25,19 @@ struct SStdGadgetMapping
 	TInt	m_iID;					/**< Integer ID of the gadget */
 };
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+/* Each instance of this structure represents a Qt gadget mapping.  Qt gadget names are */
+/* specified using strings but The Framework uses integers, so this allows us to map */
+/* the one onto the other */
+
+struct SStdGadgetMapping
+{
+	const char	*m_pccName;			/**< ID of the gadget, represented as a string */
+	int			m_iID;				/**< Integer ID of the gadget */
+};
+
+#endif /* QT_GUI_LIB */
 
 /* Mixin class for notifying client code that a dialog event has occurred */
 
@@ -48,15 +60,20 @@ protected:
 
 	char					*m_pcTextBuffer;		/**< Scratch buffer containing last obtained text */
 	TInt					m_iTextBufferLength;	/**< Length of scratch buffer */
-	struct SStdGadgetMapping *m_poGadgetMappings;	/**< Array of gadget ID -> APTR mappings */
 	TInt					m_iNumGadgetMappings;	/**< Number of entries in m_poGadgetMappings */
 
 #ifdef __amigaos4__
 
+	struct SStdGadgetMapping *m_poGadgetMappings;	/**< Array of gadget ID -> APTR mappings */
 	struct SGWork			*m_poEditHookData;		/**< If non NULL, a string gadget is being edited */
 	Object					*m_poRootGadget;		/**< Ptr to root layout gadget */
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	const SStdGadgetMapping	*m_pcoGadgetMappings;	/**< Array of gadget names -> gadget ID mappings */
+	QWidget					*m_poDialog;			/**< Pointer to the underlying Qt dialog */
+
+#endif /* QT_GUI_LIB */
 
 private:
 
@@ -91,6 +108,14 @@ protected:
 	void SetGadgetFocus(TInt a_iGadgetID);
 
 	void SetGadgetText(TInt a_iGadgetID, const char *a_pccText);
+
+#ifdef QT_GUI_LIB
+
+	QWidget	*GetQtWidget(int a_iGadgetID);
+
+	void SetMappingTable(const struct SStdGadgetMapping *a_pcoMappings, int a_iNumMappings);
+
+#endif /* QT_GUI_LIB */
 
 public:
 
