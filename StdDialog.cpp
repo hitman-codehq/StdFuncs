@@ -5,6 +5,13 @@
 #include "StdDialog.h"
 #include "StdReaction.h"
 
+#ifdef QT_GUI_LIB
+
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QLineEdit>
+
+#endif /* QT_GUI_LIB */
+
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /* Written: Saturday 21-Aug-2010 12:21 pm */
@@ -166,16 +173,11 @@ TInt CDialog::Open(TInt a_iResourceID)
 	else
 	{
 
-#ifdef __amigaos4__
+#ifndef WIN32
 
 		(void) a_iResourceID;
 
-#elif defined(QT_GUI_LIB)
-
-		// TODO: CAW - Implement and remove warning prevention cast
-		(void) a_iResourceID;
-
-#else /* ! QT_GUI_LIB */
+#else /* WIN32 */
 
 		CWindow *RootWindow;
 		HWND Window;
@@ -198,7 +200,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 		}
 		else
 
-#endif /* ! QT_GUI_LIB */
+#endif /* WIN32 */
 
 		{
 			RetVal = KErrGeneral;
@@ -229,7 +231,16 @@ void CDialog::Close(TInt a_iGadgetID)
 void CDialog::Close()
 {
 
-#if defined(WIN32) && !defined(QT_GUI_LIB)
+#ifdef QT_GUI_LIB
+
+	/* Hide the dialog, if it is open */
+
+	if (m_poDialog)
+	{
+		m_poDialog->hide();
+	}
+
+#elif defined(WIN32)
 
 	/* If this is the active dialog then indicate that this is no longer the case */
 
@@ -238,7 +249,7 @@ void CDialog::Close()
 		m_poActiveDialog = NULL;
 	}
 
-#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+#endif /* WIN32 */
 
 	/* Call the superclass close to actually close the dialog */
 
@@ -276,8 +287,16 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_iGadgetID;
+	QCheckBox *CheckBox;
+	QWidget *Widget;
+
+	/* Find a pointer to the Qt widget and if found then set the state of the checkbox gadget */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		CheckBox = (QCheckBox *) Widget;
+		CheckBox->setChecked(true);
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -309,9 +328,14 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention casts
-	(void) a_iGadgetID;
-	(void) a_bEnable;
+	QWidget *Widget;
+
+	/* Find a pointer to the Qt widget and if found then enable or disable it */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		Widget->setEnabled(a_bEnable);
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -332,18 +356,21 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 #ifdef __amigaos4__
 
-/* Written: Sunday 24-Sep-2010 1:45 pm */
-/* @param	a_iGadgetID	ID of the gadget to be found */
-/* @return	Ptr to the BOOPSI gadget if successful, else NULL if not found */
-/* Amiga OS only function that will scan the requester's list of BOOPSI gadgets for */
-/* one that matches a specified ID */
+/**
+ * Scans the requester's list of gadgets for a particular ID.
+ * Amiga OS only method that will scan the requester's list of BOOPSI gadgets for
+ * one that matches a specified ID.
+ * @date	Sunday 24-Sep-2010 1:45 pm
+ * @param	a_iGadgetID	ID of the gadget to be found
+ * @return	Pointer to the BOOPSI gadget if successful, else NULL if not found
+ */
 
 Object *CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
 {
 	TInt Index;
 	Object *RetVal;
 
-	/* Iterate through the list of gadget mappings and find the BOOPSI ptr that matches */
+	/* Iterate through the list of gadget mappings and find the BOOPSI pointer that matches */
 	/* the gadget ID */
 
 	RetVal = NULL;
@@ -383,8 +410,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 	RetVal = 0;
 
-	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
-	/* its length */
+	/* Find a pointer to the BOOPSI gadget and if found then get a pointer to its numeric text and convert it to an integer */
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
@@ -393,10 +419,20 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_iGadgetID;
+	QLineEdit *LineEdit;
+	QWidget *Widget;
 
-	RetVal = 0;
+	/* Find a pointer to the Qt widget and if found then get a pointer to its numeric text and convert it to an integer */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		LineEdit = (QLineEdit *) Widget;
+		RetVal = LineEdit->text().toInt();
+	}
+	else
+	{
+		RetVal = 0;
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -460,8 +496,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	}
 	else
 	{
-		/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
-		/* its length */
+		/* Find a pointer to BOOPSI gadget and if found then get its text and save its length */
 
 		if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 		{
@@ -483,11 +518,20 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention casts
-	(void) a_iGadgetID;
-	(void) a_bGetText;
+	QLineEdit *LineEdit;
+	QString Text;
+	QWidget *Widget;
 
-	Length = 1;
+	/* Find a pointer to the Qt widget and if found then get its text and save its length */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		RetVal = KErrNone;
+
+		LineEdit = (QLineEdit *) Widget;
+		Text = LineEdit->text();
+		Length = (Text.length() + 1);
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -497,10 +541,11 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 	if ((Gadget = GetDlgItem(m_poWindow, a_iGadgetID)) != NULL)
 	{
+		RetVal = KErrNone;
+
 		/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
 		Length = (GetWindowTextLength(Gadget) + 1);
-		RetVal = KErrNone;
 	}
 	else
 	{
@@ -550,7 +595,10 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #elif defined(QT_GUI_LIB)
 
-				// TODO: CAW - Implement
+				/* For Qt we already have the text in a QString so just make a copy of it */
+
+				memcpy(m_pcTextBuffer, qPrintable(Text), Length);
+				RetVal = Length;
 
 #else /* ! QT_GUI_LIB */
 
@@ -589,6 +637,48 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	return(RetVal);
 }
 
+#ifdef QT_GUI_LIB
+
+/**
+ * Scans the requester's list of gadgets for a particular ID.
+ * Qt only method that will scan the requester's list of Qt widgets for one that matches a
+ * specified ID.  This can be used in place of QObject::findChild(), which can only work with
+ * textual strings IDs.
+ *
+ * @date	Sunday 05-Mar-2017 8:37 am, Code HQ Bergmannstraﬂe
+ * @param	a_iGadgetID		ID of the gadget to be found
+ * @return	Pointer to the Qt widget if successful, else NULL if not found
+ */
+
+QWidget	*CDialog::GetQtWidget(int a_iGadgetID)
+{
+	int Index;
+	QWidget *RetVal;
+
+	RetVal = NULL;
+
+	/* Iterate through the list of gadget mappings and find the Qt widget that matches */
+	/* the gadget ID */
+
+	if (m_pcoGadgetMappings)
+	{
+		for (Index = 0; Index < m_iNumGadgetMappings; ++Index)
+		{
+			if (m_pcoGadgetMappings[Index].m_iID == a_iGadgetID)
+			{
+				if ((RetVal = m_poDialog->findChild<QWidget *>(m_pcoGadgetMappings[Index].m_pccName)) != NULL)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return(RetVal);
+}
+
+#endif /* QT_GUI_LIB */
+
 /**
  * Highlights the contents of a text gadget.
  * Sets the contents of a text gadget to a highlighted state and places the cursor at the end
@@ -624,8 +714,16 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_iGadgetID;
+	QLineEdit *LineEdit;
+	QWidget *Widget;
+
+	/* Find a pointer to the Qt widget for which to highlight the text and highlight it all */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		LineEdit = (QLineEdit *) Widget;
+		LineEdit->selectAll();
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -649,16 +747,18 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 {
+	TBool RetVal;
+
+	/* If the gadget cannot be found for some reason then just return that it is not checked */
+
+	RetVal = EFalse;
 
 #ifdef __amigaos4__
 
-	TBool RetVal;
 	ULONG Checked;
 	Object *Gadget;
 
-	/* Find a ptr to the BOOPSI gadget and if found then get the state of the checkbox gadget */
-
-	RetVal = 0;
+	/* Find a pointer to the BOOPSI gadget and if found then get the state of the checkbox gadget */
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
@@ -668,21 +768,29 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 		}
 	}
 
-	return(RetVal);
-
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_iGadgetID;
+	QCheckBox *CheckBox;
+	QWidget *Widget;
 
-	return(EFalse);
+	/* Find a pointer to the Qt widget and if found then get the state of the checkbox gadget */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		CheckBox = (QCheckBox *) Widget;
+		RetVal = CheckBox->isChecked();
+	}
 
 #else /* ! QT_GUI_LIB */
 
-	return(IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED);
+	if (IsDlgButtonChecked(m_poWindow, a_iGadgetID) == BST_CHECKED)
+	{
+		RetVal = ETrue;
+	}
 
 #endif /* ! QT_GUI_LIB */
 
+	return(RetVal);
 }
 
 /* Written: Sunday 24-Oct-2010 5:30 pm */
@@ -739,8 +847,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	ASSERTM((m_poRootGadget != NULL), "CDialog::SetGadgetFocus() => Root layout gadget not initialised");
 
-	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
-	/* its length */
+	/* Find a pointer to the BOOPSI gadget and if found then set its focus */
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
@@ -750,8 +857,14 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_iGadgetID;
+	QWidget *Widget;
+
+	/* Find a pointer to the Qt widget and if found then set its focus */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		Widget->setFocus();
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -770,8 +883,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	APTR Gadget;
 
-	/* Find a ptr to the BOOPSI gadget and if found then get a ptr to the gadget's text and save */
-	/* its length */
+	/* Find a pointer to the BOOPSI gadget and if found then set its contents to the given text */
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
@@ -780,9 +892,16 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention casts
-	(void) a_iGadgetID;
-	(void) a_pccText;
+	QLineEdit *LineEdit;
+	QWidget *Widget;
+
+	/* Find a pointer to the Qt widget and if found then set its contents to the given text */
+
+	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	{
+		LineEdit = (QLineEdit *) Widget;
+		LineEdit->setText(a_pccText);
+	}
 
 #else /* ! QT_GUI_LIB */
 
@@ -791,6 +910,27 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 #endif /* ! QT_GUI_LIB */
 
 }
+
+/**
+ * Assigns a string -> int gadget mapping table to the requester.
+ * Qt only method that can be used to assign an array of SStdGadgetMapping structures to the requester.
+ * This array contains a list of mappings that allow gadgets to be searched for by integral ID on Qt builds,
+ * even though Qt only supports searching by test based IDs.
+ *
+ * @date	Thursday 02-Feb-2017 9:46 am, Starbucks near Friedrichstra√üe Station
+ * @param	a_pcoMappings	Pointer to the array of mappings to be assigned
+ * @param	a_iNumMappings	Number of entries in the array
+ */
+
+#ifdef QT_GUI_LIB
+
+void CDialog::SetMappingTable(const struct SStdGadgetMapping *a_pcoMappings, int a_iNumMappings)
+{
+	m_pcoGadgetMappings = a_pcoMappings;
+	m_iNumGadgetMappings = a_iNumMappings;
+}
+
+#endif /* QT_GUI_LIB */
 
 #ifdef __amigaos4__
 
