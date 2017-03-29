@@ -566,11 +566,11 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			/* If the currently allocated buffer is too small then delete it */
 
-			if (m_iTextBufferLength < Length)
+			if (m_iTextBufferSize < Length)
 			{
 				delete [] m_pcTextBuffer;
 				m_pcTextBuffer = NULL;
-				m_iTextBufferLength = 0;
+				m_iTextBufferSize = 0;
 			}
 
 			/* And allocate a buffer large enough */
@@ -584,7 +584,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			if (m_pcTextBuffer)
 			{
-				m_iTextBufferLength = Length;
+				m_iTextBufferSize = Length;
 
 #ifdef __amigaos4__
 

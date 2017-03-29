@@ -59,7 +59,7 @@ private:
 protected:
 
 	char					*m_pcTextBuffer;		/**< Scratch buffer containing last obtained text */
-	TInt					m_iTextBufferLength;	/**< Length of scratch buffer */
+	TInt					m_iTextBufferSize;		/**< Size of scratch buffer, in bytes */
 	TInt					m_iNumGadgetMappings;	/**< Number of entries in m_poGadgetMappings */
 
 #ifdef __amigaos4__
