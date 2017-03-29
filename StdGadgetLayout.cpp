@@ -121,15 +121,20 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 #elif defined(QT_GUI_LIB)
 
 	/* Add the new Qt gadget to the layout.  To simulate the behaviour of the Amiga version */
-	/* we add vertical sliders on the right of the layout and any other gadgets to the bottom */
+	/* we add vertical sliders on the right of the layout and any other gadgets to the bottom. */
+	/* Some Framework gadgets do not have an underlying Qt widget so check that this exists */
+	/* before attaching it */
 
-	if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
+	if (a_poGadget->m_poGadget)
 	{
-		m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, Qt::AlignRight);
-	}
-	else
-	{
-		m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, Qt::AlignBottom);
+		if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
+		{
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, Qt::AlignRight);
+		}
+		else
+		{
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, Qt::AlignBottom);
+		}
 	}
 
 	RethinkLayout();
