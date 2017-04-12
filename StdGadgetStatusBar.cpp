@@ -290,17 +290,33 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 	return(RetVal);
 }
 
-/* Written: Monday 02-May-2011 7:21 am, Code HQ-by-Thames */
+/**
+  * CStdGadgetStatusBar destructor.
+  * Deletes all gadgets used for displaying the status bar, and/or the text associated
+  * with them.
+  *
+  * @date	Monday 02-May-2011 7:21 am, Code HQ-by-Thames
+  */
 
 CStdGadgetStatusBar::~CStdGadgetStatusBar()
 {
-	TInt Index;
+	int Index;
 
 #ifdef __amigaos4__
 
 	delete [] m_poPartsGadgets;
 
 #elif defined(QT_GUI_LIB)
+
+	/* Iterate through the parts widgets attached to the system status bar and delete them */
+
+	for (Index = 0; Index < m_iNumParts; ++Index)
+	{
+		if (m_poPartsGadgets[Index])
+		{
+			delete m_poPartsGadgets[Index];
+		}
+	}
 
 	delete [] m_poPartsGadgets;
 
