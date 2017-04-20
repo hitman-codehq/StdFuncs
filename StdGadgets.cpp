@@ -11,10 +11,27 @@
 
 #endif /* QT_GUI_LIB */
 
-/* Written: Wednesday 21-Mar-2011 6:25 am, Hilton Košice */
+/**
+ * CStdGadget destructor.
+ * Deletes the underlying OS specific gadget.
+ *
+ * @date	Wednesday 21-Mar-2011 6:25 am, Hilton Ko¨ice
+ */
 
 CStdGadget::~CStdGadget()
 {
+
+#ifdef QT_GUI_LIB
+
+	/* Delete the Qt widget, if it exists */
+
+	if (m_poGadget)
+	{
+		delete m_poGadget;
+	}
+
+#endif /* QT_GUI_LIB */
+
 }
 
 /* Written: Tuesday 13-Jul-2011 06:40 am, Code HQ-by-Thames */
