@@ -23,6 +23,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QMenuBar>
 
 #elif defined(WIN32)
@@ -1550,7 +1551,15 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
 	return(RetVal);
 }
 
-/* Written: Monday 11-Jul-2011 6:16 am */
+/**
+ * Attach a layout to the window.
+ * This function will attach the layout passed in to the window.  This will take care of adding the
+ * layout to the window's internal list of gadgets, as well as attaching it to the underlying OS
+ * specific layout system.
+ *
+ * @date	Monday 11-Jul-2011 6:16 am
+ * @param	a_poGadget		Pointer to the gadget to attach to the layout
+ */
 
 void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 {
@@ -1575,9 +1584,11 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 #elif defined(QT_GUI_LIB)
 
-	/* For Qt there is no need to attach the layout gadget to the window as it is */
-	/* done automatically when the layout gadget is created.  So simply let the layout */
-	/* gadget know its new width and then calcuate its new height */
+	/* Add the new Qt layout to the window's root layout */
+
+	m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, m_poRootLayout->count(), 0);
+
+	/* Let the layout know its new width and then calcuate its new height */
 
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 	RethinkLayout();
@@ -2083,9 +2094,10 @@ void CWindow::Close()
 
 		m_poWindow->setAttribute(Qt::WA_DeleteOnClose);
 
-		/* And close the window */
+		/* And close and delete the window */
 
 		DEBUGCHECK((m_poWindow->close() != false), "CWindow::Close() => Unable to close window");
+		delete m_poWindow;
 		m_poWindow = NULL;
 	}
 
@@ -2950,39 +2962,45 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 		if ((m_poCentralWidget = new CQtCentralWidget(this)) != NULL)
 		{
-			RetVal = KErrNone;
+			/* Inside this we need a grid layout, to enable us to layout the window's contents */
+			/* how we want them */
 
-			/* Set the window's title to the one passed in */
-
-			QString Title(a_pccTitle);
-			m_poWindow->setWindowTitle(Title);
-
-			/* Assign the widget as the main window's central widget */
-
-			m_poWindow->setCentralWidget(m_poCentralWidget);
-
-			/* And create the menus specific to this window */
-
-			if (CreateMenus())
+			if ((m_poRootLayout = new QGridLayout(m_poCentralWidget)) != NULL)
 			{
-				/* Set the position of the window to the top left of the screen so that */
-				/* it does not appear at a random position when set to non maximised */
+				/* Set the window's title to the one passed in */
 
-				m_poWindow->move(QPoint(0, 0));
+				QString Title(a_pccTitle);
+				m_poWindow->setWindowTitle(Title);
 
-				/* Display the window maximised */
+				/* Assign the widget as the main window's central widget */
 
-				m_poWindow->showMaximized();
+				m_poWindow->setCentralWidget(m_poCentralWidget);
 
-				/* And save the size of the client area */
+				/* And create the menus specific to this window */
 
-				QSize Size = m_poCentralWidget->size();
-				m_iInnerWidth = Size.width();
-				m_iInnerHeight = Size.height();
-			}
-			else
-			{
-				Utils::Info("CWindow::Open() => Unable to create menus for window");
+				if (CreateMenus())
+				{
+					RetVal = KErrNone;
+
+					/* Set the position of the window to the top left of the screen so that */
+					/* it does not appear at a random position when set to non maximised */
+
+					m_poWindow->move(QPoint(0, 0));
+
+					/* Display the window maximised */
+
+					m_poWindow->showMaximized();
+
+					/* And save the size of the client area */
+
+					QSize Size = m_poCentralWidget->size();
+					m_iInnerWidth = Size.width();
+					m_iInnerHeight = Size.height();
+				}
+				else
+				{
+					Utils::Info("CWindow::Open() => Unable to create menus for window");
+				}
 			}
 		}
 		else
@@ -3112,7 +3130,14 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	return(RetVal);
 }
 
-/* Written: Saturday 05-Nov-2011 9:03 am, Code HQ Söflingen */
+/**
+ * Removes a layout gadget from the window.
+ * This function will remove the given layout gadget from the window's internal list of layouts,
+ * and will also remove it from the underlying OS specific window.
+ *
+ * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Söflingen
+ * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
+ */
 
 void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 {
@@ -3124,12 +3149,18 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 
 #ifdef __amigaos4__
 
-	/* Remove it from the Reaction layout */
+	/* Remove it from the top level Reaction layout */
 
 	DEBUGCHECK((IIntuition->IDoMethod(m_poRootGadget, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
 		"CWindow::Remove() => Unable to remove layout gadget from window");
 
-#endif /* __amigaos4__ */
+#elif defined(QT_GUI_LIB)
+
+	/* Remove it from the top level Qt layout */
+
+	m_poRootLayout->removeItem(a_poLayoutGadget->m_poLayout);
+
+#endif /* QT_GUI_LIB */
 
 	/* And rethink the layout to reflect the change */
 

@@ -48,7 +48,14 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLay
 	return(RetVal);
 }
 
-/* Written: Monday 11-Jul-2011 5:46 am */
+/**
+ * CStdGadgetLayout Second phase constructor.
+ * This second phase constructor will create the underlying OS specific gadgets required to
+ * show the layout gadget.
+ *
+ * @date	Monday 11-Jul-2011 5:46 am
+ * @return	KErrNone if successful, otherwise KErrNoMemory
+ */
 
 TInt CStdGadgetLayout::Construct()
 {
@@ -67,7 +74,7 @@ TInt CStdGadgetLayout::Construct()
 
 #elif defined(QT_GUI_LIB)
 
-	if ((m_poLayout = new QGridLayout(m_poParentWindow->m_poCentralWidget)) != NULL)
+	if ((m_poLayout = new QGridLayout()) != NULL)
 	{
 		RetVal = KErrNone;
 	}
@@ -81,7 +88,13 @@ TInt CStdGadgetLayout::Construct()
 	return(RetVal);
 }
 
-/* Written: Thursday 14-Jul-2011 6:57 am */
+/**
+ * CStdGadgetLayout Destructor.
+ * Destroys the underlying OS specific gadgets required by the layout gadget, destroys
+ * any child gadgets attached to the layout and removes the layout from the parent window.
+ *
+ * @date	Thursday 14-Jul-2011 6:57 am
+ */
 
 CStdGadgetLayout::~CStdGadgetLayout()
 {
@@ -97,9 +110,30 @@ CStdGadgetLayout::~CStdGadgetLayout()
 	/* Now remove the layout gadget from its parent window */
 
 	m_poParentWindow->Remove(this);
+
+#ifdef QT_GUI_LIB
+
+	/* And delete the Qt layout.  The layout is not a widget so it is not deleted by the CStdGadget */
+	/* destructor */
+
+	if (m_poLayout)
+	{
+		delete m_poLayout;
+	}
+
+#endif /* QT_GUI_LIB */
+
 }
 
-/* Written: Monday 11-Jul-2011 6:03 am */
+/**
+ * Attach a gadget to the layout.
+ * This function will attach the gadget passed in to the layout.  This will take care of adding the
+ * gadget to the layout's internal list of gadgets, as well as attaching it to the underlying OS
+ * specific layout system.
+ *
+ * @date	Monday 11-Jul-2011 6:03 am
+ * @param	a_poGadget		Pointer to the gadget to attach to the layout
+ */
 
 void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 {
@@ -129,11 +163,11 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	{
 		if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, Qt::AlignRight);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, -1, 1, Qt::AlignRight);
 		}
-		else
+		else if (a_poGadget->GadgetType() != EStdGadgetStatusBar)
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, Qt::AlignBottom);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, 1, -1, Qt::AlignBottom);
 		}
 	}
 

@@ -84,7 +84,11 @@ private:
 	bool				m_bPerformingRedraw;		/**< true if we are redrawing the dirty region */
 	std::vector<SRegion>	m_voDirtyRegions;		/**< List of dirty regions waiting to be drawn */
 	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
-	Object				*m_poRootGadget;			/**< layout.gadget containing the window's gadgets */
+	Object				*m_poRootLayout;			/**< layout.gadget containing the window's gadgets */
+
+#elif defined(QT_GUI_LIB)
+
+	QGridLayout			*m_poRootLayout;			/**< Top level layout containing the window's gadgets */
 
 #elif defined(WIN32)
 
