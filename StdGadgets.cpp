@@ -15,7 +15,7 @@
  * CStdGadget destructor.
  * Deletes the underlying OS specific gadget.
  *
- * @date	Wednesday 21-Mar-2011 6:25 am, Hilton Ko¨ice
+ * @date	Wednesday 21-Mar-2011 6:25 am, Hilton Košice
  */
 
 CStdGadget::~CStdGadget()
