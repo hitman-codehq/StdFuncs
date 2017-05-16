@@ -24,14 +24,34 @@ struct SSortInfo
 	enum TDirSortOrder m_eSortOrder;	/**< Sort order originally passed to TEntryArray::Sort() */
 };
 
-/* Written: Saturday 03-Nov-2007 7:27 pm */
+/**
+ * TEntry constructor.
+ * Initialises the members of the class to their default values, including setting
+ * the iAttributes member to something reasonable for each platform.
+ *
+ * @date	Saturday 03-Nov-2007 7:27 pm
+ */
 
 TEntry::TEntry()
 {
 	iName[0] = iLink[0] = '\0';
 	iIsDir = iIsLink = EFalse;
 	iSize = 0;
+
+#ifdef __amigaos4__
+
 	iAttributes = 0;
+
+#elif defined(__linux__)
+
+	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)
+
+#else /* WIN32 */
+
+	iAttributes = FILE_ATTRIBUTE_NORMAL;
+
+#endif /* WIN32 */
+
 }
 
 /**
