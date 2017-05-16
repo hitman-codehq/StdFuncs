@@ -147,7 +147,7 @@ void CQtAction::actionTriggered()
 }
 
 /**
- * Constructor for CQtCentralWidget class.
+ * CQtCentralWidget constructor.
  * Simply initialisaes the central widget with a ptr to the generic framework
  * window that owns it.
  *
