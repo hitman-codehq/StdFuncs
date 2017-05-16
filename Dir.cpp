@@ -44,7 +44,7 @@ TEntry::TEntry()
 
 #elif defined(__linux__)
 
-	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)
+	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 
 #else /* WIN32 */
 
