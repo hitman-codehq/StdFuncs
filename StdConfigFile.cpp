@@ -552,7 +552,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 
 					TLex Lex(Buffer, Index);
 
-					Lex.SetWhitespace("\t =");
+					Lex.SetWhitespace(" \t=");
 
 					/* Get the first token from the line */
 
@@ -763,7 +763,7 @@ TInt RConfigFile::Parse()
 
 				TLex Lex(Buffer, LFIndex);
 
-				Lex.SetWhitespace("\t =");
+				Lex.SetWhitespace(" \t=");
 
 				/* Get the first token from the line */
 
@@ -773,6 +773,13 @@ TInt RConfigFile::Parse()
 
 					if ((ValueToken = Lex.NextToken(&ValueTokenLength)) != NULL)
 					{
+						/* Recalculate the length of the value, in case it contains any whitespace.  In this */
+						/* case we want to include the whitespace and any text after it, but it will have been */
+						/* stripped out of the value token by TLex, which is also using it as a key = value */
+						/* separator */
+
+						ValueTokenLength = (LFIndex - (ValueToken - Token));
+
 						if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
 						{
 							/* Only use the key and value if it is within a subsection or a group */
