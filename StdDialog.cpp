@@ -173,11 +173,7 @@ TInt CDialog::Open(TInt a_iResourceID)
 	else
 	{
 
-#ifndef WIN32
-
-		(void) a_iResourceID;
-
-#else /* WIN32 */
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 		CWindow *RootWindow;
 		HWND Window;
@@ -200,7 +196,11 @@ TInt CDialog::Open(TInt a_iResourceID)
 		}
 		else
 
-#endif /* WIN32 */
+#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+
+		(void) a_iResourceID;
+
+#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 		{
 			RetVal = KErrGeneral;
