@@ -3,7 +3,6 @@
 #include <string.h>
 #include "File.h"
 #include "Lex.h"
-#include "StdList.h"
 #include "StdConfigFile.h"
 
 /**
