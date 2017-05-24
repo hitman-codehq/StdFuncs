@@ -232,25 +232,44 @@ public:
 		return(RetVal);
 	}
 
+	/**
+	 * Removes a node from the list.
+	 * Given a pointer to a node, this function will remove that node from the list to
+	 * which it belongs.  The node will first be checked for validity.  If it is NULL or
+	 * is not on any list then the function will do nothing.  After removal, the node will
+	 * be updated to indicate that it is no longer on any list and another call to this
+	 * function will do nothing.  The node can be moved onto another list if desired.
+	 *
+	 * @date	Wednesday 24-May-2017 7:04 am, place
+	 * @param	a_poNode		Pointer to the node to be removed
+	 * @return	A pointer to the next node on the list, if successful, or NULL if the node
+	 *			was not valid or if there are no further nodes on the list
+	 */
+
 	T *Remove(T *a_poNode)
 	{
 		T *RetVal;
 
-		if (a_poNode->m_oStdListNode.m_poNext != &m_oTail)
+		/* Assume failure */
+
+		RetVal = NULL;
+
+		/* Only remove the node if it is valid and on a list */
+
+		if (a_poNode && IsOnList(a_poNode))
 		{
-			RetVal = a_poNode->m_oStdListNode.m_poNext->m_poThis;
+			if (a_poNode->m_oStdListNode.m_poNext != &m_oTail)
+			{
+				RetVal = a_poNode->m_oStdListNode.m_poNext->m_poThis;
+			}
+
+			a_poNode->m_oStdListNode.m_poPrev->m_poNext = a_poNode->m_oStdListNode.m_poNext;
+			a_poNode->m_oStdListNode.m_poNext->m_poPrev = a_poNode->m_oStdListNode.m_poPrev;
+
+			--m_iCount;
+
+			a_poNode->m_oStdListNode.m_poPrev = a_poNode->m_oStdListNode.m_poNext = NULL;
 		}
-		else
-		{
-			RetVal = NULL;
-		}
-
-		a_poNode->m_oStdListNode.m_poPrev->m_poNext = a_poNode->m_oStdListNode.m_poNext;
-		a_poNode->m_oStdListNode.m_poNext->m_poPrev = a_poNode->m_oStdListNode.m_poPrev;
-
-		--m_iCount;
-
-		a_poNode->m_oStdListNode.m_poPrev = a_poNode->m_oStdListNode.m_poNext = NULL;
 
 		return(RetVal);
 	}
