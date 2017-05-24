@@ -169,9 +169,9 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, 1, -1, Qt::AlignBottom);
 		}
-	}
 
-	RethinkLayout();
+		RethinkLayout();
+	}
 
 #else /* ! QT_GUI_LIB */
 
