@@ -165,7 +165,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, -1, 1, Qt::AlignRight);
 		}
-		else if (a_poGadget->GadgetType() != EStdGadgetStatusBar)
+		else
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, 1, -1, Qt::AlignBottom);
 		}
