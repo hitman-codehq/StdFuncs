@@ -137,59 +137,60 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
-	/* to access them l8r on, and create a part label for each slot in the array */
+	QStatusBar *StatusBar;
 
-	if ((m_poPartsGadgets = new QLabel *[a_iNumParts]) != NULL)
+	if ((StatusBar = new QStatusBar(m_poParentWindow->m_poWindow)) != NULL)
 	{
-		/* Create a QLabel gadget for each part requested by the user */
+		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
+		/* to access them l8r on, and create a part label for each slot in the array */
 
-		for (Index = 0; Index < a_iNumParts; ++Index)
+		if ((m_poPartsGadgets = new QLabel *[a_iNumParts]) != NULL)
 		{
-			m_poPartsGadgets[Index] = new QLabel(m_poParentWindow->m_poWindow);
+			/* Create a QLabel gadget for each part requested by the user */
 
-			if (m_poPartsGadgets[Index])
+			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
-				/* Add the QLabel gadget to the QStatusBar belonging to the window */
+				m_poPartsGadgets[Index] = new QLabel(m_poParentWindow->m_poWindow);
 
-				m_poParentWindow->m_poWindow->statusBar()->addWidget(m_poPartsGadgets[Index], a_piPartsOffsets[Index]);
+				if (m_poPartsGadgets[Index])
+				{
+					/* Add the QLabel gadget to the QStatusBar belonging to the window */
+
+					StatusBar->addWidget(m_poPartsGadgets[Index], a_piPartsOffsets[Index]);
+				}
+				else
+				{
+					break;
+				}
 			}
+
+			/* If all parts labels were created successfully then indicate success and attach the */
+			/* status bar to the parent layout */
+
+			if (Index == a_iNumParts)
+			{
+				RetVal = KErrNone;
+
+				/* Save the pointer to the status bar and information about it for later */
+
+				m_poGadget = StatusBar;
+				m_iNumParts = a_iNumParts;
+				m_iHeight = StatusBar->height();
+			}
+
+			/* Otherwise destroy whatever labels were created.  The labels belong to the */
+			/* window's status bar and will be disposed of when it is destroyed, but we don't */
+			/* want them left attached because if a new CStdGadgetStatusBar gadget is l8r on */
+			/* created successfully then the window will also contain these old QLabel objects */
+
 			else
 			{
-				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar label gadget");
-
-				break;
+				while (--Index >= 0)
+				{
+					delete m_poPartsGadgets[Index];
+				}
 			}
 		}
-
-		/* If all parts labels were created ok then indicate success */
-
-		if (Index == a_iNumParts)
-		{
-			RetVal = KErrNone;
-			m_iNumParts = a_iNumParts;
-
-			/* And save the dimensions of the widget for l8r */
-
-			m_iHeight = m_poParentWindow->m_poWindow->statusBar()->height();
-		}
-
-		/* Otherwise destroy whatever labels were created.  The labels belong to the */
-		/* window's status bar and will be disposed of when it is destroyed, but we don't */
-		/* want them left attached because if a new CStdGadgetStatusBar gadget is l8r on */
-		/* created successfully then the window will also contain these old QLabel objects */
-
-		else
-		{
-			while (--Index >= 0)
-			{
-				delete m_poPartsGadgets[Index];
-			}
-		}
-	}
-	else
-	{
-		Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
 	}
 
 	/* If anything went wrong then clean up whatever was successfully allocated */
@@ -198,6 +199,8 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 	{
 		delete [] m_poPartsGadgets;
 		m_poPartsGadgets = NULL;
+
+		delete StatusBar;
 	}
 
 #else /* ! QT_GUI_LIB */
