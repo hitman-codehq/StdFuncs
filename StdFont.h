@@ -46,6 +46,8 @@ private:
 
 #elif defined(WIN32)
 
+	int			m_iWideBufferLength;	/**< Length of the wide buffer, in characters */
+	WCHAR		*m_pwcWideBuffer;	/**< Pointer to a temporary buffer for holding wide characters */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
 	HFONT		m_poFont;			/**< Windows font with which to render */
 	HFONT		m_poOldFont;		/**< Windows font previously selected into window */
@@ -84,11 +86,11 @@ public:
 
 	void End();
 
-	void DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter);
+	void DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY);
 
-	void DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY);
+	void DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding);
 
-	void DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY);
+	void DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding);
 
 	TInt GetNextSize(TInt a_iSize, TBool a_bLarger);
 

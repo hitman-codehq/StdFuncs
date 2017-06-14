@@ -170,6 +170,20 @@ typedef unsigned long COLORREF;
 #define STD_KEY_F11 283
 #define STD_KEY_F12 284
 
+/**
+ * A generic list of text encodings.
+ * This list of text encodings is for use by any client programs that have a need for keeping
+ * track of the type of text they are working with.  It is not used by The Framework per se,
+ * as it tries to treat text encodings as opaquely as possible, passing the encoded text through
+ * to the underlying OS to deal with.
+ */
+
+enum TEncoding
+{
+	EEncoding8859,				/**< Generic 8859 encodings */
+	EEncodingUTF8				/**< UTF-8 encoding */
+};
+
 /* Structure used for mapping standard keycodes onto native keycodes */
 
 struct SKeyMapping

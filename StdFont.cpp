@@ -143,6 +143,8 @@ RFont::RFont(CWindow *a_poWindow)
 
 #else /* ! QT_GUI_LIB */
 
+	m_iWideBufferLength = 0;
+	m_pwcWideBuffer = NULL;
 	m_poDC = NULL;
 	m_poFont = m_poOldFont = NULL;
 
@@ -364,6 +366,10 @@ void RFont::Close()
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
+	Utils::FreeTempBuffer(m_pwcWideBuffer);
+	m_iWideBufferLength = 0;
+	m_pwcWideBuffer = NULL;
+
 	if (m_poOldFont)
 	{
 		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont), "RFont::Close() => Unable to unselect font from device context");
@@ -474,27 +480,58 @@ void RFont::End()
 
 }
 
-/* Written: Tuesday 08-Jun-2010 6:22 am */
+/**
+ * Draws a cursor at the position passed in.
+ * This method will either draw a cursor or set the position of the system cursor to the position
+ * passed in, depending on the workings of the underlying OS.
+ *
+ * @date	Tuesday 08-Jun-2010 6:22 am
+ * @param	a_uiCharacter	The character to be drawn, encoded in little endian format
+ * @param	a_iX			X position in the window at which to draw
+ * @param	a_iY			Y position in the window at which to draw
+ */
 
-void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDrawCharacter)
+void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 {
+	char Buffer[4];
+
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
-	char Space[1] = { ' ' };
-	const char *Cursor;
+	int Size;
+	TUint Mask;
 
-	/* Draw the text or a space instead as requested */
+	/* Determine the number of bytes that make up the character.  The character is encoded in little endian */
+	/* format, even on big endian systems, to ensure that when UTF-8 is not in use the character byte is in */
+	/* the lowest byte.  The upper bytes are zero, allowing easy counting */
 
-	Cursor = (a_iDrawCharacter) ? &a_pccText[a_iX] : Space;
+	Size = 0;
+	Mask = 0xff;
+
+	while (a_uiCharacter & Mask)
+	{
+		++Size;
+		Mask <<= 8;
+	}
+
+	/* Now unpack the character into a buffer in the order in which it would naturally appear in text, in */
+	/* order that it can be printed */
+
+	memset(Buffer, 0, sizeof(Buffer));
+
+	for (int Index = 0; Index < Size; ++Index)
+	{
+		Buffer[Index] = (a_uiCharacter & 0xff);
+		a_uiCharacter >>= 8;
+	}
 
 #else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
-	(void) a_iDrawCharacter;
+	(void) a_uiCharacter;
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
 	/* Invert the current highlight state before drawing the cursor and draw the letter under */
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
@@ -605,7 +642,7 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 		/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
 		/* uses the Y position as the baseline of the font, not as the top */
 
-		QByteArray String(Cursor, 1);
+		QByteArray String(Buffer, Size);
 		m_oPainter.drawText(X, (Y + m_iBaseline), String);
 
 		/* Set the background mode back to transparent so that if there is a pretty transparent background or a */
@@ -617,15 +654,17 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 #else /* ! QT_GUI_LIB */
 
 	TInt X, Y;
-	SIZE Size;
+	SIZE TextSize;
 
 	/* Given the X position of the cursor, determine the number of pixels between the left of */
 	/* the window and the position at which the cursor is to be displayed, and use this and the */
 	/* font height to display the cursor in the correct position */
 
-	if (GetTextExtentPoint32(m_poWindow->m_poDC, a_pccText, a_iX, &Size))
+	Buffer[0] = ' ';
+
+	if (GetTextExtentPoint32(m_poWindow->m_poDC, Buffer, 1, &TextSize))
 	{
-		X = (m_iXOffset + Size.cx);
+		X = (m_iXOffset + (TextSize.cx * a_iX));
 		Y = (m_iYOffset + (a_iY * m_iHeight));
 
 		/* And move the cursor to the calculated position */
@@ -654,9 +693,10 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
  * @param	a_iSize			Size of the string pointed to by a_pccText
  * @param	a_iX			X position in the window at which to draw
  * @param	a_iY			Y position in the window at which to draw
+ * @param	a_eEncoding		Text encoding in which the string is encoded
  */
 
-void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY)
+void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding)
 {
 	ASSERTM(a_pccText, "RFont::DrawText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
@@ -695,6 +735,8 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY)
 
 #elif defined(QT_GUI_LIB)
 
+	(void) a_eEncoding;
+
 	/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 	/* the baseline of the font, not as the top */
 
@@ -703,7 +745,41 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY)
 
 #else /* ! QT_GUI_LIB */
 
-	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
+	TInt WideLength;
+
+	/* If the text is in UTF-8 format then it must first be converted to UTF-16 before it can be displayed */
+
+	if (a_eEncoding == EEncodingUTF8)
+	{
+		/* Determine how many characters will be in the converted text.  If this is larger than the number of */
+		/* characters in the currently allocated temporary buffer then reallocate it */
+
+		if ((WideLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, NULL, 0)) > m_iWideBufferLength)
+		{
+			if ((m_pwcWideBuffer = (WCHAR *) Utils::GetTempBuffer((char *) m_pwcWideBuffer, (WideLength * sizeof(WCHAR)), 0)) != NULL)
+			{
+				m_iWideBufferLength = WideLength;
+			}
+		}
+
+		/* If the temporary buffer was successfully allocated then convert the text to UTF-16 and draw it.  In the */
+		/* unlikely event that something went wrong then this method will just fail silently */
+
+		if (m_pwcWideBuffer)
+		{
+			if ((WideLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
+			{
+				TextOutW(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
+			}
+		}
+	}
+
+	/* Otherwise it can be displayed directly */
+
+	else
+	{
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
+	}
 
 #endif /* ! QT_GUI_LIB */
 
@@ -731,9 +807,10 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY)
  * @param	a_pccText		Pointer to string to be drawn to the screen
  * @param	a_iX			X position in the window at which to draw
  * @param	a_iY			Y position in the window at which to draw
+ * @param	a_eEncoding		Text encoding in which the string is encoded
  */
 
-void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
+void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding)
 {
 	TInt Colour, Size;
 
@@ -809,6 +886,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 #elif defined(QT_GUI_LIB)
 
+	(void) a_eEncoding;
+
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
 	while (*a_pccText)
@@ -859,7 +938,9 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 			SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
 		}
 
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, Size);
+		/* And call the normal monocolour text drawing method to display the string for us */
+
+		DrawText(a_pccText, Size, a_iX, a_iY, a_eEncoding);
 
 		/* And prepare for the next run to be displayed */
 
