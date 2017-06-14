@@ -644,15 +644,19 @@ void RFont::DrawCursor(const char *a_pccText, TInt a_iX, TInt a_iY, TBool a_iDra
 	}
 }
 
-/* Written: Sunday 09-May-2010 6:57 pm */
-/* @param	a_pccText	Ptr to string to be drawn to the screen */
-/*			a_iLength	Length of the string pointed to by a_pccText */
-/*			a_iX		X position in the window at which to draw */
-/*			a_iY		Y position in the window at which to draw */
-/* Draws a string to the window the font is assigned to at the specified X and Y */
-/* positions */
+/**
+ * Draws a string of text to a window.
+ * Draws a string to the window the font is assigned to at the specified X and Y
+ * positions.
+ *
+ * @date	Sunday 09-May-2010 6:57 pm
+ * @param	a_pccText		Pointer to string to be drawn to the screen
+ * @param	a_iSize			Size of the string pointed to by a_pccText
+ * @param	a_iX			X position in the window at which to draw
+ * @param	a_iY			Y position in the window at which to draw
+ */
 
-void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY)
+void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY)
 {
 	ASSERTM(a_pccText, "RFont::DrawText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
@@ -681,7 +685,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY
 		Width = (m_iClipWidth - (a_iX * m_iWidth));
 		Width = MAX(0, Width);
 
-		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iLength, &TextExtent, NULL, 1,
+		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iSize, &TextExtent, NULL, 1,
 			Width, m_poWindow->InnerHeight());
 
 		/* And draw as much of the text passed in as will fit in the client area */
@@ -694,35 +698,44 @@ void RFont::DrawText(const char *a_pccText, TInt a_iLength, TInt a_iX, TInt a_iY
 	/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 	/* the baseline of the font, not as the top */
 
-	QByteArray String(a_pccText, a_iLength);
+	QByteArray String(a_pccText, a_iSize);
 	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 #else /* ! QT_GUI_LIB */
 
-	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iLength);
+	TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
 
 #endif /* ! QT_GUI_LIB */
 
 }
 
-/* Written: Thursday 01-Dec-2011 8:43 pm, Munich Airport, awaiting flight EK 052 to Dubai */
-/* @param	a_pccText	Ptr to string to be drawn to the screen */
-/*			a_iX		X position in the window at which to draw */
-/*			a_iY		Y position in the window at which to draw */
-/* Draws a string to the window the font is assigned to at the specified X and Y */
-/* positions.  Unline RFont::DrawText(), this text contains embedded codes that */
-/* specify the colour to use for each run of characters.  The encoded text is of the */
-/* following format: */
-/* */
-/* Length Colour Text[Length] 0 */
-/* */
-/* The Length byte specifies the length of the upcoming run of text.  It is 0 to terminate */
-/* the string.  The Colour byte specifies the colour in which to draw and following this are */
-/* Length bytes of the text itself.  After this, the sequence repeats or is terminated with 0 */
+/**
+ * Draws a coloured string of text to a window.
+ * Draws a string to the window the font is assigned to at the specified X and Y
+ * positions.  Unline RFont::DrawText(), this text contains embedded codes that
+ * specify the colour to use for each run of characters.  The encoded text is of the
+ * following format:
+ *
+ * Size Colour Text[Size] 0
+ *
+ * The Size byte specifies the size of the upcoming run of text in bytes.  It is 0 to terminate
+ * the string.  The Colour byte specifies the colour in which to draw and following this are
+ * Size bytes of the text itself.  After this, the sequence repeats or is terminated with 0.
+ *
+ * This method can also handle UTF-8 strings being encoded into the data.  The decoding of such
+ * strings is handled by the underlying OS.  If an error occurs during translation, this method
+ * will silently fail.  This means that the Size count mentioned above is the number of bytes to
+ * be drawn, not the number of characters.
+ *
+ * @date	Thursday 01-Dec-2011 8:43 pm, Munich Airport, awaiting flight EK 052 to Dubai
+ * @param	a_pccText		Pointer to string to be drawn to the screen
+ * @param	a_iX			X position in the window at which to draw
+ * @param	a_iY			Y position in the window at which to draw
+ */
 
 void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 {
-	TInt Colour, Length;
+	TInt Colour, Size;
 
 	ASSERTM(a_pccText, "RFont::DrawColouredText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
@@ -747,9 +760,9 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 		while (*a_pccText)
 		{
-			/* Get the length of the run and the colour to display the run in */
+			/* Get the size of the run and the colour in which to to display the run in */
 
-			Length = *a_pccText++;
+			Size = *a_pccText++;
 			Colour = *a_pccText++;
 			ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
@@ -764,7 +777,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 			/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
 			/* clip width reduces as we print the parts of the string */
 
-			NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Length, &TextExtent, NULL, 1,
+			NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Size, &TextExtent, NULL, 1,
 				Width, m_poWindow->InnerHeight());
 
 			/* If nothing fits then we may as well break out of the loop */
@@ -786,8 +799,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 			/* And prepare for the next run to be displayed */
 
-			a_iX += Length;
-			a_pccText += Length;
+			a_iX += Size;
+			a_pccText += Size;
 			Width -= TextExtent.te_Width;
 
 			ASSERTM((Width >= 0), "RFont::DrawColouredText() => Out of space");
@@ -800,9 +813,9 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 	while (*a_pccText)
 	{
-		/* Get the length of the run and the colour to display the run in */
+		/* Get the size of the run and the colour in which to to display the run in */
 
-		Length = *a_pccText++;
+		Size = *a_pccText++;
 		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
@@ -817,13 +830,13 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 		/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 		/* the baseline of the font, not as the top */
 
-		QByteArray String(a_pccText, Length);
+		QByteArray String(a_pccText, Size);
 		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
 
-		a_iX += Length;
-		a_pccText += Length;
+		a_iX += Size;
+		a_pccText += Size;
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -832,9 +845,9 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 
 	while (*a_pccText)
 	{
-		/* Get the length of the run and the colour to display the run in */
+		/* Get the size of the run and the colour in which to to display the run in */
 
-		Length = *a_pccText++;
+		Size = *a_pccText++;
 		Colour = *a_pccText++;
 		ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
@@ -846,12 +859,12 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY)
 			SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
 		}
 
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, Length);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, Size);
 
 		/* And prepare for the next run to be displayed */
 
-		a_iX += Length;
-		a_pccText += Length;
+		a_iX += Size;
+		a_pccText += Size;
 	}
 
 #endif /* ! QT_GUI_LIB */
