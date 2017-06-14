@@ -1482,14 +1482,14 @@ bool Utils::GetString(std::string &a_roString)
  * if desired (this is done by default).
  *
  * @date	Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor
- * @param	a_pccBuffer		Ptr to the currently allocated buffer
+ * @param	a_pvBuffer		Pointer to the currently allocated buffer
  * @param	a_stSize		Size in bytes of the new buffer to be allocated
  * @param	a_bCopyContents	ETrue to copy the contents of the old buffer.
  *							If not specified then this is ETrue by default
  * @return	A Ptr to the allocated buffer if successful, else NULL
  */
 
-void *Utils::GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyContents)
+void *Utils::GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyContents)
 {
 	char *OldBuffer, *RetVal;
 	size_t Size;
@@ -1502,32 +1502,32 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyCont
 	/* If the buffer has already been allocated then check to see if it is */
 	/* large enough to hold the newly requested size */
 
-	if (a_pccBuffer)
+	if (a_pvBuffer)
 	{
 		/* The size is stored in the long word just before the ptr that is */
 		/* returned to the user */
 
-		Size = *(size_t *) (a_pccBuffer - sizeof(a_stSize));
+		Size = *(size_t *) ((char *) a_pvBuffer - sizeof(a_stSize));
 
 		/* If the current buffer is large enough then reuse it */
 
 		if (Size >= a_stSize)
 		{
-			RetVal = a_pccBuffer;
+			RetVal = (char *) a_pvBuffer;
 		}
 
 		/* Otherwise indicate that a new buffer is to be allocated */
 
 		else
 		{
-			OldBuffer = a_pccBuffer;
-			a_pccBuffer = NULL;
+			OldBuffer = (char *) a_pvBuffer;
+			a_pvBuffer = NULL;
 		}
 	}
 
 	/* If no buffer is allocated then allocate it now */
 
-	if (!(a_pccBuffer))
+	if (!a_pvBuffer)
 	{
 		// TODO: CAW - How do we ensure this doesn't throw an exception here and for other operating systems?
 		RetVal = new char[a_stSize + sizeof(a_stSize)];
@@ -1555,16 +1555,20 @@ void *Utils::GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyCont
 	return(RetVal);
 }
 
-/* Written: Tuesday 28-Feb-2012 9:00 am, Code HQ Ehinger Tor */
-/* @param	a_pccBuffer	Ptr to the buffer to be freed */
-/* Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass */
-/* in NULL to this routine */
+/**
+ * Frees a temporary buffer.
+ * Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass
+ * in NULL to this method.
+ *
+ * @date	Tuesday 28-Feb-2012 9:00 am, Code HQ Ehinger Tor
+ * @param	a_pccBuffer		Pointer to the buffer to be freed
+ */
 
-void Utils::FreeTempBuffer(char *a_pccBuffer)
+void Utils::FreeTempBuffer(void *a_pvBuffer)
 {
-	if (a_pccBuffer)
+	if (a_pvBuffer)
 	{
-		delete [] (a_pccBuffer - sizeof(size_t));
+		delete [] ((char *) a_pvBuffer - sizeof(size_t));
 	}
 }
 

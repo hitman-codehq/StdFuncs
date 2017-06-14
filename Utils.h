@@ -73,9 +73,9 @@ public:
 
 	static bool GetString(std::string &a_roBuffer);
 
-	static void *GetTempBuffer(char *a_pccBuffer, size_t a_stSize, TBool a_bCopyContents = ETrue);
+	static void *GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyContents = ETrue);
 
-	static void FreeTempBuffer(char *a_pccBuffer);
+	static void FreeTempBuffer(void *a_pvBuffer);
 
 #ifdef _DEBUG
 
