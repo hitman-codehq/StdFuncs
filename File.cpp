@@ -441,7 +441,8 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
  *
  * @date	Saturday 27-May-2017 6:49 am, Tegel Airport, awaiting flight AB 8062 to Gothenburg
  * @param	a_iBytes		The number of bytes from the start of the file to which to seek
- * @return	The new position in the file after the seek, if successful, otherwise KErrGeneral
+ * @return	KErrNone if successful
+ * @return	KErrGeneral if the seek could not be performed
  */
 
 TInt RFile::Seek(TInt a_iBytes)
@@ -468,7 +469,7 @@ TInt RFile::Seek(TInt a_iBytes)
 
 	if ((Position = SetFilePointer(m_oHandle, a_iBytes, NULL, FILE_BEGIN)) != INVALID_SET_FILE_POINTER)
 	{
-		RetVal = (TInt) Position;
+		RetVal = KErrNone;
 	}
 
 #endif /* ! __linux__ */
