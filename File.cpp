@@ -371,6 +371,8 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
  * able to satisfy the read request, or the function will fail.  It is safe to try and write
  * 0 bytes.  In this case 0 will be returned.
  *
+ * @pre		The file must be open
+ *
  * @date	Friday 02-Jan-2009 10:20 pm
  * @param	a_pucBuffer		Ptr to the buffer to read the data into
  * @param	a_iLength		Number of bytes in the buffer to be read
@@ -431,11 +433,57 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 }
 
 /**
+ * Seeks to a specified position in the file.
+ * This is a basic seek function that will seek from the beginning of a file to the position
+ * passed in, that position being a number of bytes from the beginning of the file.
+ *
+ * @pre		The file must be open
+ *
+ * @date	Saturday 27-May-2017 6:49 am, Tegel Airport, awaiting flight AB 8062 to Gothenburg
+ * @param	a_iBytes		The number of bytes from the start of the file to which to seek
+ * @return	The new position in the file after the seek, if successful, otherwise KErrGeneral
+ */
+
+TInt RFile::Seek(TInt a_iBytes)
+{
+	TInt RetVal;
+
+	ASSERTM(m_oHandle, "RFile::Seek() => File is not open");
+
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
+
+#ifdef __amigaos4__
+
+	// TODO: CAW - Implement
+
+#elif defined(__linux__)
+
+	// TODO: CAW - Implement
+
+#else /* ! __linux__ */
+
+	DWORD Position;
+
+	if ((Position = SetFilePointer(m_oHandle, a_iBytes, NULL, FILE_BEGIN)) != INVALID_SET_FILE_POINTER)
+	{
+		RetVal = (TInt) Position;
+	}
+
+#endif /* ! __linux__ */
+
+	return(RetVal);
+}
+
+/**
  * Writes a number of bytes to the file.
  * Writes a number of bytes to the file.  The file must have been opened in a writeable mode,
  * either by using RFile::Open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the
  * latter two cases, files are always opened as writeable, regardless of the file mode passed in.
  * It is safe to try and write 0 bytes.  In this case 0 will be returned
+ *
+ * @pre		The file must be open
  *
  * @date	Friday 02-Jan-2009 10:29 pm
  * @param	a_pcucBuffer	Ptr to the buffer to be written to the file

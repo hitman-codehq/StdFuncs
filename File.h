@@ -52,6 +52,8 @@ public:
 
 	TInt Read(unsigned char *a_pucBuffer, TInt a_iLength) const;
 
+	TInt Seek(TInt a_iBytes);
+
 	TInt Write(const unsigned char *a_pcucBuffer, TInt a_iLength);
 
 	void Close();
