@@ -777,7 +777,7 @@ TInt RConfigFile::Parse()
 						/* stripped out of the value token by TLex, which is also using it as a key = value */
 						/* separator */
 
-						ValueTokenLength = (LFIndex - (ValueToken - Token));
+						ValueTokenLength = (TInt) (LFIndex - (ValueToken - Token));
 
 						if ((Key = CKey::New(Token, TokenLength, ValueToken, ValueTokenLength)) != NULL)
 						{
