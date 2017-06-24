@@ -180,7 +180,7 @@ typedef unsigned long COLORREF;
 
 enum TEncoding
 {
-	EEncoding8859,				/**< Generic 8859 encodings */
+	EEncoding8859,				/**< Generic ISO-8859 encodings */
 	EEncodingUTF8				/**< UTF-8 encoding */
 };
 

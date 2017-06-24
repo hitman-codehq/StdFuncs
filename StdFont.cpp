@@ -504,7 +504,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	TUint Mask;
 
 	/* Determine the number of bytes that make up the character.  The character is encoded in little endian */
-	/* format, even on big endian systems, to ensure that when UTF-8 is not in use the character byte is in */
+	/* format, even on big endian systems, to ensure that when Unicode is not in use the character byte is in */
 	/* the lowest byte.  The upper bytes are zero, allowing easy counting */
 
 	Size = 0;
@@ -798,7 +798,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
  * the string.  The Colour byte specifies the colour in which to draw and following this are
  * Size bytes of the text itself.  After this, the sequence repeats or is terminated with 0.
  *
- * This method can also handle UTF-8 strings being encoded into the data.  The decoding of such
+ * This method can also handle Unicode strings being encoded into the data.  The decoding of such
  * strings is handled by the underlying OS.  If an error occurs during translation, this method
  * will silently fail.  This means that the Size count mentioned above is the number of bytes to
  * be drawn, not the number of characters.
