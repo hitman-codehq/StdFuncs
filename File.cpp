@@ -461,7 +461,10 @@ TInt RFile::Seek(TInt a_iBytes)
 
 #elif defined(__linux__)
 
-	// TODO: CAW - Implement
+	if (lseek(m_oHandle, a_iBytes, SEEK_SET) != -1)
+	{
+		RetVal = KErrNone;
+	}
 
 #else /* ! __linux__ */
 
