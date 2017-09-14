@@ -265,7 +265,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 
 		/* And assign the font to the window */
 
-		m_poWindow->m_poWindow->setFont(*m_poFont);
+		m_poWindow->m_poCentralWidget->setFont(*m_poFont);
 	}
 	else
 	{
