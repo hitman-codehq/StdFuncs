@@ -141,6 +141,22 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	if ((StatusBar = new QStatusBar(m_poParentWindow->m_poWindow)) != NULL)
 	{
+		/* Create a style sheet and assign it to the status bar, to ensure that it looks */
+		/* half decent and is actually usable.  Without this it is almost invisible! */
+
+		QString styleSheet = "\
+			QStatusBar {\
+				background : #f2f1f0;\
+			}\
+			\
+			QStatusBar::item {\
+				border : 1px solid #c9c6c3;\
+				border-radius: 3px;\
+			}\
+		";
+
+		StatusBar->setStyleSheet(styleSheet);
+
 		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
 		/* to access them l8r on, and create a part label for each slot in the array */
 
