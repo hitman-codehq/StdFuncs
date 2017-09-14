@@ -2183,20 +2183,30 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (!(realpath(a_pccFileName, RetVal)))
 		{
-			/* Converting the filename failed, probably due to the file not existing, so get the current */
-			/* directory instead and append the filename to it */
+			/* Converting the filename failed, possibly due to the file not existing.  Check whether */
+			/* the filename is already resolved and if so, just use it as is */
 
-			if (getcwd(RetVal, PATH_MAX))
+			if (a_pccFileName[0] == '/')
 			{
-				Utils::AddPart(RetVal, a_pccFileName, PATH_MAX);
+				strcpy(RetVal, a_pccFileName);
 			}
 
-			/* We couldn't even get the current directory so free the buffer and return failure */
+			/* Otherwise get the current directory and append the filename to it */
 
 			else
 			{
-				delete [] RetVal;
-				RetVal = NULL;
+				if (getcwd(RetVal, PATH_MAX))
+				{
+					Utils::AddPart(RetVal, a_pccFileName, PATH_MAX);
+				}
+
+				/* We couldn't even get the current directory so free the buffer and return failure */
+
+				else
+				{
+					delete [] RetVal;
+					RetVal = NULL;
+				}
 			}
 		}
 	}
