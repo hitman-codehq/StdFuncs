@@ -345,6 +345,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 	/* Save the maximum position of the scroller and its page size for l8r use */
 
+	// TODO: CAW - What did we used to do here in Qt 4?
 	m_iMaxRange = a_iMaxRange;
 	m_iPageSize = a_iPageSize;
 
@@ -354,6 +355,12 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
+
+	/* Qt does not take the page size into account automatically so we have to reduce */
+	/* the range to account for this.  We do not want the slider to return values greater */
+	/* than (maxrange - pagesize) */
+
+	m_iMaxRange -= a_iPageSize;
 
 	/* Now let Qt know the page size and range to be used */
 
