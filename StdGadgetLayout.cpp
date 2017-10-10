@@ -163,7 +163,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	{
 		if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, 1, 1, 1, Qt::AlignRight);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, m_poLayout->columnCount(), 1, 1, Qt::AlignRight);
 
 			/* This code is not (yet) generic and will work properly only with Brunel.  Set the */
 			/* stretch factor of the slider so that it expands to fill as much space as possible */
@@ -173,7 +173,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		}
 		else
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 1, 0, 1, -1, Qt::AlignBottom);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, m_poLayout->rowCount(), 0, 1, -1, Qt::AlignBottom);
 		}
 
 		RethinkLayout();
