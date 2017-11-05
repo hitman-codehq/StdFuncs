@@ -576,7 +576,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 			if (m_poWindow->IsActive())
 			{
-				IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+				IGraphics->Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
 			}
 			else
 			{
@@ -615,7 +615,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 					OldDrawMode = IGraphics->GetDrMd(m_poWindow->m_poWindow->RPort);
 					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, JAM1);
-					IGraphics->Text(m_poWindow->m_poWindow->RPort, Cursor, 1);
+					IGraphics->Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
 					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, OldDrawMode);
 
 					IGraphics->FreeRaster(PlanePtr, 16, 16);
@@ -706,6 +706,8 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
+
+	(void) a_eEncoding;
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
@@ -822,6 +824,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
+
+	(void) a_eEncoding;
 
 	/* Determine how much space we have in which to print.  The text may not start at the very left */
 	/* of the screen so take this into account */
