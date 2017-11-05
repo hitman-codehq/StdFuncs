@@ -40,7 +40,7 @@ TEntry::TEntry()
 
 #ifdef __amigaos4__
 
-	iAttributes = 0;
+	iAttributes = EXDF_NO_EXECUTE;
 
 #elif defined(__linux__)
 
