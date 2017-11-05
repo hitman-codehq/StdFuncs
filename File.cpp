@@ -457,7 +457,10 @@ TInt RFile::Seek(TInt a_iBytes)
 
 #ifdef __amigaos4__
 
-	// TODO: CAW - Implement
+	if (IDOS->ChangeFilePosition(m_oHandle, a_iBytes, OFFSET_BEGINNING))
+	{
+		RetVal = KErrNone;
+	}
 
 #elif defined(__linux__)
 
