@@ -207,9 +207,10 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 #elif defined(QT_GUI_LIB)
 
-	/* If there is a client interested in getting updates, pass the message along to it */
+	/* If there is a client interested in getting updates, pass the message along to it, but only if */
+	/* the position request didn't originally come from the client */
 
-	if (m_poClient)
+	if (m_poClient && !m_bSettingValue)
 	{
 		m_poClient->SliderUpdated(this, a_ulData);
 	}
@@ -312,10 +313,12 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Qt sliders start from 0, whereas the CStdGadgetSlider gadget starts from 1 so */
-	/* take this into account */
+	/* Qt sliders start from 0, whereas the CStdGadgetSlider gadget starts from 1 so take this into */
+	/* account.  For compatibility with the other versions, don't notify the client during this operation */
 
+	m_bSettingValue = true;
 	((QScrollBar *) m_poGadget)->setValue(a_iPosition - 1);
+	m_bSettingValue = false;
 
 #else /* ! QT_GUI_LIB */
 
@@ -345,7 +348,6 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 	/* Save the maximum position of the scroller and its page size for l8r use */
 
-	// TODO: CAW - What did we used to do here in Qt 4?
 	m_iMaxRange = a_iMaxRange;
 	m_iPageSize = a_iPageSize;
 
