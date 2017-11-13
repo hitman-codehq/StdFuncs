@@ -251,7 +251,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
 				a_piPartsOffsets[Index] = (int) (Offset + (a_piPartsOffsets[Index] / 100.0f * ParentWidth));
-				Offset += a_piPartsOffsets[Index];
+				Offset = a_piPartsOffsets[Index];
 			}
 
 			/* Subdivide the status bar into the requested number of parts at the requested positions */
@@ -418,8 +418,8 @@ void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
 
 		for (Index = 0; Index < m_iNumParts; ++Index)
 		{
-			PartsOffsets[Index] = (TInt)(Offset + (m_piPartsOffsets[Index] / 100.0f * ParentWidth));
-			Offset += PartsOffsets[Index];
+			PartsOffsets[Index] = (int) (Offset + (m_piPartsOffsets[Index] / 100.0f * ParentWidth));
+			Offset = PartsOffsets[Index];
 		}
 
 		/* Subdivide the status bar into the requested number of parts at the requested positions */
