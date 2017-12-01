@@ -238,6 +238,12 @@ void CDialog::Close()
 	if (m_poDialog)
 	{
 		m_poDialog->hide();
+
+		/* When closing the dialog, Qt calls the QMainWindow::focusInEvent() callback *after* */
+		/* it performs a redraw of the main window, resulting in an invisible cursor, so we have */
+		/* to manually re-enable display of the cursor when closing */
+
+		CWindow::RootWindow()->m_bIsActive = ETrue;
 	}
 
 #elif defined(WIN32)
