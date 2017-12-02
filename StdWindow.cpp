@@ -2019,6 +2019,12 @@ void CWindow::BringToFront()
 	m_poWindow->raise();
 	m_poWindow->activateWindow();
 
+	/* As when closing a dialog, Qt calls the QMainWindow::focusInEvent() callback *after* */
+	/* it performs a redraw of the main window, resulting in an invisible cursor, so we have */
+	/* to manually re-enable display of the cursor when closing */
+
+	m_bIsActive = ETrue;
+
 #else /* ! QT_GUI_LIB */
 
 	DEBUGCHECK((SetForegroundWindow(m_poWindow) != FALSE), "CWindow::BringToFront() => Unable to set foreground window");
