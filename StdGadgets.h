@@ -38,7 +38,7 @@ class CStdGadget
 {
 protected:
 
-	TBool					m_bHidden;			/**< ETrue if the gadget is hidden */
+	bool					m_bHidden;			/**< true if the gadget is hidden */
 	TInt					m_iGadgetID;		/**< Unique ID of the gadget */
 	TInt					m_iX;				/**< X and Y positions of the gadget, relative */
 	TInt					m_iY;				/**< to the top left hand corner of the client area */
@@ -87,11 +87,11 @@ public:
 		return(m_iGadgetType);
 	}
 
-	void Hide();
+	void SetVisible(bool a_bVisible);
 
-	TBool Visible()
+	bool Visible()
 	{
-		return(!(m_bHidden));
+		return(!m_bHidden);
 	}
 
 	virtual TInt X();

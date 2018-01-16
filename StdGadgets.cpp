@@ -102,50 +102,6 @@ TInt CStdGadget::Width()
 }
 
 /**
- * Hides the gadget.
- * This function will set the associated gadget to hidden and will redraw the
- * display to reflect this new state.  It also keeps track of the hidden state
- * internally so that if the gadget's size is queried it will return that it is
- * zero pixels high and zero pixels wide.  The gadget remains on the window's
- * list of gadgets but is now invisible to the eye.
- *
- * @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Würzburg
- */
-
-void CStdGadget::Hide()
-{
-	/* Keep track of the state of the gadget ourselves as some systems make */
-	/* querying this information difficult (I'm lookin' at you Qt!) */
-
-	m_bHidden = ETrue;
-
-	/* And hide the underlying OS specific gadget */
-
-#ifdef __amigaos4__
-
-	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back, */
-	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */
-	/* until a CStdGadget::UnHide() function is required we won't bother */
-
-	IIntuition->SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
-
-#elif defined(QT_GUI_LIB)
-
-	if (m_poGadget)
-	{
-		m_poGadget->hide();
-	}
-
-#else /* ! QT_GUI_LIB */
-
-	DEBUGCHECK((ShowWindow(m_poGadget, SW_HIDE) != FALSE), "CStdGadget::Hide() => Unable to hide gadget");
-
-#endif /* ! QT_GUI_LIB */
-
-}
-
-/**
  * Returns the height of the gadget in pixels.
  * Returns the height of the gadget, taking into account whether or not the gadget
  * is visible.  Hidden gadgets return a height of zero.
@@ -268,5 +224,50 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetSize() => Unable to set gadget size");
 
 #endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+
+}
+
+/**
+* Shows or hides the gadget.
+* This function will set the associated gadget to hidden and will redraw the
+* display to reflect this new state.  It also keeps track of the hidden state
+* internally so that if the gadget's size is queried it will return that it is
+* zero pixels high and zero pixels wide.  The gadget remains on the window's
+* list of gadgets but is now invisible to the eye.
+*
+* @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Würzburg
+* @param	a_bVisible		true to make gadget visible, else false to hide it
+*/
+
+void CStdGadget::SetVisible(bool a_bVisible)
+{
+	/* Keep track of the state of the gadget ourselves as some systems make */
+	/* querying this information difficult (I'm lookin' at you Qt!) */
+
+	m_bHidden = !a_bVisible;
+
+	/* And hide the underlying OS specific gadget */
+
+#ifdef __amigaos4__
+
+	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back, */
+	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */
+	/* until a CStdGadget::UnHide() function is required we won't bother */
+
+	IIntuition->SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
+
+#elif defined(QT_GUI_LIB)
+
+	if (m_poGadget)
+	{
+		m_poGadget->setVisible(a_bVisible);
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	ShowWindow(m_poGadget, (a_bVisible) ? SW_SHOW : SW_HIDE);
+
+#endif /* ! QT_GUI_LIB */
 
 }
