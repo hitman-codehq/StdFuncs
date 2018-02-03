@@ -3043,7 +3043,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
 	WndClass.hInstance = Instance;
-	WndClass.hIcon = 0;
+	WndClass.hIcon = LoadIcon(Instance, MAKEINTRESOURCE(107));
 	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
 	WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
 	WndClass.lpszMenuName = MAKEINTRESOURCE(101);
