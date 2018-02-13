@@ -295,7 +295,7 @@ const char *RClipboard::GetDataStart()
 		Utils::Info("RClipboard::GetDataStart() => No clipboard data available");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }

@@ -7,11 +7,11 @@
 #include "StdList.h"
 #include "StdTime.h"
 
-#ifdef __linux__
+#if defined(__unix__)
 
 #include <dirent.h>
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 /** File sorting possibilities for files returned by RDir::Read() */
 
@@ -47,15 +47,15 @@ public:
 
 	struct DateStamp	iPlatformDate;		/**< Date and time in Amiga specific format */
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	time_t				iPlatformDate;		/**< Date and time in UNIX specific format */
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	FILETIME			iPlatformDate;		/**< Date and time in Windows specific format */
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 public:
 
@@ -127,18 +127,18 @@ private:
 	char			*iPattern;		/**< Pattern to be used for MatchPatternNoCase() */
 	APTR			iContext;		/**< Context used for scanning directory */
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	char			*iPathBuffer;	/**< Ptr to memory used by iPath and iPattern buffers */
 	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
 	char			*iPattern;		/**< Pattern to be used for pattern matching in RDir::Read() */
 	DIR				*iDir;			/**< Pointer to object used for scanning directory */
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	HANDLE			iHandle;		/**< Handle used for scanning directory */
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	TEntry			iSingleEntry;	/**< If a single entry is being examined, Open() will populate this */
 	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */

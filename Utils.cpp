@@ -16,7 +16,7 @@
 
 #endif /* QT_GUI_LIB */
 
-#ifdef __linux__
+#ifdef __unix__
 
 #include <errno.h>
 #include <syslog.h>
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <utime.h>
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 #include <stdio.h>
 #include <string.h>
@@ -39,17 +39,17 @@
 #define DELETE_DIRECTORY(DirectoryName) IDOS->Delete(DirectoryName)
 #define VSNPRINTF vsnprintf
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 #define DELETE_DIRECTORY(DirectoryName) (rmdir(DirectoryName) == 0)
 #define VSNPRINTF vsnprintf
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 #define DELETE_DIRECTORY(DirectoryName) RemoveDirectory(DirectoryName)
 #define VSNPRINTF _vsnprintf
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 #define PRINTF printf
 
@@ -164,7 +164,7 @@ TInt Utils::MapLastError()
 		RetVal = KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (errno == EEXIST)
 	{
@@ -183,7 +183,7 @@ TInt Utils::MapLastError()
 		RetVal = KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	DWORD Error;
 
@@ -210,7 +210,7 @@ TInt Utils::MapLastError()
 		RetVal = KErrGeneral;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -513,7 +513,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 		RetVal = (IDOS->IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (mkdir(a_pccDirectoryName, 0755) == 0)
 	{
@@ -524,7 +524,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 		RetVal = (errno == EEXIST) ? KErrAlreadyExists : KErrNotFound;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	if (::CreateDirectory(a_pccDirectoryName, NULL))
 	{
@@ -535,7 +535,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 		RetVal = (GetLastError() == ERROR_ALREADY_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -1000,7 +1000,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 				}
 			}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 			char *ResolvedFileName;
 			int Result;
@@ -1068,7 +1068,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 				}
 			}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 			char *ResolvedFileName;
 			DWORD Flags;
@@ -1161,7 +1161,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 				CloseHandle(Handle);
 			}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 		}
 		else
@@ -1219,7 +1219,7 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 		IIntuition->UnlockPubScreen(NULL, Screen);
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	(void) a_poWindow;
 
@@ -1373,12 +1373,12 @@ int Utils::GetShellHeight()
 		Utils::Info("Utils::GetShellHeight() => Unable to put console into RAW mode");
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	// TODO: CAW - Implement this
 	RetVal = 50;
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
 	HANDLE StdOut;
@@ -1404,7 +1404,7 @@ int Utils::GetShellHeight()
 		Utils::Info("Utils::GetShellHeight() => Unable get handle to console");
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -1580,29 +1580,29 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 	va_start(Args, a_pccMessage);
 
-#ifndef __linux__
+#ifndef __unix__
 
 	char Message[512];
 
 	strcpy(Message, "Info: " );
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 #ifdef __amigaos4__
 
 	IExec->DebugPrintF("%s\n", Message);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	vsyslog(LOG_INFO, a_pccMessage, Args);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	OutputDebugString(Message);
 	OutputDebugString("\n");
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	va_end(Args);
 }
@@ -1757,14 +1757,14 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 		RetVal = KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (symlink(a_pccDest, a_pccSource) != 0)
 	{
 		RetVal = KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	char *DestFileName;
 
@@ -1798,7 +1798,7 @@ TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
 		RetVal = KErrNoMemory;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -1855,7 +1855,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	VSNPRINTF(Message, sizeof(Message), a_pccMessage, a_oArgs);
 
-#if !defined(__linux__) || defined(QT_GUI_LIB)
+#if !defined(__unix__) || defined(QT_GUI_LIB)
 
 	CWindow *RootWindow;
 
@@ -1864,7 +1864,7 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 	RootWindow = CWindow::RootWindow();
 
-#endif /* !defined(__linux__) || defined(QT_GUI_LIB) */
+#endif /* !defined(__unix__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos4__
 
@@ -2170,7 +2170,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 		Utils::Info("Utils::ResolveFileName() => Out of memory");
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	(void) a_bGetDeviceName;
 
@@ -2215,7 +2215,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 		Utils::Info("Utils::ResolveFileName() => Out of memory");
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	size_t Length;
 
@@ -2336,7 +2336,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 		}
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -2404,7 +2404,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 		TInt Result;
 		char *FileNamePart;
@@ -2444,7 +2444,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			Utils::Info("Utils::ResolveFileName() => Out of memory");
 		}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 		char *FileNamePart;
 
@@ -2481,7 +2481,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 		/* If anything failed then free the string the was allocated and indicate failure */
 
@@ -2585,7 +2585,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 	TInt RetVal;
 	TEntry Entry;
 
-#if defined(__amigaos4__) || defined(__linux__)
+#if defined(__amigaos4__) || defined(__unix__)
 
 	/* Get the current file attributes as the chmod() function only lets us set all attributes, */
 	/* not just a single one */
@@ -2608,14 +2608,14 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 		RetVal = Utils::SetProtection(a_pccFileName, Entry.iAttributes);
 	}
 
-#else /* ! defined(__amigaos4__) || defined(__linux__) */
+#else /* ! defined(__amigaos4__) || defined(__unix__) */
 
 	/* Use our version of SetProtection() rather than the native SetFileAttributes() function */
 	/* so that we don't have to worry about error handling */
 
 	RetVal = Utils::SetProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
 
-#endif /* ! defined(__amigaos4__) || defined(__linux__) */
+#endif /* ! defined(__amigaos4__) || defined(__unix__) */
 
 	return(RetVal);
 
@@ -2638,7 +2638,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	int Result;
 	struct timeval TimeVal[2];
@@ -2668,7 +2668,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 		RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	DWORD Flags;
 	HANDLE Handle;
@@ -2701,7 +2701,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 		RetVal = (GetLastError() == ERROR_FILE_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -2732,7 +2732,7 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (chmod(a_pccFileName, a_uiAttributes) == 0)
 	{
@@ -2743,7 +2743,7 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 		RetVal = (errno == ENOENT) ? KErrNotFound : KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	if (SetFileAttributes(a_pccFileName, a_uiAttributes))
 	{
@@ -2754,7 +2754,7 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 		RetVal = (GetLastError() == ERROR_FILE_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }

@@ -4,21 +4,21 @@
 #include "File.h"
 #include <string.h>
 
-#ifdef __linux__
+#ifdef __unix__
 
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <unistd.h>
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 /* Written: Friday 02-Jan-2009 9:03 pm */
 
 RFile::RFile()
 {
 
-#ifdef __linux__
+#ifdef __unix__
 
 	m_oHandle = -1;
 
@@ -89,7 +89,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		RetVal = KErrAlreadyExists;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	TInt Flags;
 
@@ -140,7 +140,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		}
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	/* Create a new file in read/write mode */
 
@@ -174,7 +174,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		}
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -283,7 +283,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 		TInt Flags;
 
@@ -320,7 +320,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 		DWORD FileMode;
 
@@ -346,7 +346,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			RetVal = Utils::MapLastFileError(a_pccFileName);
 		}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 		/* And free the resolved filename, but only if it contained the prefix */
 
@@ -394,7 +394,7 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 		RetVal = KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	RetVal = read(m_oHandle, a_pucBuffer, a_iLength);
 
@@ -403,7 +403,7 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 		RetVal = KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	DWORD BytesRead;
 
@@ -427,7 +427,7 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
 		RetVal = 0;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -462,14 +462,14 @@ TInt RFile::Seek(TInt a_iBytes)
 		RetVal = KErrNone;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (lseek(m_oHandle, a_iBytes, SEEK_SET) != -1)
 	{
 		RetVal = KErrNone;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	DWORD Position;
 
@@ -478,7 +478,7 @@ TInt RFile::Seek(TInt a_iBytes)
 		RetVal = KErrNone;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -525,7 +525,7 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 		RetVal = KErrGeneral;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	RetVal = write(m_oHandle, a_pcucBuffer, a_iLength);
 
@@ -534,7 +534,7 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 		RetVal = KErrGeneral;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	DWORD BytesWritten;
 
@@ -550,7 +550,7 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 		RetVal = KErrGeneral;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
@@ -573,7 +573,7 @@ void RFile::Close()
 		m_oHandle = 0;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	if (m_oHandle != -1)
 	{
@@ -581,7 +581,7 @@ void RFile::Close()
 		m_oHandle = -1;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	if (m_oHandle != INVALID_HANDLE_VALUE)
 	{
@@ -589,6 +589,6 @@ void RFile::Close()
 		m_oHandle = INVALID_HANDLE_VALUE;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }

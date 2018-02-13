@@ -147,7 +147,7 @@ TBool TDateTime::IsLeapYear(TInt a_iYear)
 void TTime::HomeTime()
 {
 
-#if defined(__amigaos4__) || defined(__linux__)
+#if defined(__amigaos4__) || defined(__unix__)
 
 	time_t TimeInSeconds;
 	struct tm *LocalTime;
@@ -159,7 +159,7 @@ void TTime::HomeTime()
 	ASSERTM((LocalTime != NULL), "TTime::HomeTime() => Unable to obtain current date and time");
 	TDateTime DateTime((LocalTime->tm_year + 1900), (TMonth) LocalTime->tm_mon, LocalTime->tm_mday, LocalTime->tm_hour, LocalTime->tm_min, LocalTime->tm_sec, 0);
 
-#else /* ! defined(__amigaos4__) || defined(__linux__) */
+#else /* ! defined(__amigaos4__) || defined(__unix__) */
 
 	SYSTEMTIME SystemTime;
 
@@ -168,7 +168,7 @@ void TTime::HomeTime()
 	GetLocalTime(&SystemTime);
 	TDateTime DateTime(SystemTime.wYear, (TMonth) (SystemTime.wMonth - 1), SystemTime.wDay, SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, SystemTime.wMilliseconds);
 
-#endif /* ! defined(__amigaos4__) || defined(__linux__) */
+#endif /* ! defined(__amigaos4__) || defined(__unix__) */
 
 	/* And assign it to both the human readable and internal representations of the date and time */
 

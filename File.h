@@ -30,15 +30,15 @@ private:
 	TUint	m_uiFileMode;	/* Mode in which file was opened for access */
 	BPTR	m_oHandle;		/* Handle to the open file or 0 if closed */
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	TInt		m_oHandle;	/* Handle to the open file or 0 if closed */
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	HANDLE	m_oHandle;		/**< Handle to the open file or 0 if closed */
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 public:
 

@@ -6,13 +6,13 @@
 #include <proto/exec.h>
 #include <proto/utility.h>
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 #include <errno.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 #include <string.h>
 #include "Dir.h"
@@ -42,7 +42,7 @@ TEntry::TEntry()
 
 	iAttributes = EXDF_NO_EXECUTE;
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 
@@ -106,18 +106,18 @@ TBool TEntry::IsHidden() const
 
 	return(EFalse);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	/* UNIX does not have the concept of hidden files (we won't count files starting */
 	/* with . as hidden as this is not a function of the filesystem */
 
 	return(EFalse);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	return(iAttributes & FILE_ATTRIBUTE_HIDDEN);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 
@@ -130,15 +130,15 @@ TBool TEntry::IsReadable() const
 
 	return((iAttributes & EXDF_NO_READ) == 0);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	return(iAttributes & S_IRUSR);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	return(ETrue);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 
@@ -151,15 +151,15 @@ TBool TEntry::IsWriteable() const
 
 	return((iAttributes & EXDF_NO_WRITE) == 0);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	return(iAttributes & S_IWUSR);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	return((iAttributes & FILE_ATTRIBUTE_READONLY) == 0);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 
@@ -172,15 +172,15 @@ TBool TEntry::IsExecutable() const
 
 	return((iAttributes & EXDF_NO_EXECUTE) == 0);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	return(iAttributes & S_IXUSR);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	return(ETrue);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 
@@ -193,15 +193,15 @@ TBool TEntry::IsDeleteable() const
 
 	return((iAttributes & EXDF_NO_DELETE) == 0);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	return(iAttributes & S_IWUSR);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	return((iAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)) == 0);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 
@@ -386,16 +386,16 @@ RDir::RDir()
 	iPattern = NULL;
 	iContext = NULL;
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	iPathBuffer = iPath = iPattern = NULL;
 	iDir = NULL;
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	iHandle = NULL;
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 	iSingleEntryOk = EFalse;
 }
@@ -606,7 +606,7 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	char *ProgDirName;
 	const char *ToOpen;
@@ -697,7 +697,7 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	char *Path, *ProgDirName;
 	const char *FileName;
@@ -769,7 +769,7 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	/* If anything went wrong, clean up whatever was allocated */
 
@@ -803,7 +803,7 @@ void RDir::Close()
 		iContext = NULL;
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	delete [] iPathBuffer;
 	iPathBuffer = iPath = iPattern = NULL;
@@ -814,7 +814,7 @@ void RDir::Close()
 		iDir = NULL;
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	if (iHandle)
 	{
@@ -822,7 +822,7 @@ void RDir::Close()
 		iHandle = NULL;
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	iSingleEntryOk = EFalse;
 }
@@ -992,7 +992,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 	}
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	char *QualifiedName;
 	TBool Append;
@@ -1098,7 +1098,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 	}
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	WIN32_FIND_DATA FindData;
 
@@ -1133,7 +1133,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 	}
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	/* Sort the list before returning it, if requested */
 

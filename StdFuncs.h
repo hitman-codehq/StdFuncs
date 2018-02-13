@@ -10,9 +10,15 @@
 #define _stricmp(String1, String2) strcasecmp(String1, String2)
 #define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
 
-#elif defined(__linux__)
+#elif defined(__APPLE__) || defined(__linux__)
 
 #include <sys/param.h>
+
+#ifdef __APPLE__
+
+#define __unix__
+
+#endif /* __APPLE__ */
 
 #define TRUE 1
 #define FALSE 0
@@ -26,7 +32,7 @@ typedef unsigned long ULONG;
 #define _stricmp(String1, String2) strcasecmp(String1, String2)
 #define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
 
-#else /* ! __linux__ */
+#else /* ! defined(__APPLE__) || defined(__linux__) */
 
 /* Enable newer functionality such as mouse wheel handling */
 
@@ -39,16 +45,21 @@ typedef unsigned long ULONG;
 typedef void * APTR;
 typedef unsigned char UBYTE;
 
-#endif /* ! __linux__ */
+#endif /* ! defined(__APPLE__) || defined(__linux__) */
 
-#ifndef __linux__
+#ifndef __unix__
 
 /* We used to define this as max() but bizarrely Qt undefines it when you include certain headers! */
-/* So now we use MAX() instead and for UNIX we use the one in sys/param.h */
+/* So now we use MAX() instead and for UNIX we use the one in sys/param.h, unless it is already defined, */
+/* as it is on some systems such as Mac OS */
+
+#ifndef MAX
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#endif /* ! __linux__ */
+#endif /* ! MAX */
+
+#endif /* ! __unix__ */
 
 #include "MungWall.h"
 

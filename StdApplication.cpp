@@ -740,14 +740,14 @@ void RApplication::Exit()
 
 	m_bDone = ETrue;
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	m_poApplication->quit();
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	PostQuitMessage(0);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }

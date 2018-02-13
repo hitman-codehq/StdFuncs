@@ -85,20 +85,20 @@ TInt RStdImage::Open(const char *a_pccFileName)
 
 	return(RetVal);
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	// TODO: CAW - Implement and remove warning prevention cast
 	(void) a_pccFileName;
 
 	return(KErrNotFound);
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	m_poBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), a_pccFileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 	return((m_poBitmap) ? KErrNone : KErrNotFound);
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 }
 

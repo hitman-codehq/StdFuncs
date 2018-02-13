@@ -3,26 +3,26 @@
 #include "BaUtils.h"
 #include <string.h>
 
-#ifdef __linux__
+#if defined(__unix__)
 
 #include <stdio.h>
 #include <unistd.h>
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 #ifdef __amigaos4__
 
 #define DELETE_FILE(FileName) IDOS->Delete(FileName)
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 #define DELETE_FILE(FileName) (unlink(FileName) == 0)
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 #define DELETE_FILE(FileName) ::DeleteFile(FileName)
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 /**
  * Deletes a file from the file system.
@@ -74,15 +74,15 @@ TInt BaflUtils::RenameFile(const char *a_pccOldFullName, const char *a_pccNewFul
 
 	RetVal = (IDOS->Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
 
-#elif defined(__linux__)
+#elif defined(__unix__)
 
 	RetVal = (rename(a_pccOldFullName, a_pccNewFullName) == 0) ? KErrNone : KErrGeneral;
 
-#else /* ! __linux__ */
+#else /* ! __unix__ */
 
 	RetVal = (MoveFile(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
 
-#endif /* ! __linux__ */
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
