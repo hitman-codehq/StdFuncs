@@ -236,7 +236,17 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 
 	if (!(a_pccName))
 	{
+
+#if defined(__APPLE__)
+
+		a_pccName = "Monaco";
+
+#else /* ! defined(__APPLE__) */
+
 		a_pccName = "Monospace";
+
+#endif /* ! defined(__APPLE__) */
+
 	}
 
 	/* Create a monospace font in the desired point size */
