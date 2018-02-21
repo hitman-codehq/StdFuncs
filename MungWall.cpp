@@ -517,7 +517,7 @@ void *operator new [](size_t stSize)
 /* Passed: pvBlock => Ptr to the user's buffer to delete                  */
 /**************************************************************************/
 
-void operator delete(void *pvBlock)
+void operator delete(void *pvBlock) _NOEXCEPT
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
@@ -539,7 +539,7 @@ void operator delete(void *pvBlock)
 /* Passed: pvBlock => Ptr to the user's buffer to delete                 */
 /*************************************************************************/
 
-void operator delete [](void *pvBlock)
+void operator delete [](void *pvBlock) _NOEXCEPT
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)

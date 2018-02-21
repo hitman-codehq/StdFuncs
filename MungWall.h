@@ -50,6 +50,9 @@ extern MungWall oMungWall;
 void *operator new(size_t, const char *, int);
 void *operator new [](size_t, const char *, int);
 
+void operator delete(void *pvBlock) _NOEXCEPT;
+void operator delete [](void *pvBlock) _NOEXCEPT;
+
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 
 /* This is heavy wizardry that is required in order to get MungWall working with older MSVC compilers */
