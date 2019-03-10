@@ -16,15 +16,15 @@
 /* don't support the noexcept keyword, but MungWall is "special" in that it is included before */
 /* the system headers, so it is not available and we have to emulate it ourselves */
 
-#if !defined(_MSC_VER) || _MSC_VER < 1900
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
 
 #define NOEXCEPT noexcept
 
-#else /* ! !defined(_MSC_VER) || _MSC_VER < 1900 */
+#else /* ! !defined(_MSC_VER) || _MSC_VER >= 1900 */
 
 #define NOEXCEPT
 
-#endif /* ! !defined(_MSC_VER) || _MSC_VER < 1900 */
+#endif /* ! !defined(_MSC_VER) || _MSC_VER >= 1900 */
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
@@ -64,8 +64,8 @@ extern MungWall oMungWall;
 void *operator new(size_t, const char *, int);
 void *operator new [](size_t, const char *, int);
 
-void operator delete(void *pvBlock) noexcept; //_NOEXCEPT;
-void operator delete [](void *pvBlock) noexcept; //_NOEXCEPT;
+void operator delete(void *pvBlock) NOEXCEPT;
+void operator delete [](void *pvBlock) NOEXCEPT;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 
