@@ -12,6 +12,20 @@
 
 #endif /* _MSC_VER */
 
+/* Normally we could just use the _NOEXCEPT macro for compatibility with compilers that do or */
+/* don't support the noexcept keyword, but MungWall is "special" in that it is included before */
+/* the system headers, so it is not available and we have to emulate it ourselves */
+
+#if !defined(_MSC_VER) || _MSC_VER < 1900
+
+#define NOEXCEPT noexcept
+
+#else /* ! !defined(_MSC_VER) || _MSC_VER < 1900 */
+
+#define NOEXCEPT
+
+#endif /* ! !defined(_MSC_VER) || _MSC_VER < 1900 */
+
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 #ifdef __cplusplus
@@ -50,8 +64,8 @@ extern MungWall oMungWall;
 void *operator new(size_t, const char *, int);
 void *operator new [](size_t, const char *, int);
 
-void operator delete(void *pvBlock) _NOEXCEPT;
-void operator delete [](void *pvBlock) _NOEXCEPT;
+void operator delete(void *pvBlock) noexcept; //_NOEXCEPT;
+void operator delete [](void *pvBlock) noexcept; //_NOEXCEPT;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 
