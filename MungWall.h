@@ -14,17 +14,22 @@
 
 /* Normally we could just use the _NOEXCEPT macro for compatibility with compilers that do or */
 /* don't support the noexcept keyword, but MungWall is "special" in that it is included before */
-/* the system headers, so it is not available and we have to emulate it ourselves */
+/* the system headers, so it is not available and we have to emulate it ourselves.  This is */
+/* made more complicated by the fact that we need to support a pretty old compiler on Amiga OS */
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
+#if __cplusplus >= 201103L || _MSC_VER >= 1900
 
-#define NOEXCEPT noexcept
+#define NEW_THROW
+#define DELETE_THROW noexcept
 
-#else /* ! !defined(_MSC_VER) || _MSC_VER >= 1900 */
+#else /* ! __cplusplus >= 201103L || _MSC_VER >= 1900 */
 
-#define NOEXCEPT
+#include <new>
 
-#endif /* ! !defined(_MSC_VER) || _MSC_VER >= 1900 */
+#define NEW_THROW throw(std::bad_alloc)
+#define DELETE_THROW throw()
+
+#endif /* ! __cplusplus >= 201103L || _MSC_VER >= 1900 */
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
@@ -61,11 +66,8 @@ public:
 
 extern MungWall oMungWall;
 
-void *operator new(size_t, const char *, int);
-void *operator new [](size_t, const char *, int);
-
-void operator delete(void *pvBlock) NOEXCEPT;
-void operator delete [](void *pvBlock) NOEXCEPT;
+void *operator new(size_t, const char *, int) NEW_THROW;
+void *operator new [](size_t, const char *, int) NEW_THROW;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 

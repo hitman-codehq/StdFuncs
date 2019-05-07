@@ -427,7 +427,7 @@ void *DebugReAlloc(void *pvBlock, size_t stSize, char *pcSourceFile, int iSource
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *operator new(size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *operator new(size_t stSize, const char *pcSourceFile, int iSourceLine) NEW_THROW
 {
 	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
 }
@@ -443,7 +443,7 @@ void *operator new(size_t stSize, const char *pcSourceFile, int iSourceLine)
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine) NEW_THROW
 {
 	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
 }
@@ -458,7 +458,7 @@ void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine)
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *operator new(size_t stSize)
+void *operator new(size_t stSize) NEW_THROW
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
@@ -488,7 +488,7 @@ void *operator new(size_t stSize)
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *operator new [](size_t stSize)
+void *operator new [](size_t stSize) NEW_THROW
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
@@ -517,7 +517,7 @@ void *operator new [](size_t stSize)
 /* Passed: pvBlock => Ptr to the user's buffer to delete                  */
 /**************************************************************************/
 
-void operator delete(void *pvBlock) NOEXCEPT
+void operator delete(void *pvBlock) DELETE_THROW
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
@@ -539,7 +539,7 @@ void operator delete(void *pvBlock) NOEXCEPT
 /* Passed: pvBlock => Ptr to the user's buffer to delete                 */
 /*************************************************************************/
 
-void operator delete [](void *pvBlock) NOEXCEPT
+void operator delete [](void *pvBlock) DELETE_THROW
 {
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
