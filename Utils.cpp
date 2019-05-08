@@ -26,6 +26,12 @@
 #include <unistd.h>
 #include <utime.h>
 
+#ifdef __APPLE__
+
+#include <mach-o/dyld.h>
+
+#endif /* __APPLE__ */
+
 #endif /* __unix__ */
 
 #include <stdio.h>
@@ -2387,7 +2393,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 				{
 					/* Append the name of the file to be opened in the executable's directory */
 
-					Ok = Utils::AddPart(RetVal, &a_pccFileName[8], MAX_NAME_FROM_LOCK_LENGTH);
+					Ok = Utils::AddPart(RetVal, &a_pccFileName[PROGDIR_LENGTH], MAX_NAME_FROM_LOCK_LENGTH);
 				}
 				else
 				{
@@ -2414,11 +2420,48 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 		if ((RetVal = new char[PATH_MAX]) != NULL)
 		{
+
+#ifdef __APPLE__
+
+			char *CanonicalPath;
+			uint32_t Length;
+
+			Length = PATH_MAX;
+			Result = -1;
+
+			/* Query the path to the executable.  It is possible for this to dynamically return */
+			/* how much memory is required to hold the returned path, but then realpath() below */
+			/* has a maximum hard coded size, so there is no point using this feature */
+
+			if (_NSGetExecutablePath(RetVal, &Length) == 0)
+			{
+				/* Try to resolve symlinks, to find the location of the real executable */
+
+				if ((CanonicalPath = realpath(RetVal, nullptr)) != nullptr)
+				{
+					Length = static_cast<uint32_t>(strlen(CanonicalPath));
+
+					if (Length < MAX_PATH)
+					{
+						strncpy(RetVal, CanonicalPath, MAX_PATH);
+						Result = static_cast<TInt>(Length);
+					}
+
+					free(CanonicalPath);
+				}
+			}
+
+#else /* ! __APPLE__ */
+
 			/* Get the path to the executable running this code.  Unfortunately the */
 			/* API doesn't allow us to query for the length of the path like some other */
 			/* APIs so we have to use a fixed size buffer and hope for the best */
 
-			if ((Result = readlink("/proc/self/exe", RetVal, PATH_MAX)) != -1)
+			Result = readlink("/proc/self/exe", RetVal, PATH_MAX);
+
+#endif /* ! __APPLE__ */
+
+			if (Result != -1)
 			{
 				RetVal[Result] = '\0';
 
@@ -2429,7 +2472,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[8], PATH_MAX);
+				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], PATH_MAX);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
@@ -2466,7 +2509,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[8], MAX_PATH);
+				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], MAX_PATH);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
