@@ -255,8 +255,8 @@ TEntry *TEntryArray::Append(const char *a_pccName)
  * @param	a_poFirst		Pointer to the first node to be compared
  * @param	a_poSecond		Pointer to the second node to be compared
  * @param	a_pvUserData	Pointer to a SSortInfo structure that was passed to StdList::Sort()
- * @return	Returns a negative value to indicate that the first node should go first on the list,
- *			else a positive value to indicate that the second node should go first
+ * @return	A negative value to indicate that the first node should go first on the list,
+ *			otherwise a positive value to indicate that the second node should go first
  */
 
 TInt TEntryArray::CompareEntries(const TEntry *a_poFirst, const TEntry *a_poSecond, void *a_pvUserData)
