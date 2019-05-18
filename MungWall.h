@@ -59,7 +59,7 @@ public:
 
 	MungWall() { ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
-	void Delete(void *, char * = NULL, int = 0, BOOL = FALSE);
+	void Delete(void *, const char * = NULL, int = 0, BOOL = FALSE);
 	void *New(size_t, const char *, int);
 	void *ReNew(void *, size_t, const char *, int);
 };
@@ -86,11 +86,11 @@ extern "C"
 
 #endif /* __cplusplus */
 
-void *DebugMalloc(size_t stSize, char *pcSourceFile, int iSourceLine);
-void *DebugReAlloc(void *pvBlock, size_t stSize, char *pcSourceFile, int iSourceLine);
-void DebugFree(void *pvBlock, char *pcSourceFile, int iSourceLine);
-APTR DebugAllocMem(ULONG ulSize, char *pcSourceFile, int iSourceLine);
-void DebugFreeMem(APTR apBlock, char *pcSourceFile, int iSourceLine, ULONG ulSize);
+void *DebugMalloc(size_t stSize, const char *pcSourceFile, int iSourceLine);
+void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pcSourceFile, int iSourceLine);
+void DebugFree(void *pvBlock, const char *pcSourceFile, int iSourceLine);
+APTR DebugAllocMem(ULONG ulSize, const char *pcSourceFile, int iSourceLine);
+void DebugFreeMem(APTR apBlock, const char *pcSourceFile, int iSourceLine, ULONG ulSize);
 
 #ifdef __cplusplus
 

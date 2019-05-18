@@ -213,7 +213,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 /*                       members are valid, else FALSE                */
 /**********************************************************************/
 
-void MungWall::Delete(void *pvBlock, char *pcSourceFile, int iSourceLine, BOOL bHasSource)
+void MungWall::Delete(void *pvBlock, const char *pcSourceFile, int iSourceLine, BOOL bHasSource)
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
@@ -378,7 +378,7 @@ void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pcSourceFile, in
 /*                        being called                                     */
 /***************************************************************************/
 
-void DebugFree(void *pvBlock, char *pcSourceFile, int iSourceLine)
+void DebugFree(void *pvBlock, const char *pcSourceFile, int iSourceLine)
 {
 	oMungWall.Delete(pvBlock, pcSourceFile, iSourceLine, TRUE);
 }
@@ -394,7 +394,7 @@ void DebugFree(void *pvBlock, char *pcSourceFile, int iSourceLine)
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *DebugMalloc(size_t stSize, char *pcSourceFile, int iSourceLine)
+void *DebugMalloc(size_t stSize, const char *pcSourceFile, int iSourceLine)
 {
 	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
 }
@@ -411,7 +411,7 @@ void *DebugMalloc(size_t stSize, char *pcSourceFile, int iSourceLine)
 /* Returns: Ptr to the user's buffer if successful, else NULL             */
 /**************************************************************************/
 
-void *DebugReAlloc(void *pvBlock, size_t stSize, char *pcSourceFile, int iSourceLine)
+void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pcSourceFile, int iSourceLine)
 {
 	return(oMungWall.ReNew(pvBlock, stSize, pcSourceFile, iSourceLine));
 }
