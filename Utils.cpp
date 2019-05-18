@@ -1582,18 +1582,13 @@ void Utils::FreeTempBuffer(void *a_pvBuffer)
 
 void Utils::Info(const char *a_pccMessage, ...)
 {
+	char Message[512];
 	va_list Args;
 
 	va_start(Args, a_pccMessage);
 
-#ifndef __unix__
-
-	char Message[512];
-
 	strcpy(Message, "Info: " );
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
-
-#endif /* ! __unix__ */
 
 #ifdef __amigaos4__
 
@@ -1601,7 +1596,18 @@ void Utils::Info(const char *a_pccMessage, ...)
 
 #elif defined(__unix__)
 
-	vsyslog(LOG_INFO, a_pccMessage, Args);
+	syslog(LOG_INFO, "%s", Message);
+
+#ifdef __APPLE__
+
+	/* On MacOS syslog output is difficult to find and doesn't get picked up by the output */
+	/* window of IDEs such as Qt Creator, so we'll output the messages to stdout as well. */
+	/* The call to fflush() is to ensure that it is still printed in the event of a crash */
+
+	printf("%s\n", Message);
+	fflush(stdout);
+
+#endif /* __APPLE__ */
 
 #else /* ! __unix__ */
 
