@@ -22,6 +22,11 @@
 #define NEW_THROW
 #define DELETE_THROW noexcept
 
+#elif defined(_MSC_VER)
+
+#define NEW_THROW
+#define DELETE_THROW throw()
+
 #else /* ! __cplusplus >= 201103L || _MSC_VER >= 1900 */
 
 #include <new>
