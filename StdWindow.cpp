@@ -38,15 +38,16 @@
 
 static const SKeyMapping g_aoKeyMap[] =
 {
-	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_ALT, Qt::Key_Alt }, { STD_KEY_CONTROL, Qt::Key_Control }, { STD_KEY_BACKSPACE, Qt::Key_Backspace },
-	{ STD_KEY_ENTER, Qt::Key_Return }, { STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },
-	{ STD_KEY_LEFT, Qt::Key_Left }, { STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home },
-	{ STD_KEY_END, Qt::Key_End }, { STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown },  { STD_KEY_ESC, Qt::Key_Escape },
-	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_TAB, Qt::Key_Backtab }, { STD_KEY_F1, Qt::Key_F1 },
-	{ STD_KEY_F2, Qt::Key_F2 }, { STD_KEY_F3, Qt::Key_F3 }, { STD_KEY_F4, Qt::Key_F4 },
-	{ STD_KEY_F5, Qt::Key_F5 }, { STD_KEY_F6, Qt::Key_F6 }, { STD_KEY_F7, Qt::Key_F7 },
-	{ STD_KEY_F8, Qt::Key_F8 }, { STD_KEY_F9, Qt::Key_F9 }, { STD_KEY_F10, Qt::Key_F10 },
-	{ STD_KEY_F11, Qt::Key_F11 },	{ STD_KEY_F12, Qt::Key_F12 }
+	{ STD_KEY_SHIFT, Qt::Key_Shift }, { STD_KEY_ALT, Qt::Key_Alt }, { STD_KEY_CONTROL, Qt::Key_Control },
+	{ STD_KEY_META, Qt::Key_Meta }, { STD_KEY_BACKSPACE, Qt::Key_Backspace }, { STD_KEY_ENTER, Qt::Key_Return },
+	{ STD_KEY_UP, Qt::Key_Up }, { STD_KEY_DOWN, Qt::Key_Down },	{ STD_KEY_LEFT, Qt::Key_Left },
+	{ STD_KEY_RIGHT, Qt::Key_Right }, { STD_KEY_HOME, Qt::Key_Home }, { STD_KEY_END, Qt::Key_End },
+	{ STD_KEY_PGUP, Qt::Key_PageUp }, { STD_KEY_PGDN, Qt::Key_PageDown }, { STD_KEY_ESC, Qt::Key_Escape },
+	{ STD_KEY_DELETE, Qt::Key_Delete }, { STD_KEY_TAB, Qt::Key_Tab }, { STD_KEY_TAB, Qt::Key_Backtab },
+	{ STD_KEY_F1, Qt::Key_F1 }, { STD_KEY_F2, Qt::Key_F2 }, { STD_KEY_F3, Qt::Key_F3 },
+	{ STD_KEY_F4, Qt::Key_F4 }, { STD_KEY_F5, Qt::Key_F5 }, { STD_KEY_F6, Qt::Key_F6 },
+	{ STD_KEY_F7, Qt::Key_F7 }, { STD_KEY_F8, Qt::Key_F8 }, { STD_KEY_F9, Qt::Key_F9 },
+	{ STD_KEY_F10, Qt::Key_F10 }, { STD_KEY_F11, Qt::Key_F11 },	{ STD_KEY_F12, Qt::Key_F12 }
 };
 
 #define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
@@ -75,6 +76,7 @@ CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 
 TBool CWindow::m_bAltPressed;		/* ETrue if alt is currently pressed */
 TBool CWindow::m_bCtrlPressed;		/* ETrue if ctrl is currently pressed */
+TBool CWindow::m_bMetaPressed;		/* ETrue if meta is currently pressed */
 TBool CWindow::m_bShiftPressed;		/* ETrue if shift is currently pressed */
 TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 
@@ -220,6 +222,22 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 	{
 		QString String = a_poKeyEvent->text();
 
+#ifdef __APPLE__
+
+		/* If a meta key combination is pressed, no character is passed in in the key event's */
+		/* text() string, so we have to simulate one in order for the client to know what was */
+		/* pressed */
+
+		if (CWindow::AltPressed() || CWindow::CtrlPressed() || CWindow::MetaPressed())
+		{
+			if (String.length() == 0)
+			{
+				String.append((char) (NativeKey | 0x20));
+			}
+		}
+
+#endif /* __APPLE__ */
+
 		/* See if we have a key available */
 
 		if (String.length() >= 1)
@@ -361,7 +379,7 @@ void CQtWindow::aboutToShow()
 	/* Forget about the modifier keypresses as we won't get a key up event for them due */
 	/* to the window no longer being active */
 
-	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
+	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bMetaPressed = CWindow::m_bShiftPressed = EFalse;
 }
 
 /**
@@ -414,6 +432,10 @@ void CQtWindow::keyPressEvent(QKeyEvent *a_poKeyEvent)
 	{
 		CWindow::m_bCtrlPressed = ETrue;
 	}
+	else if (a_poKeyEvent->key() == Qt::Key_Meta)
+	{
+		CWindow::m_bMetaPressed = ETrue;
+	}
 	else if (a_poKeyEvent->key() == Qt::Key_Shift)
 	{
 		CWindow::m_bShiftPressed = ETrue;
@@ -445,6 +467,10 @@ void CQtWindow::keyReleaseEvent(QKeyEvent *a_poKeyEvent)
 	else if (a_poKeyEvent->key() == Qt::Key_Control)
 	{
 		CWindow::m_bCtrlPressed = EFalse;
+	}
+	else if (a_poKeyEvent->key() == Qt::Key_Meta)
+	{
+		CWindow::m_bMetaPressed = EFalse;
 	}
 	else if (a_poKeyEvent->key() == Qt::Key_Shift)
 	{
@@ -581,7 +607,7 @@ void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
 	/* Forget about the modifier keypresses as we won't get a key up event for them due */
 	/* to the window no longer being active */
 
-	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bShiftPressed = EFalse;
+	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bMetaPressed = CWindow::m_bShiftPressed = EFalse;
 }
 
 /**
@@ -3479,6 +3505,31 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	m_iCursorHeight = a_iHeight;
+}
+
+/**
+ * Returns whether the meta key is currently pressed.
+ * Allows client code to query whether the meta key is currently pressed, in
+ * order to use that key in shortcut sequences.  Note that the meta key differs
+ * subtly between operating systems.
+ *
+ * @date	29-May03-2018 8:21 am, Code HQ Bergmannstraﬂe
+ * @return	ETrue if the meta key is pressed, else EFalse
+ */
+
+TBool CWindow::MetaPressed()
+{
+
+#ifdef __APPLE__
+
+	return(m_bMetaPressed);
+
+#else
+
+	return(CtrlPressed());
+
+#endif
+
 }
 
 /**

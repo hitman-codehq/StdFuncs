@@ -101,6 +101,7 @@ protected:
 
 	static TBool		m_bAltPressed;				/**< ETrue if alt is currently pressed */
 	static TBool		m_bCtrlPressed;				/**< ETrue if ctrl is currently pressed */
+	static TBool		m_bMetaPressed;				/**< ETrue if meta is currently pressed */
 	static TBool		m_bShiftPressed;			/**< ETrue if shift is currently pressed */
 	static TBool		m_bIsActive;				/**< ETrue if the window is currently active */
 
@@ -265,6 +266,8 @@ public:
 	static TBool AltPressed();
 
 	static TBool CtrlPressed();
+
+	static TBool MetaPressed();
 
 	static TBool ShiftPressed();
 

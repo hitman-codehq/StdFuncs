@@ -152,34 +152,35 @@ typedef unsigned long COLORREF;
 /* To check whether a key is a movement key */
 
 #define STD_KEY_SHIFT 256
-#define STD_KEY_CONTROL 257
-#define STD_KEY_ALT 258
-#define STD_KEY_MENU 259
-#define STD_KEY_BACKSPACE 260
-#define STD_KEY_ENTER 261
-#define STD_KEY_TAB 262
-#define STD_KEY_DELETE 263
-#define STD_KEY_UP 264
-#define STD_KEY_DOWN 265
-#define STD_KEY_LEFT 266
-#define STD_KEY_RIGHT 267
-#define STD_KEY_HOME 268
-#define STD_KEY_END 269
-#define STD_KEY_PGUP 270
-#define STD_KEY_PGDN 271
-#define STD_KEY_ESC 272
-#define STD_KEY_F1 273
-#define STD_KEY_F2 274
-#define STD_KEY_F3 275
-#define STD_KEY_F4 276
-#define STD_KEY_F5 277
-#define STD_KEY_F6 278
-#define STD_KEY_F7 279
-#define STD_KEY_F8 280
-#define STD_KEY_F9 281
-#define STD_KEY_F10 282
-#define STD_KEY_F11 283
-#define STD_KEY_F12 284
+#define STD_KEY_ALT 257
+#define STD_KEY_CONTROL 258
+#define STD_KEY_META 259
+#define STD_KEY_MENU 260
+#define STD_KEY_BACKSPACE 261
+#define STD_KEY_ENTER 262
+#define STD_KEY_TAB 263
+#define STD_KEY_DELETE 264
+#define STD_KEY_UP 265
+#define STD_KEY_DOWN 266
+#define STD_KEY_LEFT 267
+#define STD_KEY_RIGHT 268
+#define STD_KEY_HOME 269
+#define STD_KEY_END 270
+#define STD_KEY_PGUP 271
+#define STD_KEY_PGDN 272
+#define STD_KEY_ESC 273
+#define STD_KEY_F1 274
+#define STD_KEY_F2 275
+#define STD_KEY_F3 276
+#define STD_KEY_F4 277
+#define STD_KEY_F5 278
+#define STD_KEY_F6 279
+#define STD_KEY_F7 280
+#define STD_KEY_F8 281
+#define STD_KEY_F9 282
+#define STD_KEY_F10 283
+#define STD_KEY_F11 284
+#define STD_KEY_F12 285
 
 /**
  * A generic list of text encodings.
