@@ -46,7 +46,7 @@ class MungWall
 {
 	struct Arena
 	{
-		const char *pcSourceFile;
+		const char *pccSourceFile;
 		int iSourceLine;
 		size_t stOrigSize;
 		struct Arena *paPrev;
@@ -64,9 +64,9 @@ public:
 
 	MungWall() { ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
-	void Delete(void *, const char * = NULL, int = 0, BOOL = FALSE);
-	void *New(size_t, const char *, int);
-	void *ReNew(void *, size_t, const char *, int);
+	void Delete(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);
+	void *New(size_t stSize, const char *pccSourceFile, int iSourceLine);
+	void *ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);
 };
 
 extern MungWall oMungWall;
@@ -91,11 +91,11 @@ extern "C"
 
 #endif /* __cplusplus */
 
-void *DebugMalloc(size_t stSize, const char *pcSourceFile, int iSourceLine);
-void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pcSourceFile, int iSourceLine);
-void DebugFree(void *pvBlock, const char *pcSourceFile, int iSourceLine);
-APTR DebugAllocMem(ULONG ulSize, const char *pcSourceFile, int iSourceLine);
-void DebugFreeMem(APTR apBlock, const char *pcSourceFile, int iSourceLine, ULONG ulSize);
+void *DebugMalloc(size_t stSize, const char *pccSourceFile, int iSourceLine);
+void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);
+void DebugFree(void *pvBlock, const char *pccSourceFile, int iSourceLine);
+APTR DebugAllocMem(ULONG ulSize, const char *pccSourceFile, int iSourceLine);
+void DebugFreeMem(APTR apBlock, const char *pccSourceFile, int iSourceLine, ULONG ulSize);
 
 #ifdef __cplusplus
 

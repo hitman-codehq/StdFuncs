@@ -22,11 +22,11 @@ class MungWall oMungWall;
 
 /* Error message strings that can be used in multiple places */
 
-static const char acLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %u bytes in %lu allocation(s) manually";
-static const char acStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %d bytes still allocated";
-static const char acStillAllocated[] = "*** MungWall alert: File %s: %d bytes still allocated";
-static const char acInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
-static const char acInvalidBlock[] = "*** MungWall alert: Invalid block passed in";
+static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %u bytes in %lu allocation(s) manually";
+static const char accStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %d bytes still allocated";
+static const char accStillAllocated[] = "*** MungWall alert: File %s: %d bytes still allocated";
+static const char accInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
+static const char accInvalidBlock[] = "*** MungWall alert: Invalid block passed in";
 
 /**********************************************************************/
 /* MungWall::~MungWall will check to see if there are any outstanding */
@@ -55,8 +55,8 @@ MungWall::~MungWall()
 			Delete(pvBlock);
 		}
 
-		Utils::Info(acLeakage, stBytesLeaked, ulNews);
-		printf(acLeakage, stBytesLeaked, ulNews);
+		Utils::Info(accLeakage, stBytesLeaked, ulNews);
+		printf(accLeakage, stBytesLeaked, ulNews);
 		printf("\n");
 	}
 	else
@@ -67,14 +67,14 @@ MungWall::~MungWall()
 		{
 			if (paArena->iSourceLine)
 			{
-				Utils::Info(acStillAllocatedLine, paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
-				printf(acStillAllocatedLine, paArena->pcSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				Utils::Info(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				printf(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
 				printf("\n");
 			}
 			else
 			{
-				Utils::Info(acStillAllocated, paArena->pcSourceFile, paArena->stOrigSize);
-				printf(acStillAllocated, paArena->pcSourceFile, paArena->stOrigSize);
+				Utils::Info(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
+				printf(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
 				printf("\n");
 			}
 
@@ -174,7 +174,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 
 	if ((ulNumStartOverWrites) || (ulNumEndOverWrites))
 	{
-		sprintf(acMessage, "*** MungWall alert: File %s, line %d:", paArena->pcSourceFile, paArena->iSourceLine);
+		sprintf(acMessage, "*** MungWall alert: File %s, line %d:", paArena->pccSourceFile, paArena->iSourceLine);
 
 		if (ulNumStartOverWrites)
 		{
@@ -205,15 +205,15 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 /* Passed: pvBlock => Ptr to user buffer to free.  The size of the    */
 /*                    munge wall and the Arena header is subtracted   */
 /*                    from this to get a pointer to the arena         */
-/*         pcSourceFile => Name of the source file which it doing     */
-/*                         the delete, if available                   */
+/*         pccSourceFile => Name of the source file which it doing    */
+/*                          the delete, if available                  */
 /*         iSourceLine => Line # in the source file from which new is */
 /*                        being called, if available                  */
-/*         bHasSource => TRUE if the pcSourceFile and iSourceLine     */
+/*         bHasSource => TRUE if the pccSourceFile and iSourceLine    */
 /*                       members are valid, else FALSE                */
 /**********************************************************************/
 
-void MungWall::Delete(void *pvBlock, const char *pcSourceFile, int iSourceLine, BOOL bHasSource)
+void MungWall::Delete(void *pvBlock, const char *pccSourceFile, int iSourceLine, BOOL bHasSource)
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
@@ -246,14 +246,14 @@ void MungWall::Delete(void *pvBlock, const char *pcSourceFile, int iSourceLine, 
 		{
 			if (bHasSource)
 			{
-				Utils::Info(acInvalidBlockLine, pcSourceFile, iSourceLine);
-				printf(acInvalidBlockLine, pcSourceFile, iSourceLine);
+				Utils::Info(accInvalidBlockLine, pccSourceFile, iSourceLine);
+				printf(accInvalidBlockLine, pccSourceFile, iSourceLine);
 				printf("\n");
 			}
 			else
 			{
-				Utils::Info(acInvalidBlock);
-				printf("%s\n", acInvalidBlock);
+				Utils::Info(accInvalidBlock);
+				printf("%s\n", accInvalidBlock);
 			}
 		}
 	}
@@ -283,13 +283,13 @@ void MungWall::MungeMem(ULONG *pulBuffer, size_t stBufferSize)
 /* of allocated blocks.                                                    */
 /* Written: Thursday 11-Dec-1997 2:11 pm                                   */
 /* Passed: stSize => Number of bytes to allocate for the *user's buffer*   */
-/*         pcSourceFile => Name of the source file which is doing the new  */
+/*         pccSourceFile => Name of the source file which is doing the new */
 /*         iSourceLine => Line # in the source file from which new is      */
 /*                        being called                                     */
 /* Returns: Ptr to the user's buffer if successful, else FALSE             */
 /***************************************************************************/
 
-void *MungWall::New(size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 {
 	UBYTE *pubBlock;
 	size_t stMungedSize = (sizeof(struct Arena) + (MungeSize * 2) + stSize);
@@ -304,7 +304,7 @@ void *MungWall::New(size_t stSize, const char *pcSourceFile, int iSourceLine)
 		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena)), MungeSize);
 		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena) + MungeSize + stSize), MungeSize);
 		paBlock = (struct Arena *) pubBlock;
-		paBlock->pcSourceFile = pcSourceFile;
+		paBlock->pccSourceFile = pccSourceFile;
 		paBlock->iSourceLine = iSourceLine;
 		paBlock->stOrigSize = stSize;
 
@@ -338,20 +338,20 @@ void *MungWall::New(size_t stSize, const char *pcSourceFile, int iSourceLine)
 /* Written: Tuesday 26-May-2007 11:22 pm, College Close                      */
 /* Passed: pvBlock => Ptr to the user's old buffer to reallocated            */
 /*         stSize => Number of bytes to allocate for the *user's buffer*     */
-/*         pcSourceFile => Name of the source file which is doing the new    */
+/*         pccSourceFile => Name of the source file which is doing the new   */
 /*         iSourceLine => Line # in the source file from which new is        */
 /*                        being called                                       */
 /* Returns: Ptr to the user's buffer if successful, else FALSE               */
 /*****************************************************************************/
 
-void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine)
 {
 	void *RetVal;
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
 	/* Allocate a new block into which to copy the old block's data */
 
-	RetVal = oMungWall.New(stSize, pcSourceFile, iSourceLine);
+	RetVal = oMungWall.New(stSize, pccSourceFile, iSourceLine);
 
 	/* If successful, copy the old block's data into it, taking into account that the */
 	/* new block may be either larger or smaller than the old one */
@@ -368,84 +368,84 @@ void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pcSourceFile, in
 	return(RetVal);
 }
 
+/****************************************************************************/
+/* DebugFree will intercept all frees done and will call the                */
+/* Delete method of the oMungWall object to handle the free.                */
+/* Written: Tuesday 16-Dec-1997 9:33 pm                                     */
+/* Passed: pvBlock => Ptr to the user's buffer to delete                    */
+/*         pccSourceFile => Name of the source file which is doing the free */
+/*         iSourceLine => Line # in the source file from which free is      */
+/*                        being called                                      */
+/****************************************************************************/
+
+void DebugFree(void *pvBlock, const char *pccSourceFile, int iSourceLine)
+{
+	oMungWall.Delete(pvBlock, pccSourceFile, iSourceLine, TRUE);
+}
+
 /***************************************************************************/
-/* DebugFree will intercept all frees done and will call the               */
-/* Delete method of the oMungWall object to handle the free.               */
-/* Written: Tuesday 16-Dec-1997 9:33 pm                                    */
-/* Passed: pvBlock => Ptr to the user's buffer to delete                   */
-/*         pcSourceFile => Name of the source file which is doing the free */
-/*         iSourceLine => Line # in the source file from which free is     */
+/* DebugMalloc will intercept all mallocs done and will call the New       */
+/* method of the oMungWall object to handle the malloc.                    */
+/* Written: Tuesday 16-Dec-1997 9:32 pm                                    */
+/* Passed: stSize => Number of bytes to allocate for the *user's buffer*   */
+/*         pccSourceFile => Name of the source file which is doing the new */
+/*         iSourceLine => Line # in the source file from which new is      */
 /*                        being called                                     */
+/* Returns: Ptr to the user's buffer if successful, else NULL              */
 /***************************************************************************/
 
-void DebugFree(void *pvBlock, const char *pcSourceFile, int iSourceLine)
+void *DebugMalloc(size_t stSize, const char *pccSourceFile, int iSourceLine)
 {
-	oMungWall.Delete(pvBlock, pcSourceFile, iSourceLine, TRUE);
+	return(oMungWall.New(stSize, pccSourceFile, iSourceLine));
 }
 
-/**************************************************************************/
-/* DebugMalloc will intercept all mallocs done and will call the New      */
-/* method of the oMungWall object to handle the malloc.                   */
-/* Written: Tuesday 16-Dec-1997 9:32 pm                                   */
-/* Passed: stSize => Number of bytes to allocate for the *user's buffer*  */
-/*         pcSourceFile => Name of the source file which is doing the new */
-/*         iSourceLine => Line # in the source file from which new is     */
-/*                        being called                                    */
-/* Returns: Ptr to the user's buffer if successful, else NULL             */
-/**************************************************************************/
+/***************************************************************************/
+/* DebugReAlloc will intercept all reallocs done and will call the ReNew   */
+/* method of the oMungWall object to handle the malloc.                    */
+/* Written: Tuesday 26-May-2007 11:20 pm, College Close                    */
+/* Passed: pvBlock => Ptr to the user's old buffer to reallocated          */
+/*         stSize => Number of bytes to allocate for the *user's buffer*   */
+/*         pccSourceFile => Name of the source file which is doing the new */
+/*         iSourceLine => Line # in the source file from which new is      */
+/*                        being called                                     */
+/* Returns: Ptr to the user's buffer if successful, else NULL              */
+/***************************************************************************/
 
-void *DebugMalloc(size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine)
 {
-	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
+	return(oMungWall.ReNew(pvBlock, stSize, pccSourceFile, iSourceLine));
 }
 
-/**************************************************************************/
-/* DebugReAlloc will intercept all reallocs done and will call the ReNew  */
-/* method of the oMungWall object to handle the malloc.                   */
-/* Written: Tuesday 26-May-2007 11:20 pm, College Close                   */
-/* Passed: pvBlock => Ptr to the user's old buffer to reallocated         */
-/*         stSize => Number of bytes to allocate for the *user's buffer*  */
-/*         pcSourceFile => Name of the source file which is doing the new */
-/*         iSourceLine => Line # in the source file from which new is     */
-/*                        being called                                    */
-/* Returns: Ptr to the user's buffer if successful, else NULL             */
-/**************************************************************************/
+/***************************************************************************/
+/* new will intercept all global news done and will call the New method    */
+/* of the oMungWall object to handle the new.                              */
+/* Written: Thursday 11-Dec-1997 2:12 pm                                   */
+/* Passed: stSize => Number of bytes to allocate for the *user's buffer*   */
+/*         pccSourceFile => Name of the source file which is doing the new */
+/*         iSourceLine => Line # in the source file from which new is      */
+/*                        being called                                     */
+/* Returns: Ptr to the user's buffer if successful, else NULL              */
+/***************************************************************************/
 
-void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pcSourceFile, int iSourceLine)
+void *operator new(size_t stSize, const char *pccSourceFile, int iSourceLine) NEW_THROW
 {
-	return(oMungWall.ReNew(pvBlock, stSize, pcSourceFile, iSourceLine));
+	return(oMungWall.New(stSize, pccSourceFile, iSourceLine));
 }
 
-/**************************************************************************/
-/* new will intercept all global news done and will call the New method   */
-/* of the oMungWall object to handle the new.                             */
-/* Written: Thursday 11-Dec-1997 2:12 pm                                  */
-/* Passed: stSize => Number of bytes to allocate for the *user's buffer*  */
-/*         pcSourceFile => Name of the source file which is doing the new */
-/*         iSourceLine => Line # in the source file from which new is     */
-/*                        being called                                    */
-/* Returns: Ptr to the user's buffer if successful, else NULL             */
-/**************************************************************************/
+/***************************************************************************/
+/* new will intercept all global array news done and will call the New     */
+/* method of the oMungWall object to handle the new.                       */
+/* Written: Thursday 11-Dec-1997 2:13 pm                                   */
+/* Passed: stSize => Number of bytes to allocate for the *user's buffer*   */
+/*         pccSourceFile => Name of the source file which is doing the new */
+/*         iSourceLine => Line # in the source file from which new is      */
+/*                        being called                                     */
+/* Returns: Ptr to the user's buffer if successful, else NULL              */
+/***************************************************************************/
 
-void *operator new(size_t stSize, const char *pcSourceFile, int iSourceLine) NEW_THROW
+void *operator new [](size_t stSize, const char *pccSourceFile, int iSourceLine) NEW_THROW
 {
-	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
-}
-
-/**************************************************************************/
-/* new will intercept all global array news done and will call the New    */
-/* method of the oMungWall object to handle the new.                      */
-/* Written: Thursday 11-Dec-1997 2:13 pm                                  */
-/* Passed: stSize => Number of bytes to allocate for the *user's buffer*  */
-/*         pcSourceFile => Name of the source file which is doing the new */
-/*         iSourceLine => Line # in the source file from which new is     */
-/*                        being called                                    */
-/* Returns: Ptr to the user's buffer if successful, else NULL             */
-/**************************************************************************/
-
-void *operator new [](size_t stSize, const char *pcSourceFile, int iSourceLine) NEW_THROW
-{
-	return(oMungWall.New(stSize, pcSourceFile, iSourceLine));
+	return(oMungWall.New(stSize, pccSourceFile, iSourceLine));
 }
 
 #endif /* defined(_DEBUG) && !defined(QT_GUI_LIB) */
