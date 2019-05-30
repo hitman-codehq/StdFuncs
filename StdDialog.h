@@ -81,7 +81,7 @@ private:
 
 protected:
 
-	virtual TInt Open(TInt a_ResourceID);
+	virtual TInt DoOpen(TInt a_ResourceID);
 
 	virtual void Close();
 

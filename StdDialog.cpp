@@ -158,7 +158,7 @@ CDialog::~CDialog()
 /* @return	KErrNone if the dialog was opened successfully; or */
 /*			KErrGeneral if the dialog could not be opened */
 
-TInt CDialog::Open(TInt a_iResourceID)
+TInt CDialog::DoOpen(TInt a_iResourceID)
 {
 	TInt RetVal;
 
