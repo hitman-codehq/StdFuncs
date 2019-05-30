@@ -22,9 +22,9 @@ class MungWall oMungWall;
 
 /* Error message strings that can be used in multiple places */
 
-static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %u bytes in %lu allocation(s) manually";
-static const char accStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %d bytes still allocated";
-static const char accStillAllocated[] = "*** MungWall alert: File %s: %d bytes still allocated";
+static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %zu bytes in %lu allocation(s) manually";
+static const char accStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %zd bytes still allocated";
+static const char accStillAllocated[] = "*** MungWall alert: File %s: %zd bytes still allocated";
 static const char accInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
 static const char accInvalidBlock[] = "*** MungWall alert: Invalid block passed in";
 
