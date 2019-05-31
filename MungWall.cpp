@@ -553,3 +553,53 @@ void operator delete [](void *pvBlock) DELETE_THROW
 #endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 }
+
+#if __cplusplus >= 201103
+
+/**
+ * Deletes a block of memory.
+ * Intercepts all global deletes and will calls Mungwall::Delete() to handle the deletion.
+ *
+ * @date	Thursday 30-May-2019 4:20 pm, Code HQ Bergmannstraße
+ * @param	pvBlock			Pointer to the user's buffer to delete
+ */
+
+void operator delete(void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
+{
+
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
+
+	oMungWall.Delete(pvBlock);
+
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
+
+	free(pvBlock);
+
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
+
+}
+
+/**
+ * Deletes a block of memory containing an array of objects.
+ * Intercepts all global array deletes and will calls Mungwall::Delete() to handle the deletion.
+ *
+ * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstraße
+ * @param	pvBlock			Pointer to the user's buffer to delete
+ */
+
+void operator delete [](void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
+{
+
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
+
+	oMungWall.Delete(pvBlock);
+
+#else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
+
+	free(pvBlock);
+
+#endif /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
+
+}
+
+#endif /* __cplusplus >= 201103 */
