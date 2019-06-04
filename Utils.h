@@ -12,6 +12,7 @@
 
 /* Disable a bogus MSVC warning */
 
+// TODO: CAW - Still needed?
 #pragma warning(disable : 4710) /* Function not expanded */
 
 #endif /* _MSC_VER */
@@ -99,9 +100,9 @@ public:
 
 	static TInt MapLastFileError(const char *a_pccFileName);
 
-	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs);
+	static TInt MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs);
 
-	static TInt MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, ...);
+	static TInt MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, ...);
 
 	static void NormalisePath(char *a_pcPath);
 

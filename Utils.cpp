@@ -403,7 +403,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	if (g_bUsingGUI)
 	{
-		MessageBox("Assertion Failure", a_pccMessage, EMBTOk, Args);
+		MessageBox(EMBTOk, "Assertion Failure", a_pccMessage, Args);
 	}
 	else
 	{
@@ -735,7 +735,7 @@ void Utils::Error(const char *a_pccMessage, ...)
 
 	if (g_bUsingGUI)
 	{
-		MessageBox("Error", a_pccMessage, EMBTOk, Args);
+		MessageBox(EMBTOk, "Error", a_pccMessage, Args);
 	}
 	else
 	{
@@ -1848,17 +1848,17 @@ void Utils::NormalisePath(char *a_pcPath)
  * the a_eMessageBoxType passed in.
  *
  * @date	Saturday 12-Mar-2011 11:00 am
+ * @param	a_eMessageBoxType	Type of message box to display, as specified by the TMessageBoxType enumeration
  * @param	a_pccTitle			Ptr to the title to be displayed in the mesage box
  * @param	a_pccMessage		Ptr to the message to be displayed.  This can contain printf() style %d
  *								specifiers that will be processed and matched with arguments pass in in the
  *								a_oArgs varargs list
- * @param	a_eMessageBoxType	Type of message box to displays, as specified by the TMessageBoxType enumeration
  * @param	a_oArgs				List of arguments with which to populate the printf() style %d specifiers
  * @return	IDOK, IDCANCEL, IDYES or IDNO if successful, indicating which button was pressed
  * @return	0 if the message box could not be opened
  */
 
-TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, va_list a_oArgs)
+TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs)
 {
 	char Message[512];
 	TInt RetVal;
@@ -2061,14 +2061,14 @@ TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TM
 
 /* Written: Saturday 12-Mar-2011 6:25 pm */
 
-TInt Utils::MessageBox(const char *a_pccTitle, const char *a_pccMessage, enum TMessageBoxType a_eMessageBoxType, ...)
+TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, ...)
 {
 	TBool RetVal;
 	va_list Args;
 
-	va_start(Args, a_eMessageBoxType);
+	va_start(Args, a_pccMessage);
 
-	RetVal = MessageBox(a_pccTitle, a_pccMessage, a_eMessageBoxType, Args);
+	RetVal = MessageBox(a_eMessageBoxType, a_pccTitle, a_pccMessage, Args);
 
 	va_end(Args);
 

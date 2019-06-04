@@ -196,7 +196,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 			{
 				RetVal = KErrNone;
 
-				Utils::MessageBox("Information", "The following template parameters are available:\n\n%s", EMBTOk, a_pccTemplate);
+				Utils::MessageBox(EMBTOk, "Information", "The following template parameters are available:\n\n%s", a_pccTemplate);
 			}
 		}
 		else
