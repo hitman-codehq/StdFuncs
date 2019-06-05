@@ -497,8 +497,8 @@ void RFont::End()
  *
  * @date	Tuesday 08-Jun-2010 6:22 am
  * @param	a_uiCharacter	The character to be drawn, encoded in little endian format
- * @param	a_iX			X position in the window at which to draw
- * @param	a_iY			Y position in the window at which to draw
+ * @param	a_iX			X position in the window at which to draw, specified as a pixel offset
+ * @param	a_iY			Y position in the window at which to draw, specified as a character offset
  */
 
 void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
@@ -642,7 +642,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	{
 		/* Calculate the position at which to draw the cursor */
 
-		X = (m_iXOffset + (a_iX * m_iWidth));
+		X = (m_iXOffset + a_iX);
 		Y = (m_iYOffset + (a_iY * m_iHeight));
 
 		/* Set the background mode to opaque, as we want to forcibly draw the cursor over the top of the background */
@@ -753,7 +753,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 	/* the baseline of the font, not as the top */
 
 	QByteArray String(a_pccText, a_iSize);
-	m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
+	m_oPainter.drawText((m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 #else /* ! QT_GUI_LIB */
 
@@ -904,6 +904,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
+	QByteArray LineText;
+
 	while (*a_pccText)
 	{
 		/* Get the size of the run and the colour in which to to display the run in */
@@ -924,11 +926,14 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 		/* the baseline of the font, not as the top */
 
 		QByteArray String(a_pccText, Size);
-		m_oPainter.drawText((m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
+
+		// TODO: CAW - This is going to break things + loses the original meaning of a_iX
+		a_iX = TextWidthInPixels(LineText);
+		m_oPainter.drawText((m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
 
-		a_iX += Size;
+		LineText.append(a_pccText, Size);
 		a_pccText += Size;
 	}
 
@@ -1067,6 +1072,68 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 	return(RetVal);
 }
 
+/**
+ * Converts a horizontal pixel offset to a character offset.
+ * Takes a horizontal offset specified in pixels and converts it to a character offset.  In order
+ * to do this, the line of text on the line displayed on the screen must be passed in, so that on
+ * systems that support proportional fonts the width of the text can be calculated.  This means
+ * that you cannot take an arbitrary X offset on the screen and convert it to a character offset.
+ *
+ * @date	10-May-2018 7:33 am Code HQ Bergmannstraße
+ * @param	a_roText	Pointer to the string for use in the calculation
+ * @param	a_iPixelX	The horizontal pixel offset to be converted
+ * @param	a_iLength	The length of the text, in characters
+ * @return	The zero indexed offset representing the specified pixel
+ */
+
+int RFont::PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength)
+{
+	int RetVal;
+
+	ASSERTM(m_poFont, "RFont::PixelToOffset() => RFont::Open() must have already been called");
+	ASSERTM(a_pccText, "RFont::PixelToOffset() => Text to parse must not be NULL");
+
+#if defined(QT_GUI_LIB) && defined(__APPLE__)
+
+	int Offset, Width;
+	QFontMetrics Metrics(*m_poFont);
+
+	/* Iterate through the characters in the string, determine the width of each one and add */
+	/* it to the pixel count.  When the pixel count reaches the X offset passed in then we */
+	/* have found the character under the given pixel */
+
+	RetVal = 0;
+
+	for (Offset = 0; Offset < a_iLength; ++Offset)
+	{
+		QByteArray Text(a_pccText, Offset);
+		QByteArray Character((a_pccText + Offset), 1);
+
+		Width = Metrics.horizontalAdvance(Text);
+
+		if ((Width < a_iPixelX) && ((Width + Metrics.horizontalAdvance(Character)) >= a_iPixelX))
+		{
+			RetVal = Offset;
+
+			break;
+		}
+	}
+
+#else /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
+
+	(void) a_pccText;
+	(void) a_iLength;
+
+	/* For systems that do not support proportional fonts, it is enough to simply divide the */
+	/* X offset by the width of a character */
+
+	RetVal = (a_iPixelX / m_iWidth);
+
+#endif /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
+
+	return(RetVal);
+}
+
 /* Written: Saturday 21-Aug-2010 8:27 pm */
 
 void RFont::SetHighlight(TBool a_bHighlight)
@@ -1178,3 +1245,72 @@ void RFont::SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt
 #endif /* QT_GUI_LIB */
 
 }
+
+/**
+ * Calculates the width of a string, in pixels.
+ * Determines how many horizontal pixels are required to display a string.  This method is not
+ * UTF-8 aware.
+ *
+ * @date	Tuesday 29-May-2018 7:06 am, Code HQ Bergmannstraße
+ * @param	a_pccText	Pointer to the string for which to calculate the width
+ * @param	a_iLength	The length of the text, in characters
+ * @return	The number of horizontel pixels required to display the string
+ */
+
+int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
+{
+	int RetVal;
+
+	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::Open() must have already been called");
+	ASSERTM(a_pccText, "RFont::TextWidthInPixels() => Text to parse must not be NULL");
+
+#if defined(QT_GUI_LIB) && defined(__APPLE__)
+
+	QFontMetrics Metrics(*m_poFont);
+	QByteArray Text(a_pccText, a_iLength);
+
+	RetVal = Metrics.horizontalAdvance(Text);
+
+#else /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
+
+	RetVal = (a_iSize * m_iWidth);
+
+#endif /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
+
+	return(RetVal);
+}
+
+#ifdef QT_GUI_LIB
+
+/**
+ * Calculates the width of a string, in pixels.
+ * Determines how many horizontal pixels are required to display a string.  This method is not
+ * UTF-8 aware.
+ *
+ * @date	Wednesday 28-Mar-2018 7:09 am, Code HQ Bergmannstraße
+ * @param	a_roText	Pointer to the string for which to calculate the width
+ * @return	The number of horizontel pixels required to display the string
+ */
+
+int RFont::TextWidthInPixels(const QByteArray &a_roText)
+{
+	int RetVal;
+
+	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::Open() must have already been called");
+
+#ifdef __APPLE__
+
+	QFontMetrics Metrics(*m_poFont);
+
+	RetVal = Metrics.horizontalAdvance(a_roText);
+
+#else /* ! __APPLE__ */
+
+	RetVal = (a_roText.size() * m_iWidth);
+
+#endif /* ! __APPLE__ */
+
+	return(RetVal);
+}
+
+#endif /* QT_GUI_LIB */

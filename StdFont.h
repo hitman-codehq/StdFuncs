@@ -104,9 +104,19 @@ public:
 		return(m_iHeight);
 	}
 
+	int PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength);
+
 	void SetHighlight(TBool a_bHighlight);
 
 	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);
+
+	int TextWidthInPixels(const char *a_pccText, int a_iLength);
+
+#ifdef QT_GUI_LIB
+
+	int TextWidthInPixels(const QByteArray &a_roText);
+
+#endif /* QT_GUI_LIB */
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
