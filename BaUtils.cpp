@@ -61,7 +61,7 @@ TInt BaflUtils::DeleteFile(const char *a_pccFileName)
 	}
 
 	return(RetVal);
-} 
+}
 
 /* Written: Monday 19-Apr-2010 6:26 am */
 
