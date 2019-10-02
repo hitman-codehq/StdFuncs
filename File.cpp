@@ -18,19 +18,19 @@
 RFile::RFile()
 {
 
-#ifdef __unix__
-
-	m_oHandle = -1;
-
-#elif defined(__amigaos4__)
+#ifdef __amigaos4__
 
 	m_uiFileMode = m_oHandle = 0;
 
-#else /* ! __amigaos4__ */
+#elif defined(__unix__)
+
+	m_oHandle = -1;
+
+#else /* ! __unix__ */
 
 	m_oHandle = INVALID_HANDLE_VALUE;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __unix__ */
 
 }
 
