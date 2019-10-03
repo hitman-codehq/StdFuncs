@@ -8,15 +8,6 @@
 #include <string>
 #include "Dir.h"
 
-#ifdef _MSC_VER
-
-/* Disable a bogus MSVC warning */
-
-// TODO: CAW - Still needed?
-#pragma warning(disable : 4710) /* Function not expanded */
-
-#endif /* _MSC_VER */
-
 /**
  * Types of message boxes that can be opened with Utils::MessageBox().
  * The type of the message box is determined by how many buttons it contains;  this is defined
