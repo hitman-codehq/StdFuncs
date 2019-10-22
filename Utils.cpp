@@ -69,7 +69,7 @@ static const char g_accProgDir[] = "PROGDIR:";
 
 TBool g_bUsingGUI;
 
-/* Ptr to root window on which all other windows open.  This was defined in CWindow as a static, */
+/* Pointer to root window on which all other windows open.  This was defined in CWindow as a static, */
 /* but this caused the GUI framework to be linked in even for command line only programs.  Thus */
 /* it is now kept as a global variable.  Less elegent perhaps, but it significantly reduces the */
 /* amount of code statically linked in */
@@ -126,8 +126,8 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR a_poMonitor, HDC /*a_poDC*/, LPREC
 /**
  *
  * Maps the OS's last error onto one of The Framework's standard errors.
- * This function will determine the last error reported by the OS and to map it
- * onto a standard error.
+ * This function will determine the last error reported by the OS and to map it onto a standard
+ * error.
  *
  * @date	Thursday 27-Sep-2012 6:39 am, Code HQ Ehinger Tor
  * @return	KErrNone if the last OS operation was successful
@@ -223,20 +223,18 @@ TInt Utils::MapLastError()
 
 /**
  * Maps the OS's last error onto one of The Framework's standard errors.
- * This function is an extension to Utils::MapLastError().  It uses that function to
- * determine the last error reported by the OS and to map it onto a standard error,
- * but then performs some extra file related checking on some operating systems to
- * perhaps change the error returned.  This is because different operating systems
- * handle errors slightly differently and thus without this function the results
- * returned by The Framework's file I/O related functions would be different on
- * different platforms.
+ * This function is an extension to Utils::MapLastError().  It uses that function to determine the
+ * last error reported by the OS and to map it onto a standard error, but then performs some extra
+ * file related checking on some operating systems to perhaps change the error returned.  This is
+ * because different operating systems handle errors slightly differently and thus without this
+ * function the results returned by The Framework's file I/O related functions would be different
+ * on different platforms.
  *
- * This function should only be used in functions that perform file or directory I/O.
- * All other functions should use Utils::MapLastError() directly to do their error
- * mapping.
+ * This function should only be used in functions that perform file or directory I/O.  All other
+ * functions should use Utils::MapLastError() directly to do their error mapping.
  *
  * @date	Monday 09-Oct-2012 5:47 am
- * @param	a_pccFileName		Ptr to the name of the file to be checked
+ * @param	a_pccFileName		Pointer to the name of the file to be checked
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
  * @return	KErrInUse if the file or directory is in use
@@ -318,20 +316,20 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 /**
  * Appends a file or directory name to an existing path.
  * This function will append a file or directory to an existing path, ensuring that a '/' character
- * is appended as appropriate to the end of the existing path.  This will ensure that a single slash is
- * always present between the end of the existing path and the beginning of the newly added path part.
- * It will not append an extra slash if one exists already.
+ * is appended as appropriate to the end of the existing path.  This will ensure that a single
+ * slash is always present between the end of the existing path and the beginning of the newly
+ * added path part.  It will not append an extra slash if one exists already.
  *
- * It will also treat Windows style directory names (such as "d:") specially in that they will not have
- * a slash appended to them.  This allows relative addressing of directories on drives where the drive
- * letter by itself represents the current directory of that drive.
+ * It will also treat Windows style directory names (such as "d:") specially in that they will not
+ * have a slash appended to them.  This allows relative addressing of directories on drives where
+ * the drive letter by itself represents the current directory of that drive.
  *
  * @date	Thursday 16-Jul-2009 3:58 pm
- * @param	a_pcDest	Ptr to the path to which to append the file or directory name
- * @param	a_pccSource	Ptr to the file or directory name to be appended
+ * @param	a_pcDest		Pointer to the path to which to append the file or directory name
+ * @param	a_pccSource		Pointer to the file or directory name to be appended
  * @param	a_stDestSize	The size of the destination buffer in bytes
- * @return	ETrue if the file or directory was appended successfully, otherwise EFalse if the destination
- *			buffer was too small to hold the resulting path
+ * @return	ETrue if the file or directory was appended successfully
+ * @return	EFalse if the destination buffer was too small to hold the resulting path
  */
 
 TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize)
@@ -393,7 +391,15 @@ TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSiz
 
 #ifdef _DEBUG
 
-/* Written: Saturday 11-Jul-2009 08:56 am */
+/**
+ * Displays information about an assertion failure.
+ * This function will display information about an assertion failure, either in a message box, if
+ * running on a GUI based system, or as a printf() if not.  It will also (on most platforms) exit
+ * back to the operating system after displaying this message.
+ *
+ * @date	Saturday 11-Jul-2009 08:56 am
+ * @param	a_pccMessage	The message to be displayed, in printf() format
+ */
 
 void Utils::AssertionFailure(const char *a_pccMessage, ...)
 {
@@ -428,12 +434,12 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 /**
  * Parses a string to determine how many tokens it contains.
- * Parses a string, identifying tokens and keeping track of a count of how many it finds.
- * A token is either a single word delimited by white space (spaces or tabs), or multiple
- * words in a quoted string.
+ * Parses a string, identifying tokens and keeping track of a count of how many it finds.  A token
+ * is either a single word delimited by white space (spaces or tabs), or multiple words in a quoted
+ * string.
  *
  * @date	Friday 04-Jun-2010 7:58 am
- * @param	a_pccBuffer	Ptr to buffer to parse for tokens
+ * @param	a_pccBuffer	Pointer to buffer to parse for tokens
  * @return	The number of tokens found in the string
  */
 
@@ -498,7 +504,17 @@ TInt Utils::CountTokens(const char *a_pccBuffer)
 	return(RetVal);
 }
 
-/* Written: Saturday 18-Jul-2009 8:25 am */
+/**
+ * Creates a new directory.
+ * Creates a directory with the name passed in.  The name can be either relative to the current
+ * directory or a fully qualified path.
+ *
+ * @date	Saturday 18-Jul-2009 8:25 am
+ * @param	a_pccDirectoryName	The name of the directory to be created
+ * @return	KErrNone if successful
+ * @return	KErrAlreadyExists if the dirctory already exists
+ * @return	KErrNot found for any other error
+ */
 
 TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 {
@@ -548,8 +564,8 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 /**
  * Deletes a directory from the file system.
- * This function will delete a directory.  The directory in question must not be
- * open for use in any way and must be empty.
+ * This function will delete a directory.  The directory in question must not be open for use in 
+ * any way and must be empty.
  *
  * @date	Friday 27-Jul-2012 10:27 am
  * @param	a_pccDirectoryName	Name of the directory to be deleted
@@ -580,17 +596,20 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
 	return(RetVal);
 }
 
-/* Written: Monday 27-Aug-2012 06:56 am */
-/* @return	Does not return if successful */
-/*			KErrNone if process is already detached from the CLI */
-/*			KErrGeneral if unable to detach the process */
-/* This function is mainly for Amiga OS and relaunches the current process */
-/* asynchronously before exiting the current process.  This gives the user the */
-/* impression that the process has automatically detached itself from the CLI. */
-/* Note that if successful, this function will not return and will instead shut */
-/* the process down using exit().  The second time it is called (by the newly */
-/* launched process), it will detect that the new process is already detached from */
-/* the CLI and will simply return without doing anything */
+/**
+ * Detaches the currently running program from the CLI.
+ * This function is mainly for Amiga OS and relaunches the current process asynchronously before
+ * exiting the current process.  This gives the user the impression that the process has
+ * automatically detached itself from the CLI.  Note that if successful, this function will not
+ * return and will instead shut the process down using exit().  The second time it is called (by
+ * the newly launched process), it will detect that the new process is already detached from the
+ * CLI and will simply return without doing anything.
+ *
+ * @date	Monday 27-Aug-2012 06:56 am
+ * @return	Does not return if successful
+ * @return	KErrNone if process is already detached from the CLI
+ * @return	KErrGeneral if unable to detach the process
+ */
 
 TInt Utils::Detach()
 {
@@ -689,24 +708,26 @@ TInt Utils::Detach()
 	return(RetVal);
 }
 
-/* Written: Wednesday 13-Feb-2013 6:48 am, Code HQ Ehinger Tor */
-/* @param	a_pccString	Ptr to the string to be duplicated */
-/*			a_iLength	Length of the string, not including NULL terminator, or -1 */
-/* @return	Ptr to an allocated buffer containing the duplicated string if successful, */
-/*			else NULL */
-/* Allocates a buffer large enough to hold the string passed in and its NULL terminator */
-/* and copies the string into said buffer.  If a length is passed in (and 0 is a valid */
-/* length) then it is assumed the string passed in is not NULL terminated and that length */
-/* is used as the string's length.  Otherwise if the length is -1 then the string's length */
-/* is determined with strlen().  The string returned by this function should be freed with */
-/* delete [] */
+/**
+ * Duplicates a string into a new allocated buffer.
+ * Allocates a buffer large enough to hold the string passed in and its NULL terminator and copies
+ * the string into said buffer.  If a length is passed in (and 0 is a valid length) then it is
+ * assumed the string passed in is not NULL terminated and that length is used as the string's
+ * length.  Otherwise if the length is -1 then the string's length is determined with strlen().
+ * The string returned by this function should be freed with delete [].
+ *
+ * @date	13-Feb-2013 6:48 am, Code HQ Ehinger Tor
+ * @param	a_pccString		Pointer to the string to be duplicated
+ * @param	a_iLength		Length of the string, not including NULL terminator, or -1
+ * @return	Pointer to an allocated buffer containing the duplicated string if successful, else NULL
+ */
 
 char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
 {
 	char *RetVal;
 	size_t Length;
 
-	ASSERTM((a_pccString != NULL), "Utils::DuplicateString() => Ptr to string passed in must not be NULL");
+	ASSERTM((a_pccString != NULL), "Utils::DuplicateString() => Pointer to string passed in must not be NULL");
 
 	/* If no length has been passed in then determine the length of the string */
 
@@ -723,7 +744,16 @@ char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
 	return(RetVal);
 }
 
-/* Written: Saturday 11-Jul-2009 08:56 am */
+/**
+ * Displays an error message.
+ * Displays a printf() style formatted message.  If a GUI is in use, the message will be displayed
+ * in a message box.  Otherwise it will be printed on the terminal.  The message is displayed
+ * regardless of whether the code is compiled in debug or release mode, and thus this function 
+ * should be used for displaying critical error messages.
+ *
+ * @date	Saturday 11-Jul-2009 08:56 am
+ * @param	a_pccMessage	The message to be displayed, in printf() format
+ */
 
 void Utils::Error(const char *a_pccMessage, ...)
 {
@@ -746,7 +776,16 @@ void Utils::Error(const char *a_pccMessage, ...)
 	va_end(Args);
 }
 
-/* Written: Thursday 22-Jul-2010 8:47 am */
+/**
+ * Returns the extension of a filename.
+ * Scans backwards from the end of string passed in, to find a '.' character.  This function is
+ * thus a very naive method of finding the extension of a filename, although really it is just
+ * searching for a full stop.
+ *
+ * @date	Thursday 22-Jul-2010 8:47 am
+ * @param	a_pccFileName	Pointer to the string in which to search
+ * @return	A pointer to the first character after the full stop, if found, else NULL
+ */
 
 const char *Utils::Extension(const char *a_pccFileName)
 {
@@ -806,8 +845,8 @@ const char *Utils::FilePart(const char *a_pccPath)
 	char Char;
 	const char *RetVal;
 
-	/* Iterate through the string passed in from its very end, looking for any kind of directory separator, */
-	/* whether valid for Amiga OS, UNIX or Windows */
+	/* Iterate through the string passed in from its very end, looking for any kind of directory */
+	/* separator, whether valid for Amiga OS, UNIX or Windows */
 
 	RetVal = (a_pccPath + strlen(a_pccPath));
 
@@ -825,8 +864,8 @@ const char *Utils::FilePart(const char *a_pccPath)
 		--RetVal;
 	}
 
-	/* If no directory separator was found, we will be pointing to just before the start of the string.  In this */
-	/* case, return the entire string passed in */
+	/* If no directory separator was found, we will be pointing to just before the start of the */
+	/* string.  In this case, return the entire string passed in */
 
 	if (RetVal < a_pccPath)
 	{
@@ -836,17 +875,33 @@ const char *Utils::FilePart(const char *a_pccPath)
 	return(RetVal);
 }
 
-/* Written: Monday 09-Apr-2007 12:06 am */
+/**
+ * Determines a filename from a WBArg structure.
+ * This function determines the fully qualified filename of the object represented by a WBArg 
+ * structure.  This is done by determining the path represented by the WBArg's lock and then
+ * appending the name to that path.  It will also return (in the variable a_pbDirectory)
+ * whether or not the target of the WBArg structure is a file or a directory.
+ *
+ * @date	Monday 09-Apr-2007 12:06 am
+ * @param	a_pcFullName	Pointer to a buffer into which to place the qualified filename
+ * @param	a_poWBArg		Pointer to the WBArg structure to be used
+ * @param	a_pbDirectory	Pointer to a variable into which to place a directory flag
+ * @return	ETrue if successful, else EFalse
+ */
 
 #ifdef __amigaos4__
 
 TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory)
 {
-	char Path[1024]; // TODO: CAW + Comment this function
+	char Path[1024]; // TODO: CAW - Possible overflow here and in a_pcFullName
 	TBool RetVal;
 	struct ExamineData *ExamineData;
 
+	/* Assume failure */
+
 	RetVal = EFalse;
+
+	/* Check whether the WBArg has a valid lock and if so, determine its path */
 
 	if (a_poWBArg->wa_Lock)
 	{
@@ -854,11 +909,15 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 		{
 			if ((ExamineData = IDOS->ExamineObjectTags(EX_FileLockInput, a_poWBArg->wa_Lock, TAG_DONE)) != NULL)
 			{
+				/* Create the fully qualified path from the path and filename */
+
 				strcpy(a_pcFullName, Path);
 
 				if (IDOS->AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)))
 				{
 					RetVal = ETrue;
+
+					/* Is this a directory? */
 
 					*a_pbDirectory = EXD_IS_DIRECTORY(ExamineData);
 				}
@@ -904,12 +963,12 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
  * Note that this function explicitly checks for wildcards being passed in and if detected,
  * returns failure.  If you wish to use wildcards then use the more powerful RDir class instead.
  *
- * @pre		Ptr to filename passed in must not be NULL
- * @pre		Ptr to TEntry structure passed in must not be NULL
+ * @pre		Pointer to filename passed in must not be NULL
+ * @pre		Pointer to TEntry structure passed in must not be NULL
  *
  * @date	Saturday 04-Jul-2009 9:20 pm
- * @param	a_pccFileName	Ptr to the name of the file for which to obtain information
- * @param	a_poEntry		Ptr to the TEntry structure into which to place the information
+ * @param	a_pccFileName	Pointer to the name of the file for which to obtain information
+ * @param	a_poEntry		Pointer to the TEntry structure into which to place the information
  * @param	a_bResolveLink	ETrue to return information about the target of the link, else EFalse
  *							for information about the link itself.  ETrue by default
  * @return	KErrNone if the information was obtained successfully
@@ -925,7 +984,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 	TBool PathOk;
 	TInt RetVal;
 
-	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Ptr to filename passed in must not be NULL");
+	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => Pointer to filename passed in must not be NULL");
 	ASSERTM((a_poEntry != NULL), "Utils::GetFileInfo() => TEntry structure passed in must not be NULL");
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
@@ -1302,10 +1361,10 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 
 /**
  * Returns the height of the console in which the program is running.
- * This function will determine the height of the console or shell in which the program is
- * running, in lines, and will return it.  If there is no console present (for instance, if
- * the program is a Windows application that uses WinMain() rather than main()) then it will
- * return -1 to indicate this.
+ * This function will determine the height of the console or shell in which the program is running,
+ * in lines, and will return it.  If there is no console present (for instance, if the program is a
+ * Windows application that uses WinMain() rather than main()) then it will return -1 to indicate 
+ * this.
  *
  * @date	Thursday 09-Jul-2009 06:58 am
  * @return	The height of the current console, or -1 if there is no console present
@@ -1417,10 +1476,10 @@ int Utils::GetShellHeight()
 
 /**
  * Obtains a line of text from stdin.
- * This function is an overflow-safe replacement for the deprecated gets() function, that
- * causes deprecated messages on some compilers and is completely missing from others.  Use
- * it to obtain a line of text from the stdin input stream.  The string will be placed into
- * the a_pcBuffer parameter and will be NULL terminated.
+ * This function is an overflow-safe replacement for the deprecated gets() function, that causes 
+ * deprecated messages on some compilers and is completely missing from others.  Use it to obtain 
+ * a line of text from the stdin input stream.  The string will be placed into the a_pcBuffer 
+ * parameter and will be NULL terminated.
  *
  * @date	Wednesday 28-Sep-2016 6:40 am, Code HQ Ehinger Tor
  * @param	a_roString		Reference to a string into which to place the line of text
@@ -1476,23 +1535,21 @@ bool Utils::GetString(std::string &a_roString)
 
 /**
  * Allocates or reallocates a temporary buffer.
- * This function is useful if you have a situation that calls for a temporary
- * buffer of an unknown and varying size (thus preventing the use of a satic
- * buffer) and do not want to dynamically allocate and delete the buffer every
- * time you use it.  If you use this function instead then the buffer will only
- * be reallocated if the new buffer is larger than the old one.  The first
- * time you call this function you should pass in NULL as the buffer ptr.
- * For subsequent calls, pass in the buffer returned by the previous call.
- * When done, use Utils::FreeTempBuffer() to free the allocated buffer.  If a
- * new buffer is allocated, the contents of the old one can be copied into it
- * if desired (this is done by default).
+ * This function is useful if you have a situation that calls for a temporary buffer of an unknown 
+ * and varying size (thus preventing the use of a satic buffer) and do not want to dynamically 
+ * allocate and delete the buffer every time you use it.  If you use this function instead then 
+ * the buffer will only be reallocated if the new buffer is larger than the old one.  The first
+ * time you call this function you should pass in NULL as the buffer pointer.  For subsequent 
+ * calls, pass in the buffer returned by the previous call.  When done, use Utils::FreeTempBuffer()
+ * to free the allocated buffer.  If a new buffer is allocated, the contents of the old one can be
+ * copied into it if desired (this is done by default).
  *
  * @date	Tuesday 28-Feb-2012 8:43 am, Code HQ Ehinger Tor
  * @param	a_pvBuffer		Pointer to the currently allocated buffer
  * @param	a_stSize		Size in bytes of the new buffer to be allocated
  * @param	a_bCopyContents	ETrue to copy the contents of the old buffer.
  *							If not specified then this is ETrue by default
- * @return	A Ptr to the allocated buffer if successful, else NULL
+ * @return	A Pointer to the allocated buffer if successful, else NULL
  */
 
 void *Utils::GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyContents)
@@ -1510,7 +1567,7 @@ void *Utils::GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyConte
 
 	if (a_pvBuffer)
 	{
-		/* The size is stored in the long word just before the ptr that is */
+		/* The size is stored in the long word just before the pointer that is */
 		/* returned to the user */
 
 		Size = *(size_t *) ((char *) a_pvBuffer - sizeof(a_stSize));
@@ -1539,7 +1596,7 @@ void *Utils::GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyConte
 		RetVal = new char[a_stSize + sizeof(a_stSize)];
 
 		/* Save the size of the buffer in the first long word of the buffer and return */
-		/* a ptr to just after that word to the user */
+		/* a pointer to just after that word to the user */
 
 		*(size_t *) RetVal = a_stSize;
 		RetVal += sizeof(a_stSize);
@@ -1563,11 +1620,10 @@ void *Utils::GetTempBuffer(void *a_pvBuffer, size_t a_stSize, TBool a_bCopyConte
 
 /**
  * Frees a temporary buffer.
- * Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass
- * in NULL to this method.
+ * Frees a buffer allocated with Utils::GetTempBuffer().  It is ok to pass in NULL to this method.
  *
  * @date	Tuesday 28-Feb-2012 9:00 am, Code HQ Ehinger Tor
- * @param	a_pccBuffer		Pointer to the buffer to be freed
+ * @param	a_pvBuffer		Pointer to the buffer to be freed
  */
 
 void Utils::FreeTempBuffer(void *a_pvBuffer)
@@ -1579,6 +1635,17 @@ void Utils::FreeTempBuffer(void *a_pvBuffer)
 }
 
 #ifdef _DEBUG
+
+/**
+ * Displays an information or warning message.
+ * Displays a printf() style formatted message.  The message is displayed in an OS specific manner.
+ * On most systems, this means that it will be output to the debug console and will thus only be 
+ * viewable with a debugging tool, which is quite often the development IDE itself.  On MacOS it 
+ * is output to stdout.  The message is only displayed if the code is compiled in debug mode, and 
+ * thus this function should only be used for displaying informational messages.
+ *
+ * @param	a_pccMessage	The message to be displayed, in printf() format
+ */
 
 void Utils::Info(const char *a_pccMessage, ...)
 {
@@ -1622,20 +1689,24 @@ void Utils::Info(const char *a_pccMessage, ...)
 #endif /* _DEBUG */
 
 /**
- * Loads a file into memory in its entirity.
- * This is a convenience function that can be used to load a file into memory.  The file's size will
- * be checked, just the right amount of memory allocated, and the file will be loaded.  A single byte
- * more is allocated than is required and this has a 0 placed into it.  This is to make it easier to
- * parse text files, as it can be depended upon that there is a NULL terminator at the end of the file.
+ * Loads a file into memory in its entirety.
+ * This is a convenience function that can be used to load a file into memory.  The file's size
+ * will be checked, just the right amount of memory allocated, and the file will be loaded.  A
+ * single byte more is allocated than is required and this has a 0 placed into it.  This is to
+ * make it easier to parse text files, as it can be depended upon that there is a NULL terminator
+ * at the end of the file.
  *
- * The ptr to the allocated buffer is returned to the user in *a_ppucBuffer and it is up to the user
- * to delete [] this memory.  If the function fails to load the file, a_ppucBuffer will be set to NULL.
+ * The pointer to the allocated buffer is returned to the user in *a_ppucBuffer and it is up to
+ * the user to delete [] this memory.  If the function fails to load the file, a_ppucBuffer will
+ * be set to NULL.
  *
- * @param	a_pccFileName	Ptr to the name of the file to be opened
- * @param	a_ppucBuffer	Ptr to a variable into which to place the ptr to the allocated buffer
+ * @param	a_pccFileName	Pointer to the name of the file to be opened
+ * @param	a_ppucBuffer	Pointer to a variable into which to place the pointer to the allocated
+ *							buffer
  * @return	The size of the file in bytes, not including the NULL terminator, if successful
  * @return	KErrNoMemory if not enough memory was available
- * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::Open() or RFile::Read()
+ * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::Open() or
+ *			RFile::Read()
  */
 
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
@@ -1664,7 +1735,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 			{
 				if ((RetVal = File.Read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
 				{
-					/* NULL terminate the buffer and save its ptr for the calling client */
+					/* NULL terminate the buffer and save its pointer for the calling client */
 
 					Buffer[Entry.iSize] = '\0';
 					*a_ppucBuffer = Buffer;
@@ -1843,17 +1914,18 @@ void Utils::NormalisePath(char *a_pcPath)
 
 /**
  * Displays a generic message box and waits for input.
- * Opens a message box to prompt the user with a question or simply to display information.  Different types
- * of message boxes may be opened, which contain combinations of Ok, Cancel, Yes and No buttons according to
- * the a_eMessageBoxType passed in.
+ * This is the internal version of the same named public Utils::MessageBox() method.  See the
+ * documentation for that method for more information.
  *
  * @date	Saturday 12-Mar-2011 11:00 am
- * @param	a_eMessageBoxType	Type of message box to display, as specified by the TMessageBoxType enumeration
- * @param	a_pccTitle			Ptr to the title to be displayed in the mesage box
- * @param	a_pccMessage		Ptr to the message to be displayed.  This can contain printf() style %d
- *								specifiers that will be processed and matched with arguments pass in in the
- *								a_oArgs varargs list
- * @param	a_oArgs				List of arguments with which to populate the printf() style %d specifiers
+ * @param	a_eMessageBoxType	Type of message box to display, as specified by the
+ *								TMessageBoxType enumeration
+ * @param	a_pccTitle			Pointer to the title to be displayed in the mesage box
+ * @param	a_pccMessage		Pointer to the message to be displayed.  This can contain printf()
+ *								style specifiers that will be processed and matched with arguments
+ *								passed in in the a_oArgs varargs list
+ * @param	a_oArgs				List of arguments with which to populate the printf() style %d
+ *								specifiers
  * @return	IDOK, IDCANCEL, IDYES or IDNO if successful, indicating which button was pressed
  * @return	0 if the message box could not be opened
  */
@@ -2059,7 +2131,22 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 	return(RetVal);
 }
 
-/* Written: Saturday 12-Mar-2011 6:25 pm */
+/**
+ * Displays a generic message box and waits for input.
+ * Opens a message box to prompt the user with a question or simply to display information.
+ * Different types of message boxes may be opened, which contain combinations of Ok, Cancel, Yes
+ * and No buttons according to the a_eMessageBoxType passed in.
+ *
+ * @date	Saturday 12-Mar-2011 6:25 pm
+ * @param	a_eMessageBoxType	Type of message box to display, as specified by the
+ *								TMessageBoxType enumeration
+ * @param	a_pccTitle			Pointer to the title to be displayed in the mesage box
+ * @param	a_pccMessage		Pointer to the message to be displayed.  This can contain printf()
+ *								style specifiers that will be processed and matched with arguments
+ *								passed in in the a_oArgs varargs list
+ * @return	IDOK, IDCANCEL, IDYES or IDNO if successful, indicating which button was pressed
+ * @return	0 if the message box could not be opened
+ */
 
 TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, ...)
 {
@@ -2077,36 +2164,30 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 
 /**
  * Converts a filename to a fully qualified filename.
- * Takes a filename that contains either no path or a relative path and
- * converts it to a fully qualified filename.  The function will attempt
- * to determine the true path to the filename, which will only work if the
- * file actually exists.  If this is not the case then the current directory
- * will be used instead.  In the event that even this cannot be obtained,
- * the function will fail.
+ * Takes a filename that contains either no path or a relative path and converts it to a fully 
+ * qualified filename.  The function will attempt to determine the true path to the filename, 
+ * which will only work if the file actually exists.  If this is not the case then the current
+ * directory will be used instead.  In the event that even this cannot be obtained, the function 
+ * will fail.
  *
- * The use of the current directory is useful when creating new files, but
- * care must be taken if using this function with software that changes the
- * current directory, especially if the changes could be done in a separate
- * thread.
+ * The use of the current directory is useful when creating new files, but care must be taken 
+ * if using this function with software that changes the current directory, especially if the 
+ * changes could be done in a separate thread.
  *
- * It is the responsibility of the caller to free the returned buffer with
- * delete [].  It is safe to pass in an already qualified filename - the
- * filename will simply be copied into an allocated buffer and returned.
+ * It is the responsibility of the caller to free the returned buffer with delete [].  It is safe 
+ * to pass in an already qualified filename - the filename will simply be copied into an allocated
+ *  buffer and returned.
  *
- * Despite its name, this function works for both directories and files.
- * For directories it will "clean" the names returned;  that is, it will
- * ensure that there is no trailing \ or / character at the end of the
- * directory name (unless it is the root directory) as this can cause
- * confusion with calling software if it tries to examine the returned
- * path to determine its type.
+ * Despite its name, this function works for both directories and files. For directories it will 
+ * "clean" the names returned;  that is, it will ensure that there is no trailing \ or / character
+ * at the end of the directory name (unless it is the root directory) as this can cause confusion 
+ * with calling software if it tries to examine the returned path to determine its type.
  *
  * @date	Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor
  * @param	a_pccFileName		Pointer to filename to be resolved
- * @param	a_bGetDeviceName	ETrue to return the underlying device name,
- *								instead of the volume name, on systems that
- *								support this.  EFalse by default
- * @return	Pointer to the fully qualified name of the filename passed in,
- *			if successful, else NULL
+ * @param	a_bGetDeviceName	ETrue to return the underlying device name, instead of the volume 
+ *								name, on systems that support this.  EFalse by default
+ * @return	Pointer to the fully qualified name of the filename passed in, if successful, else NULL
  */
 
 char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
@@ -2353,18 +2434,20 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 	return(RetVal);
 }
 
-/* Written: Monday 17-Dec-2012 6:24 am, John & Sally's House */
-/* @param	a_pccFileName	Ptr to filename to be resolved */
-/* @return	Ptr to the fully qualified name of the filename passed in, */
-/*			if the filename passed in was suffixed with "PROGDIR:" */
-/*			Otherwise ptr to a_pccFileName if no suffix was present */
-/*			Otherwise NULL if the conversion of the path failed */
-/* Takes a filename that may or may not contain the Amiga style */
-/* "PROGDIR:" at the start and, if this prefix is found, returns a ptr */
-/* to a fully qualified path that can be used for opening the file. */
-/* It is the responsibility of the client to free the buffer containing */
-/* this path.  If the filename passed in does not contain this prefix, */
-/* a ptr to the filename passed passed in is returned */
+/**
+ * Takes a filename that may or may not contain the Amiga style "PROGDIR:" at the start and, if
+ * this prefix is found, returns a pointer to a fully qualified path that can be used for opening
+ * the file.  It is the responsibility of the client to free the buffer containing this path.
+ * If the filename passed in does not contain this prefix, a pointer to the filename passed passed
+ * in is returned
+ *
+ * @date	Monday 17-Dec-2012 6:24 am, John & Sally's House
+ * @param	a_pccFileName	Pointer to filename to be resolved
+ * @return	Pointer to the fully qualified name of the filename passed in, if the filename passed
+ *			in was suffixed with "PROGDIR:"
+ * @return	Pointer to a_pccFileName if no suffix was present
+ * @return	NULL if the conversion of the path failed
+ */
 
 char *Utils::ResolveProgDirName(const char *a_pccFileName)
 {
@@ -2471,7 +2554,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			{
 				RetVal[Result] = '\0';
 
-				/* Get a ptr to the name of the executable and remove it */
+				/* Get a pointer to the name of the executable and remove it */
 
 				FileNamePart = (char *) Utils::FilePart(RetVal);
 				*FileNamePart = '\0';
@@ -2508,7 +2591,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 			if (GetModuleFileName(NULL, RetVal, MAX_PATH) > 0)
 			{
-				/* Get a ptr to the name of the executable and remove it */
+				/* Get a pointer to the name of the executable and remove it */
 
 				FileNamePart = (char *) Utils::FilePart(RetVal);
 				*FileNamePart = '\0';
@@ -2551,10 +2634,23 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 	return(RetVal);
 }
 
+/**
+ * Scans a directory and calls a user defined callback for each object found.
+ * This function will scan the given directory for files or directories and will call a user
+ * defined callback for each one found.  Although providing very similar functionality to the
+ * RDir class, this function is interactive in that it calls the user callback immediately for
+ * each file or directory found, thus allowing the immediate updating of a user interface.
+ *
+ * @param	a_pccDirectoryName	Pointer to the name of the directory to be scanned
+ * @param	a_bScanFiles		ETrue to scan for files, or EFalse to scan for directories
+ * @param	a_pfScanFunc		The user defined function to be called for each file
+ * @param	a_pvUserData		User defined pointer to be passed to the user callback
+ * @return	ETrue if successful, else EFalse
+ */
+
 #ifdef __amigaos4__
 
-// TODO: CAW - Convert this to use RDir?  Why is it OS4 only?  Comments and error messages, ExamineDir() result
-//             ObtainDirContextTags() are not all required
+// TODO: CAW - Comments and error messages, ExamineDir() result, ObtainDirContextTags() are not all required
 TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData)
 {
 	TBool Error, RetVal;
@@ -2623,7 +2719,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
  * setting the file type to normal, thus clearing all bits.
  *
  * @date	Thursday 16-Aug-2012 12:55 pm
- * @param	a_pccFileName	Ptr to the name of the file to be made deleteable
+ * @param	a_pccFileName	Pointer to the name of the file to be made deleteable
  * @return	KErrNone if successful
  * @return	KErrNotFound if the file could not be found
  * @return	KErrGeneral if some other unspecified error occurred
@@ -2670,7 +2766,20 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 
 }
 
-/* Written: Saturday 18-Jul-2009 8:06 am */
+/**
+ * Sets the time and date of a file.
+ * Takes the time and date passed in and assigns it to a file.  This function can follow symbolic
+ * links in order to set the time and date on the link's target, if requested.  However, this 
+ * functionality does not work on Amiga OS.
+ *
+ * @date	Saturday 18-Jul-2009 8:06 am
+ * @param	a_pccFileName	The name of the file for which to set the time and date
+ * @param	a_roEntry		A TEntry structure containing the time and date to be set
+ * @param	a_bResolveLink	ETrue to follow links, else EFalse
+ * @return	KErrNone if the file's time and date were set successfully
+ * @return	KErrNotFound if the file could not be found
+ * @return	KErrGeneral if any other error occurred
+ */
 
 TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink)
 {
@@ -2755,16 +2864,20 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 	return(RetVal);
 }
 
-/* Written: Saturday 18-Jul-2009 7:59 am */
-/* @param	a_pccFileName	Ptr to the name of the file for which to set the protection bits */
-/*			a_uiAttributes	The set of protection bits to apply to the file */
-/* @return	KErrNone if the protection bits were set successfully */
-/*			KErrNotFound if the file could not be found */
-/*			KErrGeneral if some other unspecified error occurred */
-/* Assigns a set of protection bits to the specified file.  Note that the protection bits are */
-/* native to the platform on which the function is being called!  This parameter is of the same */
-/* format as that found in the TEntry::iAttributes member variable and this can be passed unchanged */
-/* into this function if possible */
+/**
+ * Sets the protection bits of a file.
+ * Assigns a set of protection bits to the specified file.  Note that the protection bits are native
+ * to the platform on which the function is being called!  This parameter is of the same format as
+ * that found in the TEntry::iAttributes member variable and this can be passed unchanged into this
+ * function if possible.
+ *
+ * @date	Saturday 18-Jul-2009 7:59 am
+ * @param	a_pccFileName	Pointer to the name of the file for which to set the protection bits
+ * @param	a_uiAttributes	The set of protection bits to apply to the file
+ * @return	KErrNone if the protection bits were set successfully
+ * @return	KErrNotFound if the file could not be found
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
 
 TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 {
@@ -2810,18 +2923,16 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 /**
  * Strips white space from the start and end of the line.
- * This function will strip spaces and tabs from the start and end of the
- * line, as well as the carriage return (0x0d) from the end.  It returns a
- * ptr to the first non whitespace character in the line and the length of
- * the "new" line, that has the white space stripped.
+ * This function will strip spaces and tabs from the start and end of the line, as well as the
+ * carriage return (0x0d) from the end.  It returns a pointer to the first non whitespace
+ * character in the line and the length of the "new" line, that has the white space stripped.
  *
  * @date	Sunday 14-Jul-2013 8:36 am, Code HQ Ehinger Tor
- * @param	a_pcLine	Ptr to the line to have its white space stripped
- * @param	a_piLength	Number of characters in the line to be stripped.
- *						Upon return, this will contain the new length of
- *						the line
- * @return	A ptr to the first non whitespace character in the line, or
- *			the start of the line passed in if no changes were made
+ * @param	a_pcLine	Pointer to the line to have its white space stripped
+ * @param	a_piLength	Number of characters in the line to be stripped.  Upon return, this 
+ *						will contain the new length of the line
+ * @return	A pointer to the first non whitespace character in the line
+ * @return	The start of the line passed in if no changes were made
  */
 
 char *Utils::StripDags(char *a_pcLine, TInt *a_piLength)
@@ -2829,7 +2940,7 @@ char *Utils::StripDags(char *a_pcLine, TInt *a_piLength)
 	char Char, *RetVal;
 	TInt Index, Length;
 
-	/* Get a ptr to the start of the line */
+	/* Get a pointer to the start of the line */
 
 	RetVal = a_pcLine;
 
@@ -2847,7 +2958,7 @@ char *Utils::StripDags(char *a_pcLine, TInt *a_piLength)
 		}
 	}
 
-	/* If we have found one or more whitespace characters, adjust the ptr to the line */
+	/* If we have found one or more whitespace characters, adjust the pointer to the line */
 	/* and the length of the line */
 
 	if (Index > 0)
@@ -2895,8 +3006,8 @@ char *Utils::StripDags(char *a_pcLine, TInt *a_piLength)
  * actually contains a valid integer, consisting of only characters between 0 and 9.
  *
  * @date	Tuesday 26-Mar-2013 6:15 am, Code HQ Ehinger Tor
- * @param	a_pccString		Ptr to numeric string to be converted
- * @param	a_piResult		Ptr to an integer into which to place the result
+ * @param	a_pccString		Pointer to numeric string to be converted
+ * @param	a_piResult		Pointer to an integer into which to place the result
  * @return	KErrNone if the string was converted successfully
  * @return	KErrCorrupt if the string did not contain a valid number
  */
@@ -2906,8 +3017,8 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
 	char Char;
 	TInt Index, RetVal;
 
-	ASSERTM((a_pccString != NULL), "Utils::StringToInt() => Ptr to string to convert must be passed in");
-	ASSERTM((a_piResult != NULL), "Utils::StringToInt() => Ptr to destination integer must be passed in");
+	ASSERTM((a_pccString != NULL), "Utils::StringToInt() => Pointer to string to convert must be passed in");
+	ASSERTM((a_piResult != NULL), "Utils::StringToInt() => Pointer to destination integer must be passed in");
 
 	/* First, manually confirm that the string is a valid number, as atoi() does */
 	/* not differentiate between '0' and an invalid number - both return 0! */
@@ -2980,7 +3091,19 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDa
 	sprintf(a_pcTime, "%d:%02d %s", Hour, a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
 }
 
-/* Written: Saturday 23-Jul-2009 06:58 am */
+/**
+ * Converts an instance of a TEntry to human readable strings.
+ * This function will convert the components of a TEntry structure that pertain to the date and time
+ * into a human readable format in two strings - one for the date and one for the time.  Unlike the
+ * other overloaded function of this name, this one will honour the current locale settings.  It
+ * will also use Amiga OS specific functions to create the string when run under Amiga OS.
+ *
+ * @date	Saturday 23-Jul-2009 06:58 am
+ * @param	a_pcDate		Pointer to string into which to place the date string
+ * @param	a_pcTime		Pointer to a string into which to place the time string
+ * @param	a_roEntry		Reference to the TEntry structure to be converted
+ * @return	ETrue if successful, else EFalse if date stamp passed in was invalid
+ */
 
 TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
 {
@@ -3020,9 +3143,13 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 	return(RetVal);
 }
 
-/* Written: Sunday 01-Aug-2010 1:20 pm */
-/* @param	a_pcString Ptr to the string to be trimmed of white space */
-/* Trims white space from the start and end of a string, modifying the string that was passed in */
+/**
+ * Trims white space from either end of a string.
+ * Trims white space from the start and end of a string, modifying the string that was passed in.
+ *
+ * @date	Sunday 01-Aug-2010 1:20 pm
+ * @param	a_pcString		Pointer to the string to be trimmed of white space
+ */
 
 void Utils::TrimString(char *a_pcString)
 {
@@ -3058,7 +3185,7 @@ void Utils::TrimString(char *a_pcString)
 
 	if ((Length = strlen(a_pcString)) > 0)
 	{
-		/* Get a ptr to the last character of the string before the NULL terminator */
+		/* Get a pointer to the last character of the string before the NULL terminator */
 
 		String = (a_pcString + Length - 1);
 
@@ -3075,7 +3202,13 @@ void Utils::TrimString(char *a_pcString)
 	}
 }
 
-/* Written: Saturday 16-Sep-2006 4:49 pm */
+/**
+* Extracts the red component of an RGB colour.
+*
+* @date		Saturday 16-Sep-2006 4:49 pm
+* @param	a_ulColour		The RGB value from which to extract
+* @return	The red component of the RGB value passed in
+*/
 
 ULONG Utils::Red32(unsigned long a_ulColour)
 {
@@ -3086,7 +3219,13 @@ ULONG Utils::Red32(unsigned long a_ulColour)
 	return((Red << 24) | (Red << 16) | (Red << 8) | Red);
 }
 
-/* Written: Saturday 16-Sep-2006 4:49 pm */
+/**
+* Extracts the green component of an RGB colour.
+*
+* @date		Saturday 16-Sep-2006 4:49 pm
+* @param	a_ulColour		The RGB value from which to extract
+* @return	The green component of the RGB value passed in
+*/
 
 ULONG Utils::Green32(unsigned long a_ulColour)
 {
@@ -3097,7 +3236,13 @@ ULONG Utils::Green32(unsigned long a_ulColour)
 	return((Green << 24) | (Green << 16) | (Green << 8) | Green);
 }
 
-/* Written: Saturday 16-Sep-2006 4:49 pm */
+/**
+ * Extracts the blue component of an RGB colour.
+ *
+ * @date	Saturday 16-Sep-2006 4:49 pm
+ * @param	a_ulColour		The RGB value from which to extract
+ * @return	The blue component of the RGB value passed in
+ */
 
 ULONG Utils::Blue32(unsigned long a_ulColour)
 {
@@ -3108,12 +3253,16 @@ ULONG Utils::Blue32(unsigned long a_ulColour)
 	return((Blue << 24) | (Blue << 16) | (Blue << 8) | Blue);
 }
 
-/* Written: Wednesday 27-Feb-2013 7:11 am */
-/* @param	a_ulColour	RGB colour to be reversed */
-/* @return	The colour passed in with the red & blue components reversed */
-/* This function takes the 24 bit RGB value passed in and swaps the red and blue components. */
-/* These components are not interpreted in any way, just swapped, so it can be used both to */
-/* change an RGB value to BGR and vice versa */
+/**
+ * Converts from a RGB to BGR or vice versa.
+ * This function takes the 24 bit RGB value passed in and swaps the red and blue components.  These
+ * components are not interpreted in any way, just swapped, so it can be used both to change an RGB
+ * value to BGR and vice versa.
+ *
+ * @date	Wednesday 27-Feb-2013 7:11 am
+ * @param	a_ulColour	RGB colour to be reversed
+ * @return	The colour passed in with the red & blue components reversed
+ */
 
 ULONG Utils::ReverseRGB(unsigned long a_ulColour)
 {
