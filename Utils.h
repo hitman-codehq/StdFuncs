@@ -35,6 +35,10 @@ typedef TBool (*ScanFunc)(const char *a_pccFileName, void *a_pvUserData);
 
 class Utils
 {
+private:
+
+	static TInt MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs);
+
 public:
 
 	static TBool AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize);
@@ -90,8 +94,6 @@ public:
 	static TInt MapLastError();
 
 	static TInt MapLastFileError(const char *a_pccFileName);
-
-	static TInt MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, va_list a_oArgs);
 
 	static TInt MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pccTitle, const char *a_pccMessage, ...);
 
