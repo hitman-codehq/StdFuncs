@@ -19,8 +19,6 @@
 #include <commdlg.h>
 #include <string>
 
-using namespace std;
-
 #endif /* QT_GUI_LIB */
 
 /* Strings for the file requester's title */
@@ -322,7 +320,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	size_t Index;
 	BOOL GotFileName;
-	string StartDirectory;
+	std::string StartDirectory;
 	OPENFILENAME OpenFileName;
 
 	/* Initialise the OPENFILENAME structure to display the last filename we used, if any */
