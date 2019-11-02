@@ -1,7 +1,10 @@
 
 AR = @ar
-CC = @g++
 CFLAGS = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -Wall -Wextra -Wwrite-strings -DMUNGWALL_NO_LINE_TRACKING
+
+ifeq ($(CC), cc)
+	CC = @g++
+endif
 
 ifdef DEBUG
 	OBJ = Debug
