@@ -141,7 +141,7 @@ public:
 #else /* ! _DEBUG */
 
 #define ASSERTM(Expression, Message)
-#define DEBUGCHECK(Function, Message) Function
+#define DEBUGCHECK(Function, Message) (void) Function
 #define DEBUGFAILURE(Message)
 
 #endif /* ! _DEBUG */
