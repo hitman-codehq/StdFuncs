@@ -564,7 +564,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 /**
  * Deletes a directory from the file system.
- * This function will delete a directory.  The directory in question must not be open for use in 
+ * This function will delete a directory.  The directory in question must not be open for use in
  * any way and must be empty.
  *
  * @date	Friday 27-Jul-2012 10:27 am
@@ -748,7 +748,7 @@ char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
  * Displays an error message.
  * Displays a printf() style formatted message.  If a GUI is in use, the message will be displayed
  * in a message box.  Otherwise it will be printed on the terminal.  The message is displayed
- * regardless of whether the code is compiled in debug or release mode, and thus this function 
+ * regardless of whether the code is compiled in debug or release mode, and thus this function
  * should be used for displaying critical error messages.
  *
  * @date	Saturday 11-Jul-2009 08:56 am
@@ -877,7 +877,7 @@ const char *Utils::FilePart(const char *a_pccPath)
 
 /**
  * Determines a filename from a WBArg structure.
- * This function determines the fully qualified filename of the object represented by a WBArg 
+ * This function determines the fully qualified filename of the object represented by a WBArg
  * structure.  This is done by determining the path represented by the WBArg's lock and then
  * appending the name to that path.  It will also return (in the variable a_pbDirectory)
  * whether or not the target of the WBArg structure is a file or a directory.
@@ -1363,7 +1363,7 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
  * Returns the height of the console in which the program is running.
  * This function will determine the height of the console or shell in which the program is running,
  * in lines, and will return it.  If there is no console present (for instance, if the program is a
- * Windows application that uses WinMain() rather than main()) then it will return -1 to indicate 
+ * Windows application that uses WinMain() rather than main()) then it will return -1 to indicate
  * this.
  *
  * @date	Thursday 09-Jul-2009 06:58 am
@@ -1476,9 +1476,9 @@ int Utils::GetShellHeight()
 
 /**
  * Obtains a line of text from stdin.
- * This function is an overflow-safe replacement for the deprecated gets() function, that causes 
- * deprecated messages on some compilers and is completely missing from others.  Use it to obtain 
- * a line of text from the stdin input stream.  The string will be placed into the a_pcBuffer 
+ * This function is an overflow-safe replacement for the deprecated gets() function, that causes
+ * deprecated messages on some compilers and is completely missing from others.  Use it to obtain
+ * a line of text from the stdin input stream.  The string will be placed into the a_pcBuffer
  * parameter and will be NULL terminated.
  *
  * @date	Wednesday 28-Sep-2016 6:40 am, Code HQ Ehinger Tor
@@ -1535,11 +1535,11 @@ bool Utils::GetString(std::string &a_roString)
 
 /**
  * Allocates or reallocates a temporary buffer.
- * This function is useful if you have a situation that calls for a temporary buffer of an unknown 
- * and varying size (thus preventing the use of a satic buffer) and do not want to dynamically 
- * allocate and delete the buffer every time you use it.  If you use this function instead then 
+ * This function is useful if you have a situation that calls for a temporary buffer of an unknown
+ * and varying size (thus preventing the use of a satic buffer) and do not want to dynamically
+ * allocate and delete the buffer every time you use it.  If you use this function instead then
  * the buffer will only be reallocated if the new buffer is larger than the old one.  The first
- * time you call this function you should pass in NULL as the buffer pointer.  For subsequent 
+ * time you call this function you should pass in NULL as the buffer pointer.  For subsequent
  * calls, pass in the buffer returned by the previous call.  When done, use Utils::FreeTempBuffer()
  * to free the allocated buffer.  If a new buffer is allocated, the contents of the old one can be
  * copied into it if desired (this is done by default).
@@ -1639,9 +1639,9 @@ void Utils::FreeTempBuffer(void *a_pvBuffer)
 /**
  * Displays an information or warning message.
  * Displays a printf() style formatted message.  The message is displayed in an OS specific manner.
- * On most systems, this means that it will be output to the debug console and will thus only be 
- * viewable with a debugging tool, which is quite often the development IDE itself.  On MacOS it 
- * is output to stdout.  The message is only displayed if the code is compiled in debug mode, and 
+ * On most systems, this means that it will be output to the debug console and will thus only be
+ * viewable with a debugging tool, which is quite often the development IDE itself.  On MacOS it
+ * is output to stdout.  The message is only displayed if the code is compiled in debug mode, and
  * thus this function should only be used for displaying informational messages.
  *
  * @param	a_pccMessage	The message to be displayed, in printf() format
@@ -2164,28 +2164,28 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 
 /**
  * Converts a filename to a fully qualified filename.
- * Takes a filename that contains either no path or a relative path and converts it to a fully 
- * qualified filename.  The function will attempt to determine the true path to the filename, 
+ * Takes a filename that contains either no path or a relative path and converts it to a fully
+ * qualified filename.  The function will attempt to determine the true path to the filename,
  * which will only work if the file actually exists.  If this is not the case then the current
- * directory will be used instead.  In the event that even this cannot be obtained, the function 
+ * directory will be used instead.  In the event that even this cannot be obtained, the function
  * will fail.
  *
- * The use of the current directory is useful when creating new files, but care must be taken 
- * if using this function with software that changes the current directory, especially if the 
+ * The use of the current directory is useful when creating new files, but care must be taken
+ * if using this function with software that changes the current directory, especially if the
  * changes could be done in a separate thread.
  *
- * It is the responsibility of the caller to free the returned buffer with delete [].  It is safe 
+ * It is the responsibility of the caller to free the returned buffer with delete [].  It is safe
  * to pass in an already qualified filename - the filename will simply be copied into an allocated
  *  buffer and returned.
  *
- * Despite its name, this function works for both directories and files. For directories it will 
+ * Despite its name, this function works for both directories and files. For directories it will
  * "clean" the names returned;  that is, it will ensure that there is no trailing \ or / character
- * at the end of the directory name (unless it is the root directory) as this can cause confusion 
+ * at the end of the directory name (unless it is the root directory) as this can cause confusion
  * with calling software if it tries to examine the returned path to determine its type.
  *
  * @date	Thursday 01-Nov-2012 5:24 am, Code HQ Ehinger Tor
  * @param	a_pccFileName		Pointer to filename to be resolved
- * @param	a_bGetDeviceName	ETrue to return the underlying device name, instead of the volume 
+ * @param	a_bGetDeviceName	ETrue to return the underlying device name, instead of the volume
  *								name, on systems that support this.  EFalse by default
  * @return	Pointer to the fully qualified name of the filename passed in, if successful, else NULL
  */
@@ -2769,7 +2769,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 /**
  * Sets the time and date of a file.
  * Takes the time and date passed in and assigns it to a file.  This function can follow symbolic
- * links in order to set the time and date on the link's target, if requested.  However, this 
+ * links in order to set the time and date on the link's target, if requested.  However, this
  * functionality does not work on Amiga OS.
  *
  * @date	Saturday 18-Jul-2009 8:06 am
@@ -2929,7 +2929,7 @@ TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
  *
  * @date	Sunday 14-Jul-2013 8:36 am, Code HQ Ehinger Tor
  * @param	a_pcLine	Pointer to the line to have its white space stripped
- * @param	a_piLength	Number of characters in the line to be stripped.  Upon return, this 
+ * @param	a_piLength	Number of characters in the line to be stripped.  Upon return, this
  *						will contain the new length of the line
  * @return	A pointer to the first non whitespace character in the line
  * @return	The start of the line passed in if no changes were made
