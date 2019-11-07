@@ -1,6 +1,6 @@
 
-#ifndef QTSTDGADGETSLIDER_H
-#define QTSTDGADGETSLIDER_H
+#ifndef QTGADGETSLIDER_H
+#define QTGADGETSLIDER_H
 
 #include <QtCore/QObject>
 
@@ -15,7 +15,7 @@ class CStdGadgetSlider;
  * slider that owns an instance of this class.
  */
 
-class CQtSlider : public QObject
+class CQtGadgetSlider : public QObject
 {
 	Q_OBJECT;
 
@@ -25,7 +25,7 @@ private:
 
 public:
 
-	CQtSlider(CStdGadgetSlider *a_poParentSlider) : m_poParentSlider(a_poParentSlider)
+	CQtGadgetSlider(CStdGadgetSlider *a_poParentSlider) : m_poParentSlider(a_poParentSlider)
 	{
 		m_poParentSlider = a_poParentSlider;
 	}
@@ -35,4 +35,4 @@ public slots:
 	void valueChanged(int a_iValue);
 };
 
-#endif /* ! QTSTDGADGETSLIDER_H */
+#endif /* ! QTGADGETSLIDER_H */

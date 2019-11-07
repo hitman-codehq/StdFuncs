@@ -9,7 +9,7 @@
 
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QStatusBar>
-#include "Qt/StdWindow.h"
+#include "Qt/QtWindow.h"
 
 #elif defined(WIN32)
 

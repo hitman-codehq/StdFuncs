@@ -8,7 +8,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include "Qt/StdGadgetSlider.h"
+#include "Qt/QtGadgetSlider.h"
 
 #endif /* QT_GUI_LIB */
 
@@ -193,7 +193,7 @@ private:
 #ifdef QT_GUI_LIB
 
 	bool		m_bSettingValue;				/**< true if the slider's value is being changed */
-	CQtSlider	m_oSlider;						/**< Helper class for listening for signals */
+	CQtGadgetSlider	m_oSlider;					/**< Helper class for listening for signals */
 
 #endif /* QT_GUI_LIB */
 

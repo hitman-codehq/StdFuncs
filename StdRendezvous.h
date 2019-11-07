@@ -4,7 +4,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include "Qt/StdLocalSocket.h"
+#include "Qt/QtLocalSocket.h"
 
 #endif /* QT_GUI_LIB */
 

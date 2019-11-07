@@ -12,7 +12,7 @@
 #elif defined(QT_GUI_LIB)
 
 #include <QtWidgets/QMessageBox>
-#include "Qt/StdWindow.h"
+#include "Qt/QtWindow.h"
 
 #endif /* QT_GUI_LIB */
 

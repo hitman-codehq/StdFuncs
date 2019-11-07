@@ -11,7 +11,7 @@
 #elif defined(QT_GUI_LIB)
 
 #include <QtWidgets/QFileDialog>
-#include "Qt/StdWindow.h"
+#include "Qt/QtWindow.h"
 
 #else /* ! QT_GUI_LIB */
 

@@ -18,7 +18,8 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include "Qt/StdWindow.h"
+#include "Qt/QtAction.h"
+#include "Qt/QtWindow.h"
 #include <QtCore/QLocale>
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QApplication>
@@ -138,15 +139,6 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 }
 
 #elif defined(QT_GUI_LIB)
-
-/* Written: Monday 28-Jan-2013 6:25 am */
-/* This function is called by Qt when a menu item is selected and will pass the message */
-/* onto The Framework and its underlying client */
-
-void CQtAction::actionTriggered()
-{
-	m_poWindow->Window()->HandleCommand(m_iCommand);
-}
 
 /**
  * CQtCentralWidget constructor.
@@ -580,6 +572,7 @@ void CQtWindow::wheelEvent(QWheelEvent *a_poWheelEvent)
  * @param	a_poFocusEvent	Ptr to a class containing information about the event
  */
 
+// TODO: CAW - Why are these out of order compared to the header file?
 void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
 {
 	/* Window focus is changing so let the client know that the window is activating */

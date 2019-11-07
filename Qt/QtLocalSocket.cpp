@@ -1,7 +1,7 @@
 
 #include "../StdFuncs.h"
 #include "../StdApplication.h"
-#include "StdLocalSocket.h"
+#include "QtLocalSocket.h"
 #include <QtWidgets/QApplication>
 
 /**

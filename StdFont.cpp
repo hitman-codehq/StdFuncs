@@ -14,7 +14,7 @@
 
 #elif defined(QT_GUI_LIB)
 
-#include "Qt/StdWindow.h"
+#include "Qt/QtWindow.h"
 
 #endif /* QT_GUI_LIB */
 

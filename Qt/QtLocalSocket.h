@@ -1,6 +1,6 @@
 
-#ifndef QTSTDLOCALSOCKET_H
-#define QTSTDLOCALSOCKET_H
+#ifndef QTLOCALSOCKET_H
+#define QTLOCALSOCKET_H
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -65,4 +65,4 @@ public slots:
 	void Connected();
 };
 
-#endif /* ! QTSTDLOCALSOCKET_H */
+#endif /* ! QTLOCALSOCKET_H */

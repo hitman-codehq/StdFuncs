@@ -1,6 +1,6 @@
 
-#ifndef QTSTDWINDOW_H
-#define QTSTDWINDOW_H
+#ifndef QTWINDOW_H
+#define QTWINDOW_H
 
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
@@ -59,15 +59,7 @@ protected:
 
 public:
 
-	CQtWindow(CWindow *a_poWindow, QSize &a_roSize)
-	{
-		m_poWindow = a_poWindow;
-		m_oSize = a_roSize;
-
-		/* Allow the window to accept keyboard input by default */
-
-		setFocusPolicy(Qt::StrongFocus);
-	}
+	CQtWindow(CWindow *a_poWindow, QSize &a_roSize);
 
 	CWindow *Window()
 	{
@@ -92,6 +84,7 @@ public slots:
  * the framework and its client classes
  */
 
+#if 0
 class CQtAction : public QAction
 {
 	Q_OBJECT;
@@ -125,6 +118,7 @@ public slots:
 
 	void actionTriggered();
 };
+#endif
 
 /**
  * Qt helper class that represents a window's central widget.
@@ -151,4 +145,4 @@ public:
 	CQtCentralWidget(CWindow *a_poWindow);
 };
 
-#endif /* ! QTSTDWINDOW_H */
+#endif /* ! QTWINDOW_H */
