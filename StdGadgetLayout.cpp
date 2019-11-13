@@ -148,7 +148,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	if (IIntuition->IDoMethod(m_poGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
 	{
 		// TODO: CAW
-		ILayout->RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		ILayout->RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
 		RethinkLayout();
 	}
 
@@ -379,7 +379,7 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	/* And resize the gadget */
 
-	IIntuition->IDoMethodA(m_poParentWindow->m_poRootGadget, (Msg) &mc);
+	IIntuition->IDoMethodA(m_poParentWindow->m_poRootLayout, (Msg) &mc);
 
 #endif /* __amigaos4__ */
 

@@ -213,14 +213,14 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 					if (strlen(FileName) == 0)
 					{
-						Utils::MessageBox("Warning", "Please choose a valid filename", EMBTOk);
+						Utils::MessageBox(EMBTOk, "Warning", "Please choose a valid filename");
 					}
 
 					/* If we are in saving mode and the file already exists then confirm that it is Ok to overwrite it */
 
 					else if ((a_bSaveAs) && (Utils::GetFileInfo(QualifiedFileName, &Entry) == KErrNone))
 					{
-						RetVal = Utils::MessageBox("Warning", "File already exists, overwrite?", EMBTYesNo);
+						RetVal = Utils::MessageBox(EMBTYesNo, "Warning", "File already exists, overwrite?");
 
 						if (RetVal == IDYES)
 						{

@@ -1593,7 +1593,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
-	if (IIntuition->IDoMethod(m_poRootGadget, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
+	if (IIntuition->IDoMethod(m_poRootLayout, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
 	{
 		/* Let the layout gadget know its new width and then calcuate its new height */
 
@@ -2910,7 +2910,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
 		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
 
-		WINDOW_Layout, m_poRootGadget = (Object *) VGroupObject,
+		WINDOW_Layout, m_poRootLayout = (Object *) VGroupObject,
 			/* This is an empty group into which can be placed BOOPSI objects */
 		EndGroup,
 	EndWindow;
@@ -3182,7 +3182,7 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Remove it from the top level Reaction layout */
 
-	DEBUGCHECK((IIntuition->IDoMethod(m_poRootGadget, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
+	DEBUGCHECK((IIntuition->IDoMethod(m_poRootLayout, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
 		"CWindow::Remove() => Unable to remove layout gadget from window");
 
 #elif defined(QT_GUI_LIB)
@@ -3379,7 +3379,7 @@ void CWindow::RethinkLayout()
 
 	/* Rethink the layout gadget sizes, starting from the root gadget that holds them */
 
-	ILayout->RethinkLayout((struct Gadget *) m_poRootGadget, m_poWindow, NULL, TRUE);
+	ILayout->RethinkLayout((struct Gadget *) m_poRootLayout, m_poWindow, NULL, TRUE);
 
 	/* Now iterate through the framework's gadgets and let them know they have been resized */
 
