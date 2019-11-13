@@ -52,19 +52,17 @@ TInt CStdGadgetSlider::Construct()
 
 #ifdef __amigaos4__
 
-	TInt Orientation, SizeTag;
+	TInt Orientation;
 
 	/* Decide whether to create a vertical or horizontal scroller and setup its dimensions accordingly */
 
 	if (m_iGadgetType == EStdGadgetVerticalSlider)
 	{
 		Orientation = SORIENT_VERT;
-		SizeTag = GA_Height;
 	}
 	else
 	{
 		Orientation = SORIENT_HORIZ;
-		SizeTag = GA_Width;
 	}
 
 	/* Create the underlying BOOPSI gadget */

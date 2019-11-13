@@ -1273,7 +1273,9 @@ int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
 
 #else /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
 
-	RetVal = (a_iSize * m_iWidth);
+	(void) a_pccText;
+
+	RetVal = (a_iLength * m_iWidth);
 
 #endif /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
 

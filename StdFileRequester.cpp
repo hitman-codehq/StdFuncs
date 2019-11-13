@@ -159,7 +159,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	struct TagItem Tags[] = { { ASLFR_Screen, (ULONG) Screen }, { ASLFR_TitleText, (ULONG) g_accOpenText },
 		{ ASLFR_InitialDrawer, (ULONG) "" }, { ASLFR_InitialFile, (ULONG) m_acFileName },
-		{ ASLFR_DoSaveMode, a_bSaveAs }, { TAG_DONE, 0 } };
+		{ ASLFR_DoSaveMode, (ULONG) a_bSaveAs }, { TAG_DONE, 0 } };
 
 	/* Dynamically determine the requester title to use */
 
