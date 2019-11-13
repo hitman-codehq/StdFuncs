@@ -1016,6 +1016,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 #ifdef __amigaos4__
 
+			(void) a_bResolveLink;
+
 			struct ClockData ClockData;
 			struct ExamineData *ExamineData;
 
@@ -2650,7 +2652,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 #ifdef __amigaos4__
 
-// TODO: CAW - Comments and error messages, ExamineDir() result, ObtainDirContextTags() are not all required
+// TODO: CAW - Comments and error messages, ExamineDir() result, ObtainDirContextTags() are not all required, Error is not used
 TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData)
 {
 	TBool Error, RetVal;
@@ -2786,6 +2788,8 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 	TInt RetVal;
 
 #ifdef __amigaos4__
+
+	(void) a_bResolveLink;
 
 	if (IDOS->SetDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
 	{

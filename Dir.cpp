@@ -855,7 +855,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 #ifdef __amigaos4__
 
 	char *LinkName;
-	TBool AddFile, Error;
+	TBool AddFile;
 	TInt Length, Size;
 	struct ClockData ClockData;
 	struct ExamineData *ExamineData;
@@ -863,8 +863,6 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 	/* Iterate through the scanned entries and prepare a TEntry instance to contain */
 	/* the appropriate information about each entry */
-
-	Error = EFalse;
 
 	if (iContext)
 	{
