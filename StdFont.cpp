@@ -674,7 +674,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 	if (GetTextExtentPoint32(m_poWindow->m_poDC, Buffer, 1, &TextSize))
 	{
-		X = (m_iXOffset + (TextSize.cx * a_iX));
+		X = (m_iXOffset + a_iX);
 		Y = (m_iYOffset + (a_iY * m_iHeight));
 
 		/* And move the cursor to the calculated position */
@@ -701,8 +701,8 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
  * @date	Sunday 09-May-2010 6:57 pm
  * @param	a_pccText		Pointer to string to be drawn to the screen
  * @param	a_iSize			Size of the string pointed to by a_pccText
- * @param	a_iX			X position in the window at which to draw
- * @param	a_iY			Y position in the window at which to draw
+ * @param	a_iX			X position in the window at which to draw, specified as a pixel offset
+ * @param	a_iY			Y position in the window at which to draw, specified as a character offset
  * @param	a_eEncoding		Text encoding in which the string is encoded
  */
 
@@ -781,7 +781,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 		{
 			if ((WideLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
 			{
-				TextOutW(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
+				TextOutW(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
 			}
 		}
 	}
@@ -790,7 +790,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 
 	else
 	{
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + (a_iX * m_iWidth)), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
+		TextOut(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -817,8 +817,8 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
  *
  * @date	Thursday 01-Dec-2011 8:43 pm, Munich Airport, awaiting flight EK 052 to Dubai
  * @param	a_pccText		Pointer to string to be drawn to the screen
- * @param	a_iX			X position in the window at which to draw
- * @param	a_iY			Y position in the window at which to draw
+ * @param	a_iX			X position in the window at which to draw, specified as a pixel offset
+ * @param	a_iY			Y position in the window at which to draw, specified as a character offset
  * @param	a_eEncoding		Text encoding in which the string is encoded
  */
 
@@ -927,7 +927,6 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 
 		QByteArray String(a_pccText, Size);
 
-		// TODO: CAW - This is going to break things + loses the original meaning of a_iX
 		a_iX = TextWidthInPixels(LineText);
 		m_oPainter.drawText((m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
@@ -940,6 +939,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 #else /* ! QT_GUI_LIB */
 
 	/* Iterate through the source text and display the runs of characters in the required colour */
+
+	std::string LineText;
 
 	while (*a_pccText)
 	{
@@ -959,11 +960,12 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 
 		/* And call the normal monocolour text drawing method to display the string for us */
 
-		DrawText(a_pccText, Size, a_iX, a_iY, a_eEncoding);
+		a_iX = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
+		DrawText(a_pccText, Size, (m_iXOffset + a_iX), a_iY, a_eEncoding);
 
 		/* And prepare for the next run to be displayed */
 
-		a_iX += Size;
+		LineText.append(a_pccText, Size);
 		a_pccText += Size;
 	}
 
