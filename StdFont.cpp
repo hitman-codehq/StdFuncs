@@ -503,7 +503,7 @@ void RFont::End()
 
 void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 {
-	char Buffer[4];
+	int X, Y;
 
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
@@ -554,7 +554,6 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #ifdef __amigaos4__
 
-	TInt X, Y;
 	PLANEPTR PlanePtr;
 	ULONG OldDrawMode;
 	WORD AreaBuffer[(NUM_VERTICES * 5) / 2];
@@ -636,8 +635,6 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #elif defined(QT_GUI_LIB)
 
-	TInt X, Y;
-
 	if (m_poWindow->IsActive())
 	{
 		/* Calculate the position at which to draw the cursor */
@@ -663,24 +660,14 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #else /* ! QT_GUI_LIB */
 
-	TInt X, Y;
-	SIZE TextSize;
+	/* Calculate the position at which to draw the cursor */
 
-	/* Given the X position of the cursor, determine the number of pixels between the left of */
-	/* the window and the position at which the cursor is to be displayed, and use this and the */
-	/* font height to display the cursor in the correct position */
+	X = (m_iXOffset + a_iX);
+	Y = (m_iYOffset + (a_iY * m_iHeight));
 
-	Buffer[0] = ' ';
+	/* And move the cursor to the calculated position */
 
-	if (GetTextExtentPoint32(m_poWindow->m_poDC, Buffer, 1, &TextSize))
-	{
-		X = (m_iXOffset + a_iX);
-		Y = (m_iYOffset + (a_iY * m_iHeight));
-
-		/* And move the cursor to the calculated position */
-
-		m_poWindow->SetCursorInfo(X, Y, m_iHeight);
-	}
+	m_poWindow->SetCursorInfo(X, Y, m_iHeight);
 
 #endif /* ! QT_GUI_LIB */
 
