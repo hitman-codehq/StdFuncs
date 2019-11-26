@@ -20,10 +20,9 @@
 
 #include "Qt/QtAction.h"
 #include "Qt/QtWindow.h"
-#include <QtCore/QLocale>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QMenuBar>
 
@@ -2979,7 +2978,8 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	/* Allocate a window based on the QMainWindow class, passing in the preferred size */
 	/* to use for the window when in non maximised state */
 
-	QSize DesktopSize = m_poApplication->Application()->desktop()->screenGeometry(-1).size();
+	QList<QScreen *> Screens = m_poApplication->Application()->screens();
+	QSize DesktopSize = Screens[0]->availableGeometry().size();
 
 	if ((m_poWindow = new CQtWindow(this, DesktopSize)) != NULL)
 	{
