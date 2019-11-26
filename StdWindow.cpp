@@ -280,7 +280,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 						if (Key == 123)
 						{
-							Key = (unsigned char) 'ü';
+							Key = (unsigned char) 252;
 						}
 						else if (Key == 125)
 						{
