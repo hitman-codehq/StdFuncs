@@ -510,6 +510,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
+	char Buffer[4];
 	int Size;
 	TUint Mask;
 
