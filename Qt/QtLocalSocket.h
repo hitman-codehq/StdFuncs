@@ -44,6 +44,10 @@ private:
 	QLocalServer			*m_poLocalServer;	/**< Qt class used for listening for local socket connections */
 	QLocalSocket			m_oLocalSocket;		/**< Qt class used for sending messages to the server */
 
+private:
+
+	int OpenSocket(const char *a_pccName, RApplication *a_poApplication);
+
 public:
 
 	RLocalSocket();

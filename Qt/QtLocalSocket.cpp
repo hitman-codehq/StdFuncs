@@ -106,24 +106,59 @@ bool RLocalSocket::IsServer()
  * @date	Friday 24-Apr-2015 07:28 am, Code HQ Ehinger Tor
  * @param	a_poApplication	Pointer to the parent application under which the program is running
  * @param	a_pccName		The name of the socket to be opened
- * @return	Return value
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
+int RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
+{
+	int RetVal;
+
+	/* Try to open the local socket.  This can fail if the program shut down without cleaning up, thus */
+	/* leaving the local socket open.  In this case, an attempt to re-open it will fail, but during the */
+	/* opening attempt the old local socket will be cleaned up, and trying a second time will work */
+
+	RetVal = OpenSocket(a_pccName, a_poApplication);
+
+	if (RetVal != KErrNone)
+	{
+		RetVal = OpenSocket(a_pccName, a_poApplication);
+	}
+
+	return(RetVal);
+}
+
+/**
+ * Attempts to open a local socket.
+ * Internal implementation of RLocalSocket::Open().
+ *
+ * @date	Thursday 28-Nov-2019 6:43 am, Code HQ Bergmannstrasse
+ * @param	a_poApplication	Pointer to the parent application under which the program is running
+ * @param	a_pccName		The name of the socket to be opened
+ * @return	KErrNone if successful
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrGeneral if some other unspecified error occurred
+ */
+
+int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplication)
 {
 	TInt RetVal;
+
+	/* Assume failure */
+
+	RetVal = KErrGeneral;
 
 	/* Create an instance of a local server that can be used for listening for new connections */
 
 	if ((m_poLocalServer = new QLocalServer(a_poApplication->Application())) != NULL)
 	{
-		RetVal = KErrNone;
-
 		/* Try to listen for a connection on the given socket.  If this succeeds then we are the */
 		/* server.  If it fails then there is already a server listening and we are the client */
 
 		if (m_poLocalServer->listen(a_pccName))
 		{
+			RetVal = KErrNone;
 			m_bIsServer = true;
 
 			connect(m_poLocalServer, SIGNAL(newConnection()), this, SLOT(Connected()));
@@ -136,10 +171,22 @@ TInt RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
 			m_poLocalServer = NULL;
 
 			/* And connect to the server.  It is safe to use an infinite wait time as the server is local */
-			/* and the connection is unlikely to fail.  But we will do a debug check anyway */
+			/* and the connection is unlikely to fail */
 
 			m_oLocalSocket.connectToServer(a_pccName);
-			DEBUGCHECK((m_oLocalSocket.waitForConnected(-1)), "RLocalSocket::Open() => Unable to connect to server socket");
+
+			if (m_oLocalSocket.waitForConnected(-1))
+			{
+				RetVal = KErrNone;
+			}
+			else
+			{
+				/* If the connection failed then it is likely that the program using the local socket did */
+				/* not shut down cleanly, so delete the local socket now so that a later attempt to */
+				/* connect will work */
+
+				QLocalServer::removeServer(a_pccName);
+			}
 		}
 	}
 	else
