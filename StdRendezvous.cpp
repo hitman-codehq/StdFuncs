@@ -108,7 +108,7 @@ TInt RRendezvous::Open(RApplication *a_poApplication, const char *a_pccName)
 		/* Open a local socket with which to read and write messages and let it know to call us when a */
 		/* message is received */
 
-		if (m_oLocalSocket.Open(m_pcName, a_poApplication) == KErrNone)
+		if ((RetVal = m_oLocalSocket.Open(m_pcName, a_poApplication)) == KErrNone)
 		{
 			m_oLocalSocket.SetObserver(this);
 		}
