@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.7.1)
 
 project(StdFuncs)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS")
+if(MSVC)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(_DEBUG)
+    add_compile_definitions(_DEBUG MUNGWALL_NO_LINE_TRACKING)
 endif()
 
 set(SourceFiles "Args.cpp")
@@ -61,6 +61,3 @@ else()
 
     add_library(StdFuncs ${SourceFiles})
 endif()
-
-get_property(options TARGET StdFuncs PROPERTY COMPILE_OPTIONS)
-message("target options = ${options}")
