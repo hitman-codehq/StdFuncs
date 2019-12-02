@@ -61,3 +61,13 @@ else()
 
     add_library(StdFuncs ${SourceFiles})
 endif()
+
+if(USE_CLANG_TIDY)
+	find_program(ClangTidy NAMES "clang-tidy")
+
+	if(ClangTidy)
+		message(STATUS "Found clang-tidy as ${ClangTidy}")
+		set(RunClangTidy ${ClangTidy})
+		set_target_properties(StdFuncs PROPERTIES C_CLANG_TIDY "${RunClangTidy}" CXX_CLANG_TIDY "${RunClangTidy}")
+	endif()
+endif()
