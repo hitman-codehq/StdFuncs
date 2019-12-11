@@ -8,9 +8,15 @@
 
 class CQtWindow;
 
+/**
+ * Qt helper class that represents an action associated with a menu item.
+ * This custom class is required to keep track of Qt menu selection events and send them to
+ * the framework and its client classes
+ */
+
 class CQtAction : public QAction
 {
-Q_OBJECT
+	Q_OBJECT
 
 private:
 
