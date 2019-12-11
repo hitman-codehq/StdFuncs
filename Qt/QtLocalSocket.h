@@ -35,7 +35,7 @@ public:
 
 class RLocalSocket : public QObject
 {
-	Q_OBJECT;
+	Q_OBJECT
 
 private:
 

@@ -17,7 +17,7 @@ class CStdGadgetSlider;
 
 class CQtGadgetSlider : public QObject
 {
-	Q_OBJECT;
+	Q_OBJECT
 
 private:
 
