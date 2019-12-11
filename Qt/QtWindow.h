@@ -45,15 +45,17 @@ protected:
 
 	void mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent);
 
+	void mouseMoveEvent(QMouseEvent *a_poMouseEvent);
+
 	void mousePressEvent(QMouseEvent *a_poMouseEvent);
 
 	void mouseReleaseEvent(QMouseEvent *a_poMouseEvent);
 
-	void mouseMoveEvent(QMouseEvent *a_poMouseEvent);
-
 	void resizeEvent(QResizeEvent *a_poResizeEvent);
 
 	void wheelEvent(QWheelEvent *a_poWheelEvent);
+
+	/* From QWidget.h */
 
 	QSize sizeHint() const;
 
