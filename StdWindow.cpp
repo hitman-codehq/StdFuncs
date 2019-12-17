@@ -23,8 +23,8 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QVBoxLayout>
 
 #elif defined(WIN32)
 
@@ -1138,7 +1138,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Add the new Qt layout to the window's root layout */
 
-	m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, m_poRootLayout->count(), 0);
+	m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, 0);
 
 	/* Let the layout know its new width and then calcuate its new height */
 
@@ -2524,7 +2524,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			/* Inside this we need a grid layout, to enable us to layout the window's contents */
 			/* how we want them */
 
-			if ((m_poRootLayout = new QGridLayout(m_poCentralWidget)) != NULL)
+			if ((m_poRootLayout = new QVBoxLayout(m_poCentralWidget)) != NULL)
 			{
 				/* Set the window's title to the one passed in */
 

@@ -17,6 +17,7 @@ class CAmiMenus;
 class CQtAction;
 class CQtCentralWidget;
 class CQtWindow;
+class QVBoxLayout;
 class RApplication;
 
 /* Enumeration defining the types of menu items that can be created. These are mapped */
@@ -88,7 +89,7 @@ private:
 
 #elif defined(QT_GUI_LIB)
 
-	QGridLayout			*m_poRootLayout;			/**< Top level layout containing the window's gadgets */
+	QVBoxLayout			*m_poRootLayout;			/**< Top level layout containing the window's gadgets */
 
 #elif defined(WIN32)
 
