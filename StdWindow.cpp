@@ -2927,7 +2927,7 @@ void CWindow::RethinkLayout()
 
 #else /* ! __amigaos4__ */
 
-	TInt InnerHeight, Height, MinHeight, Y;
+	TInt InnerHeight, Height, MinHeight, RemainderHeight, Y;
 
 	Y = 0;
 	InnerHeight = m_iInnerHeight;
@@ -2954,7 +2954,11 @@ void CWindow::RethinkLayout()
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
 
-		Height = (m_iInnerHeight / m_oGadgets.Count()); // TODO: CAW - What about remainder for last layout gadget?
+		/* Each vertical layout gadget will be the same height, but the last one might be slightly */
+		/* larger due to division rounding, so we calculate its height slightly differently */
+
+		Height = (m_iInnerHeight / m_oGadgets.Count());
+		RemainderHeight = (m_iInnerHeight - (Height * (m_oGadgets.Count() - 1)));
 
 		LayoutGadget = m_oGadgets.GetHead();
 
@@ -2969,7 +2973,15 @@ void CWindow::RethinkLayout()
 			}
 			else if (LayoutGadget->Weight() == 50)
 			{
-				LayoutGadget->m_iHeight = Height;
+				if (m_oGadgets.GetSucc(LayoutGadget) == NULL)
+				{
+					LayoutGadget->m_iHeight = RemainderHeight;
+				}
+				else
+				{
+					LayoutGadget->m_iHeight = Height;
+				}
+
 				Y += Height;
 			}
 			else
