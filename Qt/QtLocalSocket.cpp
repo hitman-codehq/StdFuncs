@@ -82,7 +82,7 @@ void RLocalSocket::Connected()
  * Indicates whether the socket is a server or client socket.
  * Local sockets have two modes: server and client.  Whichever local socket of a given name is
  * created first is automatically the server and the second local socket to be created is then
- * the client.  The  server will listen for connections from the client and after this, two way
+ * the client.  The server will listen for connections from the client and after this, two way
  * communication is possible.  This function will indicate which of the two types the current
  * socket is.
  *
@@ -156,20 +156,7 @@ int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplicatio
 		/* Try to listen for a connection on the given socket.  If this succeeds then we are the */
 		/* server.  If it fails then there is already a server listening and we are the client */
 
-		if (m_poLocalServer->listen(a_pccName))
 		{
-			RetVal = KErrNone;
-			m_bIsServer = true;
-
-			connect(m_poLocalServer, SIGNAL(newConnection()), this, SLOT(Connected()));
-		}
-		else
-		{
-			/* Free the unneeded local server */
-
-			delete m_poLocalServer;
-			m_poLocalServer = NULL;
-
 			/* And connect to the server.  It is safe to use an infinite wait time as the server is local */
 			/* and the connection is unlikely to fail */
 
@@ -186,6 +173,21 @@ int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplicatio
 				/* connect will work */
 
 				QLocalServer::removeServer(a_pccName);
+
+				if (m_poLocalServer->listen(a_pccName))
+				{
+					RetVal = KErrNone;
+					m_bIsServer = true;
+
+					connect(m_poLocalServer, SIGNAL(newConnection()), this, SLOT(Connected()));
+				}
+				else
+				{
+					/* Free the unneeded local server */
+
+					delete m_poLocalServer;
+					m_poLocalServer = NULL;
+				}
 			}
 		}
 	}

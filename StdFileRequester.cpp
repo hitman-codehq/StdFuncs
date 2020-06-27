@@ -123,7 +123,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 					/* Display the filename part in the requester */
 
-					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					ASSERTM((strlen(FileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => Filename passed in is too long");
 					strcpy(m_acFileName, FileName);
 				}
 
@@ -131,7 +131,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 				else
 				{
-					ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => File name passed in is too long");
+					ASSERTM((strlen(a_pccFileName) < MAX_FILEREQUESTER_PATH), "RFileRequester::GetFileName() => Filename passed in is too long");
 					strcpy(m_acFileName, a_pccFileName);
 				}
 			}

@@ -1128,7 +1128,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 					{
 						if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 						{
-							strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
+							strcpy(a_poEntry->iLink, FilePart(ResolvedFileName));
 							delete [] ResolvedFileName;
 						}
 					}
