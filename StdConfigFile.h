@@ -139,12 +139,12 @@ public:
 
 	~RConfigFile()
 	{
-		Close();
+		close();
 	}
 
-	TInt Open(const char *a_pccFileName);
+	TInt open(const char *a_pccFileName);
 
-	void Close();
+	void close();
 
 	CSection *FindSection(const char *a_pccName);
 

@@ -6,7 +6,7 @@ class BaflUtils
 {
 public:
 
-	static TInt DeleteFile(const char *a_pccFileName);
+	static TInt deleteFile(const char *a_pccFileName);
 
 	static TInt RenameFile(const char *a_pccOldFullName, const char *a_pccNewFullName);
 };

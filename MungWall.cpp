@@ -55,7 +55,7 @@ MungWall::~MungWall()
 			Delete(pvBlock);
 		}
 
-		Utils::Info(accLeakage, stBytesLeaked, ulNews);
+		Utils::info(accLeakage, stBytesLeaked, ulNews);
 		printf(accLeakage, stBytesLeaked, ulNews);
 		printf("\n");
 	}
@@ -67,13 +67,13 @@ MungWall::~MungWall()
 		{
 			if (paArena->iSourceLine)
 			{
-				Utils::Info(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+				Utils::info(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
 				printf(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
 				printf("\n");
 			}
 			else
 			{
-				Utils::Info(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
+				Utils::info(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
 				printf(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
 				printf("\n");
 			}
@@ -192,7 +192,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 		}
 
 		sprintf(&acMessage[strlen(acMessage)], " overwritten");
-		Utils::Info(acMessage);
+		Utils::info(acMessage);
 		printf("%s\n", acMessage);
 	}
 }
@@ -246,13 +246,13 @@ void MungWall::Delete(void *pvBlock, const char *pccSourceFile, int iSourceLine,
 		{
 			if (bHasSource)
 			{
-				Utils::Info(accInvalidBlockLine, pccSourceFile, iSourceLine);
+				Utils::info(accInvalidBlockLine, pccSourceFile, iSourceLine);
 				printf(accInvalidBlockLine, pccSourceFile, iSourceLine);
 				printf("\n");
 			}
 			else
 			{
-				Utils::Info(accInvalidBlock);
+				Utils::info(accInvalidBlock);
 				printf("%s\n", accInvalidBlock);
 			}
 		}

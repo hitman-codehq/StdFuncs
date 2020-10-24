@@ -17,12 +17,12 @@
 
 /* Written: Tuesday 06-Jul-2010 7:42 am */
 
-TInt RClipboard::Open(CWindow *a_poWindow)
+TInt RClipboard::open(CWindow *a_poWindow)
 {
 	TInt RetVal;
 
-	ASSERTM((a_poWindow != NULL), "RClipboard::Open() => Window passed in is not open");
-	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::Open() => Native window passed in is not open");
+	ASSERTM((a_poWindow != NULL), "RClipboard::open() => Window passed in is not open");
+	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::open() => Native window passed in is not open");
 
 #if defined(__amigaos4__) || defined(QT_GUI_LIB)
 
@@ -36,7 +36,7 @@ TInt RClipboard::Open(CWindow *a_poWindow)
 
 	if (RetVal != KErrNone)
 	{
-		Utils::Info("RClipboard::Open() => Unable to open clipboard");
+		Utils::info("RClipboard::open() => Unable to open clipboard");
 	}
 
 #endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
@@ -46,12 +46,12 @@ TInt RClipboard::Open(CWindow *a_poWindow)
 
 /* Written: Tuesday 06-Jul-2010 7:44 am */
 
-void RClipboard::Close()
+void RClipboard::close()
 {
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
-	DEBUGCHECK(CloseClipboard(), "RClipboard::Close() => Unable to close clipboard");
+	DEBUGCHECK(CloseClipboard(), "RClipboard::close() => Unable to close clipboard");
 
 #endif /* if defined(WIN32) && !defined(QT_GUI_LIB) */
 
@@ -153,7 +153,7 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 			}
 			else
 			{
-				Utils::Info("RClipboard::SetDataStart() => Unable to copy clipboard data");
+				Utils::info("RClipboard::SetDataStart() => Unable to copy clipboard data");
 
 				GlobalFree(m_poHandle);
 				m_poHandle = NULL;
@@ -161,12 +161,12 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 		}
 		else
 		{
-			Utils::Info("RClipboard::SetDataStart() => Unable to allocate memory for clipboard");
+			Utils::info("RClipboard::SetDataStart() => Unable to allocate memory for clipboard");
 		}
 	}
 	else
 	{
-		Utils::Info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
+		Utils::info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
 #endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
@@ -229,7 +229,7 @@ void RClipboard::SetDataEnd()
 	}
 	else
 	{
-		Utils::Info("RClipboard::SetDataEnd() => Unable to set clipboard data");
+		Utils::info("RClipboard::SetDataEnd() => Unable to set clipboard data");
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -282,17 +282,17 @@ const char *RClipboard::GetDataStart()
 
 			if ((RetVal = m_pccGetData = m_pccCurrentGetData = (const char *) GlobalLock(Handle)) == NULL)
 			{
-				Utils::Info("RClipboard::GetDataStart() => Unable to lock keyboard data into memory");
+				Utils::info("RClipboard::GetDataStart() => Unable to lock keyboard data into memory");
 			}
 		}
 		else
 		{
-			Utils::Info("RClipboard::GetDataStart() => Unable to get handle to clipboard data");
+			Utils::info("RClipboard::GetDataStart() => Unable to get handle to clipboard data");
 		}
 	}
 	else
 	{
-		Utils::Info("RClipboard::GetDataStart() => No clipboard data available");
+		Utils::info("RClipboard::GetDataStart() => No clipboard data available");
 	}
 
 #endif /* ! __unix__ */

@@ -83,9 +83,9 @@ protected:
 
 	virtual TInt DoOpen(TInt a_ResourceID);
 
-	virtual void Close();
+	virtual void close();
 
-	void Close(TInt a_iGadgetID);
+	void close(TInt a_iGadgetID);
 
 	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);
 

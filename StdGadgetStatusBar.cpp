@@ -91,7 +91,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 				}
 				else
 				{
-					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar label gadget");
+					Utils::info("CStdGadgetStatusBar::Construct() => Unable to create status bar label gadget");
 
 					break;
 				}
@@ -110,12 +110,12 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
+			Utils::info("CStdGadgetStatusBar::Construct() => Out of memory");
 		}
 	}
 	else
 	{
-		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar group gadget");
+		Utils::info("CStdGadgetStatusBar::Construct() => Unable to create status bar group gadget");
 	}
 
 	/* If anything went wrong then clean up whatever was successfully allocated */
@@ -271,18 +271,18 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 				}
 				else
 				{
-					Utils::Info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
+					Utils::info("CStdGadgetStatusBar::Construct() => Unable to determine size of status bar");
 				}
 			}
 			else
 			{
-				Utils::Info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
+				Utils::info("CStdGadgetStatusBar::Construct() => Unable to subdivide status bar into parts");
 			}
 		}
 	}
 	else
 	{
-		Utils::Info("CStdGadgetStatusBar::Construct() => Unable to create status bar");
+		Utils::info("CStdGadgetStatusBar::Construct() => Unable to create status bar");
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -302,7 +302,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		}
 		else
 		{
-			Utils::Info("CStdGadgetStatusBar::Construct() => Out of memory");
+			Utils::info("CStdGadgetStatusBar::Construct() => Out of memory");
 		}
 	}
 

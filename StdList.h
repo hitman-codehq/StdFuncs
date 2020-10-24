@@ -38,7 +38,7 @@ public:
 		Reset();
 	};
 
-	void AddHead(T *a_poNode)
+	void addHead(T *a_poNode)
 	{
 		a_poNode->m_oStdListNode.m_poThis = a_poNode;
 		a_poNode->m_oStdListNode.m_poPrev = &m_oHead;
@@ -50,7 +50,7 @@ public:
 		++m_iCount;
 	}
 
-	void AddTail(T *a_poNode)
+	void addTail(T *a_poNode)
 	{
 		a_poNode->m_oStdListNode.m_poThis = a_poNode;
 		a_poNode->m_oStdListNode.m_poPrev = m_oTail.m_poPrev;
@@ -134,7 +134,7 @@ public:
 
 	/* Written: Friday 10-Aug-2012 6:53 am, Code HQ Ehinger Tor */
 
-	void Insert(T *a_poNode, T *a_poAfter)
+	void insert(T *a_poNode, T *a_poAfter)
 	{
 		a_poNode->m_oStdListNode.m_poThis = a_poNode;
 		a_poNode->m_oStdListNode.m_poPrev = &a_poAfter->m_oStdListNode;
@@ -209,7 +209,7 @@ public:
 		}
 	}
 
-	T *RemHead()
+	T *remHead()
 	{
 		T *RetVal;
 
@@ -246,7 +246,7 @@ public:
 	 *			was not valid or if there are no further nodes on the list
 	 */
 
-	T *Remove(T *a_poNode)
+	T *remove(T *a_poNode)
 	{
 		T *RetVal;
 

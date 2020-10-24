@@ -78,9 +78,9 @@ public:
 
 	RFont(CWindow *a_poWindow);
 
-	TInt Open(TInt a_iSize, const char *a_pccName);
+	TInt open(TInt a_iSize, const char *a_pccName);
 
-	void Close();
+	void close();
 
 	TInt Begin();
 

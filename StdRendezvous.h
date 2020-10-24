@@ -77,9 +77,9 @@ public:
 
 	~RRendezvous();
 
-	TInt Open(RApplication *a_poApplication, const char *a_pccName);
+	TInt open(RApplication *a_poApplication, const char *a_pccName);
 
-	void Close();
+	void close();
 
 #ifdef __amigaos4__
 

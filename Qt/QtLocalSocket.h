@@ -56,13 +56,13 @@ public:
 
 	bool IsServer();
 
-	int Open(const char *a_pccName, RApplication *a_poApplication);
+	int open(const char *a_pccName, RApplication *a_poApplication);
 
-	void Close();
+	void close();
 
 	void SetObserver(MLocalSocketObserver *a_poObserver);
 
-	int Write(const unsigned char *a_pcucData, int a_iDataSize);
+	int write(const unsigned char *a_pcucData, int a_iDataSize);
 
 public slots:
 

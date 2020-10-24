@@ -157,7 +157,7 @@ public:
 
 	TInt GetSpacing();
 
-	void RethinkLayout();
+	void rethinkLayout();
 
 	void SetWeight(TInt a_iWeight);
 

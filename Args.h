@@ -20,9 +20,9 @@ private:
 	TInt			m_iNumMagicArgs;		/**< Number of entries in the magic option array */
 	TInt			m_iNumArgs;				/**< Number of entries in the iArgs array */
 	size_t			*m_pstArgs;				/**< Array of size_ts into which to place pointers to arguments */
-	struct RDArgs	*m_poRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading arguments */
-	struct RDArgs	*m_poTTRDArgs;			/**< Structure for use by IDOS->ReadArgs() when reading tooltypes */
-	struct RDArgs	*m_poInputRDArgs;		/**< Structure for use by IDOS->ReadArgs() when reading main() arguments */
+	struct RDArgs	*m_poRDArgs;			/**< Structure for use by ReadArgs() when reading arguments */
+	struct RDArgs	*m_poTTRDArgs;			/**< Structure for use by ReadArgs() when reading tooltypes */
+	struct RDArgs	*m_poInputRDArgs;		/**< Structure for use by ReadArgs() when reading main() arguments */
 	std::string		m_oArguments;			/**< String into which arguments are read from stdin when ? argument is used.
 												 These are referenced by the m_pstArgs array and must be persistent */
 
@@ -34,19 +34,19 @@ private:
 
 	void FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions);
 
-	TInt ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
+	TInt readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
 public:
 
 	RArgs();
 
-	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
+	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
 
-	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments);
+	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments);
 
-	TInt Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup);
+	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup);
 
-	void Close();
+	void close();
 
 	TInt Count();
 

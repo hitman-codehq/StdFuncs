@@ -50,9 +50,9 @@ public:
 
 	}
 
-	TInt Open(const char *a_pccFileName);
+	TInt open(const char *a_pccFileName);
 
-	void Close();
+	void close();
 
 	TInt Width()
 	{
@@ -83,4 +83,3 @@ public:
 };
 
 #endif /* ! STDIMAGE_H */
-

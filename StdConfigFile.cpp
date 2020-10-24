@@ -90,14 +90,14 @@ CSection::~CSection()
 
 	/* Delete all of the subsections belonging to this section */
 
-	while ((Section = m_oSections.RemHead()) != NULL)
+	while ((Section = m_oSections.remHead()) != NULL)
 	{
 		delete Section;
 	}
 
 	/* Delete all of the keys and their values belonging to this section */
 
-	while ((Key = m_oKeys.RemHead()) != NULL)
+	while ((Key = m_oKeys.remHead()) != NULL)
 	{
 		delete Key;
 	}
@@ -258,10 +258,10 @@ CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
  * @return	KErrNoMemory if there was not enough memory to read the file
  * @return	KErrEof if the file could be opened but not completely read
  * @return	Any error from Utils::GetFileInfo()
- * @return	Any error from RFile::Open()
+ * @return	Any error from RFile::open()
  */
 
-TInt RConfigFile::Open(const char *a_pccFileName)
+TInt RConfigFile::open(const char *a_pccFileName)
 {
 	TInt RetVal;
 	TEntry Entry;
@@ -279,9 +279,9 @@ TInt RConfigFile::Open(const char *a_pccFileName)
 
 			/* Read the file in in its entirity */
 
-			if ((RetVal = File.Open(a_pccFileName, EFileRead)) == KErrNone)
+			if ((RetVal = File.open(a_pccFileName, EFileRead)) == KErrNone)
 			{
-				if (File.Read((unsigned char *) m_pcBuffer, m_iBufferSize) == m_iBufferSize)
+				if (File.read((unsigned char *) m_pcBuffer, m_iBufferSize) == m_iBufferSize)
 				{
 					/* And parse it into lists of sections, subsections, groups and keys */
 
@@ -292,7 +292,7 @@ TInt RConfigFile::Open(const char *a_pccFileName)
 					RetVal = KErrEof;
 				}
 
-				File.Close();
+				File.close();
 			}
 		}
 		else
@@ -305,7 +305,7 @@ TInt RConfigFile::Open(const char *a_pccFileName)
 
 	if (RetVal != KErrNone)
 	{
-		Close();
+		close();
 	}
 
 	return(RetVal);
@@ -319,7 +319,7 @@ TInt RConfigFile::Open(const char *a_pccFileName)
  * @date	Wednesday 22-Apr-1998 9:35 pm
  */
 
-void RConfigFile::Close()
+void RConfigFile::close()
 {
 	CSection *Section;
 
@@ -328,7 +328,7 @@ void RConfigFile::Close()
 
 	/* Delete all of the sections found in the configuration file */
 
-	while ((Section = m_oSections.RemHead()) != NULL)
+	while ((Section = m_oSections.remHead()) != NULL)
 	{
 		delete Section;
 	}
@@ -578,7 +578,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 								}
 								else
 								{
-									Utils::Info("RConfigFile::GetString() => Not enough memory to allocate string");
+									Utils::info("RConfigFile::GetString() => Not enough memory to allocate string");
 
 									RetVal = KErrNoMemory;
 								}
@@ -603,7 +603,7 @@ TInt RConfigFile::GetString(const char *a_pccSectionName, const char *a_pccSubSe
 /**
  * Parses the sections, subsections, groups and key::value pairs in a configuration file.
  * This function iterates through a configuration file that has already been loaded into memory
- * by RConfigFile::Open() and creates a tree in memory that represents all of the sections,
+ * by RConfigFile::open() and creates a tree in memory that represents all of the sections,
  * subsections, groups and key = value pairs that are present in the file.  After this, client
  * code is able to call functions such as RConfigFile::FindSection() and RConfigFile::FindKey()
  * to search for desired key = value pairs
@@ -675,7 +675,7 @@ TInt RConfigFile::Parse()
 
 					/* And add the section to the list of top level sections */
 
-					m_oSections.AddTail(NewSection);
+					m_oSections.addTail(NewSection);
 				}
 				else
 				{
@@ -702,14 +702,14 @@ TInt RConfigFile::Parse()
 
 						/* And add the subsection to the current section's list of subsections */
 
-						Section->m_oSections.AddTail(NewSection);
+						Section->m_oSections.addTail(NewSection);
 					}
 
 					/* Otherwise the subsection is invalid so discard it and display a warning */
 
 					else
 					{
-						Utils::Info("Discarding orphan subsection %s", NewSection->m_pcName);
+						Utils::info("Discarding orphan subsection %s", NewSection->m_pcName);
 
 						delete NewSection;
 					}
@@ -737,14 +737,14 @@ TInt RConfigFile::Parse()
 
 						/* And add the group to the current subsection's list of groups */
 
-						SubSection->m_oSections.AddTail(NewSection);
+						SubSection->m_oSections.addTail(NewSection);
 					}
 
 					/* Otherwise the group is invalid so discard it and display a warning */
 
 					else
 					{
-						Utils::Info("Discarding orphan group %s", NewSection->m_pcName);
+						Utils::info("Discarding orphan group %s", NewSection->m_pcName);
 
 						delete NewSection;
 					}
@@ -790,11 +790,11 @@ TInt RConfigFile::Parse()
 
 								if (Group)
 								{
-									Group->m_oKeys.AddTail(Key);
+									Group->m_oKeys.addTail(Key);
 								}
 								else
 								{
-									SubSection->m_oKeys.AddTail(Key);
+									SubSection->m_oKeys.addTail(Key);
 								}
 							}
 
@@ -802,7 +802,7 @@ TInt RConfigFile::Parse()
 
 							else
 							{
-								Utils::Info("Discarding orphan key %s", Key->m_pcName);
+								Utils::info("Discarding orphan key %s", Key->m_pcName);
 
 								delete Key;
 							}

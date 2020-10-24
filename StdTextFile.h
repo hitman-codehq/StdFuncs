@@ -21,9 +21,9 @@ public:
 		m_pcBuffer = NULL;
 	}
 
-	TInt Open(const char *a_pccFileName);
+	TInt open(const char *a_pccFileName);
 
-	void Close();
+	void close();
 
 	const char *GetLine();
 

@@ -136,7 +136,7 @@ CQtCentralWidget::CQtCentralWidget(CWindow *a_poWindow) : QWidget(a_poWindow->m_
 /**
  * Qt helper function to receive paint events.
  * This function is called whenever Qt performs a repaint of the window and will pass
- * the event along to the generic CWindow::Draw() function, so that client code can
+ * the event along to the generic CWindow::draw() function, so that client code can
  * perform its custom drawing.
  *
  * @date	Thursday 06-Sep-2012 1:35 pm
@@ -151,7 +151,7 @@ void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
 	/* will return the inclusive bottom pixel but our framework works with exclusive pixel */
 	/* positions.  We therefore need to calculate that position using QRect::height() */
 
-	m_poWindow->Draw(Rect.top(), (Rect.top() + Rect.height()));
+	m_poWindow->draw(Rect.top(), (Rect.top() + Rect.height()));
 }
 
 #elif defined(WIN32)
@@ -640,12 +640,12 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 		case WM_PAINT :
 		{
-			/* Prepare the device context for painting and call the CWindow::Draw() routine. */
+			/* Prepare the device context for painting and call the CWindow::draw() routine. */
 			/* If this fails then there isn't much we can do besides ignore the error */
 
 			if ((Window->m_poDC = BeginPaint(a_poWindow, &Window->m_oPaintStruct)) != NULL)
 			{
-				Window->Draw(Window->m_oPaintStruct.rcPaint.top, Window->m_oPaintStruct.rcPaint.bottom);
+				Window->draw(Window->m_oPaintStruct.rcPaint.top, Window->m_oPaintStruct.rcPaint.bottom);
 				EndPaint(a_poWindow, &Window->m_oPaintStruct);
 
 				/* And indicate that there is no longer a valid DC allocated so that nobody */
@@ -728,7 +728,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 CWindow::~CWindow()
 {
-	Close();
+	close();
 }
 
 /* Written: Wednesday 13-Oct-2010 7:29 am */
@@ -903,7 +903,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 	}
 	else
 	{
-		Utils::Info("CWindow::AddMenuItem() => Unable to create menu item");
+		Utils::info("CWindow::AddMenuItem() => Unable to create menu item");
 
 		RetVal = KErrNoMemory;
 	}
@@ -950,7 +950,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 		}
 		else
 		{
-			Utils::Info("CWindow::AddMenuItem() => Unable to allocate memory for menu item label");
+			Utils::info("CWindow::AddMenuItem() => Unable to allocate memory for menu item label");
 
 			RetVal = KErrNoMemory;
 		}
@@ -1120,7 +1120,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Add the new layout gadget to the window's list of gadgets */
 
-	m_oGadgets.AddTail(a_poLayoutGadget);
+	m_oGadgets.addTail(a_poLayoutGadget);
 
 #ifdef __amigaos4__
 
@@ -1131,7 +1131,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		/* Let the layout gadget know its new width and then calcuate its new height */
 
 		a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-		RethinkLayout();
+		rethinkLayout();
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -1143,14 +1143,14 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	/* Let the layout know its new width and then calcuate its new height */
 
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-	RethinkLayout();
+	rethinkLayout();
 
 #else /* ! QT_GUI_LIB */
 
 	/* Let the layout gadget know its new width and then calcuate its new height */
 
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-	RethinkLayout();
+	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */
 
@@ -1216,12 +1216,12 @@ void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
  * @return	ETrue if all menus were created successfully, else EFalse
  */
 
-TBool CWindow::CreateMenus()
+TBool CWindow::createMenus()
 {
 	TBool RetVal;
 	const struct SStdMenuItem *MenuItem;
 
-	ASSERTM((m_poWindow != NULL), "CWindow::CreateMenus() => Window must be created before menus");
+	ASSERTM((m_poWindow != NULL), "CWindow::createMenus() => Window must be created before menus");
 
 	/* Assume success */
 
@@ -1234,7 +1234,7 @@ TBool CWindow::CreateMenus()
 
 #ifdef __amigaos4__
 
-	ASSERTM((m_poAmiMenus == NULL), "CWindow::CreateMenus() => Menus can only be created once");
+	ASSERTM((m_poAmiMenus == NULL), "CWindow::createMenus() => Menus can only be created once");
 
 	if ((m_poAmiMenus = CAmiMenus::New(this, MenuItem)) == NULL)
 	{
@@ -1250,7 +1250,7 @@ TBool CWindow::CreateMenus()
 
 	QList<QAction *> Menus = m_poWindow->menuBar()->actions();
 
-	ASSERTM((Menus.count() == 0), "CWindow::CreateMenus() => Menus can only be created once");
+	ASSERTM((Menus.count() == 0), "CWindow::createMenus() => Menus can only be created once");
 
 #endif /* _DEBUG */
 
@@ -1266,7 +1266,7 @@ TBool CWindow::CreateMenus()
 
 			if ((DropdownMenu = TopLevelMenu = m_poWindow->menuBar()->addMenu(MenuItem->m_pccLabel)) == NULL)
 			{
-				Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
+				Utils::info("CWindow::createMenus() => Unable to create drop down menu");
 
 				RetVal = EFalse;
 
@@ -1291,7 +1291,7 @@ TBool CWindow::CreateMenus()
 			}
 			else
 			{
-				Utils::Info("CWindow::CreateMenus() => Unable to create submenu");
+				Utils::info("CWindow::createMenus() => Unable to create submenu");
 
 				RetVal = EFalse;
 
@@ -1330,7 +1330,7 @@ TBool CWindow::CreateMenus()
 	ACCEL *Accelerators;
 	HMENU DropdownMenu, PopupMenu, TopLevelMenu;
 
-	ASSERTM((m_poMenu == NULL), "CWindow::CreateMenus() => Menus can only be created once");
+	ASSERTM((m_poMenu == NULL), "CWindow::createMenus() => Menus can only be created once");
 
 	Label = NULL;
 	NumAccelerators = 0;
@@ -1350,11 +1350,11 @@ TBool CWindow::CreateMenus()
 				if ((DropdownMenu = TopLevelMenu = CreatePopupMenu()) != NULL)
 				{
 					DEBUGCHECK((AppendMenu(m_poMenu, MF_POPUP, (UINT_PTR) DropdownMenu, MenuItem->m_pccLabel) != FALSE),
-						"CWindow::CreateMenus() => Unable to append new menu");
+						"CWindow::createMenus() => Unable to append new menu");
 				}
 				else
 				{
-					Utils::Info("CWindow::CreateMenus() => Unable to create drop down menu");
+					Utils::info("CWindow::createMenus() => Unable to create drop down menu");
 
 					RetVal = EFalse;
 
@@ -1369,7 +1369,7 @@ TBool CWindow::CreateMenus()
 				if ((PopupMenu = CreatePopupMenu()) != NULL)
 				{
 					DEBUGCHECK((AppendMenu(DropdownMenu, MF_POPUP, (UINT_PTR) PopupMenu, MenuItem->m_pccLabel) != FALSE),
-						"CWindow::CreateMenus() => Unable to append new submenu");
+						"CWindow::createMenus() => Unable to append new submenu");
 
 					/* Any further menu items from here to the next dropdown menu will be added to this submenu */
 
@@ -1377,7 +1377,7 @@ TBool CWindow::CreateMenus()
 				}
 				else
 				{
-					Utils::Info("CWindow::CreateMenus() => Unable to create submenu");
+					Utils::info("CWindow::createMenus() => Unable to create submenu");
 
 					RetVal = EFalse;
 
@@ -1420,7 +1420,7 @@ TBool CWindow::CreateMenus()
 
 		/* Now add the top level menubar to the window */
 
-		DEBUGCHECK((SetMenu(m_poWindow, m_poMenu) != FALSE), "CWindow::CreateMenus() => Unable to assign menu to window");
+		DEBUGCHECK((SetMenu(m_poWindow, m_poMenu) != FALSE), "CWindow::createMenus() => Unable to assign menu to window");
 
 		/* And free the temporary buffer used for the menu item labels */
 
@@ -1430,7 +1430,7 @@ TBool CWindow::CreateMenus()
 	{
 		RetVal = EFalse;
 
-		Utils::Info("CWindow::CreateMenus() => Unable to create top level menubar");
+		Utils::info("CWindow::createMenus() => Unable to create top level menubar");
 	}
 
 	/* If the menus were all built successfully then create some accelerators for the */
@@ -1620,7 +1620,7 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 
 /* Written: Monday 08-Feb-2010 7:18 am */
 
-void CWindow::Close()
+void CWindow::close()
 {
 	CStdGadget *LayoutGadget;
 
@@ -1654,7 +1654,7 @@ void CWindow::Close()
 
 		/* And close and delete the window */
 
-		DEBUGCHECK((m_poWindow->close() != false), "CWindow::Close() => Unable to close window");
+		DEBUGCHECK((m_poWindow->close() != false), "CWindow::close() => Unable to close window");
 		delete m_poWindow;
 		m_poWindow = NULL;
 	}
@@ -1673,7 +1673,7 @@ void CWindow::Close()
 
 	if (m_poWindow)
 	{
-		DEBUGCHECK((DestroyWindow(m_poWindow) != 0), "CWindow::Close() => Unable to destroy window");
+		DEBUGCHECK((DestroyWindow(m_poWindow) != 0), "CWindow::close() => Unable to destroy window");
 		m_poWindow = NULL;
 	}
 
@@ -1681,7 +1681,7 @@ void CWindow::Close()
 
 	if (m_poWindowClass)
 	{
-		DEBUGCHECK((UnregisterClass((LPCTSTR) (DWORD) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::Close() => Unable to unregister window class");
+		DEBUGCHECK((UnregisterClass((LPCTSTR) (DWORD) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::close() => Unable to unregister window class");
 		m_poWindowClass = 0;
 	}
 
@@ -1756,7 +1756,7 @@ void CWindow::DrawNow()
 	}
 	else
 	{
-		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
+		Utils::info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -1900,7 +1900,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	}
 	else
 	{
-		Utils::Info("CWindow::DrawNow() => Unable to obtain client window dimensions");
+		Utils::info("CWindow::DrawNow() => Unable to obtain client window dimensions");
 	}
 
 #endif /* WIN32 */
@@ -1978,7 +1978,7 @@ ULONG CWindow::GetSignal()
 /**
  * Calls the client code to redraw regions within the dirty region list.
  * This method will iterate through the list of regions in the dirty region list and for each one,
- * will call the client code via the overridden CWindow::Draw() method to draw that region.
+ * will call the client code via the overridden CWindow::draw() method to draw that region.
  *
  * @date	Wednesday 21-Sep-2016 7:02 am, Code HQ Ehinger Tor
  */
@@ -1997,7 +1997,7 @@ void CWindow::InternalRedraw()
 
 	for (it = m_voDirtyRegions.begin(); it != m_voDirtyRegions.end(); ++it)
 	{
-		Draw((*it).m_iTop, (*it).m_iBottom);
+		draw((*it).m_iTop, (*it).m_iBottom);
 	}
 
 	/* Indicate that there are no longer any dirty regions to be drawn */
@@ -2408,7 +2408,7 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
  * @return	KErrGeneral if an operating system specific error occurred
  */
 
-TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
+TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable)
 {
 	TInt RetVal;
 
@@ -2424,7 +2424,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	Utils::GetScreenSize(ScreenSize);
 
-	ASSERTM((a_pccScreenName != NULL), "CWindow::Open() => Screen name must be specified");
+	ASSERTM((a_pccScreenName != NULL), "CWindow::open() => Screen name must be specified");
 
 	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
 	/* provided by Reaction, such as the movement of proportional gadgets */
@@ -2459,7 +2459,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			/* And create the menus specific to this window */
 
-			if (CreateMenus())
+			if (createMenus())
 			{
 				/* Indicate success */
 
@@ -2479,12 +2479,12 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			}
 			else
 			{
-				Utils::Info("CWindow::Open() => Unable to create menus for window");
+				Utils::info("CWindow::open() => Unable to create menus for window");
 			}
 		}
 		else
 		{
-			Utils::Info("CWindow::Open() => Unable to open window");
+			Utils::info("CWindow::open() => Unable to open window");
 		}
 
 		/* If any error has occurred then clean up after ourselves */
@@ -2497,7 +2497,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	}
 	else
 	{
-		Utils::Info("CWindow::Open() => Unable to create window");
+		Utils::info("CWindow::open() => Unable to create window");
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -2537,7 +2537,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				/* And create the menus specific to this window */
 
-				if (CreateMenus())
+				if (createMenus())
 				{
 					RetVal = KErrNone;
 
@@ -2564,18 +2564,18 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 				}
 				else
 				{
-					Utils::Info("CWindow::Open() => Unable to create menus for window");
+					Utils::info("CWindow::open() => Unable to create menus for window");
 				}
 			}
 		}
 		else
 		{
-			Utils::Info("CWindow::Open() => Not enough memory to create central widget");
+			Utils::info("CWindow::open() => Not enough memory to create central widget");
 		}
 	}
 	else
 	{
-		Utils::Info("CWindow::Open() => Not enough memory to create window");
+		Utils::info("CWindow::open() => Not enough memory to create window");
 	}
 
 #elif defined(WIN32)
@@ -2634,7 +2634,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				/* And create the menus specific to this window */
 
-				if (CreateMenus())
+				if (createMenus())
 				{
 					/* And display the window on the screen, maximised */
 
@@ -2653,27 +2653,27 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 					}
 					else
 					{
-						Utils::Info("CWindow::Open() => Unable to obtain window client dimensions");
+						Utils::info("CWindow::open() => Unable to obtain window client dimensions");
 					}
 				}
 				else
 				{
-					Utils::Info("CWindow::Open() => Unable to create menus for window");
+					Utils::info("CWindow::open() => Unable to create menus for window");
 				}
 			}
 			else
 			{
-				Utils::Info("CWindow::Open() => Unable to open window");
+				Utils::info("CWindow::open() => Unable to open window");
 			}
 		}
 		else
 		{
-			Utils::Info("CWindow::Open() => Unable to determine size of desktop");
+			Utils::info("CWindow::open() => Unable to determine size of desktop");
 		}
 	}
 	else
 	{
-		Utils::Info("CWindow::Open() => Unable to register window class");
+		Utils::info("CWindow::open() => Unable to register window class");
 	}
 
 #endif /* WIN32 */
@@ -2689,7 +2689,7 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	else
 	{
-		Close();
+		close();
 	}
 
 	return(RetVal);
@@ -2704,20 +2704,20 @@ TInt CWindow::Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
  */
 
-void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
+void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 {
-	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Remove() => No gadget to be removed passed in");
+	ASSERTM((a_poLayoutGadget != NULL), "CWindow::remove() => No gadget to be removed passed in");
 
 	/* Remove the layout gadget from this window's private list of layout gadgets */
 
-	m_oGadgets.Remove(a_poLayoutGadget);
+	m_oGadgets.remove(a_poLayoutGadget);
 
 #ifdef __amigaos4__
 
 	/* Remove it from the top level Reaction layout */
 
 	DEBUGCHECK((IIntuition->IDoMethod(m_poRootLayout, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
-		"CWindow::Remove() => Unable to remove layout gadget from window");
+		"CWindow::remove() => Unable to remove layout gadget from window");
 
 #elif defined(QT_GUI_LIB)
 
@@ -2729,7 +2729,7 @@ void CWindow::Remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* And rethink the layout to reflect the change */
 
-	RethinkLayout();
+	rethinkLayout();
 }
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
@@ -2905,7 +2905,7 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 /* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Söflingen */
 
-void CWindow::RethinkLayout()
+void CWindow::rethinkLayout()
 {
 	CStdGadgetLayout *LayoutGadget;
 
@@ -2921,7 +2921,7 @@ void CWindow::RethinkLayout()
 
 	while (LayoutGadget)
 	{
-		LayoutGadget->RethinkLayout();
+		LayoutGadget->rethinkLayout();
 		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 	}
 
@@ -2997,7 +2997,7 @@ void CWindow::RethinkLayout()
 
 		while (LayoutGadget)
 		{
-			LayoutGadget->RethinkLayout();
+			LayoutGadget->rethinkLayout();
 			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 		}
 	}

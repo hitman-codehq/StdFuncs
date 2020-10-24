@@ -27,7 +27,7 @@ RLocalSocket::RLocalSocket()
 
 RLocalSocket::~RLocalSocket()
 {
-	Close();
+	close();
 }
 
 /**
@@ -111,7 +111,7 @@ bool RLocalSocket::IsServer()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-int RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
+int RLocalSocket::open(const char *a_pccName, RApplication *a_poApplication)
 {
 	int RetVal;
 
@@ -131,7 +131,7 @@ int RLocalSocket::Open(const char *a_pccName, RApplication *a_poApplication)
 
 /**
  * Attempts to open a local socket.
- * Internal implementation of RLocalSocket::Open().
+ * Internal implementation of RLocalSocket::open().
  *
  * @date	Thursday 28-Nov-2019 6:43 am, Code HQ Bergmannstrasse
  * @param	a_poApplication	Pointer to the parent application under which the program is running
@@ -203,12 +203,12 @@ int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplicatio
  * Frees any resources associated with the class.
  * This method performs the same functions as the destructor, but allows the user to call it when
  * manual deinitialisation of the class is required.  After completion, the class instance can be
- * reused by calling RLocalSocket::Open() again.
+ * reused by calling RLocalSocket::open() again.
  *
  * @date	Thursday 02-Feb-2017 7:21 am, Code HQ Habersaathstraße
  */
 
-void RLocalSocket::Close()
+void RLocalSocket::close()
 {
 	delete m_poLocalServer;
 	m_poLocalServer = NULL;
@@ -241,7 +241,7 @@ void RLocalSocket::SetObserver(MLocalSocketObserver *a_poObserver)
  * @return	ErrWrite if the data could not be written
  */
 
-TInt RLocalSocket::Write(const unsigned char *a_pcucData, TInt a_iDataSize)
+TInt RLocalSocket::write(const unsigned char *a_pcucData, TInt a_iDataSize)
 {
 	TInt RetVal;
 

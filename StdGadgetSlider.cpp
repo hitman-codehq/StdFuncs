@@ -139,7 +139,7 @@ TInt CStdGadgetSlider::Construct()
 	}
 	else
 	{
-		Utils::Info("CStdGadgetSlider::Construct() => Unable to create scrollbar");
+		Utils::info("CStdGadgetSlider::Construct() => Unable to create scrollbar");
 	}
 
 	return((m_poGadget) ? KErrNone : KErrNoMemory);

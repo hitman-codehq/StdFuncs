@@ -20,7 +20,7 @@
 
 #else /* ! __unix__ */
 
-#define DELETE_FILE(FileName) ::DeleteFile(FileName)
+#define DELETE_FILE(FileName) DeleteFile(FileName)
 
 #endif /* ! __unix__ */
 
@@ -43,7 +43,7 @@
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt BaflUtils::DeleteFile(const char *a_pccFileName)
+TInt BaflUtils::deleteFile(const char *a_pccFileName)
 {
 	TInt RetVal;
 

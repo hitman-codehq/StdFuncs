@@ -145,7 +145,7 @@ CDialog::~CDialog()
 {
 	/* Ensure that the dialog's window is closed */
 
-	Close();
+	close();
 
 	/* And free the temporary text buffer used, if allocated */
 
@@ -212,11 +212,11 @@ TInt CDialog::DoOpen(TInt a_iResourceID)
 
 /* Written: Sunday 24-Oct-2010 2:17 pm */
 
-void CDialog::Close(TInt a_iGadgetID)
+void CDialog::close(TInt a_iGadgetID)
 {
 	/* Call the standard close routine to actually close the dialog box */
 
-	Close();
+	close();
 
 	/* And notify the observer, if there is one, that the dialog has been closed */
 
@@ -228,7 +228,7 @@ void CDialog::Close(TInt a_iGadgetID)
 
 /* Written: Monday 15-Nov-2010 7:0 am */
 
-void CDialog::Close()
+void CDialog::close()
 {
 
 #ifdef QT_GUI_LIB
@@ -259,7 +259,7 @@ void CDialog::Close()
 
 	/* Call the superclass close to actually close the dialog */
 
-	CWindow::Close();
+	CWindow::close();
 
 #ifdef __amigaos4__
 
@@ -513,12 +513,12 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			}
 			else
 			{
-				Utils::Info("CDialog::GetGadgetText() => Unable to obtain gadget text for gadget with ID %d", a_iGadgetID);
+				Utils::info("CDialog::GetGadgetText() => Unable to obtain gadget text for gadget with ID %d", a_iGadgetID);
 			}
 		}
 		else
 		{
-			Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
+			Utils::info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
 		}
 	}
 
@@ -555,7 +555,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	}
 	else
 	{
-		Utils::Info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
+		Utils::info("CDialog::GetGadgetText() => Unable to find gadget with ID %d", a_iGadgetID);
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -808,7 +808,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 	if ((a_iKey == STD_KEY_ESC) && (a_bKeyDown))
 	{
-		Close(IDCANCEL);
+		close(IDCANCEL);
 	}
 
 #ifdef __amigaos4__
@@ -923,7 +923,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
  * This array contains a list of mappings that allow gadgets to be searched for by integral ID on Qt builds,
  * even though Qt only supports searching by test based IDs.
  *
- * @date	Thursday 02-Feb-2017 9:46 am, Starbucks near Friedrichstra√üe Station
+ * @date	Thursday 02-Feb-2017 9:46 am, Starbucks near Friedrichstraﬂe Station
  * @param	a_pcoMappings	Pointer to the array of mappings to be assigned
  * @param	a_iNumMappings	Number of entries in the array
  */

@@ -157,7 +157,7 @@ RFont::RFont(CWindow *a_poWindow)
  * Opens the font for use.  This function can be called at any time but before rendering, you
  * must first also call RFont::Begin() to setup the rendering context.  Begin() can unfortunately
  * only be called in response to a system paint event (in other words, from your overridden
- * CWindow::Draw() function) due to needing to fit in with Qt's architecture.  For cross platform
+ * CWindow::draw() function) due to needing to fit in with Qt's architecture.  For cross platform
  * compatibility, this requirement therefore applies to all platforms, not just Qt.
  *
  * After this function has been called, the RFont::Width() and RFont::Height() functions are able
@@ -172,19 +172,19 @@ RFont::RFont(CWindow *a_poWindow)
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 
-TInt RFont::Open(TInt a_iSize, const char *a_pccName)
+TInt RFont::open(TInt a_iSize, const char *a_pccName)
 {
 	TInt RetVal;
 
-	ASSERTM((a_iSize > 0), "RFont::Open() => a_iSize must be > 0");
+	ASSERTM((a_iSize > 0), "RFont::open() => a_iSize must be > 0");
 
 #ifdef __amigaos4__
 
 	struct TextAttr TextAttr;
 
-	ASSERTM(m_poWindow, "RFont::Open() => Window handle not set");
+	ASSERTM(m_poWindow, "RFont::open() => Window handle not set");
 
-	/* RFont::Open() cannot fail on the Amiga */
+	/* RFont::open() cannot fail on the Amiga */
 
 	RetVal = KErrNone;
 
@@ -219,7 +219,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 			}
 			else
 			{
-				Utils::Info("RFont::Open() => Unable to open font \"%s\"", a_pccName);
+				Utils::info("RFont::open() => Unable to open font \"%s\"", a_pccName);
 			}
 		}
 
@@ -319,11 +319,11 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), a_pccName)) != NULL)
 		{
-			DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::Open() => Unable to select font into device context");
+			DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poFont), "RFont::open() => Unable to select font into device context");
 		}
 		else
 		{
-			Utils::Info("RFont::Open() => Unable to open requested font, using default");
+			Utils::info("RFont::open() => Unable to open requested font, using default");
 		}
 
 		/* Determine the width & height of the font from the device context */
@@ -343,7 +343,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 	}
 	else
 	{
-		Utils::Info("RFont::Open() => Unable to create temporary DC");
+		Utils::info("RFont::open() => Unable to create temporary DC");
 	}
 
 #endif /* ! QT_GUI_LIB */
@@ -354,7 +354,7 @@ TInt RFont::Open(TInt a_iSize, const char *a_pccName)
 /* Written: Monday 05-Jul-2010 7:13 am */
 /* Closes the font after use and frees any associated resouces */
 
-void RFont::Close()
+void RFont::close()
 {
 
 #ifdef __amigaos4__
@@ -382,13 +382,13 @@ void RFont::Close()
 
 	if (m_poOldFont)
 	{
-		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont), "RFont::Close() => Unable to unselect font from device context");
+		DEBUGCHECK(SelectObject(m_poWindow->m_poDC, m_poOldFont), "RFont::close() => Unable to unselect font from device context");
 		m_poOldFont = NULL;
 	}
 
 	if (m_poFont)
 	{
-		DEBUGCHECK(DeleteObject(m_poFont), "RFont::Close() => Unable to delete font object");
+		DEBUGCHECK(DeleteObject(m_poFont), "RFont::close() => Unable to delete font object");
 		m_poFont = NULL;
 	}
 
@@ -409,7 +409,7 @@ void RFont::Close()
 /* Written: Saturday 25-Aug-2012 11:30 am */
 /* @return	KErrNone if successful, else KErrGeneral if painting could not be started */
 /* Prepares the RFont class for writing text using the Draw*() functions.  This should be called */
-/* when you are about to render text in response to the overridden CWindow::Draw() function. */
+/* when you are about to render text in response to the overridden CWindow::draw() function. */
 /* This function exists mainly for compatibility with Qt, which introduces some restrictions on */
 /* precisely when rendering can occur.  On other operating systems, you can write text using */
 /* RFont at any time.  However on Qt you can only write text in response to widget paint events. */
@@ -444,7 +444,7 @@ TInt RFont::Begin()
 	{
 		RetVal = KErrGeneral;
 
-		Utils::Info("RFont::Begin() => Unable to begin painting to device");
+		Utils::info("RFont::Begin() => Unable to begin painting to device");
 	}
 
 #endif /* QT_GUI_LIB */
@@ -969,7 +969,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
  * available sizes for the currently selected font are enumerated and the size returned is one
  * of these sizes.  This guarantees that the size used by the RFont class is able to be displayed.
  *
- * @pre		RFont::Open() must have already been called
+ * @pre		RFont::open() must have already been called
  *
  * @date	Monday 17-Aug-2015 7:00 am, Code HQ Ehinger Tor
  * @param	a_iSize			The current size of the font in pixels
@@ -987,7 +987,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
 
 	LOGFONT LogFont;
 
-	ASSERTM((m_pccName != NULL), "RFont::GetNextSize() => RFont::Open() must have already been called");
+	ASSERTM((m_pccName != NULL), "RFont::GetNextSize() => RFont::open() must have already been called");
 
 	/* Prepare a structure for enumerating the current font and call the enumeration function */
 
@@ -1080,7 +1080,7 @@ int RFont::PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength)
 {
 	int RetVal;
 
-	ASSERTM(m_poFont, "RFont::PixelToOffset() => RFont::Open() must have already been called");
+	ASSERTM(m_poFont, "RFont::PixelToOffset() => RFont::open() must have already been called");
 	ASSERTM(a_pccText, "RFont::PixelToOffset() => Text to parse must not be NULL");
 
 #if defined(QT_GUI_LIB) && defined(__APPLE__)
@@ -1251,7 +1251,7 @@ int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
 {
 	int RetVal;
 
-	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::Open() must have already been called");
+	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::open() must have already been called");
 	ASSERTM(a_pccText, "RFont::TextWidthInPixels() => Text to parse must not be NULL");
 
 #if defined(QT_GUI_LIB) && defined(__APPLE__)
@@ -1288,7 +1288,7 @@ int RFont::TextWidthInPixels(const QByteArray &a_roText)
 {
 	int RetVal;
 
-	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::Open() must have already been called");
+	ASSERTM(m_poFont, "RFont::TextWidthInPixels() => RFont::open() must have already been called");
 
 #ifdef __APPLE__
 

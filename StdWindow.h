@@ -130,7 +130,7 @@ public:
 	HACCEL				m_poAccelerators;			/**< Ptr to application's accelerator table, if any */
 	HWND				m_poWindow;					/**< Ptr to underlying Windows window */
 	HDC					m_poDC;						/**< Device context and paint structure into which to */
-	PAINTSTRUCT			m_oPaintStruct;				/**< render;  valid only during calls to CWindow::Draw() */
+	PAINTSTRUCT			m_oPaintStruct;				/**< render;  valid only during calls to CWindow::draw() */
 	static CWindow		*m_poActiveDialog;			/**< Ptr to currently active dialog, if any */
 
 #endif /* WIN32 */
@@ -139,7 +139,7 @@ private:
 
 	TInt AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDropdownMenu);
 
-	TBool CreateMenus();
+	TBool createMenus();
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -192,9 +192,9 @@ public:
 
 	virtual ~CWindow();
 
-	TInt Open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable);
+	TInt open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable);
 
-	virtual void Close();
+	virtual void close();
 
 	void Activate();
 
@@ -252,11 +252,11 @@ public:
 		return(g_poRootWindow);
 	}
 
-	void Remove(CStdGadgetLayout *a_poLayoutGadget);
+	void remove(CStdGadgetLayout *a_poLayoutGadget);
 
 	void RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand);
 
-	void RethinkLayout();
+	void rethinkLayout();
 
 	void SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight);
 
@@ -278,7 +278,7 @@ public:
 
 	virtual void Activated(TBool /*a_bActivated*/) { }
 
-	virtual void Draw(TInt /*a_iTop*/, TInt /*a_iBottom*/) { }
+	virtual void draw(TInt /*a_iTop*/, TInt /*a_iBottom*/) { }
 
 	virtual void HandleCommand(TInt /*a_iCommand*/) { }
 

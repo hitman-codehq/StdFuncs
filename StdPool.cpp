@@ -37,7 +37,7 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 	{
 		RetVal = KErrInUse;
 
-		Utils::Info("RStdPool::Create() => Pool is already in use");
+		Utils::info("RStdPool::Create() => Pool is already in use");
 	}
 
 	return(RetVal);
@@ -60,7 +60,7 @@ TInt RStdPool::Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible)
 /* have been freed and is now invalid.  Once this function has returned, you can call */
 /* RStdPool::Create() to reuse the pool if desired */
 
-void RStdPool::Close(TBool a_bFreeNodes)
+void RStdPool::close(TBool a_bFreeNodes)
 {
 	CBufferNode *Buffer;
 	CPoolNode *Node;
@@ -70,7 +70,7 @@ void RStdPool::Close(TBool a_bFreeNodes)
 
 	if (a_bFreeNodes)
 	{
-		while ((Node = m_oNodes.RemHead()) != NULL) { }
+		while ((Node = m_oNodes.remHead()) != NULL) { }
 	}
 
 	/* Otherwise just hard reset the list back to its original state */
@@ -82,7 +82,7 @@ void RStdPool::Close(TBool a_bFreeNodes)
 
 	/* Free the buffers used by the pool for its nodes */
 
-	while ((Buffer = m_oBuffers.RemHead()) != NULL)
+	while ((Buffer = m_oBuffers.remHead()) != NULL)
 	{
 		delete [] (char *) Buffer;
 	}
@@ -126,7 +126,7 @@ void *RStdPool::GetNode()
 
 	if (RetVal)
 	{
-		m_oNodes.Remove(RetVal);
+		m_oNodes.remove(RetVal);
 	}
 
 	return(RetVal);
@@ -141,7 +141,7 @@ void RStdPool::ReleaseNode(void *a_poNode)
 {
 	ASSERTM((a_poNode != NULL), "RStdPool::ReleaseNode() => Valid node must be passed in");
 
-	m_oNodes.AddTail((CPoolNode *) a_poNode);
+	m_oNodes.addTail((CPoolNode *) a_poNode);
 }
 
 /* Written: Tuesday 31-Jul-2012 9:42 am, Starbucks Nürnberg */
@@ -168,7 +168,7 @@ TInt RStdPool::ExtendPool()
 		/* Make the first node into a CBufferNode and add it to the list of buffers */
 
 		BufferNode = (CBufferNode *) Buffer;
-		m_oBuffers.AddTail(BufferNode);
+		m_oBuffers.addTail(BufferNode);
 		Buffer += m_iSize;
 
 		/* For the remaining nodes in the buffer transform each one into a CPoolNode, */
@@ -177,7 +177,7 @@ TInt RStdPool::ExtendPool()
 		for (Index = 0; Index < m_iNumItems; ++Index)
 		{
 			PoolNode = (CPoolNode *) Buffer;
-			m_oNodes.AddTail(PoolNode);
+			m_oNodes.addTail(PoolNode);
 			Buffer += m_iSize;
 		}
 	}
@@ -185,7 +185,7 @@ TInt RStdPool::ExtendPool()
 	{
 		RetVal = KErrNoMemory;
 
-		Utils::Info("RStdPool::ExtendPool() => Out of memory");
+		Utils::info("RStdPool::ExtendPool() => Out of memory");
 	}
 
 	return(RetVal);

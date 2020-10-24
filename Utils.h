@@ -41,7 +41,7 @@ private:
 
 public:
 
-	static TBool AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize);
+	static TBool addPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize);
 
 	static TInt CountTokens(const char *a_pcBuffer);
 
@@ -57,7 +57,7 @@ public:
 
 	static const char *Extension(const char *a_pccFileName);
 
-	static const char *FilePart(const char *a_pccPath);
+	static const char *filePart(const char *a_pccPath);
 
 	static TBool FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory);
 
@@ -77,11 +77,11 @@ public:
 
 	static void AssertionFailure(const char *a_pccMessage, ...);
 
-	static void Info(const char *a_pccMessage, ...);
+	static void info(const char *a_pccMessage, ...);
 
 #else /* ! _DEBUG */
 
-	static void Info(const char *, ...) { }
+	static void info(const char *, ...) { }
 
 #endif /* ! _DEBUG */
 
@@ -89,7 +89,7 @@ public:
 
 	static void LocalisePath(char *a_pcPath);
 
-	static TInt MakeLink(const char *a_pccSource, const char *a_pccDest);
+	static TInt makeLink(const char *a_pccSource, const char *a_pccDest);
 
 	static TInt MapLastError();
 
@@ -107,9 +107,9 @@ public:
 
 	static TInt SetDeleteable(const char *a_pccFileName);
 
-	static TInt SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
+	static TInt setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
 
-	static TInt SetProtection(const char *a_pccFileName, TUint a_uiAttributes);
+	static TInt setProtection(const char *a_pccFileName, TUint a_uiAttributes);
 
 	static char *StripDags(char *a_pcLine, TInt *a_piLength);
 

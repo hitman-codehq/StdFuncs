@@ -239,7 +239,7 @@ TEntry *TEntryArray::Append(const char *a_pccName)
 
 		/* And append the node to the list */
 
-		iEntries.AddTail(Entry);
+		iEntries.addTail(Entry);
 	}
 
 	return(Entry);
@@ -341,7 +341,7 @@ void TEntryArray::Purge()
 
 	/* Iterate through the list of nodes and delete each one */
 
-	while ((Entry = iEntries.RemHead()) != NULL)
+	while ((Entry = iEntries.remHead()) != NULL)
 	{
 		delete Entry;
 	}
@@ -349,9 +349,9 @@ void TEntryArray::Purge()
 
 /* Written: Saturday 11-Jul-2008 11:42 pm */
 
-void TEntryArray::Remove(const TEntry *a_poEntry)
+void TEntryArray::remove(const TEntry *a_poEntry)
 {
-	iEntries.Remove((TEntry *) a_poEntry);
+	iEntries.remove((TEntry *) a_poEntry);
 }
 
 /**
@@ -447,14 +447,14 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 			}
 			else
 			{
-				Utils::Info("RDir::AppendDirectoryEntry() => Unable to determine time of file or directory");
+				Utils::info("RDir::AppendDirectoryEntry() => Unable to determine time of file or directory");
 
 				RetVal = KErrGeneral;
 			}
 		}
 		else
 		{
-			Utils::Info("RDir::AppendDirectoryEntry() => Unable to convert Windows time to generic framework time");
+			Utils::info("RDir::AppendDirectoryEntry() => Unable to convert Windows time to generic framework time");
 
 			RetVal = KErrNoMemory;
 		}
@@ -489,7 +489,7 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RDir::Open(const char *a_pccPattern)
+TInt RDir::open(const char *a_pccPattern)
 {
 	TInt RetVal;
 	TEntry *Entry;
@@ -531,7 +531,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	if (!(iSingleEntryOk))
 	{
-		/* Allocate a buffer for the path passed in and save it for l8r use in RDir::Read(). */
+		/* Allocate a buffer for the path passed in and save it for l8r use in RDir::read(). */
 		/* It is required in order to examine links */
 
 		if ((iPath = new char[strlen(a_pccPattern) + 1]) != NULL)
@@ -541,7 +541,7 @@ TInt RDir::Open(const char *a_pccPattern)
 			/* We may or may not need to use a pattern, depending on whether there is one */
 			/* passed in, so determine this and build a pattern to scan for as appropriate */
 
-			Pattern	= Utils::FilePart(a_pccPattern);
+			Pattern	= Utils::filePart(a_pccPattern);
 
 			/* According to dos.doc, the buffer used must be at least twice the size of */
 			/* the pattern it is scanning + 2 */
@@ -600,7 +600,7 @@ TInt RDir::Open(const char *a_pccPattern)
 		}
 		else
 		{
-			Utils::Info("RDir::Open() => Out of memory");
+			Utils::info("RDir::open() => Out of memory");
 
 			RetVal = KErrNoMemory;
 		}
@@ -628,7 +628,7 @@ TInt RDir::Open(const char *a_pccPattern)
 			if ((iPathBuffer = new char[Length + 1]) != NULL)
 			{
 				strcpy(iPathBuffer, ProgDirName);
-				FileNameOffset = (Utils::FilePart(iPathBuffer) - iPathBuffer);
+				FileNameOffset = (Utils::filePart(iPathBuffer) - iPathBuffer);
 
 				/* If there is a wildcard present then extract it */
 
@@ -672,7 +672,7 @@ TInt RDir::Open(const char *a_pccPattern)
 				}
 
 				/* Open the directory for scanning.  We don't do any actual scanning here - that will */
-				/* be done in Read() */
+				/* be done in read() */
 
 				if ((iDir = opendir(ToOpen)) != NULL)
 				{
@@ -723,12 +723,12 @@ TInt RDir::Open(const char *a_pccPattern)
 				/* is already one in the pattern passed in, so determine this and build a */
 				/* wildcard pattern to scan for as appropriate */
 
-				FileName = Utils::FilePart(ProgDirName);
+				FileName = Utils::filePart(ProgDirName);
 
 				if (!(strstr(FileName, "*")) && (!(strstr(FileName, "?"))))
 				{
 					strcpy(Path, ProgDirName);
-					DEBUGCHECK((Utils::AddPart(Path, "*.*", Length) != EFalse), "RDir::Open() => Unable to build wildcard to scan");
+					DEBUGCHECK((Utils::addPart(Path, "*.*", Length) != EFalse), "RDir::open() => Unable to build wildcard to scan");
 				}
 				else
 				{
@@ -757,7 +757,7 @@ TInt RDir::Open(const char *a_pccPattern)
 			}
 			else
 			{
-				Utils::Info("RDir::Open() => Out of memory");
+				Utils::info("RDir::open() => Out of memory");
 			}
 
 			/* And free the resolved filename, but only if it contained the PROGDIR: prefix */
@@ -775,7 +775,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 	if (RetVal != KErrNone)
 	{
-		Close();
+		close();
 	}
 
 	return(RetVal);
@@ -783,7 +783,7 @@ TInt RDir::Open(const char *a_pccPattern)
 
 /* Written: Saturday 03-Nov-2007 4:49 pm */
 
-void RDir::Close()
+void RDir::close()
 {
 	/* Free the contents of the TEntry array in case it the RDir class is reused */
 
@@ -829,7 +829,7 @@ void RDir::Close()
 
 /**
  * Scans a directory for file and directory entries.
- * Scans a directory that has been prepared with RDir::Open() and populates a list
+ * Scans a directory that has been prepared with RDir::open() and populates a list
  * with all of the entries found.  This list is then returned to the calling client
  * code.
  *
@@ -843,7 +843,7 @@ void RDir::Close()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
+TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 {
 	TInt RetVal;
 
@@ -945,7 +945,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 						}
 						else
 						{
-							Utils::Info("RDir::Read() => Unable to allocate buffer to resolve link size\n");
+							Utils::info("RDir::read() => Unable to allocate buffer to resolve link size\n");
 						}
 					}
 					else
@@ -979,7 +979,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 	}
 
-	/* If iContext == NULL then either we are being called before Open() has been called, or Open() */
+	/* If iContext == NULL then either we are being called before open() has been called, or open() */
 	/* has been called for a single file. Return KErrNone or an error as appropriate */
 
 	else
@@ -1052,7 +1052,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 						if ((QualifiedName = (char *) Utils::GetTempBuffer(QualifiedName, Length)) != NULL)
 						{
 							strcpy(QualifiedName, iPath);
-							Utils::AddPart(QualifiedName, DirEnt->d_name, Length);
+							Utils::addPart(QualifiedName, DirEnt->d_name, Length);
 
 							/* Pass in EFalse as the a_bResolveLink parameter as we want to get information about the */
 							/* link itself, not the file it points to */
@@ -1090,7 +1090,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 		else
 		{
-			Utils::Info("RDir::Read() => Unable to scan an unopened directory");
+			Utils::info("RDir::read() => Unable to scan an unopened directory");
 
 			RetVal = KErrGeneral;
 		}
@@ -1125,7 +1125,7 @@ TInt RDir::Read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		}
 		else
 		{
-			Utils::Info("RDir::Read() => Unable to scan an unopened directory");
+			Utils::info("RDir::read() => Unable to scan an unopened directory");
 
 			RetVal = KErrGeneral;
 		}

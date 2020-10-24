@@ -10,9 +10,9 @@ private:
 
 public:
 
-	TInt Open(const char *a_pccWildcard);
+	TInt open(const char *a_pccWildcard);
 
-	void Close();
+	void close();
 
 	TBool Match(const char *a_pccFileName);
 };

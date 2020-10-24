@@ -48,15 +48,15 @@ public:
 
 	TInt Replace(const char *a_pccFileName, TUint a_uiFileMode);
 
-	TInt Open(const char *a_pccFileName, TUint a_uiFileMode);
+	TInt open(const char *a_pccFileName, TUint a_uiFileMode);
 
-	TInt Read(unsigned char *a_pucBuffer, TInt a_iLength) const;
+	TInt read(unsigned char *a_pucBuffer, TInt a_iLength) const;
 
-	TInt Seek(TInt a_iBytes);
+	TInt seek(TInt a_iBytes);
 
-	TInt Write(const unsigned char *a_pcucBuffer, TInt a_iLength);
+	TInt write(const unsigned char *a_pcucBuffer, TInt a_iLength);
 
-	void Close();
+	void close();
 };
 
 #endif /* ! FILE_H */

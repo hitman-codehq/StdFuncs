@@ -33,7 +33,7 @@ RArgs::RArgs()
 
 /* Written: Sunday 04-Nov-2007 11:51 am */
 
-TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
+TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
 	TInt RetVal;
 
@@ -129,17 +129,17 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 						RetVal = KErrNoMemory;
 					}
 
-					Utils::Info("RArgs::Open() => Unable to read command line arguments");
+					Utils::info("RArgs::open() => Unable to read command line arguments");
 				}
 			}
 			else
 			{
-				Utils::Info("RArgs::Open() => Out of memory");
+				Utils::info("RArgs::open() => Out of memory");
 			}
 		}
 		else
 		{
-			Utils::Info("RArgs::Open() => Unable to allocate RDArgs structure");
+			Utils::info("RArgs::open() => Unable to allocate RDArgs structure");
 		}
 
 #else /* ! __amigaos4__ */
@@ -166,7 +166,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 					/* Extract the arguments from the buffer into an ArgV style pointer array.  This */
 					/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
 					/* adds an extra entry for the executable name as the first argument.  This */
-					/* is required so that when we call Open() it will ignore this first argument, */
+					/* is required so that when we call open() it will ignore this first argument, */
 					/* for compatibility with argument lists passed into main(), which also have */
 					/* the executable name in argv[0]! */
 
@@ -176,7 +176,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 						/* it for arguments */
 
 						ArgV[0] = a_pccArgV[0];
-						RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+						RetVal = readArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
 						delete [] ArgV;
 					}
 					else
@@ -201,7 +201,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		}
 		else
 		{
-			RetVal = ReadArgs(a_pccTemplate, a_iNumOptions, a_pccArgV, a_iArgC);
+			RetVal = readArgs(a_pccTemplate, a_iNumOptions, a_pccArgV, a_iArgC);
 		}
 
 #endif /* ! __amigaos4__ */
@@ -211,14 +211,14 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 	{
 		RetVal = KErrNoMemory;
 
-		Utils::Info("RArgs::Open() => Unable to allocate array for arguments");
+		Utils::info("RArgs::open() => Unable to allocate array for arguments");
 	}
 
 	/* If anything failed, clean up */
 
 	if (RetVal != KErrNone)
 	{
-		Close();
+		close();
 	}
 
 	return(RetVal);
@@ -230,7 +230,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 /*							as passed into WinMain() and thus the first argument is NOT */
 /*							the executable name */
 
-TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
+TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
 {
 	const char **ArgV;
 	TInt ArgC, RetVal;
@@ -238,23 +238,23 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 	/* Extract the arguments from the string into an ArgV style pointer array.  This */
 	/* will result in ArgC being the number of arguments + 1 as ExtractArguments() */
 	/* adds an extra entry for the executable name as the first argument.  This */
-	/* is required so that when we call Open() it will ignore this first argument, */
+	/* is required so that when we call open() it will ignore this first argument, */
 	/* for compatibility with argument lists passed into main(), which also have */
 	/* the executable name in argv[0]! */
 
 	if ((ArgV = ExtractArguments(a_pcArguments, &ArgC)) != NULL)
 	{
-		/* And pass that array into the standard RArgs::Open() to extract the arguments */
+		/* And pass that array into the standard RArgs::open() to extract the arguments */
 
 		//ArgV[0] = "Test"; // TODO: CAW - How to obtain this?  When we fix this, it will break BUBYFU and maybe others
-		RetVal = Open(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+		RetVal = open(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
 		delete [] ArgV;
 	}
 	else
 	{
 		RetVal = KErrNoMemory;
 
-		Utils::Info("RArgs::Open() => Unable to allocate array for arguments");
+		Utils::info("RArgs::open() => Unable to allocate array for arguments");
 	}
 
 	return(RetVal);
@@ -264,7 +264,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 
 #ifdef __amigaos4__
 
-TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
+TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
 {
 	TInt RetVal;
 
@@ -411,7 +411,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 										}
 										else
 										{
-											Utils::Info("RDArgs::Open() => Out of memory");
+											Utils::info("RDArgs::open() => Out of memory");
 										}
 									}
 								}
@@ -419,19 +419,19 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 						}
 						else
 						{
-							Utils::Info("RArgs::Open() => Unable to read command line arguments");
+							Utils::info("RArgs::open() => Unable to read command line arguments");
 
 							IDOS->FreeDosObject(DOS_RDARGS, RDArgs);
 						}
 					}
 					else
 					{
-						Utils::Info("RDArgs::Open() => Unable to allocate DOS RDArgs structure");
+						Utils::info("RDArgs::open() => Unable to allocate DOS RDArgs structure");
 					}
 				}
 				else
 				{
-					Utils::Info("RDArgs::Open() => Out of memory");
+					Utils::info("RDArgs::open() => Out of memory");
 				}
 			}
 
@@ -442,26 +442,26 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 			{
 				RetVal = KErrNone;
 
-				Utils::Info("RArgs::Open() => Icon contains no tooltypes");
+				Utils::info("RArgs::open() => Icon contains no tooltypes");
 			}
 
 			IIcon->FreeDiskObject(DiskObject);
 		}
 		else
 		{
-			Utils::Info("RArgs::Open() => Unable to open icon for object \"%s\"", WBArg->wa_Name);
+			Utils::info("RArgs::open() => Unable to open icon for object \"%s\"", WBArg->wa_Name);
 		}
 	}
 	else
 	{
-		Utils::Info("RArgs::Open() => Unable to allocate array for arguments");
+		Utils::info("RArgs::open() => Unable to allocate array for arguments");
 	}
 
 	/* If anything failed, clean up */
 
 	if (RetVal != KErrNone)
 	{
-		Close();
+		close();
 	}
 
 	return(RetVal);
@@ -471,7 +471,7 @@ TInt RArgs::Open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 
 /* Written: Sunday 04-Nov-2007 11:52 am */
 
-void RArgs::Close()
+void RArgs::close()
 {
 	/* Delete the emulated command line arguments buffer */
 
@@ -536,7 +536,7 @@ void RArgs::Close()
 
 #endif /* __amigaos4__ */
 
-	/* Ensure that everything is back to the exact state it was in before Open() was called */
+	/* Ensure that everything is back to the exact state it was in before open() was called */
 
 	m_iNumArgs = 0;
 	m_iMagicOption = -1;
@@ -632,7 +632,7 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 	}
 	else
 	{
-		Utils::Info("RDArgs::ExtractArguments() => Out of memory");
+		Utils::info("RDArgs::ExtractArguments() => Out of memory");
 	}
 
 	return(RetVal);
@@ -807,7 +807,7 @@ const char *RArgs::ProjectFileName()
 
 /* Written: Saturday 02-05-2010 8:52 am */
 
-TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
+TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
 {
 	char **ArgV, *OptionName, **Arguments, **NewMagicArgs, **Ptr, Type;
 	TInt Arg, Index, NumArgs, Offset, RetVal;
@@ -935,7 +935,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 							if (m_pstArgs[Index] == 0)
 							{
-								Utils::Info("RArgs::ReadArgs() => Option \"%s\" must have an argument", OptionName);
+								Utils::info("RArgs::readArgs() => Option \"%s\" must have an argument", OptionName);
 							}
 
 							delete [] OptionName;
@@ -1051,7 +1051,7 @@ TInt RArgs::ReadArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 	{
 		RetVal = KErrNoMemory;
 
-		Utils::Info("RDArgs::Open() => Unable to allocate buffer for arguments");
+		Utils::info("RDArgs::open() => Unable to allocate buffer for arguments");
 	}
 
 	return(RetVal);

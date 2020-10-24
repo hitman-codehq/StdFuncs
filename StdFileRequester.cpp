@@ -30,7 +30,7 @@ static const char g_accSaveText[] = "Select file to save as...";
 /* Cleans up any memory used by the class and sets the class's state back to how it was */
 /* when it was created */
 
-void RFileRequester::Close()
+void RFileRequester::close()
 {
 	delete [] m_pcDirectoryName;
 	m_pcDirectoryName = NULL;
@@ -101,7 +101,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 				{
 					/* Separate the directory part of the qualified filename from the file part */
 
-					FileName = Utils::FilePart(a_pccFileName);
+					FileName = Utils::filePart(a_pccFileName);
 					Length = (FileName - a_pccFileName + 1);
 
 					/* Allocate enough memory to hold the directory part and copy the directory */
@@ -207,7 +207,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 				if (QualifiedFileName)
 				{
 					strcpy(QualifiedFileName, Drawer);
-					Utils::AddPart(QualifiedFileName, FileName, QualifiedFileNameLength);
+					Utils::addPart(QualifiedFileName, FileName, QualifiedFileNameLength);
 
 					/* Filenames of length 0 are now allowed */
 
@@ -387,7 +387,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	if ((RetVal != KErrNone) && (RetVal != KErrCancel))
 	{
-		Utils::Info("RFileRequester::GetFileName() => Unable to obtain filename, error = %d", RetVal);
+		Utils::info("RFileRequester::GetFileName() => Unable to obtain filename, error = %d", RetVal);
 	}
 
 #endif /* ! QT_GUI_LIB */

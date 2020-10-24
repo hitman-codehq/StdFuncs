@@ -269,7 +269,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 	{
 		/* Determine the path to the file that was opened */
 
-		NameOffset = (Utils::FilePart(a_pccFileName) - a_pccFileName);
+		NameOffset = (Utils::filePart(a_pccFileName) - a_pccFileName);
 
 		/* If the file is not in the current directory then check if the path exists */
 
@@ -301,7 +301,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 			}
 			else
 			{
-				Utils::Info("RFile::MapLastOpenError() => Out of memory");
+				Utils::info("RFile::MapLastOpenError() => Out of memory");
 
 				RetVal = KErrNoMemory;
 			}
@@ -332,7 +332,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
  * @return	EFalse if the destination buffer was too small to hold the resulting path
  */
 
-TBool Utils::AddPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize)
+TBool Utils::addPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSize)
 {
 	TBool RetVal;
 
@@ -659,7 +659,7 @@ TInt Utils::Detach()
 			/* the program shows up in the task list as something more useful than "New Process" */
 
 			IDOS->CopyStringBSTRToC(CLI->cli_CommandName, CommandNameBuffer, (CommandNameLength + 1));
-			CommandName = Utils::FilePart(CommandNameBuffer);
+			CommandName = Utils::filePart(CommandNameBuffer);
 
 			/* Build the string used to relaunch the process */
 
@@ -696,7 +696,7 @@ TInt Utils::Detach()
 		}
 		else
 		{
-			Utils::Info("Utils::Detach() => Out of memory");
+			Utils::info("Utils::Detach() => Out of memory");
 		}
 
 		delete [] Command;
@@ -757,7 +757,7 @@ char *Utils::DuplicateString(const char *a_pccString, TInt a_iLength)
 
 void Utils::Error(const char *a_pccMessage, ...)
 {
-	// TODO: CAW - Risk of overflow, here, above and in Utils::Info
+	// TODO: CAW - Risk of overflow, here, above and in Utils::info
 	char Message[512];
 	va_list Args;
 
@@ -840,7 +840,7 @@ const char *Utils::Extension(const char *a_pccFileName)
  * @return	Pointer to the filename component of the path
  */
 
-const char *Utils::FilePart(const char *a_pccPath)
+const char *Utils::filePart(const char *a_pccPath)
 {
 	char Char;
 	const char *RetVal;
@@ -923,19 +923,19 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 				}
 				else
 				{
-					Utils::Info("Utils::FullNameFromWBArg() => Unable to build filename");
+					Utils::info("Utils::FullNameFromWBArg() => Unable to build filename");
 				}
 
 				IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 			}
 			else
 			{
-				Utils::Info("Utils::FullNameFromWBArg() => Unable to examine object");
+				Utils::info("Utils::FullNameFromWBArg() => Unable to examine object");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::FullNameFromWBArg() => Unable to obtain filename from Lock");
+			Utils::info("Utils::FullNameFromWBArg() => Unable to obtain filename from Lock");
 		}
 	}
 
@@ -1113,7 +1113,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 					else
 					{
-						strcpy(a_poEntry->iName, FilePart(ProgDirName));
+						strcpy(a_poEntry->iName, filePart(ProgDirName));
 					}
 
 					/* Assume that the file either is not a link, or that we couldn't resolve it */
@@ -1128,7 +1128,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 					{
 						if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 						{
-							strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
+							strcpy(a_poEntry->iLink, Utils::filePart(ResolvedFileName));
 							delete [] ResolvedFileName;
 						}
 					}
@@ -1202,7 +1202,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 							else
 							{
-								strcpy(a_poEntry->iName, Utils::FilePart(ProgDirName));
+								strcpy(a_poEntry->iName, Utils::filePart(ProgDirName));
 							}
 						}
 
@@ -1218,7 +1218,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 						{
 							if ((ResolvedFileName = Utils::ResolveFileName(a_pccFileName)) != NULL)
 							{
-								strcpy(a_poEntry->iLink, Utils::FilePart(ResolvedFileName));
+								strcpy(a_poEntry->iLink, Utils::filePart(ResolvedFileName));
 								delete [] ResolvedFileName;
 							}
 						}
@@ -1432,12 +1432,12 @@ int Utils::GetShellHeight()
 		}
 		else
 		{
-			Utils::Info("Utils::GetShellHeight() => Unable to request window dimensions");
+			Utils::info("Utils::GetShellHeight() => Unable to request window dimensions");
 		}
 	}
 	else
 	{
-		Utils::Info("Utils::GetShellHeight() => Unable to put console into RAW mode");
+		Utils::info("Utils::GetShellHeight() => Unable to put console into RAW mode");
 	}
 
 #elif defined(__unix__)
@@ -1463,12 +1463,12 @@ int Utils::GetShellHeight()
 		}
 		else
 		{
-			Utils::Info("Utils::GetShellHeight() => Unable to request window dimensions");
+			Utils::info("Utils::GetShellHeight() => Unable to request window dimensions");
 		}
 	}
 	else
 	{
-		Utils::Info("Utils::GetShellHeight() => Unable get handle to console");
+		Utils::info("Utils::GetShellHeight() => Unable get handle to console");
 	}
 
 #endif /* ! __unix__ */
@@ -1649,7 +1649,7 @@ void Utils::FreeTempBuffer(void *a_pvBuffer)
  * @param	a_pccMessage	The message to be displayed, in printf() format
  */
 
-void Utils::Info(const char *a_pccMessage, ...)
+void Utils::info(const char *a_pccMessage, ...)
 {
 	char Message[512];
 	va_list Args;
@@ -1707,8 +1707,8 @@ void Utils::Info(const char *a_pccMessage, ...)
  *							buffer
  * @return	The size of the file in bytes, not including the NULL terminator, if successful
  * @return	KErrNoMemory if not enough memory was available
- * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::Open() or
- *			RFile::Read()
+ * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::open() or
+ *			RFile::read()
  */
 
 TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
@@ -1733,9 +1733,9 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 			/* Open the file and read its contents into the buffer */
 
-			if ((RetVal = File.Open(a_pccFileName, EFileRead)) == KErrNone)
+			if ((RetVal = File.open(a_pccFileName, EFileRead)) == KErrNone)
 			{
-				if ((RetVal = File.Read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
+				if ((RetVal = File.read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
 				{
 					/* NULL terminate the buffer and save its pointer for the calling client */
 
@@ -1744,15 +1744,15 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 				}
 				else
 				{
-					Utils::Info("Utils::LoadFile() => Unable to read file \"%s\"", a_pccFileName);
+					Utils::info("Utils::LoadFile() => Unable to read file \"%s\"", a_pccFileName);
 				}
 			}
 			else
 			{
-				Utils::Info("Utils::LoadFile() => Unable to open file \"%s\" for loading", a_pccFileName);
+				Utils::info("Utils::LoadFile() => Unable to open file \"%s\" for loading", a_pccFileName);
 			}
 
-			File.Close();
+			File.close();
 
 			/* If any error occurred, free the buffer as it won't get passed back to the client */
 
@@ -1766,7 +1766,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 		{
 			RetVal = KErrNoMemory;
 
-			Utils::Info("Utils::LoadFile() => Out of memory");
+			Utils::info("Utils::LoadFile() => Out of memory");
 		}
 	}
 
@@ -1827,7 +1827,7 @@ void Utils::LocalisePath(char *a_pcPath)
  * @return	KErrGeneral if the link was not able to be created
  */
 
-TInt Utils::MakeLink(const char *a_pccSource, const char *a_pccDest)
+TInt Utils::makeLink(const char *a_pccSource, const char *a_pccDest)
 {
 	TInt RetVal;
 
@@ -2218,7 +2218,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			/* Obtaining the lock failed, probably due to the file not existing, so get */
 			/* a lock on the current directory instead */
 
-			Utils::Info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
+			Utils::info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
 
 			LockedFile = EFalse;
 			Lock = IDOS->GetCurrentDir();
@@ -2239,7 +2239,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (Result == 0)
 		{
-			Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+			Utils::info("Utils::ResolveFileName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
 
 			delete [] RetVal;
 			RetVal = NULL;
@@ -2249,7 +2249,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (!(LockedFile))
 		{
-			Utils::AddPart(RetVal, a_pccFileName, MAX_NAME_FROM_LOCK_LENGTH);
+			Utils::addPart(RetVal, a_pccFileName, MAX_NAME_FROM_LOCK_LENGTH);
 		}
 
 		/* And unlock the lock on the file, if it was obtained successfully.  If it is a */
@@ -2262,7 +2262,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 	}
 	else
 	{
-		Utils::Info("Utils::ResolveFileName() => Out of memory");
+		Utils::info("Utils::ResolveFileName() => Out of memory");
 	}
 
 #elif defined(__unix__)
@@ -2292,7 +2292,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			{
 				if (getcwd(RetVal, PATH_MAX))
 				{
-					Utils::AddPart(RetVal, a_pccFileName, PATH_MAX);
+					Utils::addPart(RetVal, a_pccFileName, PATH_MAX);
 				}
 
 				/* We couldn't even get the current directory so free the buffer and return failure */
@@ -2307,7 +2307,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 	}
 	else
 	{
-		Utils::Info("Utils::ResolveFileName() => Out of memory");
+		Utils::info("Utils::ResolveFileName() => Out of memory");
 	}
 
 #else /* ! __unix__ */
@@ -2414,7 +2414,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 				}
 				else
 				{
-					Utils::Info("Utils::ResolveFileName() => Unable to determine qualified filename");
+					Utils::info("Utils::ResolveFileName() => Unable to determine qualified filename");
 
 					delete [] RetVal;
 					RetVal = NULL;
@@ -2422,12 +2422,12 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			}
 			else
 			{
-				Utils::Info("Utils::ResolveFileName() => Out of memory");
+				Utils::info("Utils::ResolveFileName() => Out of memory");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
+			Utils::info("Utils::ResolveFileName() => Unable to determine length of qualified filename");
 		}
 	}
 
@@ -2484,21 +2484,21 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 				{
 					/* Append the name of the file to be opened in the executable's directory */
 
-					Ok = Utils::AddPart(RetVal, &a_pccFileName[PROGDIR_LENGTH], MAX_NAME_FROM_LOCK_LENGTH);
+					Ok = Utils::addPart(RetVal, &a_pccFileName[PROGDIR_LENGTH], MAX_NAME_FROM_LOCK_LENGTH);
 				}
 				else
 				{
-					Utils::Info("Utils::ResolveProgDirName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
+					Utils::info("Utils::ResolveProgDirName() => Unable to determine qualified filename for \"%s\"", a_pccFileName);
 				}
 			}
 			else
 			{
-				Utils::Info("Utils::ResolveProgDirName() => Unable to obtain lock program directory");
+				Utils::info("Utils::ResolveProgDirName() => Unable to obtain lock program directory");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
+			Utils::info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
 #elif defined(__unix__)
@@ -2558,24 +2558,24 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 
 				/* Get a pointer to the name of the executable and remove it */
 
-				FileNamePart = (char *) Utils::FilePart(RetVal);
+				FileNamePart = (char *) Utils::filePart(RetVal);
 				*FileNamePart = '\0';
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], PATH_MAX);
+				Ok = Utils::addPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], PATH_MAX);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
 
 			else
 			{
-				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
+				Utils::info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveFileName() => Out of memory");
+			Utils::info("Utils::ResolveFileName() => Out of memory");
 		}
 
 #else /* ! __unix__ */
@@ -2595,24 +2595,24 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 			{
 				/* Get a pointer to the name of the executable and remove it */
 
-				FileNamePart = (char *) Utils::FilePart(RetVal);
+				FileNamePart = (char *) Utils::filePart(RetVal);
 				*FileNamePart = '\0';
 
 				/* Append the name of the file to be opened in the executable's directory */
 
-				Ok = Utils::AddPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], MAX_PATH);
+				Ok = Utils::addPart(FileNamePart, &a_pccFileName[PROGDIR_LENGTH], MAX_PATH);
 			}
 
 			/* The path could not be obtained so display a debug string and just let the call fail */
 
 			else
 			{
-				Utils::Info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
+				Utils::info("Utils::ResolveProgDirName() => Cannot obtain path to executable");
 			}
 		}
 		else
 		{
-			Utils::Info("Utils::ResolveProgDirName() => Out of memory");
+			Utils::info("Utils::ResolveProgDirName() => Out of memory");
 		}
 
 #endif /* ! __unix__ */
@@ -2705,7 +2705,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 	}
 	else
 	{
-		Utils::Info("Utils::ScanDirectory() => Unable to create context to examine object");
+		Utils::info("Utils::ScanDirectory() => Unable to create context to examine object");
 	}
 
 	return(RetVal);
@@ -2752,15 +2752,15 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 
 #endif /* ! __amigaos4__ */
 
-		RetVal = Utils::SetProtection(a_pccFileName, Entry.iAttributes);
+		RetVal = Utils::setProtection(a_pccFileName, Entry.iAttributes);
 	}
 
 #else /* ! defined(__amigaos4__) || defined(__unix__) */
 
-	/* Use our version of SetProtection() rather than the native SetFileAttributes() function */
+	/* Use our version of setProtection() rather than the native SetFileAttributes() function */
 	/* so that we don't have to worry about error handling */
 
-	RetVal = Utils::SetProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
+	RetVal = Utils::setProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
 
 #endif /* ! defined(__amigaos4__) || defined(__unix__) */
 
@@ -2783,7 +2783,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
  * @return	KErrGeneral if any other error occurred
  */
 
-TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink)
+TInt Utils::setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink)
 {
 	TInt RetVal;
 
@@ -2883,7 +2883,7 @@ TInt Utils::SetFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt Utils::SetProtection(const char *a_pccFileName, TUint a_uiAttributes)
+TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 {
 	TInt RetVal;
 

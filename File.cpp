@@ -108,11 +108,11 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		}
 		else
 		{
-			Utils::Info("RFile::Create() => Unable to lock file for exclusive access");
+			Utils::info("RFile::Create() => Unable to lock file for exclusive access");
 
 			RetVal = KErrGeneral;
 
-			Close();
+			close();
 		}
 	}
 	else
@@ -129,14 +129,14 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 		if (RetVal == KErrAlreadyExists)
 		{
-			if (Open(a_pccFileName, EFileRead) == KErrInUse)
+			if (open(a_pccFileName, EFileRead) == KErrInUse)
 			{
 				RetVal = KErrInUse;
 			}
 
 			/* Close the file as it may have been successfully opened by the above call */
 
-			Close();
+			close();
 		}
 	}
 
@@ -163,14 +163,14 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 		if (RetVal == KErrAlreadyExists)
 		{
-			if (Open(a_pccFileName, EFileRead) == KErrInUse)
+			if (open(a_pccFileName, EFileRead) == KErrInUse)
 			{
 				RetVal = KErrInUse;
 			}
 
 			/* Close the file as it may have been successfully opened by the above call */
 
-			Close();
+			close();
 		}
 	}
 
@@ -205,7 +205,7 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 
 	/* Try to delete the file specified so that it can be recreated */
 
-	RetVal = BaflUtils::DeleteFile(a_pccFileName);
+	RetVal = BaflUtils::deleteFile(a_pccFileName);
 
 	/* If the file was deleted successfully or if it didn't exist, continue on to create a new file */
 
@@ -238,7 +238,7 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
+TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 {
 	char *ResolvedFileName;
 	TInt RetVal;
@@ -269,11 +269,11 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			}
 			else
 			{
-				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+				Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
 				RetVal = KErrGeneral;
 
-				Close();
+				close();
 			}
 		}
 		else
@@ -302,7 +302,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 			}
 			else
 			{
-				Utils::Info("RFile::Open() => Unable to lock file for exclusive access");
+				Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
 				/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
 				/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
@@ -310,7 +310,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 
 				RetVal = KErrInUse;
 
-				Close();
+				close();
 			}
 		}
 		else
@@ -357,7 +357,7 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
 	}
 	else
 	{
-		Utils::Info("RFile::Open() => Unable to resolve program name for %s", a_pccFileName);
+		Utils::info("RFile::open() => Unable to resolve program name for %s", a_pccFileName);
 
 		RetVal = KErrPathNotFound;
 	}
@@ -379,11 +379,11 @@ TInt RFile::Open(const char *a_pccFileName, TUint a_uiFileMode)
  * @return	Number of bytes read, if successful, otherwise KErrGeneral
  */
 
-TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
+TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 {
 	TInt RetVal;
 
-	ASSERTM(m_oHandle, "RFile::Read() => File is not open");
+	ASSERTM(m_oHandle, "RFile::read() => File is not open");
 
 #ifdef __amigaos4__
 
@@ -445,11 +445,11 @@ TInt RFile::Read(unsigned char *a_pucBuffer, TInt a_iLength) const
  * @return	KErrGeneral if the seek could not be performed
  */
 
-TInt RFile::Seek(TInt a_iBytes)
+TInt RFile::seek(TInt a_iBytes)
 {
 	TInt RetVal;
 
-	ASSERTM(m_oHandle, "RFile::Seek() => File is not open");
+	ASSERTM(m_oHandle, "RFile::seek() => File is not open");
 
 	/* Assume failure */
 
@@ -486,7 +486,7 @@ TInt RFile::Seek(TInt a_iBytes)
 /**
  * Writes a number of bytes to the file.
  * Writes a number of bytes to the file.  The file must have been opened in a writeable mode,
- * either by using RFile::Open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the
+ * either by using RFile::open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the
  * latter two cases, files are always opened as writeable, regardless of the file mode passed in.
  * It is safe to try and write 0 bytes.  In this case 0 will be returned
  *
@@ -498,11 +498,11 @@ TInt RFile::Seek(TInt a_iBytes)
  * @return	Number of bytes written, if successful, otherwise KErrGeneral
  */
 
-TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
+TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 {
 	TInt RetVal;
 
-	ASSERTM(m_oHandle, "RFile::Write() => File is not open");
+	ASSERTM(m_oHandle, "RFile::write() => File is not open");
 
 #ifdef __amigaos4__
 
@@ -562,14 +562,14 @@ TInt RFile::Write(const unsigned char *a_pcucBuffer, TInt a_iLength)
  * @date	Friday 02-Jan-2009 8:58 pm
  */
 
-void RFile::Close()
+void RFile::close()
 {
 
 #ifdef __amigaos4__
 
 	if (m_oHandle != 0)
 	{
-		DEBUGCHECK((IDOS->Close(m_oHandle) != 0), "RFile::Close() => Unable to close file");
+		DEBUGCHECK((IDOS->Close(m_oHandle) != 0), "RFile::close() => Unable to close file");
 		m_oHandle = 0;
 	}
 
@@ -577,7 +577,7 @@ void RFile::Close()
 
 	if (m_oHandle != -1)
 	{
-		DEBUGCHECK((close(m_oHandle) == 0), "RFile::Close() => Unable to close file");
+		DEBUGCHECK((close(m_oHandle) == 0), "RFile::close() => Unable to close file");
 		m_oHandle = -1;
 	}
 
@@ -585,7 +585,7 @@ void RFile::Close()
 
 	if (m_oHandle != INVALID_HANDLE_VALUE)
 	{
-		DEBUGCHECK((CloseHandle(m_oHandle) != FALSE), "RFile::Close() => Unable to close file");
+		DEBUGCHECK((CloseHandle(m_oHandle) != FALSE), "RFile::close() => Unable to close file");
 		m_oHandle = INVALID_HANDLE_VALUE;
 	}
 

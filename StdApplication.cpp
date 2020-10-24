@@ -87,7 +87,7 @@ RApplication::RApplication()
  * @return  KErrNoMemory if not enough memory was available
  */
 
-TInt RApplication::Open(const struct SStdMenuItem *a_pcoMenuItems)
+TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 {
 	TInt RetVal;
 
@@ -515,7 +515,7 @@ TInt RApplication::Main()
 						}
 						else
 						{
-							Utils::Info("RApplication::Main() => Unable to get InputEvent for WMHI_RAWKEY");
+							Utils::info("RApplication::Main() => Unable to get InputEvent for WMHI_RAWKEY");
 						}
 
 						break;
@@ -602,7 +602,7 @@ TInt RApplication::Main()
  * @date	Tuesday 29-Jun-2010 7:59 pm, London Hackspace
  */
 
-void RApplication::Close()
+void RApplication::close()
 {
 
 #ifdef QT_GUI_LIB
@@ -733,7 +733,7 @@ void RApplication::SetCurrentDialog(HWND a_poDialog)
 
 /* Written: Saturday 26-Jun-2010 2:18 pm */
 
-void RApplication::Exit()
+void RApplication::exit()
 {
 
 #ifdef __amigaos4__

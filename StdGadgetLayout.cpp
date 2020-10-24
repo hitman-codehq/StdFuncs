@@ -30,7 +30,7 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLay
 	{
 		if ((Result = RetVal->Construct()) != KErrNone)
 		{
-			Utils::Info("CStdGadgetLayout::New() => Unable to initialise layout gadget (Error %d)", Result);
+			Utils::info("CStdGadgetLayout::New() => Unable to initialise layout gadget (Error %d)", Result);
 
 			delete RetVal;
 			RetVal = NULL;
@@ -102,14 +102,14 @@ CStdGadgetLayout::~CStdGadgetLayout()
 
 	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
 
-	while ((Gadget = m_oGadgets.RemHead()) != NULL)
+	while ((Gadget = m_oGadgets.remHead()) != NULL)
 	{
 		delete Gadget;
 	}
 
 	/* Now remove the layout gadget from its parent window */
 
-	m_poParentWindow->Remove(this);
+	m_poParentWindow->remove(this);
 
 #ifdef QT_GUI_LIB
 
@@ -139,7 +139,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 {
 	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::Attach() => No gadget to be attached passed in");
 
-	m_oGadgets.AddTail(a_poGadget);
+	m_oGadgets.addTail(a_poGadget);
 
 #ifdef __amigaos4__
 
@@ -149,7 +149,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	{
 		// TODO: CAW
 		ILayout->RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
-		RethinkLayout();
+		rethinkLayout();
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -176,12 +176,12 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 			m_poLayout->addWidget(a_poGadget->m_poGadget, m_poLayout->rowCount(), 0, 1, -1, Qt::AlignBottom);
 		}
 
-		RethinkLayout();
+		rethinkLayout();
 	}
 
 #else /* ! QT_GUI_LIB */
 
-	RethinkLayout();
+	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */
 
@@ -258,7 +258,7 @@ TInt CStdGadgetLayout::GetSpacing()
 
 /* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Söflingen */
 
-void CStdGadgetLayout::RethinkLayout()
+void CStdGadgetLayout::rethinkLayout()
 {
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)

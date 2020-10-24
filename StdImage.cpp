@@ -20,7 +20,7 @@
 /* access them in a platform independent manner while keeping the size of the */
 /* executable to a minimum. */
 
-TInt RStdImage::Open(const char *a_pccFileName)
+TInt RStdImage::open(const char *a_pccFileName)
 {
 
 #ifdef __amigaos4__
@@ -68,19 +68,19 @@ TInt RStdImage::Open(const char *a_pccFileName)
 			}
 			else
 			{
-				Utils::Info("RStdImage::Open() => Unable to determine size of image");
+				Utils::info("RStdImage::open() => Unable to determine size of image");
 			}
 		}
 		else
 		{
-			Utils::Info("RStdImage::Open() => Unable to obtain image BitMap");
+			Utils::info("RStdImage::open() => Unable to obtain image BitMap");
 		}
 	}
 	else
 	{
 		RetVal = KErrNotFound;
 
-		Utils::Info("RStdImage::Open() => Unable to open image \"%s\"", a_pccFileName);
+		Utils::info("RStdImage::open() => Unable to open image \"%s\"", a_pccFileName);
 	}
 
 	return(RetVal);
@@ -103,9 +103,9 @@ TInt RStdImage::Open(const char *a_pccFileName)
 }
 
 /* Written: Saturday 06-Nov-2010 8:36 am */
-/* Closes a window previously opened with Open(). */
+/* Closes a window previously opened with open(). */
 
-void RStdImage::Close()
+void RStdImage::close()
 {
 
 #ifdef __amigaos4__
@@ -129,7 +129,7 @@ void RStdImage::Close()
 
 	if (m_poBitmap)
 	{
-		DEBUGCHECK(DeleteObject(m_poBitmap), "RStdImage::Close() => Unable to delete bitmap object");
+		DEBUGCHECK(DeleteObject(m_poBitmap), "RStdImage::close() => Unable to delete bitmap object");
 		m_poBitmap = NULL;
 	}
 

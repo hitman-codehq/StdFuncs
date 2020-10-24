@@ -13,7 +13,7 @@
  * @return	Otherwise any of the errors returned by Utils::LoadFile()
  */
 
-TInt RTextFile::Open(const char *a_pccFileName)
+TInt RTextFile::open(const char *a_pccFileName)
 {
 	TInt RetVal;
 
@@ -53,7 +53,7 @@ TInt RTextFile::Open(const char *a_pccFileName)
 	}
 	else
 	{
-		Utils::Info("RTextFile::Open() => Unable to read in file \"%s\"\n", a_pccFileName);
+		Utils::info("RTextFile::open() => Unable to read in file \"%s\"\n", a_pccFileName);
 	}
 
 	return(RetVal);
@@ -67,7 +67,7 @@ TInt RTextFile::Open(const char *a_pccFileName)
  * @date	Friday 23-Jul-2010 8:02 am
  */
 
-void RTextFile::Close()
+void RTextFile::close()
 {
 	delete [] m_pcBuffer;
 	m_pcBuffer = m_pcBufferPtr = NULL;
@@ -126,7 +126,7 @@ const char *RTextFile::GetLine()
  * Rewinds the internal line pointer to the start of the file.
  * This function is useful when a file has been partially or completely read and the user wishes to reread
  * it from the beginning.  Calling this function will reset the internal line pointer to the start of the
- * file and will put the class instance back into the state it was in immediately after RTextFile::Open()
+ * file and will put the class instance back into the state it was in immediately after RTextFile::open()
  * was called.
  *
  * @date	Wednesday 24-Dec-2014 11:55 am, 325 On George

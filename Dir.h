@@ -13,7 +13,7 @@
 
 #endif /* __unix__ */
 
-/** File sorting possibilities for files returned by RDir::Read() */
+/** File sorting possibilities for files returned by RDir::read() */
 
 enum TDirSortOrder
 {
@@ -110,7 +110,7 @@ public:
 
 	void Purge();
 
-	void Remove(const TEntry *a_poEntry);
+	void remove(const TEntry *a_poEntry);
 
 	void Sort(enum TDirSortOrder a_eSortOrder);
 };
@@ -131,7 +131,7 @@ private:
 
 	char			*iPathBuffer;	/**< Ptr to memory used by iPath and iPattern buffers */
 	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
-	char			*iPattern;		/**< Pattern to be used for pattern matching in RDir::Read() */
+	char			*iPattern;		/**< Pattern to be used for pattern matching in RDir::read() */
 	DIR				*iDir;			/**< Pointer to object used for scanning directory */
 
 #else /* ! __unix__ */
@@ -140,7 +140,7 @@ private:
 
 #endif /* ! __unix__ */
 
-	TEntry			iSingleEntry;	/**< If a single entry is being examined, Open() will populate this */
+	TEntry			iSingleEntry;	/**< If a single entry is being examined, open() will populate this */
 	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */
 	TEntryArray		iEntries;		/**< Array of TEntry classes containing directory and file information */
 
@@ -156,11 +156,11 @@ public:
 
 	RDir();
 
-	TInt Open(const char *a_pccPattern);
+	TInt open(const char *a_pccPattern);
 
-	void Close();
+	void close();
 
-	TInt Read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone);
+	TInt read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone);
 };
 
 #endif /* ! DIR_H */

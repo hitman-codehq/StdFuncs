@@ -4,7 +4,7 @@
 
 /* Written: Tuesday 17-Aug-2010 7:02 am */
 
-TInt RWildcard::Open(const char *a_pccWildcard)
+TInt RWildcard::open(const char *a_pccWildcard)
 {
 	m_pccWildcard = a_pccWildcard;
 
@@ -13,8 +13,9 @@ TInt RWildcard::Open(const char *a_pccWildcard)
 
 /* Written: Tuesday 17-Aug-2010 7:03 am */
 
-void RWildcard::Close()
+void RWildcard::close()
 {
+	// TODO: CAW
 }
 
 /* Written: Tuesday 17-Aug-2010 7:09 am */

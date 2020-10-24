@@ -23,7 +23,7 @@ public:
 		m_acFileName[0] = '\0';
 	}
 
-	void Close();
+	void close();
 
 	TInt GetFileName(const char *a_pccFileName, TBool a_bSaveAs);
 

@@ -39,11 +39,11 @@ public:
 
 	RApplication();
 
-	TInt Open(const struct SStdMenuItem *a_pcoMenuItems);
+	TInt open(const struct SStdMenuItem *a_pcoMenuItems);
 
 	TInt Main();
 
-	void Close();
+	void close();
 
 	void AddWindow(CWindow *a_poWindow);
 
@@ -67,7 +67,7 @@ public:
 
 #endif /* WIN32 */
 
-	void Exit();
+	void exit();
 };
 
 #endif /* ! STDAPPLICATION_H */

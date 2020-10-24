@@ -48,12 +48,12 @@ public:
 
 	~RStdPool()
 	{
-		Close(EFalse);
+		close(EFalse);
 	}
 
 	TInt Create(TInt a_iSize, TInt a_iNumItems, TBool a_bExtensible);
 
-	void Close(TBool a_bFreeNodes);
+	void close(TBool a_bFreeNodes);
 
 	TInt Count()
 	{

@@ -42,7 +42,7 @@ RRendezvous::RRendezvous()
 
 RRendezvous::~RRendezvous()
 {
-	Close();
+	close();
 }
 
 /**
@@ -60,7 +60,7 @@ RRendezvous::~RRendezvous()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RRendezvous::Open(RApplication *a_poApplication, const char *a_pccName)
+TInt RRendezvous::open(RApplication *a_poApplication, const char *a_pccName)
 {
 	TInt RetVal;
 
@@ -108,7 +108,7 @@ TInt RRendezvous::Open(RApplication *a_poApplication, const char *a_pccName)
 		/* Open a local socket with which to read and write messages and let it know to call us when a */
 		/* message is received */
 
-		if ((RetVal = m_oLocalSocket.Open(m_pcName, a_poApplication)) == KErrNone)
+		if ((RetVal = m_oLocalSocket.open(m_pcName, a_poApplication)) == KErrNone)
 		{
 			m_oLocalSocket.SetObserver(this);
 		}
@@ -132,12 +132,12 @@ TInt RRendezvous::Open(RApplication *a_poApplication, const char *a_pccName)
  * Frees any resources associated with the class.
  * This method performs the same functions as the destructor, but allows the user to call it when
  * manual deinitialisation of the class is required.  After completion, the class instance can be
- * reused by calling RRendezvous::Open() again.
+ * reused by calling RRendezvous::open() again.
  *
  * @date	Friday 01-May-2015 1:39 pm, Code HQ Ehinger Tor
  */
 
-void RRendezvous::Close()
+void RRendezvous::close()
 {
 	delete [] m_pcName;
 	m_pcName = NULL;
@@ -163,7 +163,7 @@ void RRendezvous::Close()
 
 	/* And close the underlying Qt local socket */
 
-	m_oLocalSocket.Close();
+	m_oLocalSocket.close();
 
 #endif /* QT_GUI_LIB */
 
@@ -290,7 +290,7 @@ TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 
 	if (!m_oLocalSocket.IsServer())
 	{
-		if (m_oLocalSocket.Write(a_pcucData, a_iDataSize) == KErrNone)
+		if (m_oLocalSocket.write(a_pcucData, a_iDataSize) == KErrNone)
 		{
 			RetVal = ETrue;
 		}

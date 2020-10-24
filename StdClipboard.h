@@ -56,9 +56,9 @@ public:
 
 	}
 
-	TInt Open(CWindow *a_poWindow);
+	TInt open(CWindow *a_poWindow);
 
-	void Close();
+	void close();
 
 	int SetDataStart(size_t a_stMaxLength);
 
