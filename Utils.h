@@ -128,6 +128,8 @@ public:
 	static ULONG Blue32(unsigned long a_ulColour);
 
 	static ULONG ReverseRGB(unsigned long a_ulColour);
+
+	static void swap32(uint32_t *value);
 };
 
 /* Various assertion type macros which only do anything in debug builds */

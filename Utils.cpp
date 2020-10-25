@@ -3278,3 +3278,26 @@ ULONG Utils::ReverseRGB(unsigned long a_ulColour)
 
 	return(RetVal);
 }
+
+/**
+ * Swaps endianness of a 32 bit word.
+ * Reverses the endianness of the word that is passed in.  The word is swapped in place, making it
+ * convenient to call this method call from a conditionally defined macro.
+ *
+ * @date	Saturday 24-Oct-2020 7:04 am, Code HQ Bergmannstrasse
+ * @param	value		The word to have its bytes swapped
+ */
+
+void Utils::swap32(uint32_t *value)
+{
+	unsigned char temp;
+	unsigned char *number = (unsigned char *) value;
+
+	temp = number[0];
+	number[0] = number[3];
+	number[3] = temp;
+
+	temp = number[1];
+	number[1] = number[2];
+	number[2] = temp;
+}
