@@ -74,6 +74,10 @@ MungWall::~MungWall()
 			paArena = paArena->paNext;
 		}
 	}
+
+	/* Ensure that the arena list is empty, just in case any further calls are made to MungWall */
+
+	paFirstArena = NULL;
 }
 
 /***************************************************************************/
@@ -209,6 +213,14 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 void MungWall::Delete(void *pvBlock, const char *pccSourceFile, int iSourceLine, BOOL bHasSource)
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
+
+	/* If the arena list is empty then return without doing anything.  This probably means that we are */
+	/* being called after MungWall has been destroyed, so nothing can be done anyway */
+
+	if (!paFirstArena)
+	{
+		return;
+	}
 
 	if (pvBlock)
 	{
