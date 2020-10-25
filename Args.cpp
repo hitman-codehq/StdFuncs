@@ -2,17 +2,14 @@
 #include "StdFuncs.h"
 #include "Lex.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/icon.h>
 #include <workbench/startup.h>
 
-#else /* ! __amigaos4__ */
+#endif /* __amigaos__ */
 
 #include <stdio.h>
-
-#endif /* ! __amigaos4__ */
-
 #include <string.h>
 #include "Args.h"
 
@@ -262,7 +259,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 
 /* Written: Saturday 10-Jan-2009 3:12 pm */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBStartup *a_poWBStartup)
 {
@@ -467,7 +464,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 	return(RetVal);
 }
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /* Written: Sunday 04-Nov-2007 11:52 am */
 

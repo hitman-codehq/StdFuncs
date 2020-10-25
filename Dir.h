@@ -43,7 +43,7 @@ public:
 	TUint				iAttributes;		/**< Protection attributes, in Amiga/UNIX/Windows format */
 	TTime				iModified;			/**< Time and date of the file */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct DateStamp	iPlatformDate;		/**< Date and time in Amiga specific format */
 
@@ -121,7 +121,7 @@ class RDir
 {
 private:
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
 	char			*iPattern;		/**< Pattern to be used for MatchPatternNoCase() */

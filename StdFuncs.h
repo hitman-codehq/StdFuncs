@@ -2,7 +2,7 @@
 #ifndef STDFUNCS_H
 #define STDFUNCS_H
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/exec.h>
 #include <proto/dos.h>

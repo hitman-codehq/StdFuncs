@@ -23,7 +23,7 @@ private:
 	const char	*m_pccCurrentGetData;	/**< Ptr to current line of clipboard data being read */
 	char		*m_pcSetData;			/**< Ptr to buffer containing data to be written */
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	size_t		m_stDataSize;			/**< Size of buffer to be written */
 

@@ -18,7 +18,7 @@
 RFile::RFile()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_uiFileMode = m_oHandle = 0;
 
@@ -61,7 +61,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	(void) a_uiFileMode;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TEntry Entry;
 
@@ -248,7 +248,7 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 	if ((ResolvedFileName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
 	{
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		/* Open the existing file.  We want to open it as having an exclusive lock */
 		/* and being read only if EFileWrite is not specified but neither of */
@@ -385,7 +385,7 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 
 	ASSERTM(m_oHandle, "RFile::read() => File is not open");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	RetVal = IDOS->Read(m_oHandle, a_pucBuffer, a_iLength);
 
@@ -455,7 +455,7 @@ TInt RFile::seek(TInt a_iBytes)
 
 	RetVal = KErrGeneral;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	if (IDOS->ChangeFilePosition(m_oHandle, a_iBytes, OFFSET_BEGINNING))
 	{
@@ -504,7 +504,7 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 	ASSERTM(m_oHandle, "RFile::write() => File is not open");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Only allow writing if the file was opened using the EFileWrite file mode.  Amiga OS */
 	/* doesn't support this functionality so we have to emulate it */
@@ -565,7 +565,7 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 void RFile::close()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	if (m_oHandle != 0)
 	{

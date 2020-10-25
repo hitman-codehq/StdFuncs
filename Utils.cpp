@@ -2,7 +2,7 @@
 #include "StdFuncs.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/exec.h>
 #include <proto/intuition.h>
@@ -38,7 +38,7 @@
 #include <string.h>
 #include "File.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #define MAX_NAME_FROM_LOCK_LENGTH 1024
 
@@ -143,7 +143,7 @@ TInt Utils::MapLastError()
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	LONG Result;
 
@@ -336,11 +336,11 @@ TBool Utils::addPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSiz
 {
 	TBool RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_stDestSize);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	char Char;
 	size_t Length;
@@ -384,7 +384,7 @@ TBool Utils::addPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSiz
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	return(RetVal);
 }
@@ -520,7 +520,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	BPTR Lock;
 
@@ -889,7 +889,7 @@ const char *Utils::filePart(const char *a_pccPath)
  * @return	ETrue if successful, else EFalse
  */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory)
 {
@@ -942,7 +942,7 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 	return(RetVal);
 }
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /**
  * Obtains information about a given file or directory.
@@ -1272,7 +1272,7 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 	a_roScreenSize.m_iWidth = 640;
 	a_roScreenSize.m_iHeight = 480;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	(void) a_poWindow;
 
@@ -1380,7 +1380,7 @@ int Utils::GetShellHeight()
 
 	RetVal = -1;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char Buffer[32], *BufferPtr, Length, Char;
 	TInt Result;
@@ -1659,7 +1659,7 @@ void Utils::info(const char *a_pccMessage, ...)
 	strcpy(Message, "Info: " );
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	IExec->DebugPrintF("%s\n", Message);
 
@@ -2196,7 +2196,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 {
 	char *RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TBool LockedFile;
 	TInt Result;
@@ -2467,7 +2467,7 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 		RetVal = NULL;
 		Ok = EFalse;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		BPTR Lock;
 
@@ -2732,7 +2732,7 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 	TInt RetVal;
 	TEntry Entry;
 
-#if defined(__amigaos4__) || defined(__unix__)
+#if defined(__amigaos__) || defined(__unix__)
 
 	/* Get the current file attributes as the chmod() function only lets us set all attributes, */
 	/* not just a single one */
@@ -2742,15 +2742,15 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 	{
 		/* Now make the file writeable so that we can delete it */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		Entry.iAttributes &= ~EXDF_NO_DELETE;
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 		Entry.iAttributes |= S_IWUSR;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 		RetVal = Utils::setProtection(a_pccFileName, Entry.iAttributes);
 	}
@@ -2787,7 +2787,7 @@ TInt Utils::setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	(void) a_bResolveLink;
 
@@ -2887,7 +2887,7 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	if (IDOS->SetProtection(a_pccFileName, a_uiAttributes))
 	{

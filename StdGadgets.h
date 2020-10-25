@@ -2,7 +2,7 @@
 #ifndef STDGADGETS_H
 #define STDGADGETS_H
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <intuition/classes.h>
 
@@ -49,7 +49,7 @@ protected:
 	CWindow					*m_poParentWindow;	/**< Ptr to window that owns this gadget */
 	enum TStdGadgetType		m_iGadgetType;		/**< Type of gadget */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	Object					*m_poGadget;		/**< Ptr to underlying BOOPSI gadget */
 
@@ -244,7 +244,7 @@ private:
 	char		**m_ppcPartsText;				/**< Ptr to an array of ptrs to text strings */
 	TInt		m_iNumParts;					/**< Number of parts within the gadget */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	Object		**m_poPartsGadgets;				/**< Ptr to an array of ptrs to parts labels */
 

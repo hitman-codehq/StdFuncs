@@ -5,7 +5,7 @@
 /* A small header to avoid having to repeat this sequence in each framework */
 /* implementation file */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #define ALL_REACTION_CLASSES
 #define ALL_REACTION_MACROS

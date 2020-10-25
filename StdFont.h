@@ -25,13 +25,13 @@ class RFont
 {
 private:
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	TInt		m_iBaseline;		/**< Distance from the top of char to baseline */
 
 #endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	LONG		m_alPens[STDFONT_NUM_COLOURS]; /* Array of pens found using IGraphics->ObtainBestPen() */
 	struct TextFont	*m_poFont;		/**< Amiga font with which to render */

@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
@@ -60,7 +60,7 @@ TBool CWindow::m_bMetaPressed;		/* ETrue if meta is currently pressed */
 TBool CWindow::m_bShiftPressed;		/* ETrue if shift is currently pressed */
 TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /* Written: Saturday 20-Nov-2010 11:05 am */
 
@@ -737,7 +737,7 @@ void CWindow::Activate()
 {
 	ASSERTM(m_poWindow, "CWindow::Activate() => Window must already be open");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
 	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
@@ -812,7 +812,7 @@ TInt CWindow::AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem)
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 /**
  * Adds a menu item to an already existing dropdown menu.
@@ -961,7 +961,7 @@ TInt CWindow::AddMenuItem(const struct SStdMenuItem *a_pcoMenuItem, void *a_pvDr
 	return(RetVal);
 }
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 /**
  * Adds a menu item to an already existing dropdown menu.
@@ -989,13 +989,13 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
 {
 	TInt RetVal;
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 	struct SStdMenuItem MenuItem = { a_eMenuItemType, a_pccLabel, a_pccHotKey, STD_KEY_ALT, a_iCommand };
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Only perform the action if the menus have been created */
 
@@ -1122,7 +1122,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	m_oGadgets.addTail(a_poLayoutGadget);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
@@ -1171,7 +1171,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 void CWindow::CheckMenuItem(TInt a_iItemID, TBool a_bEnable)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Only perform the action if the menus have been created */
 
@@ -1232,7 +1232,7 @@ TBool CWindow::createMenus()
 
 	MenuItem = m_poApplication->MenuItems();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ASSERTM((m_poAmiMenus == NULL), "CWindow::createMenus() => Menus can only be created once");
 
@@ -1552,7 +1552,7 @@ void CWindow::BringToFront()
 {
 	ASSERTM(m_poWindow, "CWindow::BringToFront() => Window must already be open");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* First bring the screen to the front */
 
@@ -1590,7 +1590,7 @@ void CWindow::BringToFront()
 void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidth)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
@@ -1606,7 +1606,7 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 	}
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	// TODO: CAW - Implement this + comment this function
 	(void) a_iY;
@@ -1614,7 +1614,7 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 	(void) a_iX;
 	(void) a_iWidth;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 }
 
@@ -1624,7 +1624,7 @@ void CWindow::close()
 {
 	CStdGadget *LayoutGadget;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Destroy the window's menus and associated resources */
 
@@ -1710,7 +1710,7 @@ void CWindow::close()
 void CWindow::CompleteOpen()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ASSERTM(m_poWindowObj, "CWindow::CompleteOpen() => Reaction window must already be open");
 
@@ -1718,7 +1718,7 @@ void CWindow::CompleteOpen()
 
 	IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	/* Add this dialog to the application so that messages can be routed appropriately */
 
@@ -1734,7 +1734,7 @@ void CWindow::DrawNow()
 	/* into account that the bottom pixel offset is exclusive, thus adding 1 on */
 	/* the platforms required */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	DrawNow(0, (m_poWindow->BorderTop + m_iInnerHeight + 1));
 
@@ -1780,7 +1780,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	ASSERTM((a_iBottom >= 0), "CWindow::DrawNow() => Y offset to draw to must not be negative");
 	ASSERTM((a_iTop <= a_iBottom), "CWindow::DrawNow() => Y offset start must be less than Y offset stop");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	int Bottom, Top;
 	std::vector<SRegion>::iterator it;
@@ -1919,7 +1919,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Only perform the action if the menus have been created */
 
@@ -1950,7 +1950,7 @@ void CWindow::EnableMenuItem(TInt a_iItemID, TBool a_bEnable)
 
 }
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /* Written: Saturday 06-Nov-2010 8:27 am */
 
@@ -2341,7 +2341,7 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
 
 	RetVal = EFalse;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Only perform the action if the menus have been created */
 
@@ -2416,7 +2416,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	RetVal = KErrGeneral;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct SRect ScreenSize;
 
@@ -2712,7 +2712,7 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	m_oGadgets.remove(a_poLayoutGadget);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Remove it from the top level Reaction layout */
 
@@ -2829,7 +2829,7 @@ TInt CWindow::RemoveAccelerator(TInt a_iCommand)
 void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	(void) a_iOrdinal;
 
@@ -2909,7 +2909,7 @@ void CWindow::rethinkLayout()
 {
 	CStdGadgetLayout *LayoutGadget;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Rethink the layout gadget sizes, starting from the root gadget that holds them */
 
@@ -2925,7 +2925,7 @@ void CWindow::rethinkLayout()
 		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
 	}
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	TInt InnerHeight, Height, MinHeight, RemainderHeight, Y;
 
@@ -3002,7 +3002,7 @@ void CWindow::rethinkLayout()
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 }
 
@@ -3101,7 +3101,7 @@ TBool CWindow::ShiftPressed()
 void CWindow::UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	(void) a_iOrdinal;
 

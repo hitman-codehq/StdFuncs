@@ -61,7 +61,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	RetVal = KErrNoMemory;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Use the Layout gadget's weighting system to make the String gadgets as small as possible */
 
@@ -321,7 +321,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 {
 	int Index;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	delete [] m_poPartsGadgets;
 
@@ -471,7 +471,7 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 			strcpy(m_ppcPartsText[a_iPart], a_pccText);
 		}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
 			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);

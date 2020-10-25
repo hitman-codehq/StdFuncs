@@ -261,14 +261,14 @@ void CDialog::close()
 
 	CWindow::close();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* And free the gadget ID -> APTR mappings */
 
 	delete [] m_poGadgetMappings;
 	m_poGadgetMappings = NULL;
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 }
 
@@ -280,7 +280,7 @@ void CDialog::close()
 void CDialog::CheckGadget(TInt a_iGadgetID)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	APTR Gadget;
 
@@ -321,7 +321,7 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	APTR Gadget;
 
@@ -360,7 +360,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 }
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /**
  * Scans the requester's list of gadgets for a particular ID.
@@ -394,7 +394,7 @@ Object *CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
 	return(RetVal);
 }
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /* Written: Saturday 27-Aug-2010 10:12 am */
 /* @param	a_iGadgetID	ID of the gadget whose value to obtain */
@@ -408,7 +408,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	Object *Gadget;
 
@@ -485,7 +485,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	RetVal = KErrNotFound;
 	Length = 1;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	const char *Text;
 	Object *Gadget;
@@ -592,7 +592,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			{
 				m_iTextBufferSize = Length;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 				/* For Amiga OS we already have a ptr to the text so just make a copy of it */
 
@@ -697,7 +697,7 @@ QWidget	*CDialog::GetQtWidget(int a_iGadgetID)
 void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt Length;
 	APTR Gadget;
@@ -759,7 +759,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	RetVal = EFalse;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ULONG Checked;
 	Object *Gadget;
@@ -811,7 +811,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 		close(IDCANCEL);
 	}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ULONG Disabled;
 	Object *Gadget;
@@ -837,7 +837,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 		}
 	}
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(EFalse);
 }
@@ -847,7 +847,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	APTR Gadget;
 
@@ -885,7 +885,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	APTR Gadget;
 
@@ -938,7 +938,7 @@ void CDialog::SetMappingTable(const struct SStdGadgetMapping *a_pcoMappings, int
 
 #endif /* QT_GUI_LIB */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /* Written: Saturday 12-Jan-2012 12:20 pm */
 /* @param	a_poHook	Ptr to a standard Amiga OS Hook structure, used by all hooks */
@@ -1001,4 +1001,4 @@ TInt CDialog::DoStringEditHook(struct Hook * /*a_poHook */, struct SGWork *a_poW
 	return(RetVal);
 }
 
-#endif /*__amigaos4__ */
+#endif /*__amigaos__ */

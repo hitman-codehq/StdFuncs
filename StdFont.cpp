@@ -3,7 +3,7 @@
 #include "StdFont.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/diskfont.h>
 #include <proto/graphics.h>
@@ -105,7 +105,7 @@ RFont::RFont(CWindow *a_poWindow)
 	m_iNumSizes = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	unsigned long Red, Green, Blue;
 	TInt Index;
@@ -178,7 +178,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 	ASSERTM((a_iSize > 0), "RFont::open() => a_iSize must be > 0");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct TextAttr TextAttr;
 
@@ -357,7 +357,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 void RFont::close()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* If a user defined font was loaded and assigned to the rastport, set the rastport's font back */
 	/* to the default and free the font */
@@ -508,7 +508,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	ASSERTM(m_poWindow, "RFont::DrawCursor() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawCursor() => RFont::Begin() must be called before RFont::DrawCursor()");
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	char Buffer[4];
 	int Size;
@@ -538,11 +538,11 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 		a_uiCharacter >>= 8;
 	}
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	(void) a_uiCharacter;
 
-#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	/* Invert the current highlight state before drawing the cursor and draw the letter under */
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
@@ -553,7 +553,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 		SetHighlight(!(m_bHighlight));
 	}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	PLANEPTR PlanePtr;
 	ULONG OldDrawMode;
@@ -700,7 +700,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 	ASSERTM(m_poWindow, "RFont::DrawText() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawText() => RFont::Begin() must be called before RFont::DrawText()");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
@@ -818,7 +818,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawColouredText() => RFont::Begin() must be called before RFont::DrawColouredText()");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt NumChars, Width;
 	struct TextExtent TextExtent;
@@ -1132,7 +1132,7 @@ void RFont::SetHighlight(TBool a_bHighlight)
 
 	/* Toggle the text highlight on or off as appropriate */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 

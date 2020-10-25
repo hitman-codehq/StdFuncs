@@ -25,7 +25,7 @@ class RFile
 {
 private:
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TUint	m_uiFileMode;	/* Mode in which file was opened for access */
 	BPTR	m_oHandle;		/* Handle to the open file or 0 if closed */

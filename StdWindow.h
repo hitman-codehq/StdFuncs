@@ -5,11 +5,11 @@
 #include <vector>
 #include "StdGadgets.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <intuition/classes.h>
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /* Forward declarations to reduce the # of includes required */
 
@@ -80,7 +80,7 @@ private:
 	TBool				m_bFillBackground;			/**< ETrue to fill background when drawing */
 	CWindow				*m_poNext;					/**< Ptr to next window in list */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	bool				m_bPerformingRedraw;		/**< true if we are redrawing the dirty region */
 	std::vector<SRegion>	m_voDirtyRegions;		/**< List of dirty regions waiting to be drawn */
@@ -114,7 +114,7 @@ protected:
 
 public:
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	CAmiMenus			*m_poAmiMenus;				/**< Ptr to instance of Amiga menu helper class */
 	Object				*m_poWindowObj;				/**< Ptr to underlying Reaction window */
@@ -153,7 +153,7 @@ private:
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
 

@@ -39,11 +39,11 @@ CStdGadget::~CStdGadget()
 TInt CStdGadget::X()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	IIntuition->GetAttr(GA_Left, m_poGadget, (ULONG *) &m_iX);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(m_iX);
 }
@@ -53,11 +53,11 @@ TInt CStdGadget::X()
 TInt CStdGadget::Y()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	IIntuition->GetAttr(GA_Top, m_poGadget, (ULONG *) &m_iY);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(m_iY);
 }
@@ -75,7 +75,7 @@ TInt CStdGadget::Width()
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	// TODO: CAW - Assert on gadget being added to the screen, here and below
 	/* If the gadget is not hidden then query it for its width, which is set */
@@ -92,11 +92,11 @@ TInt CStdGadget::Width()
 		RetVal = 0;
 	}
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	RetVal = (m_bHidden) ? 0 : m_iWidth;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	return(RetVal);
 }
@@ -114,7 +114,7 @@ TInt CStdGadget::Height()
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* If the gadget is not hidden then query it for its height, which is set */
 	/* dynamically and can only be queried after the gadget has been layed out */
@@ -130,11 +130,11 @@ TInt CStdGadget::Height()
 		RetVal = 0;
 	}
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	RetVal = (m_bHidden) ? 0 : m_iHeight;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	return(RetVal);
 }
@@ -165,14 +165,14 @@ TInt CStdGadget::MinHeight()
 void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 {
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	(void) a_iX;
 	(void) a_iY;
 
 	DEBUGFAILURE("CStdGadget::SetPosition() => Must not be called on this platform");
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	if (a_iX == -1)
 	{
@@ -186,7 +186,7 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, a_iX, a_iY, 0, 0, (SWP_NOSIZE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetPosition() => Unable to set gadget position");
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 }
 
@@ -202,14 +202,14 @@ void CStdGadget::SetPosition(TInt a_iX, TInt a_iY)
 void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 {
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	(void) a_iWidth;
 	(void) a_iHeight;
 
 	DEBUGFAILURE("CStdGadget::SetSize() => Must not be called on this platform");
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	if (a_iWidth == -1)
 	{
@@ -223,7 +223,7 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 
 	DEBUGCHECK((SetWindowPos(m_poGadget, 0, 0, 0, a_iWidth, a_iHeight, (SWP_NOMOVE | SWP_NOZORDER)) != FALSE), "CStdGadget::SetSize() => Unable to set gadget size");
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 }
 
@@ -248,7 +248,7 @@ void CStdGadget::SetVisible(bool a_bVisible)
 
 	/* And hide the underlying OS specific gadget */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back, */
 	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */

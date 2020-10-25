@@ -4,7 +4,7 @@
 #include "StdClipboard.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/textclip.h>
 
@@ -24,13 +24,13 @@ TInt RClipboard::open(CWindow *a_poWindow)
 	ASSERTM((a_poWindow != NULL), "RClipboard::open() => Window passed in is not open");
 	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::open() => Native window passed in is not open");
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	(void) a_poWindow;
 
 	RetVal = KErrNone;
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	RetVal = (OpenClipboard(a_poWindow->m_poWindow)) ? KErrNone : KErrGeneral;
 
@@ -39,7 +39,7 @@ TInt RClipboard::open(CWindow *a_poWindow)
 		Utils::info("RClipboard::open() => Unable to open clipboard");
 	}
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	return(RetVal);
 }
@@ -118,7 +118,7 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 
 	RetVal = KErrNoMemory;
 
-#if defined(__amigaos4__) || defined(QT_GUI_LIB)
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
 
 	/* Allocate a temporary buffer into which the client can write its data */
 
@@ -133,7 +133,7 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 		m_pcSetData[m_stDataSize] = '\0';
 	}
 
-#else /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	/* Empty the clipboard of its previous contents, thus also taking ownership of it */
 
@@ -169,7 +169,7 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 		Utils::info("RClipboard::SetDataStart() => Unable to claim ownership of clipboard");
 	}
 
-#endif /* ! defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 	return(RetVal);
 }
@@ -189,7 +189,7 @@ void RClipboard::SetDataEnd()
 {
 	ASSERTM((m_pcSetData != NULL), "RClipboard::SetDataEnd() => SetDataStart() must be called first");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Write the block of data to the clipboard */
 
@@ -246,7 +246,7 @@ const char *RClipboard::GetDataStart()
 
 	RetVal = NULL;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ULONG Size;
 
@@ -306,7 +306,7 @@ void RClipboard::GetDataEnd()
 {
 	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => SetDataStart() must be called first");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ITextClip->DisposeClipVector((STRPTR) m_pccGetData);
 

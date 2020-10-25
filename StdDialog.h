@@ -15,7 +15,7 @@ enum TStdEventType
 	EStdEventChange = 0x0300		/**< Gadget contents have changed */
 };
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /* Each instance of this structure represents an Amiga OS gadget mapping */
 
@@ -62,7 +62,7 @@ protected:
 	TInt					m_iTextBufferSize;		/**< Size of scratch buffer, in bytes */
 	TInt					m_iNumGadgetMappings;	/**< Number of entries in m_poGadgetMappings */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct SStdGadgetMapping *m_poGadgetMappings;	/**< Array of gadget ID -> APTR mappings */
 	struct SGWork			*m_poEditHookData;		/**< If non NULL, a string gadget is being edited */
@@ -89,11 +89,11 @@ protected:
 
 	void EnableGadget(TInt a_iGadgetID, TBool a_bEnable);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	Object *GetBOOPSIGadget(TInt a_iGadgetID);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	TInt GetGadgetInt(TInt a_iGadgetID);
 
@@ -129,13 +129,13 @@ public:
 
 	virtual ~CDialog();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	static TInt	StringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
 
 	TInt DoStringEditHook(struct Hook *a_poHook, struct SGWork *a_poWork, TUint *a_pulMessage);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	/* Functions that can be implemented by client software */
 

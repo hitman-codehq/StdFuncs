@@ -1,7 +1,7 @@
 
 #include "StdFuncs.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/exec.h>
 #include <proto/utility.h>
@@ -38,7 +38,7 @@ TEntry::TEntry()
 	iIsDir = iIsLink = EFalse;
 	iSize = 0;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	iAttributes = EXDF_NO_EXECUTE;
 
@@ -100,7 +100,7 @@ TBool TEntry::IsLink() const
 TBool TEntry::IsHidden() const
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Amiga OS does not have the concept of hidden files */
 
@@ -126,7 +126,7 @@ TBool TEntry::IsHidden() const
 TBool TEntry::IsReadable() const
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	return((iAttributes & EXDF_NO_READ) == 0);
 
@@ -147,7 +147,7 @@ TBool TEntry::IsReadable() const
 TBool TEntry::IsWriteable() const
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	return((iAttributes & EXDF_NO_WRITE) == 0);
 
@@ -168,7 +168,7 @@ TBool TEntry::IsWriteable() const
 TBool TEntry::IsExecutable() const
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	return((iAttributes & EXDF_NO_EXECUTE) == 0);
 
@@ -189,7 +189,7 @@ TBool TEntry::IsExecutable() const
 TBool TEntry::IsDeleteable() const
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	return((iAttributes & EXDF_NO_DELETE) == 0);
 
@@ -380,7 +380,7 @@ void TEntryArray::Sort(enum TDirSortOrder a_eSortOrder)
 RDir::RDir()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	iPath = NULL;
 	iPattern = NULL;
@@ -520,7 +520,7 @@ TInt RDir::open(const char *a_pccPattern)
 		}
 	}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	const char *Pattern;
 	TInt Length;
@@ -789,7 +789,7 @@ void RDir::close()
 
 	iEntries.Purge();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	delete [] iPath;
 	iPath = NULL;
@@ -852,7 +852,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 	RetVal = KErrNone;
 	a_rpoEntries = &iEntries;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char *LinkName;
 	TBool AddFile;

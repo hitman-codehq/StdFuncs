@@ -147,7 +147,7 @@ TBool TDateTime::IsLeapYear(TInt a_iYear)
 void TTime::HomeTime()
 {
 
-#if defined(__amigaos4__) || defined(__unix__)
+#if defined(__amigaos__) || defined(__unix__)
 
 	time_t TimeInSeconds;
 	struct tm *LocalTime;
