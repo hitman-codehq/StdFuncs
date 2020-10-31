@@ -72,7 +72,6 @@ TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 
 void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
 {
-	struct IntuiWheelData *IntuiWheelData;
 	struct TagItem *TagItem;
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
@@ -82,19 +81,24 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 
 	Window = (CWindow *) a_poHook->h_Data;
 
+#ifdef __amigaos4__
+
 	/* If this is a mouse wheel event then convert the delta to a Qt/Windows style reading */
 	/* (+/- 120 per notch) and notify the window */
 
 	if (a_poIntuiMessage->Class == IDCMP_EXTENDEDMOUSE)
 	{
-		IntuiWheelData = (struct IntuiWheelData *) a_poIntuiMessage->IAddress;
+		struct IntuiWheelData *IntuiWheelData = (struct IntuiWheelData *) a_poIntuiMessage->IAddress;
 		Window->HandleWheelEvent(-IntuiWheelData->WheelY * 120);
 	}
+	else
+
+#endif /* __amigaos4__ */
 
 	/* If this is a message from a BOOPSI object saying that it has been updated, find the object and */
 	/* map it onto its matching gadget and call the gadget's Updated() function */
 
-	else if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
+	if (a_poIntuiMessage->Class == IDCMP_IDCMPUPDATE)
 	{
 		/* Get the gadget's unique ID */
 
