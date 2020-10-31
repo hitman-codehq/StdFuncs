@@ -651,7 +651,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
  * specified ID.  This can be used in place of QObject::findChild(), which can only work with
  * textual strings IDs.
  *
- * @date	Sunday 05-Mar-2017 8:37 am, Code HQ Bergmannstraße
+ * @date	Sunday 05-Mar-2017 8:37 am, Code HQ Bergmannstrasse
  * @param	a_iGadgetID		ID of the gadget to be found
  * @return	Pointer to the Qt widget if successful, else NULL if not found
  */

@@ -1069,7 +1069,7 @@ TInt RFont::GetNextSize(TInt a_iSize, TBool a_bLarger)
  * systems that support proportional fonts the width of the text can be calculated.  This means
  * that you cannot take an arbitrary X offset on the screen and convert it to a character offset.
  *
- * @date	10-May-2018 7:33 am Code HQ Bergmannstraﬂe
+ * @date	10-May-2018 7:33 am Code HQ Bergmannstrasse
  * @param	a_roText	Pointer to the string for use in the calculation
  * @param	a_iPixelX	The horizontal pixel offset to be converted
  * @param	a_iLength	The length of the text, in characters
@@ -1241,7 +1241,7 @@ void RFont::SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt
  * Determines how many horizontal pixels are required to display a string.  This method is not
  * UTF-8 aware.
  *
- * @date	Tuesday 29-May-2018 7:06 am, Code HQ Bergmannstraﬂe
+ * @date	Tuesday 29-May-2018 7:06 am, Code HQ Bergmannstrasse
  * @param	a_pccText	Pointer to the string for which to calculate the width
  * @param	a_iLength	The length of the text, in characters
  * @return	The number of horizontel pixels required to display the string
@@ -1279,7 +1279,7 @@ int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
  * Determines how many horizontal pixels are required to display a string.  This method is not
  * UTF-8 aware.
  *
- * @date	Wednesday 28-Mar-2018 7:09 am, Code HQ Bergmannstraﬂe
+ * @date	Wednesday 28-Mar-2018 7:09 am, Code HQ Bergmannstrasse
  * @param	a_roText	Pointer to the string for which to calculate the width
  * @return	The number of horizontel pixels required to display the string
  */

@@ -565,7 +565,7 @@ void operator delete [](void *pvBlock) DELETE_THROW
  * Deletes a block of memory.
  * Intercepts all global deletes and will calls Mungwall::Free() to handle the deletion.
  *
- * @date	Thursday 30-May-2019 4:20 pm, Code HQ Bergmannstraße
+ * @date	Thursday 30-May-2019 4:20 pm, Code HQ Bergmannstrasse
  * @param	pvBlock			Pointer to the user's buffer to delete
  */
 
@@ -588,7 +588,7 @@ void operator delete(void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
  * Deletes a block of memory containing an array of objects.
  * Intercepts all global array deletes and will calls Mungwall::Delete() to handle the deletion.
  *
- * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstraße
+ * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstrasse
  * @param	pvBlock			Pointer to the user's buffer to delete
  */
 

@@ -144,7 +144,7 @@ TInt CStdGadget::Height()
  * Returns the minimum height of the gadget, taking into account whether or not the
  * gadget is visible.  Hidden gadgets return a height of zero.
  *
- * @date	Wednesday 23-Nov-2011 6:37 am, Code HQ Söflingen
+ * @date	Wednesday 23-Nov-2011 6:37 am, Code HQ Soeflingen
  * @return	The minimum height of the gadget in pixels
  */
 
@@ -235,7 +235,7 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 * zero pixels high and zero pixels wide.  The gadget remains on the window's
 * list of gadgets but is now invisible to the eye.
 *
-* @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Würzburg
+* @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Wuerzburg
 * @param	a_bVisible		true to make gadget visible, else false to hide it
 */
 

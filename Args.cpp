@@ -546,7 +546,7 @@ TInt RArgs::Count()
 	return(m_iNumArgs);
 }
 
-/* Written: Saturday 29-Oct-2011 8:05 am, Code HQ Söflingen */
+/* Written: Saturday 29-Oct-2011 8:05 am, Code HQ Soeflingen */
 
 TInt RArgs::CountMultiArguments()
 {
@@ -746,7 +746,7 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 	return(RetVal);
 }
 
-/* Written: Saturday 29-Oct-2011 7:28 am, Code HQ Söflingen */
+/* Written: Saturday 29-Oct-2011 7:28 am, Code HQ Soeflingen */
 
 void RArgs::FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions)
 {

@@ -187,7 +187,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 }
 
-/* Written: Saturday 15-Oct-2011 2:46 pm, Code HQ Söflingen */
+/* Written: Saturday 15-Oct-2011 2:46 pm, Code HQ Soeflingen */
 /* @param	a_pvGadget	Ptr to the native gadget to be searched for */
 /* @return	A ptr to the standard gadget that contains the native gadget, */
 /*			if found, else NULL */
@@ -256,7 +256,7 @@ TInt CStdGadgetLayout::GetSpacing()
 
 }
 
-/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Söflingen */
+/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Soeflingen */
 
 void CStdGadgetLayout::rethinkLayout()
 {
@@ -350,7 +350,7 @@ void CStdGadgetLayout::rethinkLayout()
 	}
 }
 
-/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Söflingen */
+/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Soeflingen */
 
 void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
@@ -403,7 +403,7 @@ TInt CStdGadgetLayout::X()
 	return(m_iX);
 }
 
-/* Written: Tuesday 18-Oct-2011 7:15 am, Code HQ Söflingen */
+/* Written: Tuesday 18-Oct-2011 7:15 am, Code HQ Soeflingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
 /* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
@@ -426,7 +426,7 @@ TInt CStdGadgetLayout::Y()
  * Returns the minimum height of the layout gadget, based on the minimum size of the
  * gadgets that are attached to it.
  *
- * @date	Wednesday 23-Nov-2011 6:45 am, Code HQ Söflingen
+ * @date	Wednesday 23-Nov-2011 6:45 am, Code HQ Soeflingen
  * @return	The minimum height of the gadget in pixels
  */
 

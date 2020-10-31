@@ -2701,7 +2701,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  * This function will remove the given layout gadget from the window's internal list of layouts,
  * and will also remove it from the underlying OS specific window.
  *
- * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Söflingen
+ * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Soeflingen
  * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
  */
 
@@ -2904,7 +2904,7 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 }
 
-/* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Söflingen */
+/* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Soeflingen */
 
 void CWindow::rethinkLayout()
 {
@@ -3053,7 +3053,7 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
  * order to use that key in shortcut sequences.  Note that the meta key differs
  * subtly between operating systems.
  *
- * @date	29-May03-2018 8:21 am, Code HQ Bergmannstraße
+ * @date	29-May03-2018 8:21 am, Code HQ Bergmannstrasse
  * @return	ETrue if the meta key is pressed, else EFalse
  */
 
