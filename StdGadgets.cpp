@@ -5,7 +5,11 @@
 #include "StdReaction.h"
 #include "StdWindow.h"
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos__
+
+#include <gadgets/layout.h>
+
+#elif defined(QT_GUI_LIB)
 
 #include <QtWidgets/QWidget>
 

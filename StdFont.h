@@ -29,7 +29,7 @@ private:
 
 	TInt		m_iBaseline;		/**< Distance from the top of char to baseline */
 
-#endif /* defined(__amigaos4__) || defined(QT_GUI_LIB) */
+#endif /* defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos__
 

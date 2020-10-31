@@ -4,7 +4,7 @@
 #include "StdWindow.h"
 #include <string.h>
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <proto/asl.h>
 
@@ -142,7 +142,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	RootWindow = CWindow::RootWindow();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char *Drawer, *QualifiedFileName;
 	TInt QualifiedFileNameLength;

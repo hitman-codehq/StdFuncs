@@ -10,7 +10,7 @@
 
 #endif /* __unix__ */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #define DELETE_FILE(FileName) Delete(FileName)
 
@@ -70,7 +70,7 @@ TInt BaflUtils::RenameFile(const char *a_pccOldFullName, const char *a_pccNewFul
 {
 	TInt RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	RetVal = (Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
 

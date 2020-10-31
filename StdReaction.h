@@ -12,7 +12,8 @@
 
 #include <proto/intuition.h>
 #include <reaction/reaction.h>
+#include <reaction/reaction_macros.h>
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 #endif /* ! STDREACTION_H */

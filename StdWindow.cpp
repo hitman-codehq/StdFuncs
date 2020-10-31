@@ -13,8 +13,14 @@
 #include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
 #include <proto/utility.h>
-#include <intuition/gui.h>
+#include <classes/window.h>
 #include <intuition/imageclass.h>
+
+#ifdef __amigaos4__
+
+#include <intuition/gui.h>
+
+#endif /* __amigaos4__ */
 
 #elif defined(QT_GUI_LIB)
 

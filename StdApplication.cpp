@@ -5,7 +5,7 @@
 #include "StdRendezvous.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
@@ -57,7 +57,7 @@ static TInt g_iArgC = 1;					/* Fake argc, which must be > 0 */
 RApplication::RApplication()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_bDone = EFalse;
 	m_ulMainSeconds = m_ulMainMicros = 0;
@@ -96,7 +96,7 @@ TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 
 	m_pcoMenuItems = a_pcoMenuItems;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Assume success */
 
@@ -649,13 +649,13 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 		Window->m_poNext = a_poWindow;
 	}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* And add the new window's signal bit to the list of signals that the application will wait on */
 
 	m_ulWindowSignals |= a_poWindow->GetSignal();
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	/* Schedule a redraw to ensure the newly added window is refreshed */
 
@@ -701,7 +701,7 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 
 	a_poWindow->m_poNext = NULL;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Recalculate the set of window signals that the application will wait on.	 We do it like this */
 	/* rather than anding out the signal bit for the window being removed as the underlying Intuition */
@@ -716,7 +716,7 @@ void RApplication::RemoveWindow(CWindow *a_poWindow)
 		Window = Window->m_poNext;
 	}
 
-#endif /*  __amigaos4__ */
+#endif /*  __amigaos__ */
 
 }
 
@@ -736,7 +736,7 @@ void RApplication::SetCurrentDialog(HWND a_poDialog)
 void RApplication::exit()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_bDone = ETrue;
 

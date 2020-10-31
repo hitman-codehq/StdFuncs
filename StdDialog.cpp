@@ -5,7 +5,11 @@
 #include "StdDialog.h"
 #include "StdReaction.h"
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos__
+
+#include <intuition/sghooks.h>
+
+#elif defined(QT_GUI_LIB)
 
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QLineEdit>
@@ -857,7 +861,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		DEBUGCHECK(ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32) Gadget),
+		DEBUGCHECK(ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32_t) Gadget),
 			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
 	}
 

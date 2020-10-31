@@ -2,11 +2,11 @@
 #ifndef STDIMAGE_H
 #define STDIMAGE_H
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <intuition/classes.h>
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /* A class to allow programs to load images without having to be concerned about their */
 /* type.  The range of images supported is platform dependent given that this class is */
@@ -20,7 +20,7 @@ private:
 	TInt			m_iWidth;		/**< Width and height of the image, as determined from */
 	TInt			m_iHeight;		/**< the image file upon loading */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	Object			*m_poBitMapObj;	/**< Datatype object representing the loaded image */
 	struct BitMap	*m_poBitMap;	/**< BitMap data extracted from the bitmap datatype */
@@ -37,7 +37,7 @@ public:
 	{
 		m_iWidth = m_iHeight = 0;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		m_poBitMapObj = NULL;
 		m_poBitMap = NULL;
@@ -64,7 +64,7 @@ public:
 		return(m_iHeight);
 	}
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct BitMap *BitMap()
 	{

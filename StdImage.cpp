@@ -3,12 +3,12 @@
 #include "StdImage.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 #include <datatypes/pictureclass.h>
 #include <proto/datatypes.h>
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /* Written: Saturday 06-Nov-2010 8:19 am */
 /* @param	a_pccFileName The name of the image file to be opened */
@@ -23,7 +23,7 @@
 TInt RStdImage::open(const char *a_pccFileName)
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt RetVal;
 	struct BitMapHeader *BitMapHeader;
@@ -108,7 +108,7 @@ TInt RStdImage::open(const char *a_pccFileName)
 void RStdImage::close()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* If any datatype object has been created, destroy it */
 

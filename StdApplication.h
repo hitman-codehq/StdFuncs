@@ -13,7 +13,7 @@ private:
 
 	CWindow			*m_poWindows;				/**< Ptr to window used by the application */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ULONG			m_ulWindowSignals;			/**< Signals representing all currently open windows */
 	TBool			m_bDone;					/**< Set to ETrue when it's time to exit the main loop */

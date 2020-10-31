@@ -4,8 +4,10 @@
 
 #ifdef __amigaos__
 
+#include <clib/alib_protos.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#include <proto/intuition.h>
 
 #define _stricmp(String1, String2) strcasecmp(String1, String2)
 #define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
@@ -119,12 +121,12 @@ typedef signed long long TInt64;
 
 /* Useful Amiga OS return value constants for main() */
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 #define RETURN_OK 0
 #define RETURN_ERROR 10
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 /* Useful Windows constants for OK and cancel buttons and maximum path */
 

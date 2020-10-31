@@ -418,7 +418,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	va_end(Args);
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 	/* When an assertion happens we want to exit the system as if we allow execution */
 	/* to continue then it is likely to crash anyway.  We will do this on all platforms */
@@ -426,7 +426,7 @@ void Utils::AssertionFailure(const char *a_pccMessage, ...)
 
 	exit(1);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 }
 
@@ -619,7 +619,7 @@ TInt Utils::Detach()
 
 	RetVal = KErrNone;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char *Command, *CommandNameBuffer;
 	const char *CommandName;
@@ -703,7 +703,7 @@ TInt Utils::Detach()
 		delete [] CommandNameBuffer;
 	}
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(RetVal);
 }
@@ -1835,7 +1835,7 @@ TInt Utils::makeLink(const char *a_pccSource, const char *a_pccDest)
 
 	RetVal = KErrNone;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	if (MakeLink(a_pccSource, (void *) a_pccDest, LINK_SOFT) == 0)
 	{
@@ -2755,14 +2755,14 @@ TInt Utils::SetDeleteable(const char *a_pccFileName)
 		RetVal = Utils::setProtection(a_pccFileName, Entry.iAttributes);
 	}
 
-#else /* ! defined(__amigaos4__) || defined(__unix__) */
+#else /* ! defined(__amigaos__) || defined(__unix__) */
 
 	/* Use our version of setProtection() rather than the native SetFileAttributes() function */
 	/* so that we don't have to worry about error handling */
 
 	RetVal = Utils::setProtection(a_pccFileName, FILE_ATTRIBUTE_NORMAL);
 
-#endif /* ! defined(__amigaos4__) || defined(__unix__) */
+#endif /* ! defined(__amigaos__) || defined(__unix__) */
 
 	return(RetVal);
 
@@ -3113,7 +3113,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 {
 	TBool RetVal;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct DateTime DateTime = { { 0, 0, 0 }, FORMAT_DOS, DTF_SUBST, NULL, NULL, NULL };
 
@@ -3131,7 +3131,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 
 	RetVal = (DateToStr(&DateTime) != 0);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	RetVal = ETrue;
 
@@ -3142,7 +3142,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 
 	sprintf(a_pcTime, "%02d:%02d", a_roEntry.iModified.DateTime().Hour(), a_roEntry.iModified.DateTime().Minute());
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(RetVal);
 }

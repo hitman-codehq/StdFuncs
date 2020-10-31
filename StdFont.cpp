@@ -32,7 +32,7 @@ static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 1
  * a bitmap based font and, if so, will add its size to a list of available font sizes.
  * This allows the RFont class to determine whether a requested font size is valid.
  *
- * @date	Friday 07-Aug-2015 9:03 am, Henry's Coffee World (Hirschstraﬂe)
+ * @date	Friday 07-Aug-2015 9:03 am, Henry's Coffee World (Hirschstrasse)
  * @param	a_poEnumLogFont		Pointer to a structure containing information about the font
  * @param	a_poNewTextMetric	Pointer to information regarding the sizes of the font
  * @param	a_iFontType			The type of the font (bitmap or vector)
@@ -561,7 +561,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	struct AreaInfo AreaInfo;
 	struct TmpRas TmpRas;
 
-	uint16 DitherData[] = { 0x5555, 0xaaaa };
+	uint16_t DitherData[] = { 0x5555, 0xaaaa };
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 

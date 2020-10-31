@@ -4,8 +4,9 @@
 #include "StdReaction.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
+#include <gadgets/scroller.h>
 #include <intuition/icclass.h>
 
 #elif defined(QT_GUI_LIB)
@@ -50,7 +51,7 @@ CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, CStdGadgetLay
 TInt CStdGadgetSlider::Construct()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt Orientation;
 
@@ -171,7 +172,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 {
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::Updated() => Slider gadget has not been created");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	ULONG Result;
 
@@ -287,7 +288,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetPosition() => Slider gadget has not been created");
 	ASSERTM((a_iPosition >= 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
@@ -332,7 +333,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	m_iMaxRange = a_iMaxRange;
 	m_iPageSize = a_iPageSize;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
