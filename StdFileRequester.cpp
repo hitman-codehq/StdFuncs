@@ -178,7 +178,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	/* Allocate an ASL file requester */
 
-	if ((Requester = IAsl->AllocAslRequest(ASL_FileRequest, Tags)) != NULL)
+	if ((Requester = AllocAslRequest(ASL_FileRequest, Tags)) != NULL)
 	{
 		/* Display the requester as many times as it takes to get a valid filename or the user hits cancel */
 
@@ -188,7 +188,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		{
 			/* And display it on the screen */
 
-			if (IAsl->AslRequestTags(Requester, TAG_DONE))
+			if (AslRequestTags(Requester, TAG_DONE))
 			{
 				TEntry Entry;
 
@@ -260,7 +260,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 				/* If DOS's last error is 0 then the user hit cancel, so indicate this.  Otherwise */
 				/* return that another error occurred */
 
-				RetVal = (IDOS->IoErr() == 0) ? KErrCancel : KErrGeneral;
+				RetVal = (IoErr() == 0) ? KErrCancel : KErrGeneral;
 
 				break;
 			}
@@ -270,7 +270,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 		/* And free the temporary buffer and ASL requester now that we have finished with them */
 
 		Utils::FreeTempBuffer(QualifiedFileName);
-		IAsl->FreeAslRequest(Requester);
+		FreeAslRequest(Requester);
 	}
 	else
 	{

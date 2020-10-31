@@ -193,7 +193,7 @@ void RClipboard::SetDataEnd()
 
 	/* Write the block of data to the clipboard */
 
-	ITextClip->WriteClipVector(m_pcSetData, m_stDataSize);
+	WriteClipVector(m_pcSetData, m_stDataSize);
 
 	/* And free the temporary buffer */
 
@@ -252,7 +252,7 @@ const char *RClipboard::GetDataStart()
 
 	/* Check to see if there is any plain text available on the clipboard and if so, get a ptr to it */
 
-	if (ITextClip->ReadClipVector((STRPTR *) &RetVal, &Size))
+	if (ReadClipVector((STRPTR *) &RetVal, &Size))
 	{
 		m_pccGetData = m_pccCurrentGetData = RetVal;
 	}
@@ -308,7 +308,7 @@ void RClipboard::GetDataEnd()
 
 #ifdef __amigaos__
 
-	ITextClip->DisposeClipVector((STRPTR) m_pccGetData);
+	DisposeClipVector((STRPTR) m_pccGetData);
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 

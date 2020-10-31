@@ -153,22 +153,22 @@ public:
 		return(a_poNode->m_oStdListNode.m_poPrev != NULL);
 	}
 
-	T *GetHead() const
+	T *getHead() const
 	{
 		return((m_oHead.m_poNext != &m_oTail) ? m_oHead.m_poNext->m_poThis : NULL);
 	}
 
-	T *GetTail() const
+	T *getTail() const
 	{
 		return((m_oTail.m_poPrev != &m_oHead) ? m_oTail.m_poPrev->m_poThis : NULL);
 	}
 
-	T *GetPred(const T* a_poCurrent) const
+	T *getPred(const T* a_poCurrent) const
 	{
 		return((a_poCurrent->m_oStdListNode.m_poPrev != &m_oHead) ? a_poCurrent->m_oStdListNode.m_poPrev->m_poThis : NULL);
 	}
 
-	T *GetSucc(const T* a_poCurrent) const
+	T *getSucc(const T* a_poCurrent) const
 	{
 		return((a_poCurrent->m_oStdListNode.m_poNext != &m_oTail) ? a_poCurrent->m_oStdListNode.m_poNext->m_poThis : NULL);
 	}
@@ -187,7 +187,7 @@ public:
 	 * @param	a_poSourceList	Pointer to the list from which to move the nodes
 	 */
 
-	void MoveList(StdList<T> *a_poSourceList)
+	void moveList(StdList<T> *a_poSourceList)
 	{
 		/* Only do anything if the source list actually contains any nodes, to avoid moving the non moveable */
 		/* head and tail nodes */
@@ -381,7 +381,7 @@ public:
 			/* The list has been partially sorted and moved into "List" to move it back into this list in preparation */
 			/* for the next iteration */
 
-			MoveList(&List);
+			moveList(&List);
 
 			/* Repeat the sort, merging lists twice the size.  If we only did one merge this iteration then the */
 			/* while statement below will trigger and we will exit the loop */
@@ -413,7 +413,7 @@ public:
 		/* at the requested index is found */
 
 		Index = 0;
-		RetVal = GetHead();
+		RetVal = getHead();
 
 		while (RetVal)
 		{
@@ -422,7 +422,7 @@ public:
 				break;
 			}
 
-			RetVal = GetSucc(RetVal);
+			RetVal = getSucc(RetVal);
 		}
 
 		return(RetVal);

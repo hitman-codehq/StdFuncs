@@ -41,7 +41,7 @@ TInt CStdGadget::X()
 
 #ifdef __amigaos__
 
-	IIntuition->GetAttr(GA_Left, m_poGadget, (ULONG *) &m_iX);
+	GetAttr(GA_Left, m_poGadget, (ULONG *) &m_iX);
 
 #endif /* __amigaos__ */
 
@@ -55,7 +55,7 @@ TInt CStdGadget::Y()
 
 #ifdef __amigaos__
 
-	IIntuition->GetAttr(GA_Top, m_poGadget, (ULONG *) &m_iY);
+	GetAttr(GA_Top, m_poGadget, (ULONG *) &m_iY);
 
 #endif /* __amigaos__ */
 
@@ -84,7 +84,7 @@ TInt CStdGadget::Width()
 
 	if (!(m_bHidden))
 	{
-		IIntuition->GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
+		GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
 		RetVal = m_iWidth;
 	}
 	else
@@ -122,7 +122,7 @@ TInt CStdGadget::Height()
 
 	if (!(m_bHidden))
 	{
-		IIntuition->GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+		GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
 		RetVal = m_iHeight;
 	}
 	else
@@ -254,7 +254,7 @@ void CStdGadget::SetVisible(bool a_bVisible)
 	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */
 	/* until a CStdGadget::UnHide() function is required we won't bother */
 
-	IIntuition->SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+	SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

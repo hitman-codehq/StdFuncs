@@ -108,7 +108,7 @@ void *RStdPool::GetNode()
 
 	/* Get a ptr to the first available node */
 
-	RetVal = m_oNodes.GetHead();
+	RetVal = m_oNodes.getHead();
 
 	/* If there are none left and the pool is extendable, then try to allocate */
 	/* another block of nodes and then get a ptr to the first available new node */
@@ -117,7 +117,7 @@ void *RStdPool::GetNode()
 	{
 		if (ExtendPool() == KErrNone)
 		{
-			RetVal = m_oNodes.GetHead();
+			RetVal = m_oNodes.getHead();
 		}
 	}
 
@@ -132,7 +132,7 @@ void *RStdPool::GetNode()
 	return(RetVal);
 }
 
-/* Written: Wednesday 24-Oct-2012 6:37 am, Vis à Vis Hotel, Lindau */
+/* Written: Wednesday 24-Oct-2012 6:37 am, Vis Ã  Vis Hotel, Lindau */
 /* @param	a_poNode	Ptr to the node to be released back to the pool */
 /* Releases a node previously allocated using RPool::GetNode() back into */
 /* the pool, thus making it available for allocation again */
@@ -144,7 +144,7 @@ void RStdPool::ReleaseNode(void *a_poNode)
 	m_oNodes.addTail((CPoolNode *) a_poNode);
 }
 
-/* Written: Tuesday 31-Jul-2012 9:42 am, Starbucks Nürnberg */
+/* Written: Tuesday 31-Jul-2012 9:42 am, Starbucks NÃ¼rnberg */
 /* @return	KErrNone if successful, else KErrNoMemory */
 /* Extends the pool by allocating a further m_iNumItems of nodes in a single */
 /* allocation.  The block is added to the list of blocks and the nodes are */

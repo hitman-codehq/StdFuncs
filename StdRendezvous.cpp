@@ -83,12 +83,12 @@ TInt RRendezvous::open(RApplication *a_poApplication, const char *a_pccName)
 		/* Only try to create a named message port if it does not already exist.  If the port already */
 		/* exists then the server is running, so we will be a client */
 
-		if ((MsgPort = IExec->FindPort(m_pcName)) == NULL)
+		if ((MsgPort = FindPort(m_pcName)) == NULL)
 		{
 			/* Create a message port that has a name, is on the public port list, a priority (for speedy lookups) and that */
 			/* will signal our task when a message is received */
 
-			m_poMsgPort = (struct MsgPort *) IExec->AllocSysObjectTags(ASOT_PORT, ASOPORT_Name, m_pcName, ASOPORT_Pri, 1, TAG_DONE);
+			m_poMsgPort = (struct MsgPort *) AllocSysObjectTags(ASOT_PORT, ASOPORT_Name, m_pcName, ASOPORT_Pri, 1, TAG_DONE);
 
 			if (m_poMsgPort)
 			{
@@ -152,10 +152,10 @@ void RRendezvous::close()
 		if (m_bPortAdded)
 		{
 			m_bPortAdded = EFalse;
-			IExec->RemPort(m_poMsgPort);
+			RemPort(m_poMsgPort);
 		}
 
-		IExec->FreeSysObject(ASOT_PORT, m_poMsgPort);
+		FreeSysObject(ASOT_PORT, m_poMsgPort);
 		m_poMsgPort = NULL;
 	}
 
@@ -251,33 +251,33 @@ TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 			/* Create a reply port that can be used by the server to indicate that a message has been */
 			/* received and processed */
 
-			if ((Message->mn_ReplyPort = (struct MsgPort *) IExec->AllocSysObjectTags(ASOT_PORT, TAG_DONE)) != NULL)
+			if ((Message->mn_ReplyPort = (struct MsgPort *) AllocSysObjectTags(ASOT_PORT, TAG_DONE)) != NULL)
 			{
 				/* The FindPort() function must be protected by a Forbid()/Permit() pair.  However, we must only */
 				/* send the message with interrupts disabled or the server will never be able to process the */
 				/* received message.  So send the message and enable interrupts before waiting for the response */
 
-				IExec->Forbid();
+				Forbid();
 
-				if ((MsgPort = IExec->FindPort(m_pcName)) != NULL)
+				if ((MsgPort = FindPort(m_pcName)) != NULL)
 				{
 					RetVal = ETrue;
 
-					IExec->PutMsg(MsgPort, Message);
+					PutMsg(MsgPort, Message);
 				}
 
-				IExec->Permit();
+				Permit();
 
 				/* Listen for a response, but only if the message was successfully sent */
 
 				if (RetVal)
 				{
-					IExec->Wait(1 << Message->mn_ReplyPort->mp_SigBit);
+					Wait(1 << Message->mn_ReplyPort->mp_SigBit);
 				}
 
 				/* Delete the reply port, now that we are finished with it */
 
-				IExec->FreeSysObject(ASOT_PORT, Message->mn_ReplyPort);
+				FreeSysObject(ASOT_PORT, Message->mn_ReplyPort);
 			}
 
 			delete [] Buffer;

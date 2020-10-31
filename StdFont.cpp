@@ -127,7 +127,7 @@ RFont::RFont(CWindow *a_poWindow)
 			Green = Utils::Green32(g_aoColours[Index] & 0xff00);
 			Blue = Utils::Blue32(g_aoColours[Index] & 0xff0000);
 
-			Pen = IGraphics->ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
+			Pen = ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
 			m_alPens[Index] = Pen;
 		}
 	}
@@ -212,10 +212,10 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 			/* And try to open the font */
 
-			if ((m_poFont = IDiskfont->OpenDiskFont(&TextAttr)) != NULL)
+			if ((m_poFont = OpenDiskFont(&TextAttr)) != NULL)
 			{
 				m_poOldFont = m_poWindow->m_poWindow->RPort->Font;
-				IGraphics->SetFont(m_poWindow->m_poWindow->RPort, m_poFont);
+				SetFont(m_poWindow->m_poWindow->RPort, m_poFont);
 			}
 			else
 			{
@@ -366,11 +366,11 @@ void RFont::close()
 	{
 		if (m_poOldFont)
 		{
-			IGraphics->SetFont(m_poWindow->m_poWindow->RPort, m_poOldFont);
+			SetFont(m_poWindow->m_poWindow->RPort, m_poOldFont);
 			m_poOldFont = NULL;
 		}
 
-		IGraphics->CloseFont(m_poFont);
+		CloseFont(m_poFont);
 		m_poFont = NULL;
 	}
 
@@ -577,26 +577,26 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 		if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
 		{
 			/* Move to the position at which to print, taking into account the left and top border sizes, */
-			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-			/* routine prints at the baseline position, not the top of the font */
+			/* the height of the current font and the baseline of the font, given that the Text() routine */
+			/* prints at the baseline position, not the top of the font */
 
-			IGraphics->Move(m_poWindow->m_poWindow->RPort, X, (Y + m_iBaseline));
+			Move(m_poWindow->m_poWindow->RPort, X, (Y + m_iBaseline));
 
 			/* If the window is active then draw the cursor over the text as normal */
 
 			if (m_poWindow->IsActive())
 			{
-				IGraphics->Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
+				Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
 			}
 			else
 			{
 				/* Otherwise draw the cursor in a greyed out state.  Start by allocating a raster */
 				/* that can be used for the dithered flood fill and initialise it */
 
-				if ((PlanePtr = IGraphics->AllocRaster(16, 16)) != NULL)
+				if ((PlanePtr = AllocRaster(16, 16)) != NULL)
 				{
-					IGraphics->InitArea(&AreaInfo, AreaBuffer, NUM_VERTICES);
-					IGraphics->InitTmpRas(&TmpRas, PlanePtr, ((16 * 16) / 8));
+					InitArea(&AreaInfo, AreaBuffer, NUM_VERTICES);
+					InitTmpRas(&TmpRas, PlanePtr, ((16 * 16) / 8));
 
 					/* Set a dithered drawing mode and initialise the drawing information into the RastPort */
 
@@ -606,13 +606,13 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 					/* Draw a dithered cursor where the solid one would normally be */
 
-					IGraphics->AreaMove(m_poWindow->m_poWindow->RPort, X, Y);
-					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
-					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), Y);
-					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), (Y + m_iHeight - 1));
-					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, (Y + m_iHeight - 1));
-					IGraphics->AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
-					IGraphics->AreaEnd(m_poWindow->m_poWindow->RPort);
+					AreaMove(m_poWindow->m_poWindow->RPort, X, Y);
+					AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
+					AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), Y);
+					AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), (Y + m_iHeight - 1));
+					AreaDraw(m_poWindow->m_poWindow->RPort, X, (Y + m_iHeight - 1));
+					AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
+					AreaEnd(m_poWindow->m_poWindow->RPort);
 
 					/* Remove the dithered drawing mode */
 
@@ -623,12 +623,12 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 					/* And draw the text over the top of the dithered cursor, ensuring that the dithering */
 					/* is not overwritten */
 
-					OldDrawMode = IGraphics->GetDrMd(m_poWindow->m_poWindow->RPort);
-					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, JAM1);
-					IGraphics->Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
-					IGraphics->SetDrMd(m_poWindow->m_poWindow->RPort, OldDrawMode);
+					OldDrawMode = GetDrMd(m_poWindow->m_poWindow->RPort);
+					SetDrMd(m_poWindow->m_poWindow->RPort, JAM1);
+					Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
+					SetDrMd(m_poWindow->m_poWindow->RPort, OldDrawMode);
 
-					IGraphics->FreeRaster(PlanePtr, 16, 16);
+					FreeRaster(PlanePtr, 16, 16);
 				}
 			}
 		}
@@ -712,10 +712,10 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 	if (m_poWindow->m_poWindow)
 	{
 		/* Move to the position at which to print, taking into account the left and top border sizes, */
-		/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-		/* routine prints at the baseline position, not the top of the font */
+		/* the height of the current font and the baseline of the font, given that the Text() routine */
+		/* prints at the baseline position, not the top of the font */
 
-		IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
+		Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
 			(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 		/* Calculate the maximum number of characters that can fit in the client area of the window, */
@@ -725,12 +725,12 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 		Width = (m_iClipWidth - (a_iX * m_iWidth));
 		Width = MAX(0, Width);
 
-		NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iSize, &TextExtent, NULL, 1,
+		NumChars = TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iSize, &TextExtent, NULL, 1,
 			Width, m_poWindow->InnerHeight());
 
 		/* And draw as much of the text passed in as will fit in the client area */
 
-		IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
+		Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -846,17 +846,17 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 			ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
 
 			/* Move to the position at which to print, taking into account the left and top border sizes, */
-			/* the height of the current font and the baseline of the font, given that IGraphics->Text() */
-			/* routine prints at the baseline position, not the top of the font */
+			/* the height of the current font and the baseline of the font, given that the Text() routine */
+			/* prints at the baseline position, not the top of the font */
 
-			IGraphics->Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
+			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
 				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 			/* Calculate the maximum number of characters that can fit in the client area of the window, */
 			/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
 			/* clip width reduces as we print the parts of the string */
 
-			NumChars = IGraphics->TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Size, &TextExtent, NULL, 1,
+			NumChars = TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Size, &TextExtent, NULL, 1,
 				Width, m_poWindow->InnerHeight());
 
 			/* If nothing fits then we may as well break out of the loop */
@@ -871,10 +871,10 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 
 			if (!(m_bHighlight))
 			{
-				IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
+				SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
 			}
 
-			IGraphics->Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
+			Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
 
 			/* And prepare for the next run to be displayed */
 
@@ -1140,13 +1140,13 @@ void RFont::SetHighlight(TBool a_bHighlight)
 	{
 		if (a_bHighlight)
 		{
-			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 0);
-			IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 1);
+			SetAPen(m_poWindow->m_poWindow->RPort, 0);
+			SetBPen(m_poWindow->m_poWindow->RPort, 1);
 		}
 		else
 		{
-			IGraphics->SetAPen(m_poWindow->m_poWindow->RPort, 1);
-			IGraphics->SetBPen(m_poWindow->m_poWindow->RPort, 0);
+			SetAPen(m_poWindow->m_poWindow->RPort, 1);
+			SetBPen(m_poWindow->m_poWindow->RPort, 0);
 		}
 	}
 

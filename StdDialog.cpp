@@ -288,7 +288,7 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -329,7 +329,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
+		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -420,7 +420,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		DEBUGCHECK((IIntuition->GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
+		DEBUGCHECK((GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -506,7 +506,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 		if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 		{
-			if (IIntuition->GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
+			if (GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
 			{
 				RetVal = KErrNone;
 				Length = (strlen(Text) + 1);
@@ -651,7 +651,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
  * specified ID.  This can be used in place of QObject::findChild(), which can only work with
  * textual strings IDs.
  *
- * @date	Sunday 05-Mar-2017 8:37 am, Code HQ Bergmannstraﬂe
+ * @date	Sunday 05-Mar-2017 8:37 am, Code HQ Bergmannstra√üe
  * @param	a_iGadgetID		ID of the gadget to be found
  * @return	Pointer to the Qt widget if successful, else NULL if not found
  */
@@ -713,7 +713,7 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 		if ((Length = GetGadgetText(a_iGadgetID, EFalse)) > 0)
 		{
-			IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
+			RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
 				(Length - 1), TAG_DONE);
 		}
 	}
@@ -768,7 +768,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		if (IIntuition->GetAttr(GA_Selected, Gadget, &Checked) > 0)
+		if (GetAttr(GA_Selected, Gadget, &Checked) > 0)
 		{
 			RetVal = Checked;
 		}
@@ -825,7 +825,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 		if ((Gadget = GetBOOPSIGadget(IDOK)) != NULL)
 		{
-			if (IIntuition->GetAttr(GA_Disabled, Gadget, &Disabled))
+			if (GetAttr(GA_Disabled, Gadget, &Disabled))
 			{
 				/* If is not disabled then send the fake IDOK command to the client */
 
@@ -857,7 +857,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		DEBUGCHECK(ILayout->ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32) Gadget),
+		DEBUGCHECK(ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32) Gadget),
 			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
 	}
 
@@ -893,7 +893,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -923,7 +923,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
  * This array contains a list of mappings that allow gadgets to be searched for by integral ID on Qt builds,
  * even though Qt only supports searching by test based IDs.
  *
- * @date	Thursday 02-Feb-2017 9:46 am, Starbucks near Friedrichstraﬂe Station
+ * @date	Thursday 02-Feb-2017 9:46 am, Starbucks near Friedrichstra√üe Station
  * @param	a_pcoMappings	Pointer to the array of mappings to be assigned
  * @param	a_iNumMappings	Number of entries in the array
  */

@@ -104,9 +104,9 @@ public:
 
 	const TEntry &operator[](TInt a_iIndex) const;
 
-	const TEntry *GetHead() const;
+	const TEntry *getHead() const;
 
-	const TEntry *GetSucc(const TEntry *a_poEntry) const;
+	const TEntry *getSucc(const TEntry *a_poEntry) const;
 
 	void Purge();
 

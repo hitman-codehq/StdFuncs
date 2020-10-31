@@ -64,7 +64,7 @@ public:
 
 	MungWall() { ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
-	void Delete(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);
+	void Free(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);
 	void *New(size_t stSize, const char *pccSourceFile, int iSourceLine);
 	void *ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);
 };

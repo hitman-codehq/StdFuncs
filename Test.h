@@ -17,7 +17,7 @@ public:
 
 	void Title();
 
-	void Printf(const char *a_ccString, ...);
+	void printf(const char *a_ccString, ...);
 
 	void Start(const char *a_pccHeading);
 

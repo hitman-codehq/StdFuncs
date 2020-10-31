@@ -20,7 +20,7 @@ void RTest::Title()
 
 /* Written: Monday 06-Jul 2009 3:56 pm */
 
-void RTest::Printf(const char *a_pccString, ...)
+void RTest::printf(const char *a_pccString, ...)
 {
 	va_list Args;
 

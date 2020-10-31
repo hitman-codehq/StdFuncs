@@ -87,7 +87,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 					/* Add the string gadget to the horizontal layout group, with the desired weighting */
 
 					TagItem[0].ti_Data = a_piPartsOffsets[Index];
-					IIntuition->IDoMethod(m_poGadget, LM_ADDCHILD, NULL, m_poPartsGadgets[Index], TagItem);
+					IDoMethod(m_poGadget, LM_ADDCHILD, NULL, m_poPartsGadgets[Index], TagItem);
 				}
 				else
 				{
@@ -124,7 +124,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 	{
 		if (m_poGadget)
 		{
-			IIntuition->DisposeObject(m_poGadget);
+			DisposeObject(m_poGadget);
 			m_poGadget = NULL;
 		}
 
@@ -473,7 +473,7 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 
 #ifdef __amigaos__
 
-		IIntuition->RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+		RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
 			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

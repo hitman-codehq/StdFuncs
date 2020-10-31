@@ -145,10 +145,10 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 	/* Add the new BOOPSI gadget to the layout */
 
-	if (IIntuition->IDoMethod(m_poGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
+	if (IDoMethod(m_poGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
 	{
 		// TODO: CAW
-		ILayout->RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
+		RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
 		rethinkLayout();
 	}
 
@@ -187,7 +187,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 }
 
-/* Written: Saturday 15-Oct-2011 2:46 pm, Code HQ Söflingen */
+/* Written: Saturday 15-Oct-2011 2:46 pm, Code HQ SÃ¶flingen */
 /* @param	a_pvGadget	Ptr to the native gadget to be searched for */
 /* @return	A ptr to the standard gadget that contains the native gadget, */
 /*			if found, else NULL */
@@ -205,7 +205,7 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 
 	/* Get a ptr to the first gadget in the list of the layout's attached gadgets */
 
-	if ((RetVal = m_oGadgets.GetHead()) != NULL)
+	if ((RetVal = m_oGadgets.getHead()) != NULL)
 	{
 		/* If it was found then iterate through the list and see if any gadgets */
 		/* contain the requested native gadget */
@@ -227,7 +227,7 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 				break;
 			}
 
-			RetVal = m_oGadgets.GetSucc(RetVal);
+			RetVal = m_oGadgets.getSucc(RetVal);
 		}
 	}
 
@@ -256,7 +256,7 @@ TInt CStdGadgetLayout::GetSpacing()
 
 }
 
-/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Söflingen */
+/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ SÃ¶flingen */
 
 void CStdGadgetLayout::rethinkLayout()
 {
@@ -268,7 +268,7 @@ void CStdGadgetLayout::rethinkLayout()
 	RECT Rect;
 	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
 
-	Gadget = m_oGadgets.GetHead();
+	Gadget = m_oGadgets.getHead();
 	HorizontalSliderGadget = StatusBarGadget = NULL;
 
 	while (Gadget)
@@ -282,10 +282,10 @@ void CStdGadgetLayout::rethinkLayout()
 			StatusBarGadget = Gadget;
 		}
 
-		Gadget = m_oGadgets.GetSucc(Gadget);
+		Gadget = m_oGadgets.getSucc(Gadget);
 	}
 
-	Gadget = m_oGadgets.GetHead();
+	Gadget = m_oGadgets.getHead();
 	InnerWidth = m_poParentWindow->InnerWidth();
 
 	while (Gadget)
@@ -337,7 +337,7 @@ void CStdGadgetLayout::rethinkLayout()
 			Gadget->SetSize((Rect.right - Rect.left), -1);
 		}
 
-		Gadget = m_oGadgets.GetSucc(Gadget);
+		Gadget = m_oGadgets.getSucc(Gadget);
 	}
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
@@ -350,7 +350,7 @@ void CStdGadgetLayout::rethinkLayout()
 	}
 }
 
-/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Söflingen */
+/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ SÃ¶flingen */
 
 void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
@@ -379,7 +379,7 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	/* And resize the gadget */
 
-	IIntuition->IDoMethodA(m_poParentWindow->m_poRootLayout, (Msg) &mc);
+	IDoMethodA(m_poParentWindow->m_poRootLayout, (Msg) &mc);
 
 #endif /* __amigaos4__ */
 
@@ -403,7 +403,7 @@ TInt CStdGadgetLayout::X()
 	return(m_iX);
 }
 
-/* Written: Tuesday 18-Oct-2011 7:15 am, Code HQ Söflingen */
+/* Written: Tuesday 18-Oct-2011 7:15 am, Code HQ SÃ¶flingen */
 /* @return	The Y position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
 /* on Windows style client area relative positions.  So for Amiga OS we need to adjust the */
@@ -426,7 +426,7 @@ TInt CStdGadgetLayout::Y()
  * Returns the minimum height of the layout gadget, based on the minimum size of the
  * gadgets that are attached to it.
  *
- * @date	Wednesday 23-Nov-2011 6:45 am, Code HQ Söflingen
+ * @date	Wednesday 23-Nov-2011 6:45 am, Code HQ SÃ¶flingen
  * @return	The minimum height of the gadget in pixels
  */
 
@@ -439,7 +439,7 @@ TInt CStdGadgetLayout::MinHeight()
 
 	/* Get a ptr to the first gadget in the list of the layout's attached gadgets */
 
-	if ((Gadget = m_oGadgets.GetHead()) != NULL)
+	if ((Gadget = m_oGadgets.getHead()) != NULL)
 	{
 		/* If it was found then iterate through the list and count up the minimum size of */
 		/* all of the attached gadgets */
@@ -448,7 +448,7 @@ TInt CStdGadgetLayout::MinHeight()
 		{
 			RetVal += Gadget->MinHeight();
 
-			Gadget = m_oGadgets.GetSucc(Gadget);
+			Gadget = m_oGadgets.getSucc(Gadget);
 		}
 	}
 

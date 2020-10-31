@@ -67,7 +67,7 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Create the underlying BOOPSI gadget */
 
-	m_poGadget = (Object *) IIntuition->NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
+	m_poGadget = (Object *) NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
 		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
@@ -145,7 +145,7 @@ TInt CStdGadgetSlider::Construct()
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
 }
 
-/* Written: Monday 05-Nov-2011 9:20 am, Code HQ Söflingen */
+/* Written: Monday 05-Nov-2011 9:20 am, Code HQ SÃ¶flingen */
 
 CStdGadgetSlider::~CStdGadgetSlider()
 {
@@ -182,7 +182,7 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 	if (m_poClient)
 	{
-		IIntuition->GetAttr(SCROLLER_Top, m_poGadget, &Result);
+		GetAttr(SCROLLER_Top, m_poGadget, &Result);
 		m_poClient->SliderUpdated(this, (Result + 1));
 	}
 
@@ -289,7 +289,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #ifdef __amigaos4__
 
-	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
@@ -334,7 +334,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 #ifdef __amigaos4__
 
-	IIntuition->SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

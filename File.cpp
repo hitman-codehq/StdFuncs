@@ -71,7 +71,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
 	{
-		if ((m_oHandle = IDOS->Open(a_pccFileName, MODE_NEWFILE)) != 0)
+		if ((m_oHandle = Open(a_pccFileName, MODE_NEWFILE)) != 0)
 		{
 			RetVal = KErrNone;
 
@@ -254,12 +254,12 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		/* and being read only if EFileWrite is not specified but neither of */
 		/* these features are supported by Amiga OS so we will emulate them l8r */
 
-		if ((m_oHandle = IDOS->Open(ResolvedFileName, MODE_OLDFILE)) != 0)
+		if ((m_oHandle = Open(ResolvedFileName, MODE_OLDFILE)) != 0)
 		{
 			/* And change the shared lock to an exclusive lock as our API only */
 			/* supports opening files exclusively */
 
-			if (IDOS->ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+			if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
 			{
 				RetVal = KErrNone;
 
@@ -387,7 +387,7 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 
 #ifdef __amigaos__
 
-	RetVal = IDOS->Read(m_oHandle, a_pucBuffer, a_iLength);
+	RetVal = Read(m_oHandle, a_pucBuffer, a_iLength);
 
 	if (RetVal == -1)
 	{
@@ -457,7 +457,7 @@ TInt RFile::seek(TInt a_iBytes)
 
 #ifdef __amigaos__
 
-	if (IDOS->ChangeFilePosition(m_oHandle, a_iBytes, OFFSET_BEGINNING))
+	if (ChangeFilePosition(m_oHandle, a_iBytes, OFFSET_BEGINNING))
 	{
 		RetVal = KErrNone;
 	}
@@ -513,7 +513,7 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 	{
 		/* Now perform the write and ensure all of the bytes were written */
 
-		RetVal = IDOS->Write(m_oHandle, a_pcucBuffer, a_iLength);
+		RetVal = Write(m_oHandle, a_pcucBuffer, a_iLength);
 
 		if (RetVal == -1)
 		{
@@ -569,7 +569,7 @@ void RFile::close()
 
 	if (m_oHandle != 0)
 	{
-		DEBUGCHECK((IDOS->Close(m_oHandle) != 0), "RFile::close() => Unable to close file");
+		DEBUGCHECK((Close(m_oHandle) != 0), "RFile::close() => Unable to close file");
 		m_oHandle = 0;
 	}
 

@@ -92,12 +92,12 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 	{
 		/* Get the gadget's unique ID */
 
-		if ((TagItem = IUtility->FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
+		if ((TagItem = FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Reaction slider that was just moved */
 
-			if ((LayoutGadget = Window->m_oGadgets.GetHead()) != NULL)
+			if ((LayoutGadget = Window->m_oGadgets.getHead()) != NULL)
 			{
 				do
 				{
@@ -111,7 +111,7 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 						break;
 					}
 				}
-				while ((LayoutGadget = Window->m_oGadgets.GetSucc(LayoutGadget)) != NULL);
+				while ((LayoutGadget = Window->m_oGadgets.getSucc(LayoutGadget)) != NULL);
 			}
 		}
 	}
@@ -307,7 +307,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				/* This is awful hackiness taken to the next level.  For reasons unknown, the '[' */
 				/* and ']' keys (on the UK/US keyboard layouts) are setup to return the keycodes 27 */
 				/* (escape) and 29 (group separator) when pressed in conjunction with the ctrl key. */
-				/* The keys in the equivalent position on a German keyboard ('¸' and '+' respectively) */
+				/* The keys in the equivalent position on a German keyboard ('√º' and '+' respectively) */
 				/* are also setup to return these key values!  Although this explains the mystery of how */
 				/* MSVC magically uses these keys on different keyboard layouts, it makes it impossible */
 				/* to write truly generic keyboard handling code.  In a hack of horrific dimensions we */
@@ -336,7 +336,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					{
 						if (a_oWParam == 123)
 						{
-							a_oWParam = (unsigned char) '¸';
+							a_oWParam = (unsigned char) '√º';
 						}
 						else if (a_oWParam == 125)
 						{
@@ -684,7 +684,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Windows slider that was just moved */
 
-			if ((LayoutGadget = Window->m_oGadgets.GetHead()) != NULL)
+			if ((LayoutGadget = Window->m_oGadgets.getHead()) != NULL)
 			{
 				do
 				{
@@ -698,7 +698,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 						break;
 					}
 				}
-				while ((LayoutGadget = Window->m_oGadgets.GetSucc(LayoutGadget)) != NULL);
+				while ((LayoutGadget = Window->m_oGadgets.getSucc(LayoutGadget)) != NULL);
 			}
 
 			break;
@@ -739,8 +739,8 @@ void CWindow::Activate()
 
 #ifdef __amigaos__
 
-	IIntuition->SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
-	IIntuition->SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
+	SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
+	SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -1126,7 +1126,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
-	if (IIntuition->IDoMethod(m_poRootLayout, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
+	if (IDoMethod(m_poRootLayout, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
 	{
 		/* Let the layout gadget know its new width and then calcuate its new height */
 
@@ -1556,7 +1556,7 @@ void CWindow::BringToFront()
 
 	/* First bring the screen to the front */
 
-	IIntuition->ScreenToFront(m_poWindow->WScreen);
+	ScreenToFront(m_poWindow->WScreen);
 
 	/* And then activate the window */
 
@@ -1602,8 +1602,8 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 		a_iX += m_poWindow->BorderLeft;
 		a_iY += m_poWindow->BorderTop;
 
-		IIntuition->ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
-			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+		ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
+			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
 	}
 
 #else /* ! __amigaos__ */
@@ -1635,7 +1635,7 @@ void CWindow::close()
 
 	if (m_poWindowObj)
 	{
-		IIntuition->DisposeObject(m_poWindowObj);
+		DisposeObject(m_poWindowObj);
 		m_poWindowObj = NULL;
 	}
 
@@ -1690,7 +1690,7 @@ void CWindow::close()
 	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
 	/* from the gadget list automatically */
 
-	while ((LayoutGadget = m_oGadgets.GetHead()) != NULL)
+	while ((LayoutGadget = m_oGadgets.getHead()) != NULL)
 	{
 		delete LayoutGadget;
 	}
@@ -1716,7 +1716,7 @@ void CWindow::CompleteOpen()
 
 	/* Get the window's signal so that we can wait until an event occurs */
 
-	IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
+	GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
 
 #endif /* __amigaos__ */
 
@@ -1850,6 +1850,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 			/* Now fill in the background before drawing */
 
+			// TODO: CAW - Why is this commented out?
 			//IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
 			//	  (m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
 			//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
@@ -2455,7 +2456,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			/* Get a ptr to the underlying Intuition Window, as it is handy to have for such */
 			/* things as obtaining the window's signal bit */
 
-			IIntuition->GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
+			GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
 
 			/* And create the menus specific to this window */
 
@@ -2475,7 +2476,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 				/* the screen would only come to the front when the first instance of the application was */
 				/* launched */
 
-				IIntuition->ScreenToFront(m_poWindow->WScreen);
+				ScreenToFront(m_poWindow->WScreen);
 			}
 			else
 			{
@@ -2491,7 +2492,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 		if (RetVal != KErrNone)
 		{
-			IIntuition->DisposeObject(m_poWindowObj);
+			DisposeObject(m_poWindowObj);
 			m_poWindowObj = NULL;
 		}
 	}
@@ -2700,7 +2701,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  * This function will remove the given layout gadget from the window's internal list of layouts,
  * and will also remove it from the underlying OS specific window.
  *
- * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Sˆflingen
+ * @date	Saturday 05-Nov-2011 9:03 am, Code HQ S√∂flingen
  * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
  */
 
@@ -2716,7 +2717,7 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Remove it from the top level Reaction layout */
 
-	DEBUGCHECK((IIntuition->IDoMethod(m_poRootLayout, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
+	DEBUGCHECK((IDoMethod(m_poRootLayout, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
 		"CWindow::remove() => Unable to remove layout gadget from window");
 
 #elif defined(QT_GUI_LIB)
@@ -2903,7 +2904,7 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 }
 
-/* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ Sˆflingen */
+/* Written: Saturday 05-Nov-2011 12:04 pm, Code HQ S√∂flingen */
 
 void CWindow::rethinkLayout()
 {
@@ -2913,16 +2914,16 @@ void CWindow::rethinkLayout()
 
 	/* Rethink the layout gadget sizes, starting from the root gadget that holds them */
 
-	ILayout->RethinkLayout((struct Gadget *) m_poRootLayout, m_poWindow, NULL, TRUE);
+	RethinkLayout((struct Gadget *) m_poRootLayout, m_poWindow, NULL, TRUE);
 
 	/* Now iterate through the framework's gadgets and let them know they have been resized */
 
-	LayoutGadget = m_oGadgets.GetHead();
+	LayoutGadget = m_oGadgets.getHead();
 
 	while (LayoutGadget)
 	{
 		LayoutGadget->rethinkLayout();
-		LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+		LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
 	}
 
 #else /* ! __amigaos__ */
@@ -2931,7 +2932,7 @@ void CWindow::rethinkLayout()
 
 	Y = 0;
 	InnerHeight = m_iInnerHeight;
-	LayoutGadget = m_oGadgets.GetHead();
+	LayoutGadget = m_oGadgets.getHead();
 
 	if (LayoutGadget)
 	{
@@ -2951,7 +2952,7 @@ void CWindow::rethinkLayout()
 				LayoutGadget->m_iHeight = -1;
 			}
 
-			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
 		}
 
 		/* Each vertical layout gadget will be the same height, but the last one might be slightly */
@@ -2960,7 +2961,7 @@ void CWindow::rethinkLayout()
 		Height = (m_iInnerHeight / m_oGadgets.Count());
 		RemainderHeight = (m_iInnerHeight - (Height * (m_oGadgets.Count() - 1)));
 
-		LayoutGadget = m_oGadgets.GetHead();
+		LayoutGadget = m_oGadgets.getHead();
 
 		while (LayoutGadget)
 		{
@@ -2973,7 +2974,7 @@ void CWindow::rethinkLayout()
 			}
 			else if (LayoutGadget->Weight() == 50)
 			{
-				if (m_oGadgets.GetSucc(LayoutGadget) == NULL)
+				if (m_oGadgets.getSucc(LayoutGadget) == NULL)
 				{
 					LayoutGadget->m_iHeight = RemainderHeight;
 				}
@@ -2990,15 +2991,15 @@ void CWindow::rethinkLayout()
 				Y += InnerHeight;
 			}
 
-			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
 		}
 
-		LayoutGadget = m_oGadgets.GetHead();
+		LayoutGadget = m_oGadgets.getHead();
 
 		while (LayoutGadget)
 		{
 			LayoutGadget->rethinkLayout();
-			LayoutGadget = m_oGadgets.GetSucc(LayoutGadget);
+			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
 		}
 	}
 
@@ -3052,7 +3053,7 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
  * order to use that key in shortcut sequences.  Note that the meta key differs
  * subtly between operating systems.
  *
- * @date	29-May03-2018 8:21 am, Code HQ Bergmannstraﬂe
+ * @date	29-May03-2018 8:21 am, Code HQ Bergmannstra√üe
  * @return	ETrue if the meta key is pressed, else EFalse
  */
 

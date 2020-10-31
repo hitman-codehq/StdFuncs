@@ -45,7 +45,7 @@ MungWall::~MungWall()
 			stBytesLeaked += paArena->stOrigSize;
 			pvBlock = ((UBYTE *) paArena + sizeof(struct Arena) + MungeSize);
 			paArena = paArena->paNext;
-			Delete(pvBlock);
+			Free(pvBlock);
 		}
 
 		Utils::info(accLeakage, stBytesLeaked, ulNews);
@@ -195,7 +195,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 }
 
 /**********************************************************************/
-/* MungWall::Delete is called to delete an arena.  It will call       */
+/* MungWall::Free is called to delete an arena.  It will call         */
 /* CheckOverWrites to ensure that the user buffer has not been        */
 /* overwritten, and will munge the memory after it is freed.          */
 /* Written: Thursday 11-Dec-1997 2:16 pm                              */
@@ -210,7 +210,7 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 /*                       members are valid, else FALSE                */
 /**********************************************************************/
 
-void MungWall::Delete(void *pvBlock, const char *pccSourceFile, int iSourceLine, BOOL bHasSource)
+void MungWall::Free(void *pvBlock, const char *pccSourceFile, int iSourceLine, BOOL bHasSource)
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
@@ -368,7 +368,7 @@ void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, i
 
 	/* And delete the old block */
 
-	Delete(pvBlock);
+	Free(pvBlock);
 
 	return(RetVal);
 }
@@ -385,7 +385,7 @@ void *MungWall::ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, i
 
 void DebugFree(void *pvBlock, const char *pccSourceFile, int iSourceLine)
 {
-	oMungWall.Delete(pvBlock, pccSourceFile, iSourceLine, TRUE);
+	oMungWall.Free(pvBlock, pccSourceFile, iSourceLine, TRUE);
 }
 
 /***************************************************************************/
@@ -527,7 +527,7 @@ void operator delete(void *pvBlock) DELETE_THROW
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
-	oMungWall.Delete(pvBlock);
+	oMungWall.Free(pvBlock);
 
 #else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
@@ -549,7 +549,7 @@ void operator delete [](void *pvBlock) DELETE_THROW
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
-	oMungWall.Delete(pvBlock);
+	oMungWall.Free(pvBlock);
 
 #else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
@@ -563,9 +563,9 @@ void operator delete [](void *pvBlock) DELETE_THROW
 
 /**
  * Deletes a block of memory.
- * Intercepts all global deletes and will calls Mungwall::Delete() to handle the deletion.
+ * Intercepts all global deletes and will calls Mungwall::Free() to handle the deletion.
  *
- * @date	Thursday 30-May-2019 4:20 pm, Code HQ Bergmannstraﬂe
+ * @date	Thursday 30-May-2019 4:20 pm, Code HQ Bergmannstra√üe
  * @param	pvBlock			Pointer to the user's buffer to delete
  */
 
@@ -574,7 +574,7 @@ void operator delete(void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
-	oMungWall.Delete(pvBlock);
+	oMungWall.Free(pvBlock);
 
 #else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
@@ -588,7 +588,7 @@ void operator delete(void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
  * Deletes a block of memory containing an array of objects.
  * Intercepts all global array deletes and will calls Mungwall::Delete() to handle the deletion.
  *
- * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstraﬂe
+ * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstra√üe
  * @param	pvBlock			Pointer to the user's buffer to delete
  */
 
@@ -597,7 +597,7 @@ void operator delete [](void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
 
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
-	oMungWall.Delete(pvBlock);
+	oMungWall.Free(pvBlock);
 
 #else /* ! defined(_DEBUG) && !defined(QT_GUI_LIB) */
 

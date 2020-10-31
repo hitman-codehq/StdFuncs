@@ -15,7 +15,7 @@ static const char *g_pccEmptyString = "";	/* Empty string used for creating menu
  * Standard Symbian style factory function that will create and initialise an instance of the
  * class.
  *
- * @date	Wednesday 30-Oct-2013 12:19 pm, Henry's Kaffe Welt (Hirschstraße)
+ * @date	Wednesday 30-Oct-2013 12:19 pm, Henry's Kaffe Welt (HirschstraÃŸe)
  * @param	a_poWindow		Ptr to the parent window to which the menus will belong
  * @param	a_pcoMenuItems	Array of SStdMenuItem structures containing the dropdown menus and
  *							menu items to be created
@@ -148,7 +148,7 @@ TInt CAmiMenus::Construct()
 
 			if ((m_poMenus = CreateIntuitionMenus(NewMenus)) != NULL)
 			{
-				if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
+				if (SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 				{
 					RetVal = KErrNone;
 					m_bMenuStripSet = ETrue;
@@ -181,10 +181,10 @@ CAmiMenus::~CAmiMenus()
 
 		if (m_bMenuStripSet)
 		{
-			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+			ClearMenuStrip(m_poWindow->m_poWindow);
 		}
 
-		IGadTools->FreeMenus(m_poMenus);
+		FreeMenus(m_poMenus);
 	}
 
 	/* The label strings used by the menus are no longer required so destroy them */
@@ -448,9 +448,9 @@ TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel
 
 				if ((Menus = CreateIntuitionMenus(NewMenus)) != NULL)
 				{
-					IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+					ClearMenuStrip(m_poWindow->m_poWindow);
 
-					if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, Menus))
+					if (SetMenuStrip(m_poWindow->m_poWindow, Menus))
 					{
 						RetVal = KErrNone;
 						m_bMenuStripSet = ETrue;
@@ -465,7 +465,7 @@ TInt CAmiMenus::AddItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel
 						delete [] m_poNewMenus;
 						m_poNewMenus = NewMenus;
 
-						IGadTools->FreeMenus(m_poMenus);
+						FreeMenus(m_poMenus);
 						m_poMenus = Menus;
 					}
 				}
@@ -517,11 +517,11 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 		{
 			/* Now use the result to find the actual menu in the menu strip */
 
-			if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
+			if ((MenuItem = ItemAddress(m_poMenus, FullMenuNum)) != NULL)
 			{
 				/* Enable or disable the menu item's check mark as appropriate */
 
-				IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+				ClearMenuStrip(m_poWindow->m_poWindow);
 
 				if (a_bEnable)
 				{
@@ -534,7 +534,7 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 					MenuItem->Flags &= ~CHECKED;
 				}
 
-				IIntuition->ResetMenuStrip(m_poWindow->m_poWindow, m_poMenus);
+				ResetMenuStrip(m_poWindow->m_poWindow, m_poMenus);
 			}
 			else
 			{
@@ -682,19 +682,19 @@ struct Menu *CAmiMenus::CreateIntuitionMenus(struct NewMenu *a_poNewMenus)
 	/* Lock the default public screen and obtain a VisualInfo structure, in preparation for laying */
 	/* the menus out */
 
-	if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
+	if ((Screen = LockPubScreen(NULL)) != NULL)
 	{
-		if ((VisualInfo = IGadTools->GetVisualInfo(Screen, TAG_DONE)) != NULL)
+		if ((VisualInfo = GetVisualInfo(Screen, TAG_DONE)) != NULL)
 		{
 			/* Create the menus and lay them out in preparation for display */
 
-			if ((RetVal = IGadTools->CreateMenus(a_poNewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
+			if ((RetVal = CreateMenus(a_poNewMenus, GTMN_FrontPen, 1, TAG_DONE)) != NULL)
 			{
-				if (!(IGadTools->LayoutMenus(RetVal, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE)))
+				if (!(LayoutMenus(RetVal, VisualInfo, GTMN_NewLookMenus, 1, TAG_DONE)))
 				{
 					/* Layout failed so free the menu structure and return failure */
 
-					IGadTools->FreeMenus(RetVal);
+					FreeMenus(RetVal);
 					RetVal = NULL;
 				}
 			}
@@ -702,7 +702,7 @@ struct Menu *CAmiMenus::CreateIntuitionMenus(struct NewMenu *a_poNewMenus)
 
 		/* And unlock the default public screen */
 
-		IIntuition->UnlockPubScreen(NULL, Screen);
+		UnlockPubScreen(NULL, Screen);
 	}
 
 	return(RetVal);
@@ -735,12 +735,12 @@ void CAmiMenus::EnableItem(TInt a_iItemID, TBool a_bEnable)
 
 			if (a_bEnable)
 			{
-				IIntuition->OnMenu(m_poWindow->m_poWindow, FullMenuNum);
+				OnMenu(m_poWindow->m_poWindow, FullMenuNum);
 				NewMenu->nm_Flags &= ~NM_ITEMDISABLED;
 			}
 			else
 			{
-				IIntuition->OffMenu(m_poWindow->m_poWindow, FullMenuNum);
+				OffMenu(m_poWindow->m_poWindow, FullMenuNum);
 				NewMenu->nm_Flags |= NM_ITEMDISABLED;
 			}
 		}
@@ -1084,7 +1084,7 @@ TBool CAmiMenus::ItemChecked(TInt a_iItemID)
 	{
 		/* Now use the result to find the actual menu in the menu strip */
 
-		if ((MenuItem = IIntuition->ItemAddress(m_poMenus, FullMenuNum)) != NULL)
+		if ((MenuItem = ItemAddress(m_poMenus, FullMenuNum)) != NULL)
 		{
 			/* And determine whether the menu item is checked */
 
@@ -1158,15 +1158,15 @@ void CAmiMenus::RemoveItem(TInt a_iItemID)
 			{
 				/* Remove the old Intuition menu structures from the menu strip and free them */
 
-				IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+				ClearMenuStrip(m_poWindow->m_poWindow);
 				m_bMenuStripSet = EFalse;
 
-				IGadTools->FreeMenus(m_poMenus);
+				FreeMenus(m_poMenus);
 				m_poMenus = Menus;
 
 				/* And now attach the new Intuition menu structures to the menu strip */
 
-				if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
+				if (SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 				{
 					m_bMenuStripSet = ETrue;
 				}
@@ -1251,15 +1251,15 @@ void CAmiMenus::UpdateItem(const char *a_pccLabel, const char *a_pccHotKey, TInt
 		{
 			/* Remove the old Intuition menu structures from the menu strip and free them */
 
-			IIntuition->ClearMenuStrip(m_poWindow->m_poWindow);
+			ClearMenuStrip(m_poWindow->m_poWindow);
 			m_bMenuStripSet = EFalse;
 
-			IGadTools->FreeMenus(m_poMenus);
+			FreeMenus(m_poMenus);
 			m_poMenus = Menus;
 
 			/* And now attach the new Intuition menu structures to the menu strip */
 
-			if (IIntuition->SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
+			if (SetMenuStrip(m_poWindow->m_poWindow, m_poMenus))
 			{
 				m_bMenuStripSet = ETrue;
 			}

@@ -12,7 +12,7 @@
 
 #ifdef __amigaos4__
 
-#define DELETE_FILE(FileName) IDOS->Delete(FileName)
+#define DELETE_FILE(FileName) Delete(FileName)
 
 #elif defined(__unix__)
 
@@ -72,7 +72,7 @@ TInt BaflUtils::RenameFile(const char *a_pccOldFullName, const char *a_pccNewFul
 
 #ifdef __amigaos4__
 
-	RetVal = (IDOS->Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
+	RetVal = (Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
 
 #elif defined(__unix__)
 

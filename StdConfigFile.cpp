@@ -116,7 +116,7 @@ CSection::~CSection()
 
 CSection *CSection::FindSection()
 {
-	return(m_oSections.GetHead());
+	return(m_oSections.getHead());
 }
 
 /**
@@ -136,7 +136,7 @@ CSection *CSection::FindSection(const char *a_pccName)
 
 	/* Get a ptr to the first subsection in the section */
 
-	if ((RetVal = m_oSections.GetHead()) != NULL)
+	if ((RetVal = m_oSections.getHead()) != NULL)
 	{
 		/* Loop around until a subsection is found that matches the name passed in */
 
@@ -149,7 +149,7 @@ CSection *CSection::FindSection(const char *a_pccName)
 
 			/* Not a matching subsection - get a ptr to the next subsection in the list */
 
-			RetVal = m_oSections.GetSucc(RetVal);
+			RetVal = m_oSections.getSucc(RetVal);
 		}
 		while (RetVal);
 	}
@@ -171,7 +171,7 @@ CSection *CSection::FindSection(const char *a_pccName)
 
 CSection *CSection::FindNextSection(CSection *a_poSection)
 {
-	return(m_oSections.GetSucc(a_poSection));
+	return(m_oSections.getSucc(a_poSection));
 }
 
 /**
@@ -190,7 +190,7 @@ CKey *CSection::FindKey(const char *a_pccName)
 
 	/* Get a ptr to the first key in the section */
 
-	if ((RetVal = m_oKeys.GetHead()) != NULL)
+	if ((RetVal = m_oKeys.getHead()) != NULL)
 	{
 		/* Loop around until a key is found that matches the name passed in */
 
@@ -203,7 +203,7 @@ CKey *CSection::FindKey(const char *a_pccName)
 
 			/* Not a matching key - get a ptr to the next subsection in the list */
 
-			RetVal = m_oKeys.GetSucc(RetVal);
+			RetVal = m_oKeys.getSucc(RetVal);
 		}
 		while (RetVal);
 	}
@@ -236,7 +236,7 @@ CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
 	/* Get a ptr to the next key in the list and loop around checking to see if it */
 	/* matches the one passed in */
 
-	while ((RetVal = m_oKeys.GetSucc(RetVal)) != NULL)
+	while ((RetVal = m_oKeys.getSucc(RetVal)) != NULL)
 	{
 		if (_stricmp(RetVal->m_pcName, a_pccName) == 0)
 		{
@@ -350,7 +350,7 @@ CSection *RConfigFile::FindSection(const char *a_pccName)
 {
 	CSection *RetVal;
 
-	if ((RetVal = m_oSections.GetHead()) != NULL)
+	if ((RetVal = m_oSections.getHead()) != NULL)
 	{
 		do
 		{
@@ -359,7 +359,7 @@ CSection *RConfigFile::FindSection(const char *a_pccName)
 				break;
 			}
 
-			RetVal = m_oSections.GetSucc(RetVal);
+			RetVal = m_oSections.getSucc(RetVal);
 		}
 		while (RetVal);
 	}

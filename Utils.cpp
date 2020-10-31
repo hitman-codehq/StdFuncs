@@ -42,7 +42,7 @@
 
 #define MAX_NAME_FROM_LOCK_LENGTH 1024
 
-#define DELETE_DIRECTORY(DirectoryName) IDOS->Delete(DirectoryName)
+#define DELETE_DIRECTORY(DirectoryName) Delete(DirectoryName)
 #define VSNPRINTF vsnprintf
 
 #elif defined(__unix__)
@@ -147,7 +147,7 @@ TInt Utils::MapLastError()
 
 	LONG Result;
 
-	Result = IDOS->IoErr();
+	Result = IoErr();
 
 	if (Result == ERROR_OBJECT_EXISTS)
 	{
@@ -338,7 +338,7 @@ TBool Utils::addPart(char *a_pcDest, const char *a_pccSource, size_t a_stDestSiz
 
 #ifdef __amigaos__
 
-	RetVal = IDOS->AddPart(a_pcDest, a_pccSource, a_stDestSize);
+	RetVal = AddPart(a_pcDest, a_pccSource, a_stDestSize);
 
 #else /* ! __amigaos__ */
 
@@ -524,15 +524,15 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 
 	BPTR Lock;
 
-	if ((Lock = IDOS->CreateDir(a_pccDirectoryName)) != 0)
+	if ((Lock = CreateDir(a_pccDirectoryName)) != 0)
 	{
 		RetVal = KErrNone;
 
-		IDOS->UnLock(Lock);
+		UnLock(Lock);
 	}
 	else
 	{
-		RetVal = (IDOS->IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
+		RetVal = (IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
 	}
 
 #elif defined(__unix__)
@@ -632,14 +632,14 @@ TInt Utils::Detach()
 	/* command or by our own relaunching of ourselves as backgrounded) then relaunch */
 	/* the process asynchronously */
 
-	CLI = IDOS->Cli();
+	CLI = Cli();
 
 	if ((CLI) && (!(CLI->cli_Background ) && (CLI->cli_CommandName)))
 	{
 		/* Determine the size of the buffers needed for the command name and command line */
 
-		CommandNameLength = IDOS->CopyStringBSTRToC(CLI->cli_CommandName, NULL, 0);
-		ArgStrLength = strlen(IDOS->GetArgStr());
+		CommandNameLength = CopyStringBSTRToC(CLI->cli_CommandName, NULL, 0);
+		ArgStrLength = strlen(GetArgStr());
 
 		/* Allocate a buffer long enough for the command name. This must include an extra */
 		/* byte for the NULL terminator */
@@ -658,23 +658,23 @@ TInt Utils::Detach()
 			/* the name of the executable.  This will be used for setting the task name so that */
 			/* the program shows up in the task list as something more useful than "New Process" */
 
-			IDOS->CopyStringBSTRToC(CLI->cli_CommandName, CommandNameBuffer, (CommandNameLength + 1));
+			CopyStringBSTRToC(CLI->cli_CommandName, CommandNameBuffer, (CommandNameLength + 1));
 			CommandName = Utils::filePart(CommandNameBuffer);
 
 			/* Build the string used to relaunch the process */
 
-			Process = (struct Process *) IExec->FindTask(NULL);
-			IUtility->SNPrintf(Command, CommandLength,"\"%b\" %s", CLI->cli_CommandName, IDOS->GetArgStr());
+			Process = (struct Process *) FindTask(NULL);
+			SNPrintf(Command, CommandLength,"\"%b\" %s", CLI->cli_CommandName, GetArgStr());
 
 			/* We want to use the parent's input stream for both input and output, so duplicate */
 			/* it as it will be closed when the child process exits */
 
-			if ((Cos = IDOS->DupFileHandle(Process->pr_CIS)) != 0)
+			if ((Cos = DupFileHandle(Process->pr_CIS)) != 0)
 			{
 				/* And launch the child process!  If successful then exit as this is essentially */
 				/* performing a fork() and we don't want to keep the parent process alive */
 
-				Result = IDOS->SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
+				Result = SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
 					SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
 
 				if (Result == 0)
@@ -690,7 +690,7 @@ TInt Utils::Detach()
 				{
 					RetVal = KErrGeneral;
 
-					IDOS->Close(Cos);
+					Close(Cos);
 				}
 			}
 		}
@@ -905,15 +905,15 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 	if (a_poWBArg->wa_Lock)
 	{
-		if (IDOS->NameFromLock(a_poWBArg->wa_Lock, Path, sizeof(Path)))
+		if (NameFromLock(a_poWBArg->wa_Lock, Path, sizeof(Path)))
 		{
-			if ((ExamineData = IDOS->ExamineObjectTags(EX_FileLockInput, a_poWBArg->wa_Lock, TAG_DONE)) != NULL)
+			if ((ExamineData = ExamineObjectTags(EX_FileLockInput, a_poWBArg->wa_Lock, TAG_DONE)) != NULL)
 			{
 				/* Create the fully qualified path from the path and filename */
 
 				strcpy(a_pcFullName, Path);
 
-				if (IDOS->AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)))
+				if (AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)))
 				{
 					RetVal = ETrue;
 
@@ -926,7 +926,7 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 					Utils::info("Utils::FullNameFromWBArg() => Unable to build filename");
 				}
 
-				IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+				FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 			}
 			else
 			{
@@ -1026,14 +1026,14 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 			if (*ProgDirName != '\0')
 			{
-				if ((ExamineData = IDOS->ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
+				if ((ExamineData = ExamineObjectTags(EX_StringNameInput, ProgDirName, TAG_DONE)) != NULL)
 				{
 					RetVal = KErrNone;
 
 					/* Convert the new style date structure into something more usable that also contains */
 					/* year, month and day information */
 
-					IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
+					Amiga2Date(DateStampToSeconds(&ExamineData->Date), &ClockData);
 
 					/* Convert it so a Symbian style TDateTime structure */
 
@@ -1063,7 +1063,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 						strcpy(a_poEntry->iName, ExamineData->Name);
 					}
 
-					IDOS->FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+					FreeDosObject(DOS_EXAMINEDATA, ExamineData);
 				}
 			}
 
@@ -1278,12 +1278,12 @@ void Utils::GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow)
 
 	struct Screen *Screen;
 
-	if ((Screen = IIntuition->LockPubScreen(NULL)) != NULL)
+	if ((Screen = LockPubScreen(NULL)) != NULL)
 	{
 		a_roScreenSize.m_iWidth = Screen->Width;
 		a_roScreenSize.m_iHeight = Screen->Height;
 
-		IIntuition->UnlockPubScreen(NULL, Screen);
+		UnlockPubScreen(NULL, Screen);
 	}
 
 #elif defined(__unix__)
@@ -1388,16 +1388,16 @@ int Utils::GetShellHeight()
 
 	/* Get the standard DOS input and output handles to use for querying the shell dimensions */
 
-	InHandle = IDOS->Input();
-	OutHandle = IDOS->Output();
+	InHandle = Input();
+	OutHandle = Output();
 
 	/* Put the console into RAW mode */
 
-	if (IDOS->SetMode(OutHandle, 1))
+	if (SetMode(OutHandle, 1))
 	{
 		/* Write CSI request for console window dimensions */
 
-		if (IDOS->Write(OutHandle, "\x9b" "0 q", 4) == 4)
+		if (Write(OutHandle, "\x9b" "0 q", 4) == 4)
 		{
 			/* Iterate through the response and copy it into a temporary buffer */
 
@@ -1406,7 +1406,7 @@ int Utils::GetShellHeight()
 
 			do
 			{
-				if ((Result = IDOS->Read(InHandle, BufferPtr, 1)) > 0)
+				if ((Result = Read(InHandle, BufferPtr, 1)) > 0)
 				{
 					++Length;
 					Char = *BufferPtr++;
@@ -1421,13 +1421,13 @@ int Utils::GetShellHeight()
 			/* Put the console back into cooked mode. No point in checking for the unlikely error */
 			/* that might happen because what would we do anyway? */
 
-			IDOS->SetMode(OutHandle, 0);
+			SetMode(OutHandle, 0);
 
 			/* If the response was extract successfully, extract the height into the supplied variable */
 
 			if ((Length > 9) && (Buffer[0] == '\x9b'))
 			{
-				IDOS->StrToLong(&Buffer[5], (LONG *) &RetVal);
+				StrToLong(&Buffer[5], (LONG *) &RetVal);
 			}
 		}
 		else
@@ -1661,7 +1661,7 @@ void Utils::info(const char *a_pccMessage, ...)
 
 #ifdef __amigaos__
 
-	IExec->DebugPrintF("%s\n", Message);
+	DebugPrintF("%s\n", Message);
 
 #elif defined(__unix__)
 
@@ -1837,7 +1837,7 @@ TInt Utils::makeLink(const char *a_pccSource, const char *a_pccDest)
 
 #ifdef __amigaos4__
 
-	if (IDOS->MakeLink(a_pccSource, (void *) a_pccDest, LINK_SOFT) == 0)
+	if (MakeLink(a_pccSource, (void *) a_pccDest, LINK_SOFT) == 0)
 	{
 		RetVal = KErrGeneral;
 	}
@@ -1992,7 +1992,7 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 
 	/* Display the requester */
 
-	Result = IIntuition->EasyRequest((RootWindow) ? RootWindow->m_poWindow : NULL, &EasyStruct, NULL);
+	Result = EasyRequest((RootWindow) ? RootWindow->m_poWindow : NULL, &EasyStruct, NULL);
 
 	/* And convert the result to one of the standard return values */
 
@@ -2209,7 +2209,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 	{
 		/* Get a lock on the specified filename and convert it to a qualified filename */
 
-		if ((Lock = IDOS->Lock(a_pccFileName, SHARED_LOCK)) != 0)
+		if ((Lock = Lock(a_pccFileName, SHARED_LOCK)) != 0)
 		{
 			LockedFile = ETrue;
 		}
@@ -2221,7 +2221,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			Utils::info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
 
 			LockedFile = EFalse;
-			Lock = IDOS->GetCurrentDir();
+			Lock = GetCurrentDir();
 		}
 
 		/* Get the fully qualified name of the file (if the lock was obtained successfully) */
@@ -2230,11 +2230,11 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (a_bGetDeviceName)
 		{
-			Result = IDOS->DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH);
+			Result = DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH);
 		}
 		else
 		{
-			Result = IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH);
+			Result = NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH);
 		}
 
 		if (Result == 0)
@@ -2257,7 +2257,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (LockedFile)
 		{
-			IDOS->UnLock(Lock);
+			UnLock(Lock);
 		}
 	}
 	else
@@ -2478,9 +2478,9 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 		{
 			/* Get a lock on the specified filename and convert it to a qualified filename */
 
-			if ((Lock = IDOS->GetProgramDir()) != 0)
+			if ((Lock = GetProgramDir()) != 0)
 			{
-				if (IDOS->NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH ) != 0)
+				if (NameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH ) != 0)
 				{
 					/* Append the name of the file to be opened in the executable's directory */
 
@@ -2666,14 +2666,14 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 	/* Allocate some data structures into which the information about the directory entries may be placed, */
 	/* and a control structure for scanning through the directory */
 
-	Context = IDOS->ObtainDirContextTags(EX_StringNameInput, a_pccDirectoryName,
+	Context = ObtainDirContextTags(EX_StringNameInput, a_pccDirectoryName,
 		EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
 
 	if (Context)
 	{
 		RetVal = ETrue;
 
-		while ((ExamineData = IDOS->ExamineDir(Context)) != NULL)
+		while ((ExamineData = ExamineDir(Context)) != NULL)
 		{
 			if ((EXD_IS_FILE(ExamineData)) || (EXD_IS_LINK(ExamineData)))
 			{
@@ -2701,7 +2701,7 @@ TBool Utils::ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, S
 			}
 		}
 
-		IDOS->ReleaseDirContext(Context);
+		ReleaseDirContext(Context);
 	}
 	else
 	{
@@ -2791,13 +2791,13 @@ TInt Utils::setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 
 	(void) a_bResolveLink;
 
-	if (IDOS->SetDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
+	if (SetDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
 	{
 		RetVal = KErrNone;
 	}
 	else
 	{
-		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
+		RetVal = (IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
 #elif defined(__unix__)
@@ -2889,13 +2889,13 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 #ifdef __amigaos__
 
-	if (IDOS->SetProtection(a_pccFileName, a_uiAttributes))
+	if (SetProtection(a_pccFileName, a_uiAttributes))
 	{
 		RetVal = KErrNone;
 	}
 	else
 	{
-		RetVal = (IDOS->IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
+		RetVal = (IoErr() == ERROR_OBJECT_NOT_FOUND) ? KErrNotFound : KErrGeneral;
 	}
 
 #elif defined(__unix__)
@@ -3129,7 +3129,7 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 
 	/* Although unlikely, this can fail so we have to check it */
 
-	RetVal = (IDOS->DateToStr(&DateTime) != 0);
+	RetVal = (DateToStr(&DateTime) != 0);
 
 #else /* ! __amigaos4__ */
 

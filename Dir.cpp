@@ -310,11 +310,11 @@ const TEntry &TEntryArray::operator[](TInt a_iIndex) const
 	// TODO: CAW - Will be slow + what if this is NULL? Check for count and assert
 	TEntry *Entry;
 
-	Entry = iEntries.GetHead();
+	Entry = iEntries.getHead();
 
 	while (a_iIndex > 0)
 	{
-		Entry = iEntries.GetSucc(Entry);
+		Entry = iEntries.getSucc(Entry);
 		--a_iIndex;
 	}
 
@@ -323,14 +323,14 @@ const TEntry &TEntryArray::operator[](TInt a_iIndex) const
 
 /* Written: Saturday 11-Jul-2008 10:44 pm */
 
-const TEntry *TEntryArray::GetHead() const
+const TEntry *TEntryArray::getHead() const
 {
-	return(iEntries.GetHead());
+	return(iEntries.getHead());
 }
 
-const TEntry *TEntryArray::GetSucc(const TEntry *a_poEntry) const
+const TEntry *TEntryArray::getSucc(const TEntry *a_poEntry) const
 {
-	return(iEntries.GetSucc(a_poEntry));
+	return(iEntries.getSucc(a_poEntry));
 }
 
 /* Written: Saturday 11-Jul-2010 3:36 pm */
@@ -554,12 +554,12 @@ TInt RDir::open(const char *a_pccPattern)
 
 				/* See if a pattern was passed in */
 
-				if ((Result = IDOS->ParsePatternNoCase(Pattern, iPattern, Length)) == 1)
+				if ((Result = ParsePatternNoCase(Pattern, iPattern, Length)) == 1)
 				{
 					/* We are using a pattern so remove it from the base path, which we */
 					/* want to point just to the directory */
 
-					FileNameOffset = IDOS->PathPart(iPath);
+					FileNameOffset = PathPart(iPath);
 					iPath[FileNameOffset - iPath] = '\0';
 				}
 
@@ -580,12 +580,12 @@ TInt RDir::open(const char *a_pccPattern)
 			{
 				/* Open a context for the directory to be scanned */
 
-				iContext = IDOS->ObtainDirContextTags(EX_StringNameInput, iPath,
+				iContext = ObtainDirContextTags(EX_StringNameInput, iPath,
 					EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
 
 				if (!(iContext))
 				{
-					Result = IDOS->IoErr();
+					Result = IoErr();
 
 					if (Result == ERROR_OBJECT_NOT_FOUND)
 					{
@@ -799,7 +799,7 @@ void RDir::close()
 
 	if (iContext)
 	{
-		IDOS->ReleaseDirContext(iContext);
+		ReleaseDirContext(iContext);
 		iContext = NULL;
 	}
 
@@ -866,7 +866,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 	if (iContext)
 	{
-		while ((ExamineData = IDOS->ExamineDir(iContext)) != NULL)
+		while ((ExamineData = ExamineDir(iContext)) != NULL)
 		{
 			/* Add the file to the list by default */
 
@@ -877,7 +877,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 			if (iPattern)
 			{
-				if (!(IDOS->MatchPatternNoCase(iPattern, ExamineData->Name)))
+				if (!(MatchPatternNoCase(iPattern, ExamineData->Name)))
 				{
 					AddFile = EFalse;
 				}
@@ -892,7 +892,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 					/* Convert the new style date structure into something more usable that also contains */
 					/* year, month and day information */
 
-					IUtility->Amiga2Date(IDOS->DateStampToSeconds(&ExamineData->Date), &ClockData);
+					Amiga2Date(DateStampToSeconds(&ExamineData->Date), &ClockData);
 
 					/* Convert it to a Symbian style TDateTime structure */
 
@@ -919,7 +919,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 							/* And copy the link name into the buffer */
 
 							strcpy(LinkName, iPath);
-							IDOS->AddPart(LinkName, ExamineData->Name, Length);
+							AddPart(LinkName, ExamineData->Name, Length);
 
 							/* Obtain the size of the file that the link points to */
 
@@ -973,7 +973,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		/* return an error if approrpriate so that client software can abort its attempt to read the */
 		/* directory */
 
-		if (IDOS->IoErr() != ERROR_NO_MORE_ENTRIES)
+		if (IoErr() != ERROR_NO_MORE_ENTRIES)
 		{
 			RetVal = KErrGeneral;
 		}

@@ -154,13 +154,13 @@ TInt RApplication::Main()
 
 	do
 	{
-		Signal = IExec->Wait(m_ulWindowSignals | g_oRendezvous.GetSignal());
+		Signal = Wait(m_ulWindowSignals | g_oRendezvous.GetSignal());
 
 		/* Check to see if a message was received by the rendezvous port */
 
 		if (Signal & g_oRendezvous.GetSignal())
 		{
-			Message = IExec->GetMsg(g_oRendezvous.GetMessagePort());
+			Message = GetMsg(g_oRendezvous.GetMessagePort());
 
 			/* Extract the payload from the message and let the RRendezvous class know that a message was received */
 
@@ -170,7 +170,7 @@ TInt RApplication::Main()
 
 			/* And reply to the client, to let it know that the message has been processed */
 
-			IExec->ReplyMsg(Message);
+			ReplyMsg(Message);
 		}
 
 		Window = m_poWindows;
@@ -243,7 +243,7 @@ TInt RApplication::Main()
 							/* we can extract the command ID of the menu item from the user data */
 							/* field and pass it to CWindow::HandleCommand() */
 
-							if ((MenuItem = IIntuition->ItemAddress(Window->Menus(), Code)) != NULL)
+							if ((MenuItem = ItemAddress(Window->Menus(), Code)) != NULL)
 							{
 								ItemID = (TInt) GTMENUITEM_USERDATA(MenuItem);
 
@@ -263,7 +263,7 @@ TInt RApplication::Main()
 
 							/* And get the code of the next menu item selected */
 
-							Code = IIntuition->ItemAddress(Window->Menus(), Code)->NextSelect;
+							Code = ItemAddress(Window->Menus(), Code)->NextSelect;
 						}
 
 						break;
@@ -288,7 +288,7 @@ TInt RApplication::Main()
 
 							if (Code == SELECTDOWN)
 							{
-								IIntuition->CurrentTime(&SecondSeconds, &SecondMicros);
+								CurrentTime(&SecondSeconds, &SecondMicros);
 
 								/* Only handle this as a double click if the second click is at the same */
 								/* X and Y position as the first */
@@ -297,7 +297,7 @@ TInt RApplication::Main()
 								{
 									/* Double click? */
 
-									if (IIntuition->DoubleClick(m_ulMainSeconds, m_ulMainMicros, SecondSeconds, SecondMicros))
+									if (DoubleClick(m_ulMainSeconds, m_ulMainMicros, SecondSeconds, SecondMicros))
 									{
 										/* Yep!  Signal this and reset the double click time to avoid a third */
 										/* click getting treated as a double click */
@@ -365,7 +365,7 @@ TInt RApplication::Main()
 
 						/* Get a ptr to the InputEvent from Reaction */
 
-						if (IIntuition->GetAttr(WINDOW_InputEvent, Window->m_poWindowObj, (ULONG *) &InputEvent) > 0)
+						if (GetAttr(WINDOW_InputEvent, Window->m_poWindowObj, (ULONG *) &InputEvent) > 0)
 						{
 							KeyDown = (!(Code & IECODE_UP_PREFIX));
 							Code = (Code & ~IECODE_UP_PREFIX);
@@ -447,7 +447,7 @@ TInt RApplication::Main()
 
 									ExecutedShortcut = EFalse;
 
-									if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+									if ((NumChars = MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 									{
 										/* It is possible for the window to not have any menus attached so check this */
 
@@ -482,7 +482,7 @@ TInt RApplication::Main()
 											ShortcutEvent.ie_Qualifier = InputEvent->ie_Qualifier;
 										}
 
-										if ((NumChars = IKeymap->MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
+										if ((NumChars = MapRawKey(&ShortcutEvent, KeyBuffer, sizeof(KeyBuffer), NULL)) > 0)
 										{
 											/* If the ctrl key is currently pressed then convert the keycode back to lower case, */
 											/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */

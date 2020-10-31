@@ -63,7 +63,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		/* compatibility with other operating systems we use the arguments passed in, */
 		/* rather than the internal ones originally parsed by dos.library */
 
-		m_poInputRDArgs	= (struct RDArgs *) IDOS->AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
+		m_poInputRDArgs	= (struct RDArgs *) AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
 
 		if (m_poInputRDArgs)
 		{
@@ -110,14 +110,14 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 				/* And try and parse them! */
 
-				if ((m_poRDArgs = IDOS->ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, m_poInputRDArgs)) != NULL)
+				if ((m_poRDArgs = ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, m_poInputRDArgs)) != NULL)
 				{
 					RetVal = KErrNone;
 				}
 				else
 				{
 					// TODO: CAW - What about other errors such as ERROR_TOO_MANY_ARGS?
-					if (IDOS->IoErr() == ERROR_REQUIRED_ARG_MISSING)
+					if (IoErr() == ERROR_REQUIRED_ARG_MISSING)
 					{
 						RetVal = KErrNotFound;
 					}
@@ -154,7 +154,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 			if (Utils::GetShellHeight() != -1)
 			{
-				/* Display the template à la Amiga OS and prompt the user for input */
+				/* Display the template Ã  la Amiga OS and prompt the user for input */
 
 				printf("%s\n", a_pccTemplate);
 
@@ -289,7 +289,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 
 		WBArg = a_poWBStartup->sm_ArgList;
 
-		if ((DiskObject = IIcon->GetDiskObject(WBArg->wa_Name)) != NULL)
+		if ((DiskObject = GetDiskObject(WBArg->wa_Name)) != NULL)
 		{
 			/* If there are any tooltypes defined in the icon, copy them into a big string that can be */
 			/* used as an emulated CLI argument list and parsed by IDOS->ReadArgs() */
@@ -364,7 +364,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 					/* the argument list, and use IDOS->RDArgs() to parse it as though it was a */
 					/* real CLI argument list */
 
-					RDArgs = (struct RDArgs *) IDOS->AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
+					RDArgs = (struct RDArgs *) AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
 
 					if (RDArgs)
 					{
@@ -381,7 +381,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 						/* the CLI and the client software will neither know nor care that we have been */
 						/* run from Workbench! */
 
-						if ((m_poTTRDArgs = IDOS->ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, RDArgs)) != NULL)
+						if ((m_poTTRDArgs = ReadArgs(a_pccTemplate, (LONG *) m_pstArgs, RDArgs)) != NULL)
 						{
 							RetVal = KErrNone;
 
@@ -418,7 +418,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 						{
 							Utils::info("RArgs::open() => Unable to read command line arguments");
 
-							IDOS->FreeDosObject(DOS_RDARGS, RDArgs);
+							FreeDosObject(DOS_RDARGS, RDArgs);
 						}
 					}
 					else
@@ -442,7 +442,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 				Utils::info("RArgs::open() => Icon contains no tooltypes");
 			}
 
-			IIcon->FreeDiskObject(DiskObject);
+			FreeDiskObject(DiskObject);
 		}
 		else
 		{
@@ -508,7 +508,7 @@ void RArgs::close()
 
 	if (m_poTTRDArgs)
 	{
-		IDOS->FreeArgs(m_poTTRDArgs);
+		FreeArgs(m_poTTRDArgs);
 		m_poTTRDArgs = NULL;
 	}
 
@@ -516,13 +516,13 @@ void RArgs::close()
 
 	if (m_poRDArgs)
 	{
-		IDOS->FreeArgs(m_poRDArgs);
+		FreeArgs(m_poRDArgs);
 		m_poRDArgs = NULL;
 	}
 
 	if (m_poInputRDArgs)
 	{
-		IDOS->FreeDosObject(DOS_RDARGS, m_poInputRDArgs);
+		FreeDosObject(DOS_RDARGS, m_poInputRDArgs);
 		m_poInputRDArgs = NULL;
 	}
 
@@ -546,7 +546,7 @@ TInt RArgs::Count()
 	return(m_iNumArgs);
 }
 
-/* Written: Saturday 29-Oct-2011 8:05 am, Code HQ Söflingen */
+/* Written: Saturday 29-Oct-2011 8:05 am, Code HQ SÃ¶flingen */
 
 TInt RArgs::CountMultiArguments()
 {
@@ -746,7 +746,7 @@ TInt RArgs::ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_
 	return(RetVal);
 }
 
-/* Written: Saturday 29-Oct-2011 7:28 am, Code HQ Söflingen */
+/* Written: Saturday 29-Oct-2011 7:28 am, Code HQ SÃ¶flingen */
 
 void RArgs::FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions)
 {
