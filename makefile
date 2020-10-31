@@ -1,9 +1,15 @@
 
-AR = @ar
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -Wall -Wextra -Wwrite-strings -DMUNGWALL_NO_LINE_TRACKING
+CFLAGS = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -Wall -Wextra -Wwrite-strings -DMUNGWALL_NO_LINE_TRACKING
+IFLAGS = -D__USE_INLINE__
 
-ifeq ($(CC), cc)
+ifneq ($(PREFIX), "")
+	AR = @$(PREFIX)ar
+	CC = @$(PREFIX)g++
+	LD = @$(PREFIX)g++
+else
+	AR = @ar
 	CC = @g++
+	LD = @g++
 endif
 
 ifdef DEBUG
@@ -16,9 +22,7 @@ endif
 
 LIBRARY = $(OBJ)/libStdFuncs.a
 
-UNAME = $(shell uname)
-
-ifeq ($(UNAME), AmigaOS)
+ifneq ($(PREFIX), "")
 
 OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
 	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
@@ -41,15 +45,15 @@ $(OBJ):
 
 $(LIBRARY): $(OBJECTS)
 	@echo Creating library $@...
-	$(AR) -r $@ $(OBJECTS)
+	$(AR) -rs $@ $(OBJECTS)
 
 $(OBJ)/%.o: %.cpp
 	@echo Compiling $<...
-	$(CC) $(CFLAGS) -o $(OBJ)/$*.o $<
+	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
 
 $(OBJ)/%.o: Amiga/%.cpp
 	@echo Compiling $<...
-	$(CC) $(CFLAGS) -o $(OBJ)/$*.o $<
+	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
 
 clean:
 	@rm -fr $(OBJ)

@@ -5,6 +5,8 @@ project(StdFuncs)
 
 if(MSVC)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+else()
+	add_compile_options(-fno-asynchronous-unwind-tables -fno-strict-aliasing -Wall -Wextra -Wwrite-strings)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
