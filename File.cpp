@@ -97,7 +97,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	/* Create a new file in read/write mode */
 
-	if ((m_oHandle = open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
+	if ((m_oHandle = ::open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
 		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
 		/* multiple locks on individual files */
@@ -291,7 +291,7 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
 
-		if ((m_oHandle = open(ResolvedFileName, Flags, 0)) != -1)
+		if ((m_oHandle = ::open(ResolvedFileName, Flags, 0)) != -1)
 		{
 			/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
 			/* multiple locks on individual files */
@@ -396,7 +396,7 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 
 #elif defined(__unix__)
 
-	RetVal = read(m_oHandle, a_pucBuffer, a_iLength);
+	RetVal = ::read(m_oHandle, a_pucBuffer, a_iLength);
 
 	if (RetVal == -1)
 	{
@@ -527,7 +527,7 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 #elif defined(__unix__)
 
-	RetVal = write(m_oHandle, a_pcucBuffer, a_iLength);
+	RetVal = ::write(m_oHandle, a_pcucBuffer, a_iLength);
 
 	if (RetVal != a_iLength)
 	{
@@ -577,7 +577,7 @@ void RFile::close()
 
 	if (m_oHandle != -1)
 	{
-		DEBUGCHECK((close(m_oHandle) == 0), "RFile::close() => Unable to close file");
+		DEBUGCHECK((::close(m_oHandle) == 0), "RFile::close() => Unable to close file");
 		m_oHandle = -1;
 	}
 
