@@ -81,7 +81,7 @@ static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/M/A";
 #define ARGS_NOPROTECT 7
 #define ARGS_NUM_ARGS 8
 
-#define CHECK_ARG(a, b) Test.Printf("Checking \"%s\" against \"%s\"\n", a, b); test(strcmp(a, b) == 0);
+#define CHECK_ARG(a, b) Test.printf("Checking \"%s\" against \"%s\"\n", a, b); test(strcmp(a, b) == 0);
 
 static RTest Test("T_Args");	/* Class to use for testing and reporting results */
 
@@ -94,15 +94,15 @@ int main()
 	Test.Title();
 	Test.Start("RArgs class API test");
 
-	/* Test #2: Test that Close() can handle being called before Open() */
+	/* Test #2: Test that close() can handle being called before open() */
 
-	Test.Next("Test that Close() can handle being called before Open()");
-	Args.Close();
+	Test.Next("Test that close() can handle being called before open()");
+	Args.close();
 
 	/* Test #3: Parse simple command line arguments */
 
 	Test.Next("Parse simple command line arguments");
-	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
 
@@ -110,7 +110,7 @@ int main()
 
 	for (Index = ARGS_SOURCE; Index <= ARGS_DEST; ++Index)
 	{
-		Test.Printf("Checking \"%s\" against \"%s\"\n", Args[Index], g_pccArgV[Index + 1]);
+		Test.printf("Checking \"%s\" against \"%s\"\n", Args[Index], g_pccArgV[Index + 1]);
 		test(strcmp(Args[Index], g_pccArgV[Index + 1]) == 0);
 	}
 
@@ -118,11 +118,11 @@ int main()
 
 	for (Index = ARGS_COPY; Index < ARGS_NUM_ARGS; ++Index)
 	{
-		Test.Printf("Checking \"%s\"\n", g_pccArgV[Index + 1]);
+		Test.printf("Checking \"%s\"\n", g_pccArgV[Index + 1]);
 		test(Args[Index] != 0);
 	}
 
-	Args.Close();
+	Args.close();
 
 	/* Test #4: Parse more complex command line parameters that contain white space */
 
@@ -132,7 +132,7 @@ int main()
 	test(OneString != NULL);
 	strcpy(OneString, g_pccOneString);
 
-	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
 
@@ -142,14 +142,14 @@ int main()
 	CHECK_ARG(Args[1], "Dest Dir");
 	test(Args[2] != 0);
 
-	Args.Close();
+	Args.close();
 
 	/* Test #5: Parse more complex command line parameters that contain extra white space */
 
 	Test.Next("Parse complex command line arguments that contain extra white space");
 
 	strcpy(OneString, g_pccOneStringExtraWhite);
-	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
 
@@ -159,14 +159,14 @@ int main()
 	CHECK_ARG(Args[1], "Dest Dir");
 	test(Args[2] != 0);
 
-	Args.Close();
+	Args.close();
 
 	/* Test #6: Parse complex command line arguments lacking white space */
 
 	Test.Next("Parse complex command line arguments lacking white space");
 
 	strcpy(OneString, g_pccOneStringNoWhite);
-	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, OneString);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, OneString);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
 
@@ -177,20 +177,20 @@ int main()
 	test(Args[2] != 0);
 
 	delete [] OneString;
-	Args.Close();
+	Args.close();
 
 	/* Test #7: Test not passing in a parameter for an /A option */
 
 	Test.Next("Not passing in a parameter for an /A option");
 
-	Result = Args.Open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
 	test(Result == KErrNotFound);
 
 	/* Test #8: Command line parameters with multiple sources and one destination */
 
 	Test.Next("Command line parameters with multiple sources and one destination");
 
-	Result = Args.Open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
 
@@ -205,13 +205,13 @@ int main()
 	CHECK_ARG(Args.MultiArgument(0), "First Dir");
 	CHECK_ARG(Args.MultiArgument(1), "Second Dir");
 
-	Args.Close();
+	Args.close();
 
 	/* Test #9: Command line parameters with one source and multiple destinations */
 
 	Test.Next("Command line parameters with one source and multiple destinations");
 
-	Result = Args.Open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	Result = Args.open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
 
@@ -226,13 +226,13 @@ int main()
 	CHECK_ARG(Args.MultiArgument(0), "Second Dir");
 	CHECK_ARG(Args.MultiArgument(1), "Third Dir");
 
-	Args.Close();
+	Args.close();
 
 	/* Test #8: Ensure that passing in 10 or more multiple source options works */
 
 	Test.Next("Ensure that passing in 10 or more multiple source options works");
 
-	Result = Args.Open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMagicMultiArgV, MULTI_MAGIC_ARGV_COUNT);
+	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMagicMultiArgV, MULTI_MAGIC_ARGV_COUNT);
 	test(Result == KErrNone);
 
 	/* Ensure that the string arguments have been read as expected */
@@ -249,7 +249,7 @@ int main()
 		CHECK_ARG(Args.MultiArgument(Index), g_pccMagicMultiArgV[Index + 1]);
 	}
 
-	Args.Close();
+	Args.close();
 
 	Test.End();
 

@@ -49,7 +49,7 @@ static void CheckList(StdList<CNode> &a_roList, const char **a_ppccStrings, TInt
 	test(a_roList.Count() == a_iNumStrings);
 
 	Index = 0;
-	Node = a_roList.GetHead();
+	Node = a_roList.getHead();
 	test(Node != NULL);
 
 	while (Node)
@@ -57,7 +57,7 @@ static void CheckList(StdList<CNode> &a_roList, const char **a_ppccStrings, TInt
 		test(strcmp(Node->m_pccName, a_ppccStrings[Index]) == 0);
 
 		++Index;
-		Node = a_roList.GetSucc(Node);
+		Node = a_roList.getSucc(Node);
 	}
 
 	test(Index == a_iNumStrings);
@@ -84,7 +84,7 @@ static void CreateList(StdList<CNode> &a_roList, const char **a_ppccStrings)
 		Node = new CNode(a_ppccStrings[Index]);
 		test(Node != NULL);
 
-		a_roList.AddTail(Node);
+		a_roList.addTail(Node);
 	}
 }
 
@@ -94,7 +94,7 @@ static void FreeList(StdList<CNode> &a_roList)
 {
 	CNode *Node;
 
-	while ((Node = a_roList.RemHead()) != NULL)
+	while ((Node = a_roList.remHead()) != NULL)
 	{
 		delete Node;
 	}
@@ -169,22 +169,22 @@ static void TestIndex()
 
 	/* Check that the first and last nodes match those returned by GetHead() and GetTail() */
 
-	Node = List.GetHead();
+	Node = List.getHead();
 	test(Node != NULL);
 	test(Node == List[0]);
 
-	Node = List.GetTail();
+	Node = List.getTail();
 	test(Node != NULL);
 	test(Node == List[NUM_NODES - 1]);
 
 	/* And check the node in the middle is returned correctly */
 
-	Node = List.GetHead();
+	Node = List.getHead();
 	test(Node != NULL);
 
 	for (Index = 0; Index < 4; ++Index)
 	{
-		Node = List.GetSucc(Node);
+		Node = List.getSucc(Node);
 		test(Node != NULL);
 	}
 
@@ -206,7 +206,7 @@ static void TestMove()
 	CreateList(SourceList, g_apccUnsortedStrings);
 	CheckList(SourceList, g_apccUnsortedStrings, NUM_NODES);
 
-	List.MoveList(&SourceList);
+	List.moveList(&SourceList);
 	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
 
 	test(SourceList.Count() == 0);
@@ -217,7 +217,7 @@ static void TestMove()
 
 	/* Try moving an empty list to another list, to ensure that the case is handled */
 
-	List.MoveList(&SourceList);
+	List.moveList(&SourceList);
 	test(List.Count() == 0);
 	test(SourceList.Count() == 0);
 	FreeList(List);

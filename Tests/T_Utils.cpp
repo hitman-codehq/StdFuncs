@@ -20,27 +20,27 @@ int main()
 	Test.Title();
 	Test.Start("Utils class API test");
 
-	/* Test #1: Extract a file from a path with Utils::FilePart() */
+	/* Test #1: Extract a file from a path with Utils::filePart() */
 
-	Test.Next("Extract a file from a path with Utils::FilePart()");
+	Test.Next("Extract a file from a path with Utils::filePart()");
 
-	FileName = Utils::FilePart("*.txt");
+	FileName = Utils::filePart("*.txt");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	FileName = Utils::FilePart("some_path/*.txt");
+	FileName = Utils::filePart("some_path/*.txt");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	FileName = Utils::FilePart("/*.txt");
+	FileName = Utils::filePart("/*.txt");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	FileName = Utils::FilePart("some_volume:*.txt");
+	FileName = Utils::filePart("some_volume:*.txt");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "*.txt") == 0);
 
-	FileName = Utils::FilePart(":~(*.info)");
+	FileName = Utils::filePart(":~(*.info)");
 	test(strlen(FileName) > 0);
 	test(strcmp(FileName, "~(*.info)") == 0);
 
@@ -133,20 +133,20 @@ int main()
 	/* and set its time and attributes to be the same as the source code */
 	/* for this test */
 
-	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	Result = BaflUtils::deleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Create("TimeFile.txt", EFileWrite);
 	test(Result == KErrNone);
-	File.Close();
+	File.close();
 
 	Result = Utils::GetFileInfo("T_Utils.cpp", &OldEntry);
 	test(Result == KErrNone);
 
-	Result = Utils::SetFileDate("TimeFile.txt", OldEntry);
+	Result = Utils::setFileDate("TimeFile.txt", OldEntry);
 	test(Result == KErrNone);
 
-	Result = Utils::SetProtection("TimeFile.txt", OldEntry.iAttributes);
+	Result = Utils::setProtection("TimeFile.txt", OldEntry.iAttributes);
 	test(Result == KErrNone);
 
 	Result = Utils::GetFileInfo("TimeFile.txt", &NewEntry);
@@ -157,8 +157,8 @@ int main()
 	/* While we are checking these functions, ensure that they return the correct */
 	/* return code when a file is not found */
 
-	test(Utils::SetFileDate("UnknownFile.txt", OldEntry) == KErrNotFound);
-	test(Utils::SetProtection("UnknownFile.txt", OldEntry.iAttributes) == KErrNotFound);
+	test(Utils::setFileDate("UnknownFile.txt", OldEntry) == KErrNotFound);
+	test(Utils::setProtection("UnknownFile.txt", OldEntry.iAttributes) == KErrNotFound);
 
 	/* Test #7: Ensure we can decode attributes successfully */
 
@@ -167,10 +167,10 @@ int main()
 	Result = Utils::GetFileInfo("TimeFile.txt", &Entry);
 	test(Result == KErrNone);
 
-	Test.Printf("IsReadable = %d\n", Entry.IsReadable());
-	Test.Printf("IsWriteable = %d\n", Entry.IsWriteable());
-	Test.Printf("IsExecutable = %d\n", Entry.IsExecutable());
-	Test.Printf("IsDeleteable = %d\n", Entry.IsDeleteable());
+	Test.printf("IsReadable = %d\n", Entry.IsReadable());
+	Test.printf("IsWriteable = %d\n", Entry.IsWriteable());
+	Test.printf("IsExecutable = %d\n", Entry.IsExecutable());
+	Test.printf("IsDeleteable = %d\n", Entry.IsDeleteable());
 
 	Result = Utils::SetDeleteable("TimeFile.txt");
 	test(Result == KErrNone);
@@ -178,7 +178,7 @@ int main()
 	Result = Utils::GetFileInfo("TimeFile.txt", &Entry);
 	test(Result == KErrNone);
 
-	Test.Printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
+	Test.printf("After Utils::SetDeleteable(), IsDeleteable = %d\n", Entry.IsDeleteable());
 	test(Entry.IsDeleteable());
 
 	/* Test #8: Ensure that trying to delete an object that is in use acts sanely */
@@ -188,20 +188,20 @@ int main()
 	/* Delete any old file hanging around from prior runs, then create a file and try */
 	/* to delete it while it is open for writing */
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrInUse));
 
-	File.Close();
+	File.close();
 
 	/* Ensure the objects aren't hanging around from last run */
 
-	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
+	Result = BaflUtils::deleteFile("InUseDirectory/File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound) || (Result == KErrPathNotFound));
 
 	Result = Utils::DeleteDirectory("InUseDirectory");
@@ -218,11 +218,11 @@ int main()
 	Result = Utils::DeleteDirectory("InUseDirectory");
 	test(Result == KErrInUse);
 
-	File.Close();
+	File.close();
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::DeleteFile("InUseDirectory/File.txt");
+	Result = BaflUtils::deleteFile("InUseDirectory/File.txt");
 	test(Result == KErrNone);
 
 	Result = Utils::DeleteDirectory("InUseDirectory");
@@ -232,10 +232,10 @@ int main()
 
 	Test.Next("Test unsuccessful deleting of a file and directory");
 
-	Result = BaflUtils::DeleteFile("UnknownFile.txt");
+	Result = BaflUtils::deleteFile("UnknownFile.txt");
 	test(Result == KErrNotFound);
 
-	Result = BaflUtils::DeleteFile("UnknownPath/UnknownFile.txt");
+	Result = BaflUtils::deleteFile("UnknownPath/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
 	Result = Utils::DeleteDirectory("UnknownDirectory");
@@ -246,13 +246,13 @@ int main()
 
 #ifdef __amigaos4__
 
-	/* Test some special Amiga cases that were causing BaflUtils::DeleteFile() to */
+	/* Test some special Amiga cases that were causing BaflUtils::deleteFile() to */
 	/* return incorrect return values sometimes */
 
-	Result = BaflUtils::DeleteFile("RAM:UnknownFile.txt");
+	Result = BaflUtils::deleteFile("RAM:UnknownFile.txt");
 	test(Result == KErrNotFound);
 
-	Result = BaflUtils::DeleteFile("RAM:UnknownDirectory/UnknownFile.txt");
+	Result = BaflUtils::deleteFile("RAM:UnknownDirectory/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
 #endif /* __amigaos4__ */
@@ -263,8 +263,8 @@ int main()
 
 	FileName = Utils::ResolveFileName("TestFiles/StdConfigFile.ini");
 	test(FileName != NULL);
-	test(strcmp(Utils::FilePart(FileName), "StdConfigFile.ini") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	test(strcmp(Utils::filePart(FileName), "StdConfigFile.ini") == 0);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
@@ -272,8 +272,8 @@ int main()
 	test(FileName != NULL);
 	test(FileName[strlen(FileName) - 1] != '\\');
 	test(FileName[strlen(FileName) - 1] != '/');
-	test(strcmp(Utils::FilePart(FileName), "TestFiles") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	test(strcmp(Utils::filePart(FileName), "TestFiles") == 0);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
@@ -281,8 +281,8 @@ int main()
 	test(FileName != NULL);
 	test(FileName[strlen(FileName) - 1] != '\\');
 	test(FileName[strlen(FileName) - 1] != '/');
-	test(strcmp(Utils::FilePart(FileName), "TestFiles") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	test(strcmp(Utils::filePart(FileName), "TestFiles") == 0);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
@@ -293,7 +293,7 @@ int main()
 	FileName = Utils::ResolveFileName("c:/");
 	test(FileName != NULL);
 	test(strcmp(FileName, "c:\\") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
@@ -302,7 +302,7 @@ int main()
 	FileName = Utils::ResolveFileName("/");
 	test(FileName != NULL);
 	test(strcmp(&FileName[1], ":\\") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
@@ -336,7 +336,7 @@ int main()
 
 	ProgDirName = Utils::ResolveProgDirName("PROGDIR:T_Utils");
 	test(ProgDirName != NULL);
-	Test.Printf("Resolved name is %s\n", ProgDirName);
+	Test.printf("Resolved name is %s\n", ProgDirName);
 
 	delete [] ProgDirName;
 
@@ -469,10 +469,10 @@ int main()
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::DeleteFile("TimeFile.txt");
+	Result = BaflUtils::deleteFile("TimeFile.txt");
 	test(Result == KErrNone);
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Test.End();

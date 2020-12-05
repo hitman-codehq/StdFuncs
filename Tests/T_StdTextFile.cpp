@@ -57,31 +57,31 @@ TInt main()
 
 	Test.Next("Test reading an empty file");
 
-	Result = TextFile.Open("TestFiles/Empty.txt");
+	Result = TextFile.open("TestFiles/Empty.txt");
 	test(Result == KErrNone);
 
 	Line = TextFile.GetLine();
 	test(Line == NULL);
 
-	TextFile.Close();
+	TextFile.close();
 
 	/* Test #3: Test basic functionality of the class */
 
 	Test.Next("Test basic functionality of the class");
 
-	Result = TextFile.Open("TestFiles/StdTextFile.txt");
+	Result = TextFile.open("TestFiles/StdTextFile.txt");
 	test(Result == KErrNone);
 
-	Test.Printf("Scan text file for known lines\n");
+	Test.printf("Scan text file for known lines\n");
 
 	TestReading();
 
-	Test.Printf("Rewind and perform the scan a second time\n");
+	Test.printf("Rewind and perform the scan a second time\n");
 
 	TextFile.Rewind();
 	TestReading();
 
-	TextFile.Close();
+	TextFile.close();
 
 	Test.End();
 

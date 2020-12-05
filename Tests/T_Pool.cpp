@@ -24,7 +24,7 @@ static void AllocateNodes(RStdPool *a_poPool, int a_iNumNodes, StdList<SPoolItem
 		test(PoolItem != NULL);
 
 		PoolItem->m_iOne = ((Index << 16) | Index);
-		a_poNodes->AddTail(PoolItem);
+		a_poNodes->addTail(PoolItem);
 	}
 }
 
@@ -35,11 +35,11 @@ static void FreeNodes(RStdPool *a_poPool, StdList<SPoolItem> *a_poNodes)
 
 	for (Index = 0; Index < NUM_NODES; ++Index)
 	{
-		PoolItem = a_poNodes->GetHead();
+		PoolItem = a_poNodes->getHead();
 		test(PoolItem != NULL);
 		test(PoolItem->m_iOne == ((Index << 16) | Index));
 
-		a_poNodes->Remove(PoolItem);
+		a_poNodes->remove(PoolItem);
 		a_poPool->ReleaseNode(PoolItem);
 	}
 }
@@ -62,7 +62,7 @@ int main()
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
 	test(Result == KErrNone);
 
-	Pool.Close(ETrue);
+	Pool.close(ETrue);
 	test(Pool.Count() == 0);
 
 	/* Test #3: Try to call RStdPool::Create() twice in a row */
@@ -74,7 +74,7 @@ int main()
 	Result = Pool.Create(sizeof(struct SPoolItem), NUM_NODES, EFalse);
 	test(Result == KErrInUse);
 
-	Pool.Close(ETrue);
+	Pool.close(ETrue);
 	test(Pool.Count() == 0);
 
 	/* Test #4: Create a non extensible pool and allocate all nodes */
@@ -101,10 +101,10 @@ int main()
 
 	/* Ensure that our temporary node list is now empty */
 
-	PoolItem = Nodes.GetHead();
+	PoolItem = Nodes.getHead();
 	test(PoolItem == NULL);
 
-	Pool.Close(ETrue);
+	Pool.close(ETrue);
 	test(Pool.Count() == 0);
 
 	/* Test #5 Create an extensible pool and allocate first block of nodes */
@@ -125,7 +125,7 @@ int main()
 
 	/* Let the pool free the nodes this time and ensure that it succeeds */
 
-	Pool.Close(ETrue);
+	Pool.close(ETrue);
 	test(Pool.Count() == 0);
 
 	/* The node list contents are no longer valid so hard reset the list */

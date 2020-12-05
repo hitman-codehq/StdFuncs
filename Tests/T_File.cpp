@@ -18,15 +18,15 @@ static void WriteToFile(RFile &a_roFile)
 	int Length, Result;
 
 	Length = strlen(g_pccWriteText);
-	Result = a_roFile.Write((const unsigned char *) g_pccWriteText, Length);
+	Result = a_roFile.write((const unsigned char *) g_pccWriteText, Length);
 	test(Result == Length);
 
-	a_roFile.Close();
+	a_roFile.close();
 
-	Result = a_roFile.Open("File.txt", EFileRead);
+	Result = a_roFile.open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
-	Result = a_roFile.Read((unsigned char *) Buffer, Length);
+	Result = a_roFile.read((unsigned char *) Buffer, Length);
 	test(Result == Length);
 	Buffer[Length] = '\0';
 	test(!(strcmp(Buffer, g_pccWriteText)));
@@ -48,18 +48,18 @@ int main()
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	/* Ensure that RFile::Replace() works both when the file does not exist and when it does */
 
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
-	File.Close();
+	File.close();
 
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
-	File.Close();
+	File.close();
 
 	/* Test #3: Rename a file using BaflUtils::RenameFile() */
 
@@ -67,7 +67,7 @@ int main()
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	Result = BaflUtils::DeleteFile("NewFile.txt");
+	Result = BaflUtils::deleteFile("NewFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = BaflUtils::RenameFile("File.txt", "NewFile.txt");
@@ -75,12 +75,12 @@ int main()
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::DeleteFile("NewFile.txt");
+	Result = BaflUtils::deleteFile("NewFile.txt");
 	test(Result == KErrNone);
 
-	/* Test #4: Test that RFile::Create() and RFile::Open() work as expected */
+	/* Test #4: Test that RFile::Create() and RFile::open() work as expected */
 
-	Test.Next("Creating and opening files with RFile::Create() and RFile::Open()");
+	Test.Next("Creating and opening files with RFile::Create() and RFile::open()");
 
 	/* Ensure that files cannot be opened in a shared mode when created */
 	/* with RFile::Create() */
@@ -88,45 +88,45 @@ int main()
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = File2.Open("File.txt", EFileRead);
+	Result = File2.open("File.txt", EFileRead);
 	test(Result == KErrInUse);
 
-	Result = File2.Open("File.txt", EFileWrite);
+	Result = File2.open("File.txt", EFileWrite);
 	test(Result == KErrInUse);
 
-	File.Close();
+	File.close();
 
 	/* Ensure that files cannot be opened in a shared mode when opened */
-	/* with RFile::Open() in writeable mode */
+	/* with RFile::open() in writeable mode */
 
-	Result = File.Open("File.txt", EFileWrite);
+	Result = File.open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = File2.Open("File.txt", EFileRead);
+	Result = File2.open("File.txt", EFileRead);
 	test(Result == KErrInUse);
 
-	Result = File2.Open("File.txt", EFileWrite);
+	Result = File2.open("File.txt", EFileWrite);
 	test(Result == KErrInUse);
 
-	File.Close();
+	File.close();
 
 	/* Ensure that files cannot be opened in a shared mode when opened */
-	/* with RFile::Open() in read only mode */
+	/* with RFile::open() in read only mode */
 
-	Result = File.Open("File.txt", EFileRead);
+	Result = File.open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
-	Result = File2.Open("File.txt", EFileRead);
+	Result = File2.open("File.txt", EFileRead);
 	test(Result == KErrInUse);
 
-	Result = File2.Open("File.txt", EFileWrite);
+	Result = File2.open("File.txt", EFileWrite);
 	test(Result == KErrInUse);
 
-	File.Close();
+	File.close();
 
 	/* Ensure that files cannot be opened in a shared mode using RFile::Create() */
 
-	test(BaflUtils::DeleteFile("File.txt") == KErrNone);
+	test(BaflUtils::deleteFile("File.txt") == KErrNone);
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
@@ -134,9 +134,9 @@ int main()
 	Result = File2.Create("File.txt", EFileWrite);
 	test(Result == KErrInUse);
 
-	File.Close();
+	File.close();
 
-	/* Ensure other Create() and Open() errors are as expected */
+	/* Ensure other Create() and open() errors are as expected */
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists);
@@ -144,17 +144,17 @@ int main()
 	Result = File.Create("UnknownPath/File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
 
-	Result = File.Open("UnknownPath/UnknownFile.txt", EFileRead);
+	Result = File.open("UnknownPath/UnknownFile.txt", EFileRead);
 	test(Result == KErrPathNotFound);
 
-	Result = File.Open("UnknownFile.txt", EFileRead);
+	Result = File.open("UnknownFile.txt", EFileRead);
 	test(Result == KErrNotFound);
 
 	/* Test #5: Test that we are able to create and write to files using both supported APIs */
 
 	Test.Next("Creating and writing to files using both supported APIs");
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Create("File.txt", EFileWrite);
@@ -162,63 +162,63 @@ int main()
 
 	/* Ensure that trying to read 0 bytes is handled sanely */
 
-	Result = File.Read((unsigned char *) Buffer, 0);
+	Result = File.read((unsigned char *) Buffer, 0);
 	test(Result == 0);
 
 	/* Ensure that trying to write 0 bytes is handled sanely */
 
-	Result = File.Write((const unsigned char *) g_pccWriteText, 0);
+	Result = File.write((const unsigned char *) g_pccWriteText, 0);
 	test(Result == 0);
 
 	/* Now write some real data */
 
 	WriteToFile(File);
 
-	File.Close();
+	File.close();
 
-	Result = File.Open("File.txt", EFileWrite);
+	Result = File.open("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	/* Ensure that trying to read 0 bytes is handled sanely */
 
-	Result = File.Read((unsigned char *) Buffer, 0);
+	Result = File.read((unsigned char *) Buffer, 0);
 	test(Result == 0);
 
 	WriteToFile(File);
 
-	File.Close();
+	File.close();
 
 	/* Ensure we can't write to a file opened in read only mode */
 
-	Result = File.Open("File.txt", EFileRead);
+	Result = File.open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
-	Result = File.Write((const unsigned char *) g_pccWriteText, strlen(g_pccWriteText));
+	Result = File.write((const unsigned char *) g_pccWriteText, strlen(g_pccWriteText));
 	test(Result == KErrGeneral);
 
-	File.Close();
+	File.close();
 
-	/* Test #5: Ensure that the PROGDIR: prefix works with RFile::Open() */
+	/* Test #5: Ensure that the PROGDIR: prefix works with RFile::open() */
 
-	Test.Next("Ensure that the PROGDIR: prefix works with RFile::Open()");
+	Test.Next("Ensure that the PROGDIR: prefix works with RFile::open()");
 
 #ifdef WIN32
 
-	Result = File.Open("PROGDIR:T_File.exe", EFileRead);
+	Result = File.open("PROGDIR:T_File.exe", EFileRead);
 	test(Result == KErrNone);
 
 #else /* ! WIN32 */
 
-	Result = File.Open("PROGDIR:T_File", EFileRead);
+	Result = File.open("PROGDIR:T_File", EFileRead);
 	test(Result == KErrNone);
 
 #endif /* ! WIN32 */
 
-	File.Close();
+	File.close();
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::DeleteFile("File.txt");
+	Result = BaflUtils::deleteFile("File.txt");
 	test(Result == KErrNone);
 
 	Test.End();

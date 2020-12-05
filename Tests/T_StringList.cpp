@@ -36,7 +36,7 @@ int main()
 
 	for (Index = 0; Index < BASIC_STRINGS_COUNT; ++Index)
 	{
-		Test.Printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
+		Test.printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
 		test(strcmp((*StringList)[Index], g_apccBasicStringsResults[Index]) == 0);
 	}
 
@@ -49,7 +49,7 @@ int main()
 
 	for (Index = 0; Index < (BASIC_STRINGS_COUNT * 2); ++Index)
 	{
-		Test.Printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
+		Test.printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
 		test(strcmp((*StringList)[Index], g_apccBasicStringsResults[(Index % BASIC_STRINGS_COUNT)]) == 0);
 	}
 
@@ -70,7 +70,7 @@ int main()
 
 	for (Index = 0; Index < BASIC_STRINGS_COUNT; ++Index)
 	{
-		Test.Printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
+		Test.printf("String %d is \"%s\"\n", Index, (*StringList)[Index]);
 		test(strcmp((*StringList)[Index], g_apccBasicStringsResults[Index]) == 0);
 	}
 

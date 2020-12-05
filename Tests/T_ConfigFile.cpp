@@ -16,7 +16,7 @@ static void ReadValidNumber(RConfigFile *a_poConfigFile, const char *a_pccKeyNam
 {
 	TInt Result, IntegerValue;
 
-	Test.Printf("Reading number from key %s\n", a_pccKeyName);
+	Test.printf("Reading number from key %s\n", a_pccKeyName);
 
 	/* Read in the number from the requested key and ensure that it is read in correctly */
 
@@ -36,7 +36,7 @@ static void ReadValidNumber(CSection *a_poSection, const char *a_pccKeyName)
 {
 	CKey *Key;
 
-	Test.Printf("Reading number from key %s\n", a_pccKeyName);
+	Test.printf("Reading number from key %s\n", a_pccKeyName);
 
 	/* Search for the requested key and ensure that its value is as expected */
 
@@ -143,24 +143,24 @@ int main()
 	Test.Title();
 	Test.Start("RConfigFile class API test");
 
-	/* Test #2: Test that Close() can handle being called before Open() */
+	/* Test #2: Test that close() can handle being called before open() */
 
-	Test.Next("Test that Close() can handle being called before Open()");
+	Test.Next("Test that close() can handle being called before open()");
 
-	ConfigFile.Close();
+	ConfigFile.close();
 
-	/* Test #3: Ensure that Open() can handle an invalid filename being passed in */
+	/* Test #3: Ensure that open() can handle an invalid filename being passed in */
 
-	Test.Next("Ensure that Open() can handle an invalid filename being passed in");
+	Test.Next("Ensure that open() can handle an invalid filename being passed in");
 
-	Result = ConfigFile.Open("UnknownFile.ini");
+	Result = ConfigFile.open("UnknownFile.ini");
 	test(Result = KErrNotFound);
 
-	/* Test #4: Ensure that Open() can parse a mostly valid .ini file */
+	/* Test #4: Ensure that open() can parse a mostly valid .ini file */
 
-	Test.Next("Ensure that Open() can parse a mostly valid .ini file");
+	Test.Next("Ensure that open() can parse a mostly valid .ini file");
 
-	Result = ConfigFile.Open("TestFiles/StdConfigFile.ini");
+	Result = ConfigFile.open("TestFiles/StdConfigFile.ini");
 	test(Result == KErrNone);
 
 	/* Test #5: Ensure invalid key reads fail and valid ones pass */
@@ -246,7 +246,7 @@ int main()
 
 	TestDynamicReads(&ConfigFile);
 
-	ConfigFile.Close();
+	ConfigFile.close();
 
 	Test.End();
 

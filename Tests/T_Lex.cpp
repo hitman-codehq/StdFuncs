@@ -86,7 +86,7 @@ static void CheckList(TLex &a_roLex, const char *a_apccList[], TInt a_iListCount
 	{
 		Token = a_roLex.NextToken();
 		test(Token != NULL);
-		Test.Printf("Index %d = %s\n", Index, a_apccList[Index]);
+		Test.printf("Index %d = %s\n", Index, a_apccList[Index]);
 		test(strcmp(Token, a_apccList[Index]) == 0);
 	}
 
@@ -121,7 +121,7 @@ static void CheckListNonDestructive(TLex &a_roLex, const char *a_apccList[], TIn
 	{
 		Token = a_roLex.NextToken(&Length);
 		test(Token != NULL);
-		Test.Printf("Index %d = %s\n", Index, a_apccList[Index]);
+		Test.printf("Index %d = %s\n", Index, a_apccList[Index]);
 		test(strncmp(Token, a_apccList[Index], strlen(a_apccList[Index])) == 0);
 	}
 
@@ -165,7 +165,7 @@ int main()
 	{
 		Token = Lex.NextToken(&Offset);
 		test(Token != NULL);
-		Test.Printf("Index %d = %s\n", Index, g_apccNonDestructiveListResults[Index]);
+		Test.printf("Index %d = %s\n", Index, g_apccNonDestructiveListResults[Index]);
 		test(strncmp(Token, g_apccNonDestructiveListResults[Index], strlen(g_apccNonDestructiveListResults[Index])) == 0);
 	}
 
