@@ -48,9 +48,10 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 		/* Now read the arguments, according to the argument template */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		int Index, Size;
+		LONG Error;
 
 		(void) a_pccArgV;
 		(void) a_iArgC;
@@ -116,8 +117,9 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 				}
 				else
 				{
-					// TODO: CAW - What about other errors such as ERROR_TOO_MANY_ARGS?
-					if (IoErr() == ERROR_REQUIRED_ARG_MISSING)
+					Error = IoErr();
+
+					if ((Error == ERROR_KEY_NEEDS_ARG) || (Error == ERROR_REQUIRED_ARG_MISSING))
 					{
 						RetVal = KErrNotFound;
 					}
@@ -139,7 +141,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 			Utils::info("RArgs::open() => Unable to allocate RDArgs structure");
 		}
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 		const char **ArgV;
 		TInt ArgC;
@@ -201,7 +203,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 			RetVal = readArgs(a_pccTemplate, a_iNumOptions, a_pccArgV, a_iArgC);
 		}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	}
 	else
@@ -292,7 +294,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 		if ((DiskObject = GetDiskObject(WBArg->wa_Name)) != NULL)
 		{
 			/* If there are any tooltypes defined in the icon, copy them into a big string that can be */
-			/* used as an emulated CLI argument list and parsed by IDOS->ReadArgs() */
+			/* used as an emulated CLI argument list and parsed by ReadArgs() */
 
 			if (DiskObject->do_ToolTypes)
 			{
@@ -328,7 +330,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 						/* Copy the chars of the tooltype into the buffer.  If an '=' is found */
 						/* then enclose the text following it with " in case it contains spaces */
 						/* so that it is treated as a single argument and not broken up by */
-						/* IDOS->ReadArgs() */
+						/* ReadArgs() */
 
 						while (*Source)
 						{
@@ -361,7 +363,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 					/* Now we have a buffer that contains a CLI argument list, something like: */
 					/* FILENAME="blah.mp3" CX_POPUP="no" */
 					/* So allocate a DOS RDArgs structure that can be used to hold a pointer to */
-					/* the argument list, and use IDOS->RDArgs() to parse it as though it was a */
+					/* the argument list, and use RDArgs() to parse it as though it was a */
 					/* real CLI argument list */
 
 					RDArgs = (struct RDArgs *) AllocDosObjectTags(DOS_RDARGS, TAG_DONE);
@@ -369,14 +371,14 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const struct WBS
 					if (RDArgs)
 					{
 						/* Setup the CSource structure that represents the CLI argument list.  This */
-						/* will then be used by IDOS->ReadArgs() instead of the real argument list */
+						/* will then be used by ReadArgs() instead of the real argument list */
 						/* (which in this case doesn't exist seeing that we are running from Workbench */
 
 						RDArgs->RDA_Source.CS_Buffer = m_pcCommandLine;
 						RDArgs->RDA_Source.CS_Length = Length;
 						RDArgs->RDA_Source.CS_CurChr = 0;
 
-						/* Now call IDOS->ReadArgs() to parse the CLI argument list.  This will result */
+						/* Now call ReadArgs() to parse the CLI argument list.  This will result */
 						/* in the arguments in m_pstArgs being populated just as though we were run from */
 						/* the CLI and the client software will neither know nor care that we have been */
 						/* run from Workbench! */
@@ -480,7 +482,7 @@ void RArgs::close()
 	delete [] m_pcProjectFileName;
 	m_pcProjectFileName = NULL;
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 	/* Delete the array used for the magic multi args */
 
@@ -495,14 +497,14 @@ void RArgs::close()
 		m_iNumMagicArgs = 0;
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	/* And the array used for ptrs to arguments */
 
 	delete [] m_pstArgs;
 	m_pstArgs = NULL;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Free the tooltype argument structure, if it exists */
 
@@ -531,7 +533,7 @@ void RArgs::close()
 	delete m_pcArgumentBuffer;
 	m_pcArgumentBuffer = NULL;
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	/* Ensure that everything is back to the exact state it was in before open() was called */
 
@@ -800,7 +802,7 @@ const char *RArgs::ProjectFileName()
 	return(m_pcProjectFileName);
 }
 
-#ifndef __amigaos4__
+#ifndef __amigaos__
 
 /* Written: Saturday 02-05-2010 8:52 am */
 
@@ -868,7 +870,44 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 			{
 				if ((RetVal = ExtractOption(a_pccTemplate, &Offset, &OptionName, &Type)) == KErrNone)
 				{
-					if ((Type == 'A') || (Type == '\0'))
+					if (Type == 'K')
+					{
+						/* Assume failure */
+
+						RetVal = KErrNotFound;
+
+						/* Now scan through the arguments passed in looking for an unused one */
+
+						for (Arg = 1; Arg < a_iArgC; ++Arg)
+						{
+							/* Only use the argument if it is not an empty string ("") */
+
+							if ((ArgV[Arg]) && (strlen(ArgV[Arg]) > 0))
+							{
+								if (_stricmp(ArgV[Arg], OptionName) == 0)
+								{
+									/* Remove the keyword from the argument array */
+
+									m_pstArgs[Index] = (size_t) ArgV[Arg];
+									ArgV[Arg] = NULL;
+
+									if ((Arg + 1) < a_iArgC)
+									{
+										RetVal = KErrNone;
+
+										/* Remove the value from the argument array */
+
+										++Arg;
+										m_pstArgs[Index] = (size_t) ArgV[Arg];
+										ArgV[Arg] = NULL;
+									}
+
+									break;
+								}
+							}
+						}
+					}
+					else if ((Type == 'A') || (Type == '\0'))
 					{
 						/* Now scan through the arguments passed in looking for an unused one */
 
@@ -878,9 +917,7 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 							if ((ArgV[Arg]) && (strlen(ArgV[Arg]) > 0))
 							{
-								/* Found an unused argument so copy this into the args array so that it represents */
-								/* the current A option when queried by client code.  Set the temporary copy to NULL */
-								/* so that it is not reused again for the next A option */
+								/* Remove the value from the argument array */
 
 								m_pstArgs[Index] = (size_t) ArgV[Arg];
 								ArgV[Arg] = NULL;
@@ -1054,7 +1091,7 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 	return(RetVal);
 }
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 /* Written: Sunday 04-Nov-2007 11:57 am */
 /* @param	a_iIndex	Index of the argument to retrieve */

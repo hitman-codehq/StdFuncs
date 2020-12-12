@@ -13,6 +13,15 @@ static const char *g_pccArgV[] =
 
 #define ARGV_COUNT 9
 
+/* Fake command line for testing keyword handling */
+
+static const char* g_pccKeywordArgV[] =
+{
+	"T_Args", "localhost", "source", "Some Dir"
+};
+
+#define KEYWORD_ARGV_COUNT 4
+
 /* Fake command line to test a missing argument */
 
 const char *g_pccMissingArgV[] =
@@ -33,6 +42,14 @@ const char *g_pccOneStringNoWhite = "\"Source Dir\"\"Dest Dir\"copy";
 /* Template for use in obtaining command line parameters */
 
 static const char g_accTemplate[] = "SOURCE/A,DEST/A,COPY/S,DELETE/S,DELETEDIRS/S,NOCASE/S,NOERRORS/S,NOPROTECT/S";
+
+/* Templates for use in obtaining keyword parameters */
+
+static const char g_accKeywordTemplate[] = "REMOTE/A,SOURCE/K";
+
+static const char g_accKeywordTemplate2[] = "REMOTE/A,SOURCE/K,DEST";
+
+static const char g_accKeywordTemplate3[] = "REMOTE/A,SOURCE/K,DEST/A";
 
 /* Fake command line for testing multiple source filenames */
 
@@ -60,6 +77,23 @@ static const char g_accMultiSourceTemplate[] = "SOURCE/A/M,DEST/A";
 /* option in a different place here than in the above string, to test this positioning */
 
 static const char g_accMultiDestTemplate[] = "SOURCE/A,DEST/M/A";
+
+/* Definitions of the number of arguments that can be passed in and their offsets in the */
+/* keyword source argument array */
+
+#define ARGS_KEYWORD_REMOTE 0
+#define ARGS_KEYWORD_SOURCE 1
+#define ARGS_KEYWORD_NUM_ARGS 2
+
+#define ARGS_KEYWORD2_REMOTE 0
+#define ARGS_KEYWORD2_SOURCE 1
+#define ARGS_KEYWORD2_DEST 2
+#define ARGS_KEYWORD2_NUM_ARGS 3
+
+#define ARGS_KEYWORD3_REMOTE 0
+#define ARGS_KEYWORD3_SOURCE 1
+#define ARGS_KEYWORD3_DEST 2
+#define ARGS_KEYWORD3_NUM_ARGS 3
 
 /* Definitions of the number of arguments that can be passed in and their offsets in the */
 /* multiple source argument array */
@@ -110,8 +144,7 @@ int main()
 
 	for (Index = ARGS_SOURCE; Index <= ARGS_DEST; ++Index)
 	{
-		Test.printf("Checking \"%s\" against \"%s\"\n", Args[Index], g_pccArgV[Index + 1]);
-		test(strcmp(Args[Index], g_pccArgV[Index + 1]) == 0);
+		CHECK_ARG(Args[Index], g_pccArgV[Index + 1]);
 	}
 
 	/* Ensure that the boolean arguments have been read as expected */
@@ -124,7 +157,7 @@ int main()
 
 	Args.close();
 
-	/* Test #4: Parse more complex command line parameters that contain white space */
+	/* Test #4: Parse complex command line parameters that contain white space */
 
 	Test.Next("Parse complex command line arguments that contain white space");
 
@@ -144,7 +177,7 @@ int main()
 
 	Args.close();
 
-	/* Test #5: Parse more complex command line parameters that contain extra white space */
+	/* Test #5: Parse complex command line parameters that contain extra white space */
 
 	Test.Next("Parse complex command line arguments that contain extra white space");
 
@@ -179,14 +212,72 @@ int main()
 	delete [] OneString;
 	Args.close();
 
-	/* Test #7: Test not passing in a parameter for an /A option */
+	/* Test #7: Parse keyword command line argument */
+
+	Test.Next("Parse keyword command line argument");
+	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+	test(Result == KErrNone);
+	test(Args.Count() == ARGS_KEYWORD_NUM_ARGS);
+
+	/* Ensure that the string arguments have been read as expected */
+
+	for (Index = ARGS_KEYWORD_REMOTE; Index < ARGS_KEYWORD_SOURCE; ++Index)
+	{
+		CHECK_ARG(Args[Index], g_pccKeywordArgV[Index + 1]);
+	}
+
+	/* Keywords are handled specially as they use up two arguments */
+
+	CHECK_ARG(Args[Index], g_pccKeywordArgV[Index + 2]);
+
+	Args.close();
+
+	/* Test #8: Parse missing keyword command line argument */
+
+	Test.Next("Parse missing keyword command line argument");
+	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, g_pccKeywordArgV, (KEYWORD_ARGV_COUNT - 1));
+	test(Result == KErrNotFound);
+
+	Args.close();
+
+	/* Test #9: Parse missing keyword command line argument 2 */
+
+	Test.Next("Parse missing keyword command line argument 2");
+	Result = Args.open(g_accKeywordTemplate2, ARGS_KEYWORD2_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+	test(Result == KErrNone);
+	test(Args.Count() == ARGS_KEYWORD2_NUM_ARGS);
+
+	/* Ensure that the string arguments have been read as expected */
+
+	CHECK_ARG(Args[ARGS_KEYWORD2_REMOTE], g_pccKeywordArgV[1]);
+	CHECK_ARG(Args[ARGS_KEYWORD2_SOURCE], g_pccKeywordArgV[3]);
+
+	/* The DEST argument is optional and should be NULL */
+
+	Test.printf("Checking \"%s\" against NULL\n", Args[ARGS_KEYWORD2_DEST]);
+	test(Args[ARGS_KEYWORD2_DEST] == NULL);
+
+	Args.close();
+
+	/* Test #10: Parse missing keyword command line argument 3 */
+
+	Test.Next("Parse missing keyword command line argument 3");
+	Result = Args.open(g_accKeywordTemplate3, ARGS_KEYWORD3_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+
+	/* The DEST/A argument is not optional and the open() should fail */
+
+	test(Result == KErrNotFound);
+
+	Args.close();
+
+	/* Test #11: Test not passing in a parameter for an /A option */
 
 	Test.Next("Not passing in a parameter for an /A option");
 
 	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
 	test(Result == KErrNotFound);
 
-	/* Test #8: Command line parameters with multiple sources and one destination */
+	/* Test #12: Command line parameters with multiple sources and one destination */
 
 	Test.Next("Command line parameters with multiple sources and one destination");
 
@@ -207,7 +298,7 @@ int main()
 
 	Args.close();
 
-	/* Test #9: Command line parameters with one source and multiple destinations */
+	/* Test #13: Command line parameters with one source and multiple destinations */
 
 	Test.Next("Command line parameters with one source and multiple destinations");
 
@@ -228,7 +319,7 @@ int main()
 
 	Args.close();
 
-	/* Test #8: Ensure that passing in 10 or more multiple source options works */
+	/* Test #14: Ensure that passing in 10 or more multiple source options works */
 
 	Test.Next("Ensure that passing in 10 or more multiple source options works");
 
