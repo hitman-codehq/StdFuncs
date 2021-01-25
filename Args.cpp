@@ -872,10 +872,6 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 				{
 					if (Type == 'K')
 					{
-						/* Assume failure */
-
-						RetVal = KErrNotFound;
-
 						/* Now scan through the arguments passed in looking for an unused one */
 
 						for (Arg = 1; Arg < a_iArgC; ++Arg)
@@ -888,8 +884,9 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 								{
 									/* Remove the keyword from the argument array */
 
-									m_pstArgs[Index] = (size_t) ArgV[Arg];
 									ArgV[Arg] = NULL;
+
+									/* And extract the keyword's argument, if one is present */
 
 									if ((Arg + 1) < a_iArgC)
 									{
@@ -900,6 +897,10 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 										++Arg;
 										m_pstArgs[Index] = (size_t) ArgV[Arg];
 										ArgV[Arg] = NULL;
+									}
+									else
+									{
+										RetVal = KErrNotFound;
 									}
 
 									break;
