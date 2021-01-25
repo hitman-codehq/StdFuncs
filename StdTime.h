@@ -34,9 +34,11 @@ public:
 
 	TDateTime()
 	{
-		iYear = iDay = iHour = iMinute = iSecond = 0;
+		iYear = iDay = iHour = iMinute = iSecond = iMilliSecond = 0;
 		iMonth = EJanuary;
 	}
+
+	TDateTime(TInt64 a_iTime);
 
 	TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMilliSecond);
 
@@ -72,7 +74,10 @@ private:
 
 public:
 
-	TTime() { }
+	TTime()
+	{
+		iTime = 0;
+	}
 
 	TDateTime DateTime() const { return(iDateTime); }
 

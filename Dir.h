@@ -61,6 +61,8 @@ public:
 
 	TEntry();
 
+	TEntry(const TDateTime &a_roDateTime);
+
 	void ClearArchive();
 
 	TBool IsDir() const;
@@ -76,6 +78,8 @@ public:
 	TBool IsExecutable() const;
 
 	TBool IsDeleteable() const;
+
+	void Reset();
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
 };

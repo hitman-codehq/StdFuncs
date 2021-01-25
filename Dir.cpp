@@ -34,23 +34,61 @@ struct SSortInfo
 
 TEntry::TEntry()
 {
-	iName[0] = iLink[0] = '\0';
-	iIsDir = iIsLink = EFalse;
-	iSize = 0;
+	Reset();
+}
+
+/**
+ * TEntry constructor.
+ * Initialises most members of the class to their default values, including setting the
+ * iAttributes member to something reasonable for each platform.  This override accepts a
+ * TDateTime structure that is assigned to the entry, and the entry's platform specific
+ * timestamp related fields are initialised as appropriate.
+ *
+ * @date	Sunday 24-Jan-2021 8:03 am, Code HQ Bergmannstrasse
+ * @param	a_roDateTime	The timestamp to be assigned to the entry
+ */
+
+TEntry::TEntry(const TDateTime &a_roDateTime)
+{
+	Reset();
+
+	iModified = a_roDateTime;
 
 #ifdef __amigaos__
 
-	iAttributes = EXDF_NO_EXECUTE;
+	ULONG AmigaDate;
+	struct ClockData ClockData;
 
-#elif defined(__unix__)
+	ClockData.year = a_roDateTime.Year();
+	ClockData.month = a_roDateTime.Month();
+	ClockData.mday = a_roDateTime.Day();
+	ClockData.hour = a_roDateTime.Hour();
+	ClockData.min = a_roDateTime.Minute();
+	ClockData.sec = a_roDateTime.Second();
+	AmigaDate = Date2Amiga(&ClockData);
 
-	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+	iPlatformDate.ds_Days = (AmigaDate / 86400);
+	AmigaDate = (AmigaDate % 86400);
+	iPlatformDate.ds_Minute = (AmigaDate / 60);
+	iPlatformDate.ds_Tick = ((AmigaDate % 60) * 50);
 
-#else /* WIN32 */
+#else /* ! __amigaos__ */
 
-	iAttributes = FILE_ATTRIBUTE_NORMAL;
+	SYSTEMTIME SystemTime;
 
-#endif /* WIN32 */
+	SystemTime.wYear = a_roDateTime.Year();
+	SystemTime.wMonth = a_roDateTime.Month();
+	/* This member is ignored by SystemTimeToFileTime() but initialise it anyway, for consistency */
+	SystemTime.wDayOfWeek = 0;
+	SystemTime.wDay = a_roDateTime.Day();
+	SystemTime.wHour = (a_roDateTime.Hour() - 1);
+	SystemTime.wMinute = a_roDateTime.Minute();
+	SystemTime.wSecond = a_roDateTime.Second();
+	SystemTime.wMilliseconds = a_roDateTime.MilliSecond();
+
+	DEBUGCHECK(SystemTimeToFileTime(&SystemTime, &iPlatformDate), "Unable to convert date to filetime");
+
+#endif /* ! __amigaos__ */
 
 }
 
@@ -202,6 +240,38 @@ TBool TEntry::IsDeleteable() const
 	return((iAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)) == 0);
 
 #endif /* ! __unix__ */
+
+}
+
+/**
+ * Reset the class instance's variables to defaults.
+ * Initialises the members of the class to their default values, including setting
+ * the iAttributes member to something reasonable for each platform.
+ *
+ * @date	Monday 25-Jan-2021 6:18 am, Code HQ Bergmannstrasse
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void TEntry::Reset()
+{
+	iName[0] = iLink[0] = '\0';
+	iIsDir = iIsLink = EFalse;
+	iSize = 0;
+
+#ifdef __amigaos__
+
+	iAttributes = 0; // EXDF_NO_EXECUTE; // TODO: CAW
+
+#elif defined(__unix__)
+
+	iAttributes = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+
+#else /* WIN32 */
+
+	iAttributes = FILE_ATTRIBUTE_NORMAL;
+
+#endif /* WIN32 */
 
 }
 

@@ -33,6 +33,60 @@ const char *g_apccMonths[] =
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+/**
+ * TDateTime constructor.
+ * Initialises the components of the class based on a microseconds value passed in.
+ *
+ * @date	Saturday 23-Jan-2021 3:31 pm, Code HQ Bergmannstrasse
+ * @param	a_iTime			The number of microseconds since 01.01.01
+ */
+
+// TODO: CAW - Neither this, nor the revert conversion, are leap year safe.  But that doesn't matter for
+//             the moment as they cancel one another out
+TDateTime::TDateTime(TInt64 a_iTime)
+{
+	TInt Index;
+	TInt64 MicroSecondsPerMonth;
+
+	/* Break down the number of microseconds since 01.01.01 into year, month, day etc. components */
+
+	iYear = (TInt) (a_iTime / MICROSECONDS_PER_YEAR);
+	a_iTime = (a_iTime % MICROSECONDS_PER_YEAR);
+
+	TInt Month = 1;
+
+	for (Index = 0; Index < 12; ++Index)
+	{
+		MicroSecondsPerMonth = (g_aiDaysPerMonth[Index] * MICROSECONDS_PER_DAY);
+
+		if (a_iTime >= MicroSecondsPerMonth)
+		{
+			++Month;
+			a_iTime -= MicroSecondsPerMonth;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	iMonth = (enum TMonth) Month;
+
+	iDay = (TInt) ((a_iTime / MICROSECONDS_PER_DAY) + 1);
+	a_iTime = (a_iTime % MICROSECONDS_PER_DAY);
+
+	iHour = (TInt) ((a_iTime / MICROSECONDS_PER_HOUR) + 1);
+	a_iTime = (a_iTime % MICROSECONDS_PER_HOUR);
+
+	iMinute = (TInt) (a_iTime / MICROSECONDS_PER_MINUTE);
+	a_iTime = (a_iTime % MICROSECONDS_PER_MINUTE);
+
+	iSecond = (TInt) (a_iTime / MICROSECONDS_PER_SECOND);
+	a_iTime = (a_iTime % MICROSECONDS_PER_SECOND);
+
+	iMilliSecond = (TInt) (a_iTime / MICROSECONDS_PER_MILLI_SECOND);
+}
+
 /* Written: Wednesday 17-Jun-2009 7:30 am */
 
 TDateTime::TDateTime(TInt a_iYear, TMonth a_iMonth, TInt a_iDay, TInt a_iHour, TInt a_iMinute, TInt a_iSecond, TInt a_iMilliSecond)
