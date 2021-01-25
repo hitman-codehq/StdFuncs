@@ -3294,7 +3294,7 @@ ULONG Utils::ReverseRGB(unsigned long a_ulColour)
  * convenient to call this method call from a conditionally defined macro.
  *
  * @date	Saturday 24-Oct-2020 7:04 am, Code HQ Bergmannstrasse
- * @param	value		The word to have its bytes swapped
+ * @param	value		The 32 bit word to have its bytes swapped
  */
 
 void Utils::swap32(uint32_t *value)
@@ -3309,4 +3309,26 @@ void Utils::swap32(uint32_t *value)
 	temp = number[1];
 	number[1] = number[2];
 	number[2] = temp;
+}
+
+/**
+ * Swaps endianness of a 64 bit word.
+ * Reverses the endianness of the word that is passed in.  The word is swapped in place, making it
+ * convenient to call this method call from a conditionally defined macro.
+ *
+ * @date	Sunday 24-Jan-2021 9:16 am, Code HQ Bergmannstrasse
+ * @param	value		The 64 bit word to have its bytes swapped
+ */
+
+void Utils::swap64(TInt64 *value)
+{
+	uint32_t temp;
+	uint32_t *number = (uint32_t *) value;
+
+	temp = number[0];
+	number[0] = number[1];
+	number[1] = temp;
+
+	swap32(number);
+	swap32(number + 1);
 }
