@@ -60,7 +60,7 @@ private:
 	char				*m_pcName;		/**< Name of this rendezvous port */
 	MRendezvousObserver	*m_poObserver;	/**< Pointer to client to notify when rendezvous received */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct MsgPort		*m_poMsgPort;	/**< Port used by the server for rendezvous */
 	TBool				m_bPortAdded;	/**< ETrue if the port was added to the public message port list */
@@ -81,13 +81,13 @@ public:
 
 	void close();
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	struct MsgPort *GetMessagePort();
 
 	ULONG GetSignal();
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	TBool Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize);
 

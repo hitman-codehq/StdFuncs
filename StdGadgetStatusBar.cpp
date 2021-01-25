@@ -73,7 +73,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	/* Create a horizontal layout group into which can be placed the parts labels */
 
-	if ((m_poGadget = (Object *) HGroupObject, LAYOUT_FixedVert, FALSE, EndGroup) != NULL)
+	if ((m_poGadget = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, LAYOUT_HORIZONTAL, LAYOUT_FixedVert, FALSE, TAG_DONE)) != NULL)
 	{
 		/* Create an array of ptrs into which we can place the ptrs to the parts labels in order */
 		/* to access them l8r on, and create a part label for each slot in the array */
@@ -84,7 +84,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
-				m_poPartsGadgets[Index] = (Object *) StringObject, GA_ReadOnly, TRUE, StringEnd;
+				m_poPartsGadgets[Index] = NewObject(STRING_GetClass(), NULL, GA_ReadOnly, TRUE, TAG_DONE);
 
 				if (m_poPartsGadgets[Index])
 				{

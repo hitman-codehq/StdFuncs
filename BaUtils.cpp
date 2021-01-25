@@ -12,7 +12,15 @@
 
 #ifdef __amigaos__
 
+#ifdef __amigaos4__
+
 #define DELETE_FILE(FileName) Delete(FileName)
+
+#else /* ! __amigaos4__ */
+
+#define DELETE_FILE(FileName) DeleteFile(FileName)
+
+#endif /* ! __amigaos4__ */
 
 #elif defined(__unix__)
 

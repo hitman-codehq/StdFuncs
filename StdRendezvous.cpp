@@ -4,12 +4,6 @@
 #include "StdRendezvous.h"
 #include <string.h>
 
-#ifdef __amigaos4__
-
-#include <exec/exectags.h>
-
-#endif /* __amigaos4__ */
-
 RRendezvous g_oRendezvous;	/* Class to allow communication between instances of programs */
 
 /**
@@ -24,12 +18,12 @@ RRendezvous::RRendezvous()
 	m_pcName = NULL;
 	m_poObserver = NULL;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_poMsgPort = NULL;
 	m_bPortAdded = EFalse;
 
-#endif /*__amigaos4__ */
+#endif /*__amigaos__ */
 
 }
 
@@ -74,7 +68,7 @@ TInt RRendezvous::open(RApplication *a_poApplication, const char *a_pccName)
 	{
 		strcpy(m_pcName, a_pccName);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 		(void) a_poApplication;
 
@@ -142,7 +136,7 @@ void RRendezvous::close()
 	delete [] m_pcName;
 	m_pcName = NULL;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Remove the message port from the public list and free it, if required.  Reset its variables so */
 	/* that the class can be reused again */
@@ -169,7 +163,7 @@ void RRendezvous::close()
 
 }
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 /**
  * Returns the message port on which to listen for a rendezvous.
@@ -199,7 +193,7 @@ ULONG RRendezvous::GetSignal()
 	return((m_poMsgPort) ? (1 << m_poMsgPort->mp_SigBit) : 0);
 }
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 /**
  * Rendezvous with a program of a given name.
@@ -222,7 +216,7 @@ TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 
 	RetVal = EFalse;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char *Buffer, *Data;
 	struct Message *Message;

@@ -2791,7 +2791,16 @@ TInt Utils::setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBoo
 
 	(void) a_bResolveLink;
 
+#ifdef __amigaos4__
+
 	if (SetDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
+
+#else /* ! __amigaos4__ */
+
+	if (SetFileDate(a_pccFileName, &a_roEntry.iPlatformDate) != 0)
+
+#endif /* ! __amigaos4__ */
+
 	{
 		RetVal = KErrNone;
 	}

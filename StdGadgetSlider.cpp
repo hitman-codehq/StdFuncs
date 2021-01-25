@@ -68,7 +68,7 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Create the underlying BOOPSI gadget */
 
-	m_poGadget = (Object *) NewObject(NULL, "scroller.gadget", GA_ID, m_iGadgetID,
+	m_poGadget = (Object *) NewObject(SCROLLER_GetClass(), NULL, GA_ID, m_iGadgetID,
 		ICA_TARGET, ICTARGET_IDCMP, SCROLLER_Orientation, Orientation, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

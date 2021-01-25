@@ -65,7 +65,7 @@ TInt CStdGadgetLayout::Construct()
 
 	RetVal = KErrNoMemory;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_InnerSpacing, INNER_SPACING, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
 	{
@@ -141,7 +141,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 	m_oGadgets.addTail(a_poGadget);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Add the new BOOPSI gadget to the layout */
 

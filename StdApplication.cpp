@@ -136,7 +136,7 @@ TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 TInt RApplication::Main()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	char KeyBuffer[5];
 	const unsigned char *Data;
