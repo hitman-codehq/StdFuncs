@@ -59,6 +59,8 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 	ULONG AmigaDate;
 	struct ClockData ClockData;
 
+	/* Extract the time information from the TDateTime structure into an Amiga specific structure */
+
 	ClockData.year = a_roDateTime.Year();
 	ClockData.month = a_roDateTime.Month();
 	ClockData.mday = a_roDateTime.Day();
@@ -67,14 +69,40 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 	ClockData.sec = a_roDateTime.Second();
 	AmigaDate = Date2Amiga(&ClockData);
 
+	/* And now convert that into the number of seconds since the 1st of January 1978 */
+
 	iPlatformDate.ds_Days = (AmigaDate / 86400);
 	AmigaDate = (AmigaDate % 86400);
 	iPlatformDate.ds_Minute = (AmigaDate / 60);
 	iPlatformDate.ds_Tick = ((AmigaDate % 60) * 50);
 
-#else /* ! __amigaos__ */
+#elif defined(__unix__)
+
+	struct tm Tm;
+
+	/* Extract the time information from the TDateTime structure into a UNIX specific structure */
+
+	memset(&Tm, 0, sizeof(Tm));
+	Tm.tm_year = (a_roDateTime.Year() - 1900);
+	Tm.tm_mon = (a_roDateTime.Month() - 1);
+	Tm.tm_mday = a_roDateTime.Day();
+	Tm.tm_hour = a_roDateTime.Hour();
+	Tm.tm_min = a_roDateTime.Minute();
+	Tm.tm_sec = a_roDateTime.Second();
+	Tm.tm_wday = 0;
+	Tm.tm_yday = 0;
+	Tm.tm_isdst = -1;
+
+	/* And now convert that into the number of seconds since the UNIX Epoch, which is the */
+	/* 1st of January 1970 */
+
+	iPlatformDate = mktime(&Tm);
+
+#else /* ! __unix__ */
 
 	SYSTEMTIME SystemTime;
+
+	/* Extract the time information from the TDateTime structure into a Windows specific structure */
 
 	SystemTime.wYear = a_roDateTime.Year();
 	SystemTime.wMonth = a_roDateTime.Month();
@@ -86,9 +114,11 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 	SystemTime.wSecond = a_roDateTime.Second();
 	SystemTime.wMilliseconds = a_roDateTime.MilliSecond();
 
+	/* And now convert that into the number of 100 nanosecond intervals since the 1st of January 1601 */
+
 	DEBUGCHECK(SystemTimeToFileTime(&SystemTime, &iPlatformDate), "Unable to convert date to filetime");
 
-#endif /* ! __amigaos__ */
+#endif /* ! __unix__ */
 
 }
 
