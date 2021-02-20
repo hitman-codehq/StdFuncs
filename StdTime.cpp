@@ -3,6 +3,12 @@
 #include "StdTime.h"
 #include <time.h>
 
+#ifndef WIN32
+
+#include <sys/time.h>
+
+#endif /* ! WIN32 */
+
 /* Useful constants used for calculating the current date and time in microseconds */
 
 #define MICROSECONDS_PER_MILLI_SECOND (TInt64) 1000
@@ -203,15 +209,20 @@ void TTime::HomeTime()
 
 #if defined(__amigaos__) || defined(__unix__)
 
+	TInt MilliSeconds;
 	time_t TimeInSeconds;
 	struct tm *LocalTime;
+	struct timeval tv;
 
 	/* Get the current time using the POSIX function and build up a TDateTime structure representing that time */
 
 	TimeInSeconds = time(NULL);
+	MilliSeconds = gettimeofday(&tv, NULL) ? 0 : (tv.tv_usec / 1000);
 	LocalTime = localtime(&TimeInSeconds);
 	ASSERTM((LocalTime != NULL), "TTime::HomeTime() => Unable to obtain current date and time");
-	TDateTime DateTime((LocalTime->tm_year + 1900), (TMonth) LocalTime->tm_mon, LocalTime->tm_mday, LocalTime->tm_hour, LocalTime->tm_min, LocalTime->tm_sec, 0);
+
+	TDateTime DateTime((LocalTime->tm_year + 1900), (TMonth) LocalTime->tm_mon, LocalTime->tm_mday, LocalTime->tm_hour,
+		LocalTime->tm_min, LocalTime->tm_sec, MilliSeconds);
 
 #else /* ! defined(__amigaos__) || defined(__unix__) */
 
