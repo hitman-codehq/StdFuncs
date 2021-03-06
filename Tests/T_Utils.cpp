@@ -244,7 +244,7 @@ int main()
 	Result = Utils::DeleteDirectory("UnknownDirectory/UnknownDirectory");
 	test(Result == KErrPathNotFound);
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Test some special Amiga cases that were causing BaflUtils::deleteFile() to */
 	/* return incorrect return values sometimes */
@@ -255,7 +255,7 @@ int main()
 	Result = BaflUtils::deleteFile("RAM:UnknownDirectory/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	/* Test #10: Ensure that Utils::ResolveFileName() works */
 
@@ -306,29 +306,29 @@ int main()
 
 	delete [] (char *) FileName;
 
-#elif defined(__amigaos4__)
+#elif defined(__amigaos__)
 
 	/* Amiga OS uses ':' for the root directory.  Assume that this test is being run on the "Work:" volume */
 
 	FileName = Utils::ResolveFileName(":");
 	test(FileName != NULL);
 	test(strcmp(FileName, "Work:") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	/* Other versions will leave a slash as a slash so check for this */
 
 	FileName = Utils::ResolveFileName("/");
 	test(FileName != NULL);
 	test(strcmp(FileName, "/") == 0);
-	Test.Printf("Resolved name is %s\n", FileName);
+	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	/* Test #11: Ensure the PROGDIR: prefix works with Utils::ResolveProgDirName() */
 
@@ -362,12 +362,12 @@ int main()
 
 	Test.Next("Ensure that Utils::GetFileInfo() correctly returns failure if wildcards are used");
 
- #ifdef __amigaos4__
+ #ifdef __amigaos__
 
 	Result = Utils::GetFileInfo("#?", &Entry);
 	test(Result == KErrNotFound);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	Result = Utils::GetFileInfo("*", &Entry);
 	test(Result == KErrNotFound);
@@ -375,7 +375,7 @@ int main()
 	Result = Utils::GetFileInfo("?", &Entry);
 	test(Result == KErrNotFound);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	/* Test #14: Ensure Utils::GetFileInfo() can handle different scenarios */
 
@@ -406,7 +406,7 @@ int main()
 
 	/* Various random directory and file paths */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Amiga OS uses ':' for the root directory */
 
@@ -414,7 +414,7 @@ int main()
 	test(Result == KErrNone);
 	test(strcmp(Entry.iName, ":") == 0);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	/* All other platforms use '/' */
 
@@ -422,7 +422,7 @@ int main()
 	test(Result == KErrNone);
 	test(strcmp(Entry.iName, "/") == 0);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	Result = Utils::GetFileInfo("SomeDir", &Entry);
 	test(Result == KErrNone);

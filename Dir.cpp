@@ -62,7 +62,7 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 	/* Extract the time information from the TDateTime structure into an Amiga specific structure */
 
 	ClockData.year = a_roDateTime.Year();
-	ClockData.month = a_roDateTime.Month();
+	ClockData.month = (a_roDateTime.Month() + 1);
 	ClockData.mday = a_roDateTime.Day();
 	ClockData.hour = a_roDateTime.Hour();
 	ClockData.min = a_roDateTime.Minute();
@@ -71,8 +71,8 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 
 	/* And now convert that into the number of seconds since the 1st of January 1978 */
 
-	iPlatformDate.ds_Days = (AmigaDate / 86400);
-	AmigaDate = (AmigaDate % 86400);
+	iPlatformDate.ds_Days = (AmigaDate / SECONDS_PER_DAY);
+	AmigaDate = (AmigaDate % SECONDS_PER_DAY);
 	iPlatformDate.ds_Minute = (AmigaDate / 60);
 	iPlatformDate.ds_Tick = ((AmigaDate % 60) * 50);
 
@@ -84,7 +84,7 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 
 	memset(&Tm, 0, sizeof(Tm));
 	Tm.tm_year = (a_roDateTime.Year() - 1900);
-	Tm.tm_mon = (a_roDateTime.Month() - 1);
+	Tm.tm_mon = a_roDateTime.Month();
 	Tm.tm_mday = a_roDateTime.Day();
 	Tm.tm_hour = a_roDateTime.Hour();
 	Tm.tm_min = a_roDateTime.Minute();
@@ -105,11 +105,11 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 	/* Extract the time information from the TDateTime structure into a Windows specific structure */
 
 	SystemTime.wYear = a_roDateTime.Year();
-	SystemTime.wMonth = a_roDateTime.Month();
+	SystemTime.wMonth = (a_roDateTime.Month() + 1);
 	/* This member is ignored by SystemTimeToFileTime() but initialise it anyway, for consistency */
 	SystemTime.wDayOfWeek = 0;
 	SystemTime.wDay = a_roDateTime.Day();
-	SystemTime.wHour = (a_roDateTime.Hour() - 1);
+	SystemTime.wHour = a_roDateTime.Hour();
 	SystemTime.wMinute = a_roDateTime.Minute();
 	SystemTime.wSecond = a_roDateTime.Second();
 	SystemTime.wMilliseconds = a_roDateTime.MilliSecond();

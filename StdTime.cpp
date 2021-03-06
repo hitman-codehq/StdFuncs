@@ -59,15 +59,12 @@ TDateTime::TDateTime(TInt64 a_iTime)
 	iYear = (TInt) (a_iTime / MICROSECONDS_PER_YEAR);
 	a_iTime = (a_iTime % MICROSECONDS_PER_YEAR);
 
-	TInt Month = 1;
-
 	for (Index = 0; Index < 12; ++Index)
 	{
 		MicroSecondsPerMonth = (g_aiDaysPerMonth[Index] * MICROSECONDS_PER_DAY);
 
 		if (a_iTime >= MicroSecondsPerMonth)
 		{
-			++Month;
 			a_iTime -= MicroSecondsPerMonth;
 		}
 		else
@@ -76,12 +73,12 @@ TDateTime::TDateTime(TInt64 a_iTime)
 		}
 	}
 
-	iMonth = (enum TMonth) Month;
+	iMonth = (enum TMonth) Index;
 
 	iDay = (TInt) ((a_iTime / MICROSECONDS_PER_DAY) + 1);
 	a_iTime = (a_iTime % MICROSECONDS_PER_DAY);
 
-	iHour = (TInt) ((a_iTime / MICROSECONDS_PER_HOUR) + 1);
+	iHour = (TInt) (a_iTime / MICROSECONDS_PER_HOUR);
 	a_iTime = (a_iTime % MICROSECONDS_PER_HOUR);
 
 	iMinute = (TInt) (a_iTime / MICROSECONDS_PER_MINUTE);

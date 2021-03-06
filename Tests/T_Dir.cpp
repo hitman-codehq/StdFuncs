@@ -87,19 +87,19 @@ int main()
 
 	Test.Next("Test that open() with wildcards works");
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TestScan("#?");
 	TestScan("#?.dsw", 1, 3626);
 	TestScan("SomeDir/#?.txt", 1, 174);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	TestScan("*");
 	TestScan("*.dsw", 1, 3626);
 	TestScan("SomeDir/*.txt", 1, 174);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	/* Test #5: Test that open() with a filename works */
 
@@ -184,14 +184,14 @@ int main()
 	/* is one area where we don't try to retain identical behaviour across platforms. */
 	/* So only test these paths on non Amiga OS systems */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* Test #12: Test scanning RAM: to ensure that the Disk.info link is correct */
 
 	Test.Next("Test scanning RAM: to ensure that the Disk.info link is correct");
 	TestScan("RAM:");
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	/* Test #12: Test some paths that only work on Windows and UNIX */
 
@@ -200,7 +200,7 @@ int main()
 	TestScan("../Tests/SomeDir", 1, 174);
 	TestScan("../Tests/SomeDir/", 1, 174);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 	/* Clean up after ourselves */
 

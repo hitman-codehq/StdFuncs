@@ -23,8 +23,8 @@ class TDateTime
 private:
 
 	TInt	iYear;			/**< The current year */
-	TMonth	iMonth;			/**< The month of the current year, starting with 0 */
-	TInt	iDay;			/**< The day of the current month */
+	TMonth	iMonth;			/**< The month of the current year, starting with EJanuary (0) */
+	TInt	iDay;			/**< The day of the current month, starting with 1 */
 	TInt	iHour;			/**< The hour of the current day */
 	TInt	iMinute;		/**< The minute of the current day */
 	TInt	iSecond;		/**< The second of the current minute */

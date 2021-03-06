@@ -946,8 +946,8 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 
 /**
  * Obtains information about a given file or directory.
- * This function is useful for obtaining directory listing type information about a single file
- * or directory, without the overhead of having to use the RDir class to do so.  It will query
+ * This function is useful for obtaining directory listing information about a single file or
+ * directory, without the overhead of having to use the RDir class to do so.  It will query
  * the given filename, which can be either relative or absolute, and will place the information
  * about it into the TEntry structure that is passed in.  This will then contain all of the
  * same information that would be in the TEntry structure had it been filled in by the RDir
@@ -1014,7 +1014,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 		if (PathOk)
 		{
 
-#ifdef __amigaos4__
+#if defined(__amigaos4__)
 
 			(void) a_bResolveLink;
 
@@ -1037,7 +1037,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 					/* Convert it so a Symbian style TDateTime structure */
 
-					TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), (ClockData.mday - 1), ClockData.hour,
+					TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), ClockData.mday, ClockData.hour,
 						ClockData.min, ClockData.sec, 0);
 
 					/* And populate the new TEntry instance with information about the file or directory */
@@ -1064,6 +1064,70 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 					}
 
 					FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+				}
+			}
+
+#elif defined(__amigaos__)
+
+			(void) a_bResolveLink;
+
+			BPTR _Lock;
+			struct ClockData ClockData;
+
+			/* Querying empty filenames is not allowed by our API, even though the Amiga OS API */
+			/* function supports it */
+
+			if (*ProgDirName != '\0')
+			{
+				// TODO: CAW - Move and rename this and check over this implementation
+				struct FileInfoBlock *FileInfoBlock;
+
+				if ((FileInfoBlock = (struct FileInfoBlock *) AllocDosObject(DOS_FIB, TAG_DONE)) != NULL)
+				{
+					if ((_Lock = Lock(ProgDirName, ACCESS_READ)) != 0)
+					{
+						if (Examine(_Lock, FileInfoBlock))
+						{
+							RetVal = KErrNone;
+
+							/* Convert the new style date structure into something more usable that also contains */
+							/* year, month and day information */
+
+							Amiga2Date(DateStampToSeconds(&FileInfoBlock->fib_Date), &ClockData);
+
+							/* Convert it so a Symbian style TDateTime structure */
+
+							TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), ClockData.mday, ClockData.hour,
+								ClockData.min, ClockData.sec, 0);
+
+							/* And populate the new TEntry instance with information about the file or directory */
+
+							a_poEntry->Set((FileInfoBlock->fib_DirEntryType > 0), 0, FileInfoBlock->fib_Size,
+								FileInfoBlock->fib_Protection, DateTime);
+							a_poEntry->iPlatformDate = FileInfoBlock->fib_Date;
+
+							/* If the name of the directory is the special case of an Amiga OS volume then return just */
+							/* ':' for consistency with other versions of this function, which would only return the slash */
+							/* required to access this directory */
+
+							if (ProgDirName[Length - 1] == ':')
+							{
+								a_poEntry->iName[0] = ':';
+								a_poEntry->iName[1] = '\0';
+							}
+
+							/* Otherwise return the name of the directory or file */
+
+							else
+							{
+								strcpy(a_poEntry->iName, FileInfoBlock->fib_FileName);
+							}
+						}
+
+						UnLock(_Lock);
+					}
+
+					FreeDosObject(DOS_FIB, FileInfoBlock);
 				}
 			}
 
