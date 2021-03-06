@@ -129,6 +129,11 @@ public:
 
 	static ULONG ReverseRGB(unsigned long a_ulColour);
 
+	static void swap32(int32_t *value)
+	{
+		swap32((uint32_t *) value);
+	}
+
 	static void swap32(uint32_t *value);
 
 	static void swap64(TInt64 *value);
