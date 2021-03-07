@@ -12,6 +12,10 @@
 #define _stricmp(String1, String2) strcasecmp(String1, String2)
 #define _strnicmp(String1, String2, Length) strncasecmp(String1, String2, Length)
 
+/* A handy value for Amiga OS date conversions */
+
+#define SECONDS_PER_DAY (24 * 60 * 60)
+
 #elif defined(__APPLE__) || defined(__linux__)
 
 #include <sys/param.h>
