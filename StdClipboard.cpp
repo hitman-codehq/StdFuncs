@@ -4,9 +4,16 @@
 #include "StdClipboard.h"
 #include "StdWindow.h"
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 #include <proto/textclip.h>
+
+#elif defined(__amigaos__)
+
+#include <proto/iffparse.h>
+
+#define  ID_FTXT        MAKE_ID('F','T','X','T')
+#define  ID_CHRS        MAKE_ID('C','H','R','S')
 
 #elif defined(QT_GUI_LIB)
 
@@ -28,7 +35,25 @@ TInt RClipboard::open(CWindow *a_poWindow)
 
 	(void) a_poWindow;
 
+#ifdef __amigaos4__
+
 	RetVal = KErrNone;
+
+#else /* ! __amigaos4__ */
+
+	RetVal = KErrGeneral;
+
+	if ((m_poHandle = AllocIFF()) != NULL)
+	{
+		if ((m_poHandle->iff_Stream = (ULONG) OpenClipboard(PRIMARY_CLIP)) != 0)
+		{
+			RetVal = KErrNone;
+
+			InitIFFasClip(m_poHandle);
+		}
+	}
+
+#endif /* ! __amigaos4__ */
 
 #else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
@@ -49,6 +74,20 @@ TInt RClipboard::open(CWindow *a_poWindow)
 void RClipboard::close()
 {
 
+#if defined(__amigaos__) && !defined(__amigaos4__)
+
+	if (m_poHandle)
+	{
+		if (m_poHandle->iff_Stream)
+		{
+			CloseClipboard((ClipboardHandle *) m_poHandle->iff_Stream);
+		}
+
+		FreeIFF(m_poHandle);
+	}
+
+#endif /* defined(__amigaos__) && !defined(__amigaos4__) */
+
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	DEBUGCHECK(CloseClipboard(), "RClipboard::close() => Unable to close clipboard");
@@ -62,6 +101,8 @@ void RClipboard::close()
 const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 {
 	const char *NextChar, *RetVal;
+
+	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => GetDataStart() must be called first");
 
 	/* Assume we are going to return the current line and that it has no EOL characters */
 
@@ -193,7 +234,29 @@ void RClipboard::SetDataEnd()
 
 	/* Write the block of data to the clipboard */
 
-	WriteClipVector(m_pcSetData, m_stDataSize);
+#ifdef __amigaos4__
+
+	DEBUGCHECK(WriteClipVector(m_pcSetData, m_stDataSize), "RClipboard::SetDataEnd() => Unable to write clipboard data");
+
+#else /* ! __amigaos4__ */
+
+	ASSERTM((m_poHandle != NULL), "RClipboard::SetDataEnd() => open() must be called first");
+
+	if (OpenIFF(m_poHandle, IFFF_WRITE) == 0)
+	{
+		if (PushChunk(m_poHandle, ID_FTXT, ID_FORM, IFFSIZE_UNKNOWN) == 0)
+		{
+			if (PushChunk(m_poHandle, 0, ID_CHRS, IFFSIZE_UNKNOWN) == 0)
+			{
+				DEBUGCHECK((WriteChunkBytes(m_poHandle, m_pcSetData, m_stDataSize) == (LONG) m_stDataSize),
+					"RClipboard::SetDataEnd() => Unable to write clipboard data");
+			}
+		}
+
+		CloseIFF(m_poHandle);
+	}
+
+#endif /* ! __amigaos4__ */
 
 	/* And free the temporary buffer */
 
@@ -246,7 +309,7 @@ const char *RClipboard::GetDataStart()
 
 	RetVal = NULL;
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	ULONG Size;
 
@@ -255,6 +318,47 @@ const char *RClipboard::GetDataStart()
 	if (ReadClipVector((STRPTR *) &RetVal, &Size))
 	{
 		m_pccGetData = m_pccCurrentGetData = RetVal;
+	}
+
+#elif defined(__amigaos__)
+
+	char *GetData;
+	LONG Result, Size;
+	ContextNode *Chunk;
+
+	ASSERTM((m_poHandle != NULL), "RClipboard::GetDataStart() => open() must be called first");
+
+	if (OpenIFF(m_poHandle, IFFF_READ) == 0)
+	{
+		if (StopChunk(m_poHandle, ID_FTXT, ID_CHRS) == 0)
+		{
+			if ((Result = ParseIFF(m_poHandle, IFFPARSE_SCAN)) == 0)
+			{
+				if ((Chunk = CurrentChunk(m_poHandle)) != NULL)
+				{
+					if ((Chunk->cn_Type == ID_FTXT) && (Chunk->cn_ID == ID_CHRS))
+					{
+						if ((GetData = AllocVec((Chunk->cn_Size + 1), 0)) != NULL)
+						{
+							if ((Size = ReadChunkBytes(m_poHandle, GetData, Chunk->cn_Size)) == Chunk->cn_Size)
+							{
+								GetData[Size] = '\0';
+								RetVal = m_pccGetData = m_pccCurrentGetData = GetData;
+							}
+							else
+							{
+								FreeVec(GetData);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (!RetVal)
+		{
+			CloseIFF(m_poHandle);
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -266,7 +370,7 @@ const char *RClipboard::GetDataStart()
 
 	/* Now return a ptr to the start of the clipboard data */
 
-	m_pccGetData = m_pccCurrentGetData = RetVal = m_oGetData.constData();
+	RetVal = m_pccGetData = m_pccCurrentGetData = m_oGetData.constData();
 
 #else /* ! QT_GUI_LIB */
 
@@ -304,11 +408,16 @@ const char *RClipboard::GetDataStart()
 
 void RClipboard::GetDataEnd()
 {
-	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => SetDataStart() must be called first");
+	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => GetDataStart() must be called first");
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	DisposeClipVector((STRPTR) m_pccGetData);
+
+#elif defined(__amigaos__)
+
+	ASSERTM((m_poHandle != NULL), "RClipboard::GetDataEnd() => close() must be called first");
+	CloseIFF(m_poHandle);
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
