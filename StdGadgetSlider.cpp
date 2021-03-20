@@ -328,6 +328,14 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ASSERTM((m_poGadget != NULL), "CStdGadgetSlider::SetRange() => Slider gadget has not been created");
 	ASSERTM((a_iPageSize <= a_iMaxRange), "CStdGadgetSlider::SetRange() => a_iPageSize is too large");
 
+	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
+	/* don't take care of this and gadgets will flicker if nothing has changed */
+
+	if ((a_iMaxRange == m_iMaxRange) && (m_iPageSize == m_iPageSize))
+	{
+		return;
+	}
+
 	/* Save the maximum position of the scroller and its page size for l8r use */
 
 	m_iMaxRange = a_iMaxRange;
