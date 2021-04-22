@@ -104,15 +104,15 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 
 	/* Extract the time information from the TDateTime structure into a Windows specific structure */
 
-	SystemTime.wYear = a_roDateTime.Year();
-	SystemTime.wMonth = (a_roDateTime.Month() + 1);
+	SystemTime.wYear = (WORD) a_roDateTime.Year();
+	SystemTime.wMonth = (WORD) (a_roDateTime.Month() + 1);
 	/* This member is ignored by SystemTimeToFileTime() but initialise it anyway, for consistency */
 	SystemTime.wDayOfWeek = 0;
-	SystemTime.wDay = a_roDateTime.Day();
-	SystemTime.wHour = a_roDateTime.Hour();
-	SystemTime.wMinute = a_roDateTime.Minute();
-	SystemTime.wSecond = a_roDateTime.Second();
-	SystemTime.wMilliseconds = a_roDateTime.MilliSecond();
+	SystemTime.wDay = (WORD) a_roDateTime.Day();
+	SystemTime.wHour = (WORD) a_roDateTime.Hour();
+	SystemTime.wMinute = (WORD) a_roDateTime.Minute();
+	SystemTime.wSecond = (WORD) a_roDateTime.Second();
+	SystemTime.wMilliseconds = (WORD) a_roDateTime.MilliSecond();
 
 	/* And now convert that into the number of 100 nanosecond intervals since the 1st of January 1601 */
 
