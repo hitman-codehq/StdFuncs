@@ -1,12 +1,13 @@
 
-cmake_minimum_required(VERSION 3.7.1)
+cmake_minimum_required(VERSION 3.18)
 
 project(StdFuncs)
 
 if(MSVC)
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS)
+	add_compile_options(/EHa-)
 else()
-	add_compile_options(-fno-asynchronous-unwind-tables -fno-strict-aliasing -Wall -Wextra -Wwrite-strings)
+	add_compile_options(-fno-asynchronous-unwind-tables -fno-exceptions -Wall -Wextra)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -23,6 +24,7 @@ set(SourceFiles ${SourceFiles} "StdConfigFile.cpp")
 set(SourceFiles ${SourceFiles} "StdCRC.cpp")
 set(SourceFiles ${SourceFiles} "StdPool.cpp")
 set(SourceFiles ${SourceFiles} "StdRendezvous.cpp")
+set(SourceFiles ${SourceFiles} "StdSocket.cpp")
 set(SourceFiles ${SourceFiles} "StdStringList.cpp")
 set(SourceFiles ${SourceFiles} "StdTextFile.cpp")
 set(SourceFiles ${SourceFiles} "StdTime.cpp")
@@ -63,6 +65,8 @@ else()
 
 	add_library(StdFuncs ${SourceFiles})
 endif()
+
+set_source_files_properties("StdSocket.cpp" PROPERTIES "COMPILE_OPTIONS" "-fexceptions")
 
 if(USE_CLANG_TIDY)
 	find_program(ClangTidy NAMES "clang-tidy")
