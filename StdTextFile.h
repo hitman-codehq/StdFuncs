@@ -21,6 +21,11 @@ public:
 		m_pcBuffer = NULL;
 	}
 
+	~RTextFile()
+	{
+		close();
+	}
+
 	TInt open(const char *a_pccFileName);
 
 	void close();
