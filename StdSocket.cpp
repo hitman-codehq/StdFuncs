@@ -20,6 +20,22 @@
 #endif /* ! defined(__unix__) || defined(__amigaos__) */
 
 /**
+ * Typeinfo workaround.
+ * This is a workaround for Amiga GCC 6.5.0b.  In order to catch an exception that is derived from the
+ * std::runtime_error or std::exception class, some typeinfo needs to be present.  This can be forced
+ * by having at least one concrete implementation of a virtual method.  Other compilers (including GCC
+ * 6.5.0) on other platforms work without this, but not Amiga GCC 6.5.0b.
+ *
+ * Do not remove this or exception handling will break on Amiga OS!
+ *
+ * @date	Saturday 08-May-2021 7:47 am, Code HQ Bergmannstrasse
+ */
+
+RSocket::Error::~Error()
+{
+}
+
+/**
  * RSocket constructor.
  * Initialises the socket to a state ready for connection.
  *
@@ -230,7 +246,7 @@ int RSocket::read(void *a_pvBuffer, int a_iSize, bool a_bReadAll)
 	}
 	else if (retVal == 0)
 	{
-		throw RSocket::Error("Socket closed by remote host", retVal);
+		throw Error("Socket closed by remote host", retVal);
 	}
 
 	return retVal;

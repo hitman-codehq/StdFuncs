@@ -33,6 +33,8 @@ public:
 		int	m_result;
 
 		Error(const char *a_message, int a_result) : std::runtime_error(a_message), m_result(a_result) { }
+
+		~Error();
 	};
 
 private:
