@@ -16,8 +16,16 @@
 
 #define INNER_SPACING 3
 
-/* Written: Monday 11-Jul-2011 5:44 am */
-// TODO: CAW - Parameters + comments all through here + ensure consistency with others
+/**
+ * Creates an instance of the CStdGadgetLayout class.
+ * Allocates and initialises the class, providing two phase construction.
+ *
+ * @date	Monday 11-Jul-2011 5:44 am
+ * @param	a_pParentWindow	Pointer to the window in which to create the gadget
+ * @param	a_poClient		The observer to call to indicate a resize operation.  May be NULL if no
+ *							callbacks are required
+ * @return	A pointer to the initialised class instance if successful, else NULL
+ */
 
 CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient)
 {
