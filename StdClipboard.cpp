@@ -39,7 +39,7 @@ TInt RClipboard::open(CWindow *a_poWindow)
 
 	RetVal = KErrNone;
 
-#else /* ! __amigaos4__ */
+#elif defined(__amigaos__)
 
 	RetVal = KErrGeneral;
 
@@ -53,7 +53,7 @@ TInt RClipboard::open(CWindow *a_poWindow)
 		}
 	}
 
-#endif /* ! __amigaos4__ */
+#endif /* __amigaos__ */
 
 #else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
