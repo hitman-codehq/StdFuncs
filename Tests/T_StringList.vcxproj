@@ -17,11 +17,27 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|x64">
+      <Configuration>Template</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}</ProjectGuid>
+    <ProjectGuid>{BA141094-FE3C-4F5B-9DA2-0D467B44248F}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
@@ -49,6 +65,12 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Template|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
@@ -67,23 +89,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_StringList\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_StringList\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_StringList\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_StringList\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_StringList\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_StringList\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_StringList\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_StringList\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -98,14 +120,14 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_StringList\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_StringList\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_StringList\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_StringList\T_StringList.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -113,13 +135,13 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -136,14 +158,14 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_StringList\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_StringList\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_StringList\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_StringList\T_StringList.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -151,13 +173,13 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -173,13 +195,13 @@
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_StringList\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_StringList\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_StringList\</ProgramDataBaseFileName>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_StringList\T_StringList.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -187,12 +209,12 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -208,13 +230,13 @@
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_StringList\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_StringList\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_StringList\</ProgramDataBaseFileName>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_StringList\T_StringList.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -222,18 +244,18 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_StringList\T_StringList.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="T_Time.cpp" />
+    <ClCompile Include="T_StringList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Args.h" />
@@ -241,6 +263,7 @@
     <ClInclude Include="..\MungWall.h" />
     <ClInclude Include="..\StdFuncs.h" />
     <ClInclude Include="..\StdList.h" />
+    <ClInclude Include="..\StdStringList.h" />
     <ClInclude Include="..\StdTime.h" />
     <ClInclude Include="..\Test.h" />
     <ClInclude Include="..\Utils.h" />

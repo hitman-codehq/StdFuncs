@@ -19,7 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}</ProjectGuid>
+    <ProjectGuid>{5454286D-A40B-4681-BB13-83A4CAB5AB86}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -67,24 +68,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_Args\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_Args\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Platform)\$(Configuration)\T_Args\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_Args\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\T_Args\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_Args\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(Platform)\$(Configuration)\T_Time\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\T_Time\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(Platform)\$(Configuration)\T_Args\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\T_Args\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -97,15 +98,15 @@
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Args\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_Args\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Args\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_Args\T_Args.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -113,13 +114,13 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -135,15 +136,15 @@
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Args\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Args.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_Args\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Args\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_Args\T_Args.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -151,13 +152,13 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -172,14 +173,14 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Args\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_Args\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Args\</ProgramDataBaseFileName>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_Args\T_Args.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -187,12 +188,12 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -207,14 +208,14 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Time\</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(Platform)\$(Configuration)\T_Time\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Time\</ProgramDataBaseFileName>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Args\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Args.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>$(Platform)\$(Configuration)\T_Args\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Args\</ProgramDataBaseFileName>
     </ClCompile>
     <Midl>
-      <TypeLibraryName>$(Platform)\$(Configuration)\T_Time\T_Time.tlb</TypeLibraryName>
+      <TypeLibraryName>$(Platform)\$(Configuration)\T_Args\T_Args.tlb</TypeLibraryName>
     </Midl>
     <ResourceCompile>
       <Culture>0x0809</Culture>
@@ -222,18 +223,18 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
-      <OutputFile>$(Platform)\$(Configuration)\T_Time\T_Time.exe</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\T_Args\T_Args.exe</OutputFile>
       <AdditionalLibraryDirectories>..\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;StdFuncs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="T_Time.cpp" />
+    <ClCompile Include="T_Args.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Args.h" />
