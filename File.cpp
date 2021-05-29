@@ -457,7 +457,7 @@ TInt RFile::seek(TInt a_iBytes)
 
 #ifdef __amigaos__
 
-	if (ChangeFilePosition(m_oHandle, a_iBytes, OFFSET_BEGINNING))
+	if (Seek(m_oHandle, a_iBytes, OFFSET_BEGINNING))
 	{
 		RetVal = KErrNone;
 	}
