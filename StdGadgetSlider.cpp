@@ -331,7 +331,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
 	/* don't take care of this and gadgets will flicker if nothing has changed */
 
-	if ((a_iMaxRange == m_iMaxRange) && (m_iPageSize == m_iPageSize))
+	if ((a_iMaxRange == m_iMaxRange) && (a_iPageSize == m_iPageSize))
 	{
 		return;
 	}
