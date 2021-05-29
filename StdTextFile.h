@@ -18,7 +18,8 @@ public:
 
 	RTextFile()
 	{
-		m_pcBuffer = NULL;
+		m_pcBuffer = m_pcBufferEnd = m_pcBufferPtr = NULL;
+		m_iSize = 0;
 	}
 
 	~RTextFile()
