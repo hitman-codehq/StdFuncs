@@ -292,7 +292,7 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -333,7 +333,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -717,7 +717,7 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 		if ((Length = GetGadgetText(a_iGadgetID, EFalse)) > 0)
 		{
-			RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
+			SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
 				(Length - 1), TAG_DONE);
 		}
 	}
@@ -897,7 +897,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
