@@ -1,5 +1,5 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -std=c++14 -Wall -Wextra
+CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -std=gnu++14 -Wall -Wextra
 IFLAGS = -I.. -D__USE_INLINE__
 LFLAGS = -L../$(OBJ)
 LIBS = -lStdFuncs -lauto
