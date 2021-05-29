@@ -538,17 +538,17 @@ void CAmiMenus::CheckItem(TInt a_iItemID, TBool a_bEnable)
 			}
 			else
 			{
-				Utils::info("CAmiMenus::CheckMenuItem() => Intuition menu item not found");
+				Utils::info("CAmiMenus::CheckItem() => Intuition menu item not found");
 			}
 		}
 		else
 		{
-			Utils::info("CAmiMenus::CheckMenuItem() => Menu item not found");
+			Utils::info("CAmiMenus::CheckItem() => Menu item not found");
 		}
 	}
 	else
 	{
-		Utils::info("CAmiMenus::CheckMenuItem() => Menu mapping not found");
+		Utils::info("CAmiMenus::CheckItem() => Menu mapping not found");
 	}
 }
 
