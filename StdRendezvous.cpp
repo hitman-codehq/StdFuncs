@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "OS4Support.h"
 #include "StdApplication.h"
 #include "StdRendezvous.h"
 #include <string.h>
@@ -77,7 +78,11 @@ TInt RRendezvous::open(RApplication *a_poApplication, const char *a_pccName)
 		/* Only try to create a named message port if it does not already exist.  If the port already */
 		/* exists then the server is running, so we will be a client */
 
-		if ((MsgPort = FindPort(m_pcName)) == NULL)
+		Forbid();
+		MsgPort = FindPort(m_pcName);
+		Permit();
+
+		if (MsgPort == NULL)
 		{
 			/* Create a message port that has a name, is on the public port list, a priority (for speedy lookups) and that */
 			/* will signal our task when a message is received */
@@ -247,9 +252,8 @@ TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 
 			if ((Message->mn_ReplyPort = (struct MsgPort *) AllocSysObjectTags(ASOT_PORT, TAG_DONE)) != NULL)
 			{
-				/* The FindPort() function must be protected by a Forbid()/Permit() pair.  However, we must only */
-				/* send the message with interrupts disabled or the server will never be able to process the */
-				/* received message.  So send the message and enable interrupts before waiting for the response */
+				/* The server could disappear at any time so disable interrupts and try to find its named port. */
+				/* If found then send the rendezvous message */
 
 				Forbid();
 
