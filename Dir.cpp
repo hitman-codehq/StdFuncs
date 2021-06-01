@@ -5,6 +5,7 @@
 
 #include <proto/exec.h>
 #include <proto/utility.h>
+#include "OS4Support.h"
 
 #elif defined(__unix__)
 
@@ -291,7 +292,7 @@ void TEntry::Reset()
 
 #ifdef __amigaos__
 
-	iAttributes = 0; // EXDF_NO_EXECUTE; // TODO: CAW
+	iAttributes = 0;
 
 #elif defined(__unix__)
 
@@ -1068,7 +1069,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 			}
 		}
 
-		/* There are not many errors that can be returned from IDOS->ExamineDir(), except ones to */
+		/* There are not many errors that can be returned from ExamineDir(), except ones to */
 		/* indicate that a disc error occurred. Check for anything besides ERROR_NO_MORE_ENTRIES and */
 		/* return an error if approrpriate so that client software can abort its attempt to read the */
 		/* directory */

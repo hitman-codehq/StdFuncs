@@ -8,10 +8,22 @@ APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags);
 ULONG DateStampToSeconds(const struct DateStamp *a_dateStamp);
 void FreeSysObject(ULONG a_type, APTR a_object);
 
+/* New entries in dos/dos.h */
+
+#define EXDB_NO_READ		3
+#define EXDB_NO_WRITE		2
+#define EXDB_NO_EXECUTE		1
+#define EXDB_NO_DELETE		0
+
+#define EXDF_NO_READ		(1 << EXDB_NO_READ)
+#define EXDF_NO_WRITE		(1 << EXDB_NO_WRITE)
+#define EXDF_NO_EXECUTE		(1 << EXDB_NO_EXECUTE)
+#define EXDF_NO_DELETE		(1 << EXDB_NO_DELETE)
+
 /* New entries in exec/exectags.h */
 
-#define ASOPORT_Pri         (TAG_USER + 13)
-#define ASOPORT_Name        (TAG_USER + 14)
+#define ASOPORT_Pri			(TAG_USER + 13)
+#define ASOPORT_Name		(TAG_USER + 14)
 
 enum enAllocSysObjectTypes
 {
