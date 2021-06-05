@@ -18,6 +18,17 @@
 #include <string.h>
 #include "Dir.h"
 
+#ifndef __amigaos4__
+
+/* Size of the memory blocked used when scanning directories.  Each structure instance is approximately 44 bytes */
+/* in size, but we won't get exactly 100 entries of 44 bytes back, as the space is also used for the filename and */
+/* comment strings, and it is possible to request less information than what can be stored in the structure */
+
+#define NUM_ENTRIES 100
+#define DATA_BUFFER_SIZE (sizeof(struct ExAllData) * NUM_ENTRIES)
+
+#endif /* ! __amigaos4__ */
+
 /** Structure containing information regarding the desired sort order */
 
 struct SSortInfo
@@ -487,6 +498,13 @@ RDir::RDir()
 	iPattern = NULL;
 	iContext = NULL;
 
+#ifndef __amigaos4__
+
+	iLock = 0;
+	iCurrent = iExAllData = NULL;
+
+#endif /* ! __amigaos4__ */
+
 #elif defined(__unix__)
 
 	iPathBuffer = iPath = iPattern = NULL;
@@ -679,10 +697,46 @@ TInt RDir::open(const char *a_pccPattern)
 
 			if (RetVal == KErrNone)
 			{
+
+#ifdef __amigaos4__
+
 				/* Open a context for the directory to be scanned */
 
 				iContext = ObtainDirContextTags(EX_StringNameInput, iPath,
 					EX_DataFields, (EXF_DATE | EXF_PROTECTION | EXF_NAME | EXF_SIZE | EXF_TYPE), TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+				if ((iLock = Lock(a_pccPattern, ACCESS_READ)) != 0)
+				{
+					/* Allocate a buffer for the file information to be returned, and a control block to keep track */
+					/* of the progress of the scan */
+
+					if ((iExAllData = new struct ExAllData[DATA_BUFFER_SIZE]) != NULL)
+					{
+						if ((iContext = (struct ExAllControl *) AllocDosObject(DOS_EXALLCONTROL, NULL)) != NULL)
+						{
+							iContext->eac_LastKey = 0;
+						}
+					}
+				}
+
+				if (!(iContext))
+				{
+					if (iExAllData)
+					{
+						delete [] iExAllData;
+						iExAllData = NULL;
+					}
+
+					if (iLock != 0)
+					{
+						UnLock(iLock);
+						iLock = 0;
+					}
+				}
+
+#endif /* ! __amigaos4__ */
 
 				if (!(iContext))
 				{
@@ -898,11 +952,35 @@ void RDir::close()
 	delete [] iPattern;
 	iPattern = NULL;
 
+#ifdef __amigaos4__
+
 	if (iContext)
 	{
 		ReleaseDirContext(iContext);
 		iContext = NULL;
 	}
+
+#else /* ! __amigaos4__ */
+
+	if (iExAllData)
+	{
+		delete [] iExAllData;
+		iExAllData = NULL;
+	}
+
+	if (iContext)
+	{
+		FreeDosObject(DOS_EXALLCONTROL, iContext);
+		iContext = NULL;
+	}
+
+	if (iLock)
+	{
+		UnLock(iLock);
+		iLock = 0;
+	}
+
+#endif /* ! __amigaos4__ */
 
 #elif defined(__unix__)
 
@@ -953,7 +1031,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 	RetVal = KErrNone;
 	a_rpoEntries = &iEntries;
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	char *LinkName;
 	TBool AddFile;
@@ -1007,7 +1085,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 					if (EXD_IS_LINK(ExamineData))
 					{
-						/* Set the size to 0 by default so as not to mess up any size calculations with -1 */
+						/* Set the size to 0 by default */
 
 						Size = 0;
 
@@ -1078,6 +1156,181 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 		{
 			RetVal = KErrGeneral;
 		}
+	}
+
+	/* If iContext == NULL then either we are being called before open() has been called, or open() */
+	/* has been called for a single file. Return KErrNone or an error as appropriate */
+
+	else
+	{
+		if (!(iSingleEntryOk))
+		{
+			RetVal = KErrGeneral;
+		}
+	}
+
+#elif defined(__amigaos__)
+
+	char *LinkName;
+	BOOL More;
+	LONG IoErr;
+	TBool AddFile;
+	TInt Length, Size;
+	struct ClockData ClockData;
+	struct TEntry *Entry, LinkEntry;
+
+	/* Iterate through the scanned entries and prepare a TEntry instance to contain the appropriate information */
+	/* about each entry */
+
+	if (iContext)
+	{
+		do
+		{
+			/* Scan the directory and fill the passed in buffer with as many ExAllData structures as possible.  The */
+			/* only extra field we are interested in is the date */
+
+			More = ExAll(iLock, iExAllData, DATA_BUFFER_SIZE, ED_DATE, iContext);
+
+			/* If ExAll() returns FALSE then there are no more entries to be read.  However, an error may have */
+			/* occurred so we have to check IoErr() to determine this.  If IoErr() returns ERROR_NO_MORE_ENTRIES */
+			/* then no error has occurred but there might be more entries in the buffer that have been returned */
+			/* from this call to ExAll() */
+
+			if (!More)
+			{
+				/* IoErr() can only be called once, so cache the result */
+
+				IoErr = IoErr();
+
+				if (IoErr != ERROR_NO_MORE_ENTRIES)
+				{
+					RetVal = KErrGeneral;
+
+					Utils::info("RDir::read() => ExAll() failed, IoErr() = %ld\n", IoErr);
+
+					break;
+				}
+			}
+
+			/* No error occurred, but there are also no more entries to be read, so bail out */
+
+			if (iContext->eac_Entries == 0)
+			{
+				continue;
+			}
+
+			/* Scan through the list of returned entries and call the user defined callback for each entry */
+
+			iCurrent = iExAllData;
+
+			while (iCurrent)
+			{
+				/* Add the file to the list by default */
+
+				AddFile = ETrue;
+
+				/* If we are using pattern matching then check to see if the file matches the patttern and if not, */
+				/* don't add it to the list */
+
+				if (iPattern)
+				{
+					if (!(MatchPatternNoCase(iPattern, (char *) iCurrent->ed_Name)))
+					{
+						AddFile = EFalse;
+					}
+				}
+
+				if (AddFile)
+				{
+					if ((Entry = iEntries.Append((char *) iCurrent->ed_Name)) != NULL)
+					{
+						/* Convert the date information into something more usable that also contains year, month */
+						/* and day information */
+
+						struct DateStamp DateStamp;
+
+						DateStamp.ds_Days = iCurrent->ed_Days;
+						DateStamp.ds_Minute = iCurrent->ed_Mins;
+						DateStamp.ds_Tick = iCurrent->ed_Ticks;
+						Amiga2Date(DateStampToSeconds(&DateStamp), &ClockData);
+
+						/* Convert it to a Symbian style TDateTime structure */
+
+						TDateTime DateTime(ClockData.year, (TMonth) ClockData.month, (ClockData.mday - 1),
+							ClockData.hour, ClockData.min, ClockData.sec, 0);
+
+						// TODO: CAW
+						/* If the file found is a link then special processing will be required to determine its */
+						/* real size, as ExamineDir() will return an ExamineData::FileSize of -1 for links.  If */
+						/* this fails then we will just print a warning and continue, as there is not much that */
+						/* can be done about it */
+
+						if (EXD_IS_LINK(iExAllData))
+						{
+							/* Set the size to 0 by default */
+
+							Size = 0;
+
+							/* Allocate a temporary buffer large enough to hold the fully qualified link name */
+
+							Length = (strlen(iPath) + 1 + strlen((char *) iCurrent->ed_Name) + 1);
+
+							if ((LinkName = new char[Length]) != NULL)
+							{
+								/* And copy the link name into the buffer */
+
+								strcpy(LinkName, iPath);
+								AddPart(LinkName, (char *) iCurrent->ed_Name, Length);
+
+								/* Obtain the size of the file that the link points to */
+
+								RetVal = Utils::GetFileInfo(LinkName, &LinkEntry);
+								delete [] LinkName;
+
+								/* If we obtained the information successfully then save the size of the file */
+								/* to which the link points.  If the target of the link does not exist then do */
+								/* not treat this as an error and leave the size of the file as 0 */
+
+								if (RetVal == KErrNone)
+								{
+									Size = LinkEntry.iSize;
+								}
+								else if (RetVal == KErrNotFound)
+								{
+									RetVal = KErrNone;
+								}
+								else
+								{
+									break;
+								}
+							}
+							else
+							{
+								Utils::info("RDir::read() => Unable to allocate buffer to resolve link size\n");
+							}
+						}
+						else
+						{
+							Size = iCurrent->ed_Size;
+						}
+
+						/* And populate the new TEntry instance with information about the file or directory */
+
+						Entry->Set((iCurrent->ed_Type >= 0), EXD_IS_LINK(iCurrent), Size, iCurrent->ed_Prot, DateTime);
+						Entry->iPlatformDate = DateStamp;
+					}
+					else
+					{
+						RetVal = KErrNoMemory;
+
+						break;
+					}
+				}
+
+				iCurrent = iCurrent->ed_Next;
+			}
+		}
+		while (More);
 	}
 
 	/* If iContext == NULL then either we are being called before open() has been called, or open() */

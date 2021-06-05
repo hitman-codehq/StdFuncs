@@ -129,7 +129,19 @@ private:
 
 	char			*iPath;			/**< Path to directory being scanned, minus wildcard */
 	char			*iPattern;		/**< Pattern to be used for MatchPatternNoCase() */
+
+#ifdef __amigaos4__
+
 	APTR			iContext;		/**< Context used for scanning directory */
+
+#else /* ! __amigaos4__ */
+
+	BPTR			iLock;			/**< Lock on the directory currently being scanned */
+	ExAllControl	*iContext;		/**< Control structure used for scanning directory */
+	ExAllData		*iCurrent;		/**< Pointer to the file currently being processed */
+	ExAllData		*iExAllData;	/**< Buffer used for all file data structures */
+
+#endif /* ! __amigaos4__ */
 
 #elif defined(__unix__)
 
