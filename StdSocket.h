@@ -30,7 +30,7 @@ public:
 	{
 	public:
 
-		int	m_result;
+		int	m_result;	/**< The error code that triggered the exception */
 
 		Error(const char *a_message, int a_result) : std::runtime_error(a_message), m_result(a_result) { }
 
