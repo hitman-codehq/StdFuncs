@@ -326,6 +326,22 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttr
 	iSize = a_uiSize;
 	iAttributes = a_uiAttributes;
 	iModified = a_roDateTime;
+
+#ifdef WIN32
+
+	/* From a functional perspective, knowing that a file on Windows is compressed by the filesystem is of no use, */
+	/* but it can confuse software that is trying to compare files for equality.  So throw this attribute away, if */
+	/* it is present */
+
+	iAttributes &= ~FILE_ATTRIBUTE_COMPRESSED;
+
+	if (iAttributes == 0)
+	{
+		iAttributes |= FILE_ATTRIBUTE_NORMAL;
+	}
+
+#endif /* WIN32 */
+
 }
 
 /* Written: Saturday 03-Nov-2007 5:58 pm */
