@@ -624,7 +624,7 @@ TInt Utils::Detach()
 	char *Command, *CommandNameBuffer;
 	const char *CommandName;
 	TInt ArgStrLength, CommandLength, CommandNameLength, Result;
-	BPTR Cos;
+	BPTR InputStream;
 	struct CommandLineInterface *CLI;
 	struct Process *Process;
 
@@ -669,28 +669,28 @@ TInt Utils::Detach()
 			/* We want to use the parent's input stream for both input and output, so duplicate */
 			/* it as it will be closed when the child process exits */
 
-			if ((Cos = DupFileHandle(Process->pr_CIS)) != 0)
+			if ((InputStream = DupFileHandle(Process->pr_CIS)) != 0)
 			{
 				/* And launch the child process!  If successful then exit as this is essentially */
 				/* performing a fork() and we don't want to keep the parent process alive */
 
-				Result = SystemTags(Command, SYS_Input, Cos, SYS_Output, NULL, SYS_Error, NULL,
+				Result = SystemTags(Command, SYS_Input, InputStream, SYS_Output, NULL, SYS_Error, NULL,
 					SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+
+				/* Free the command buffers before we exit */
+
+				delete [] Command;
+				delete [] CommandNameBuffer;
 
 				if (Result == 0)
 				{
-					/* Free the command buffers before we exit */
-
-					delete [] Command;
-					delete [] CommandNameBuffer;
-
 					exit(0);
 				}
 				else
 				{
 					RetVal = KErrGeneral;
 
-					Close(Cos);
+					Close(InputStream);
 				}
 			}
 		}
