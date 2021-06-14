@@ -5,8 +5,6 @@
 #include <Test.h>
 #include <string.h>
 
-#include <stdio.h>
-
 static RTest Test("T_Utils");
 
 int main()

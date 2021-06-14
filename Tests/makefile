@@ -38,7 +38,7 @@ LFLAGS += -mcrt=clib2
 
 endif
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_OS4SUPPORT) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
 
 T_ARGS = $(OBJ)/T_Args
 
@@ -49,6 +49,8 @@ T_DIR = $(OBJ)/T_Dir
 T_FILE = $(OBJ)/T_File
 
 T_LEX = $(OBJ)/T_Lex
+
+T_OS4SUPPORT = $(OBJ)/T_OS4Support
 
 T_POOL = $(OBJ)/T_Pool
 
@@ -71,6 +73,8 @@ T_DIR_OBJECTS = $(OBJ)/T_Dir.o
 T_FILE_OBJECTS = $(OBJ)/T_File.o
 
 T_LEX_OBJECTS = $(OBJ)/T_Lex.o
+
+T_OS4SUPPORT_OBJECTS = $(OBJ)/T_OS4Support.o
 
 T_POOL_OBJECTS = $(OBJ)/T_Pool.o
 
@@ -112,6 +116,11 @@ $(T_FILE): $(T_FILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
 $(T_LEX): $(T_LEX_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_LEX_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	$(STRIP) -R.comment $@.debug -o $@
+
+$(T_OS4SUPPORT): $(T_OS4SUPPORT_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_OS4SUPPORT_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	$(STRIP) -R.comment $@.debug -o $@
 
 $(T_POOL): $(T_POOL_OBJECTS) ../$(OBJ)/libStdFuncs.a

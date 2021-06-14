@@ -68,6 +68,44 @@ APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags)
 }
 
 /**
+ * Converts a BCPL string to a C string.
+ * Safely copies a BSTR into a user supplied buffer, NULL terminating it at the appropriate length, and checking
+ * that the string is able to fit into the target buffer.
+ *
+ * @date	Wednesday 02-Jun-2021 6:53 am, Code HQ Bergmannstrasse
+ * @param	a_bstring		Pointer to the BSTR to be copied
+ * @param	a_dest			Pointer to the target buffer
+ * @param	a_size			Size of the target buffer, in bytes
+ * @return	The length of the original BSTR
+ */
+
+ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size)
+{
+	const char *source = static_cast<const char *>(BADDR(a_bstring));
+	int sourceLength = (source != nullptr) ? *source++ : 0;
+
+	/* Only try to copy anything if there is enough space in the target buffer */
+	if (a_size > 0)
+	{
+		int destLength = (sourceLength < a_size - 1) ? sourceLength : a_size - 1;
+
+		/* And if a target buffer was actually passed in */
+		if (a_dest != nullptr)
+		{
+			for (int index = 0; index < destLength; ++index)
+			{
+				*a_dest++ = *source++;
+			}
+
+			*a_dest = '\0';
+		}
+	}
+
+	/* Always return the length of the BSTR, regardless of how many bytes were copied */
+	return sourceLength;
+}
+
+/**
  * Converts a date stamp to Amiga time.
  * Takes a DateStamp structure, which consists of days and minutes since 01.01.1978, and converts it into
  * an integer representing the number of seconds since that time.

@@ -20,6 +20,8 @@ void FreeSysObject(ULONG a_type, APTR a_object);
 #define EXDF_NO_EXECUTE		(1 << EXDB_NO_EXECUTE)
 #define EXDF_NO_DELETE		(1 << EXDB_NO_DELETE)
 
+#define ZERO				((BPTR) 0)
+
 /* New entries in exec/exectags.h */
 
 #define ASOPORT_Pri			(TAG_USER + 13)
@@ -35,6 +37,8 @@ inline APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...)
 {
 	return AllocSysObject(a_type, (struct TagItem *) &a_tag);
 }
+
+ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size);
 
 #endif /* defined(__amigaos__) && !defined(__amigaos4__) */
 

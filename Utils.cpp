@@ -1,9 +1,11 @@
 
 #include "StdFuncs.h"
+#include "OS4Support.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos__
 
+#include <dos/dostags.h>
 #include <proto/exec.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>
