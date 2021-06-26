@@ -67,6 +67,24 @@
 static const char g_accProgDir[] = "PROGDIR:";
 #define PROGDIR_LENGTH 8
 
+/* Amiga OS 4 allows using underscores to indicate hotkeys when using EasyRequest() but Amiga OS does not */
+
+#ifdef __amigaos4__
+
+static const char g_accOk[] = "_Ok";
+static const char g_accOkCancel[] = "_Ok|_Cancel";
+static const char g_accYesNo[] = "_Yes|_No";
+static const char g_accYesNoCancel[] = "_Yes|_No|_Cancel";
+
+#elif defined(__amigaos__)
+
+static const char g_accOk[] = "Ok";
+static const char g_accOkCancel[] = "Ok|Cancel";
+static const char g_accYesNo[] = "Yes|No";
+static const char g_accYesNoCancel[] = "Yes|No|Cancel";
+
+#endif /* defined(__amigaos__) */
+
 /* ETrue if running a GUI based program */
 
 TBool g_bUsingGUI;
@@ -2025,12 +2043,10 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 
 #endif /* !defined(__unix__) || defined(QT_GUI_LIB) */
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	TInt Result;
 	struct EasyStruct EasyStruct;
-
-	struct TagItem Tags[] = { { ESA_Underscore, '_' }, { TAG_DONE, 0 } };
 
 	/* Assume failure */
 
@@ -2039,28 +2055,36 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 	/* Build an EasyStruct for displaying the requester */
 
 	EasyStruct.es_StructSize = sizeof(struct EasyStruct);
-	EasyStruct.es_Flags = ESF_TAGGED;
-	EasyStruct.es_Title = (char *) a_pccTitle;
+	EasyStruct.es_Flags = 0;
+	EasyStruct.es_Title = a_pccTitle;
 	EasyStruct.es_TextFormat = Message;
+
+#ifdef __amigaos4__
+
+	struct TagItem Tags[] = { { ESA_Underscore, '_' }, { TAG_DONE, 0 } };
+
+	EasyStruct.es_Flags = ESF_TAGGED;
 	EasyStruct.es_TagList = Tags;
+
+#endif /* __amigaos4__ */
 
 	/* Determine the type of requester to display, based on the type passed in */
 
 	if (a_eMessageBoxType == EMBTOk)
 	{
-		EasyStruct.es_GadgetFormat = "_Ok";
+		EasyStruct.es_GadgetFormat = g_accOk;
 	}
 	else if (a_eMessageBoxType == EMBTOkCancel)
 	{
-		EasyStruct.es_GadgetFormat = "_Ok|_Cancel";
+		EasyStruct.es_GadgetFormat = g_accOkCancel;
 	}
 	else if (a_eMessageBoxType == EMBTYesNo)
 	{
-		EasyStruct.es_GadgetFormat = "_Yes|_No";
+		EasyStruct.es_GadgetFormat = g_accYesNo;
 	}
 	else
 	{
-		EasyStruct.es_GadgetFormat = "_Yes|_No|_Cancel";
+		EasyStruct.es_GadgetFormat = g_accYesNoCancel;
 	}
 
 	/* Display the requester */
