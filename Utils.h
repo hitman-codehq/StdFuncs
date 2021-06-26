@@ -103,8 +103,6 @@ public:
 
 	static char *ResolveProgDirName(const char *a_pccFileName);
 
-	static TBool ScanDirectory(const char *a_pccDirectoryName, TBool a_bScanFiles, ScanFunc a_pfScanFunc, void *a_pvUserData);
-
 	static TInt SetDeleteable(const char *a_pccFileName);
 
 	static TInt setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
