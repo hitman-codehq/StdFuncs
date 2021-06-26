@@ -34,7 +34,7 @@ public:
 
 		Error(const char *a_message, int a_result) : std::runtime_error(a_message), m_result(a_result) { }
 
-		~Error();
+		~Error() noexcept;
 	};
 
 private:

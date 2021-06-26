@@ -31,7 +31,7 @@
  * @date	Saturday 08-May-2021 7:47 am, Code HQ Bergmannstrasse
  */
 
-RSocket::Error::~Error()
+RSocket::Error::~Error() noexcept
 {
 }
 
