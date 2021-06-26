@@ -155,7 +155,7 @@ private:
 
 #ifdef __amigaos__
 
-	static void IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
+	static ULONG IDCMPFunction(struct Hook *a_poHook, Object *a_poObject, struct IntuiMessage *a_poIntuiMessage);
 
 	static struct Screen *GetRootWindowScreen();
 
