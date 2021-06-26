@@ -45,7 +45,16 @@
 
 #define MAX_NAME_FROM_LOCK_LENGTH 1024
 
+#ifdef __amigaos4__
+
 #define DELETE_DIRECTORY(DirectoryName) Delete(DirectoryName)
+
+#else /* ! __amigaos4__ */
+
+#define DELETE_DIRECTORY(DirectoryName) DeleteFile(DirectoryName)
+
+#endif /* ! __amigaos4__ */
+
 #define VSNPRINTF vsnprintf
 
 #elif defined(__unix__)
