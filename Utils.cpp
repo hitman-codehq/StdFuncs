@@ -5,6 +5,7 @@
 
 #ifdef __amigaos__
 
+#include <clib/debug_protos.h>
 #include <dos/dostags.h>
 #include <proto/exec.h>
 #include <proto/intuition.h>
@@ -1750,9 +1751,13 @@ void Utils::info(const char *a_pccMessage, ...)
 	strcpy(Message, "Info: " );
 	VSNPRINTF(&Message[6], (sizeof(Message) - 6), a_pccMessage, Args);
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	DebugPrintF("%s\n", Message);
+
+#elif defined(__amigaos__)
+
+	KPrintF("%s\n", Message);
 
 #elif defined(__unix__)
 
