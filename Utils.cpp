@@ -1928,7 +1928,7 @@ TInt Utils::makeLink(const char *a_pccSource, const char *a_pccDest)
 
 #ifdef __amigaos__
 
-	if (MakeLink(a_pccSource, (void *) a_pccDest, LINK_SOFT) == 0)
+	if (MakeLink(a_pccSource, (APTR) a_pccDest, LINK_SOFT) == 0)
 	{
 		RetVal = KErrGeneral;
 	}
