@@ -71,7 +71,7 @@ TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 
 /* Written: Saturday 20-Nov-2010 11:05 am */
 
-void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
+ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
 {
 	struct TagItem *TagItem;
 	CStdGadget *Gadget;
@@ -126,6 +126,8 @@ void CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, stru
 			}
 		}
 	}
+
+	return(DOSTRUE);
 }
 
 #elif defined(QT_GUI_LIB)
