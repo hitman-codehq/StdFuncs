@@ -628,7 +628,6 @@ TInt Utils::Detach()
 	TInt ArgStrLength, CommandLength, CommandNameLength, Result;
 	BPTR InputStream;
 	struct CommandLineInterface *CLI;
-	struct Process *Process;
 
 	/* If we are started from the CLI and are not already backgrounded (ie. By the "run" */
 	/* command or by our own relaunching of ourselves as backgrounded) then relaunch */
@@ -665,19 +664,27 @@ TInt Utils::Detach()
 
 			/* Build the string used to relaunch the process */
 
-			Process = (struct Process *) FindTask(NULL);
-			SNPrintf(Command, CommandLength,"\"%b\" %s", CLI->cli_CommandName, GetArgStr());
+			snprintf(Command, CommandLength,"\"%s\" %s", CommandNameBuffer, GetArgStr());
 
 			/* We want to use the parent's input stream for both input and output, so duplicate */
 			/* it as it will be closed when the child process exits */
 
-			if ((InputStream = DupFileHandle(Process->pr_CIS)) != 0)
+			if ((InputStream = Open("CONSOLE:", MODE_READWRITE)) != 0)
 			{
 				/* And launch the child process!  If successful then exit as this is essentially */
 				/* performing a fork() and we don't want to keep the parent process alive */
 
-				Result = SystemTags(Command, SYS_Input, InputStream, SYS_Output, NULL, SYS_Error, NULL,
+#ifdef __amigaos4__
+
+				Result = SystemTags(Command, SYS_Input, (ULONG) InputStream, SYS_Output, (ULONG) NULL, SYS_Error, NULL,
 					SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+				Result = SystemTags(Command, SYS_Input, (ULONG) InputStream, SYS_Output, (ULONG) NULL,
+					SYS_Asynch, TRUE, NP_Name, CommandName, TAG_DONE);
+
+#endif /* ! __amigaos4__ */
 
 				/* Free the command buffers before we exit */
 
