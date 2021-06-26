@@ -12,6 +12,7 @@
 
 #include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
+#include <proto/graphics.h>
 #include <proto/utility.h>
 #include <classes/window.h>
 #include <intuition/imageclass.h>
@@ -750,7 +751,7 @@ void CWindow::Activate()
 #ifdef __amigaos__
 
 	SetAttrs(m_poWindowObj, WINDOW_FrontBack, WT_FRONT, TAG_DONE);
-	SetWindowAttrs(m_poWindow, WA_Activate, TRUE, TAG_DONE);
+	ActivateWindow(m_poWindow);
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -1136,7 +1137,8 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
-	if (IDoMethod(m_poRootLayout, LM_ADDCHILD, NULL, a_poLayoutGadget->m_poGadget, NULL))
+	if (SetGadgetAttrs((struct Gadget *) m_poRootLayout, m_poWindow, NULL,
+		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 	{
 		/* Let the layout gadget know its new width and then calcuate its new height */
 
@@ -1612,8 +1614,18 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 		a_iX += m_poWindow->BorderLeft;
 		a_iY += m_poWindow->BorderTop;
 
+#ifdef __amigaos4__
+
 		ShadeRect(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1),
 			LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
+
+#else /* ! __amigaos4__ */
+
+		SetAPen(m_poWindow->RPort, 0);
+		RectFill(m_poWindow->RPort, a_iX, a_iY, (a_iX + a_iWidth - 1), (a_iY + a_iHeight - 1));
+
+#endif /* ! __amigaos4__ */
+
 	}
 
 #else /* ! __amigaos__ */
@@ -2727,7 +2739,8 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Remove it from the top level Reaction layout */
 
-	DEBUGCHECK((IDoMethod(m_poRootLayout, LM_REMOVECHILD, NULL, a_poLayoutGadget->m_poGadget, NULL) != 0),
+	DEBUGCHECK((SetGadgetAttrs((struct Gadget *) m_poRootLayout, m_poWindow, NULL,
+		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE) != 0),
 		"CWindow::remove() => Unable to remove layout gadget from window");
 
 #elif defined(QT_GUI_LIB)
