@@ -21,6 +21,12 @@
 
 #endif /* WIN32 */
 
+#ifdef __amigaos__
+
+#define MAX_CHARS 100
+
+#endif /* __amigaos__ */
+
 /* Written: Sunday 01-May-2011 7:10 am */
 /* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
 /*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
@@ -67,10 +73,6 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 #ifdef __amigaos__
 
-	/* Use the Layout gadget's weighting system to make the String gadgets as small as possible */
-
-	struct TagItem TagItem[] = { { CHILD_WeightedWidth, 0 }, { TAG_DONE, 0 } };
-
 	/* Create a horizontal layout group into which can be placed the parts labels */
 
 	if ((m_poGadget = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, LAYOUT_HORIZONTAL, LAYOUT_FixedVert, FALSE, TAG_DONE)) != NULL)
@@ -84,14 +86,14 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
-				m_poPartsGadgets[Index] = NewObject(STRING_GetClass(), NULL, GA_ReadOnly, TRUE, TAG_DONE);
+				m_poPartsGadgets[Index] = NewObject(STRING_GetClass(), NULL, STRINGA_MaxChars, MAX_CHARS, GA_ReadOnly, TRUE, TAG_DONE);
 
 				if (m_poPartsGadgets[Index])
 				{
 					/* Add the string gadget to the horizontal layout group, with the desired weighting */
 
-					TagItem[0].ti_Data = a_piPartsOffsets[Index];
-					IDoMethod(m_poGadget, LM_ADDCHILD, NULL, m_poPartsGadgets[Index], TagItem);
+					SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LAYOUT_AddChild,
+						m_poPartsGadgets[Index], CHILD_WeightedWidth, a_piPartsOffsets[Index], TAG_DONE);
 				}
 				else
 				{
@@ -477,8 +479,20 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 
 #ifdef __amigaos__
 
-		RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
-			NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+		/* It's not well documented but it appears that while OS4 string gadgets can adapt to text lengths, OS3 needs */
+		/* to preallocate its buffer, specified by STRINGA_MaxChars, and this cannot be changed later.  Removing and */
+		/* re-adding a string gadget with a longer buffer is not an option so we'll do a runtime check and simply not */
+		/* set the new string if it's too long */
+
+		size_t Length = (strlen(a_pccText) + 1);
+
+		ASSERTM((Length < MAX_CHARS), "CStdGadgetStatusBar::SetText() => String is too long");
+
+		if (Length < MAX_CHARS)
+		{
+			SetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+				NULL, STRINGA_TextVal, a_pccText, TAG_DONE);
+		}
 
 #elif defined(QT_GUI_LIB)
 
