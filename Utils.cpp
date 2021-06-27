@@ -2332,7 +2332,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 			Utils::info("Utils::ResolveFileName() => Unable to obtain lock on \"%s\"", a_pccFileName);
 
 			LockedFile = EFalse;
-			Lock = GetCurrentDir();
+			Lock = Lock("", SHARED_LOCK);
 		}
 
 		/* Get the fully qualified name of the file (if the lock was obtained successfully) */
@@ -2341,7 +2341,19 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 		if (a_bGetDeviceName)
 		{
+
+#ifdef __amigaos4__
+
 			Result = DevNameFromLock(Lock, RetVal, MAX_NAME_FROM_LOCK_LENGTH, DN_FULLPATH);
+
+#else /* ! __amigaos4__ */
+
+			ASSERTM(0, "Utils::ResolveFileName() => Not implemented for OS3");
+
+			Result = 0;
+
+#endif /* ! __amigaos4__ */
+
 		}
 		else
 		{
