@@ -274,6 +274,12 @@ public:
 
 	static TBool IsActive();
 
+#ifdef __amigaos__
+
+	Object GetRootLayout() { return(*m_poRootLayout); }
+
+#endif /* __amigaos__ */
+
 	/* Functions that can be implemented by client software */
 
 	virtual void Activated(TBool /*a_bActivated*/) { }
