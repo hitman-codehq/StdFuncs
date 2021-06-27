@@ -1139,8 +1139,8 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 							/* And populate the new TEntry instance with information about the file or directory */
 
-							a_poEntry->Set((FileInfoBlock->fib_DirEntryType > 0), 0, FileInfoBlock->fib_Size,
-								FileInfoBlock->fib_Protection, DateTime);
+							a_poEntry->Set((FileInfoBlock->fib_DirEntryType > 0), TYPE_IS_LINK(FileInfoBlock->fib_DirEntryType),
+								FileInfoBlock->fib_Size, FileInfoBlock->fib_Protection, DateTime);
 							a_poEntry->iPlatformDate = FileInfoBlock->fib_Date;
 
 							/* If the name of the directory is the special case of an Amiga OS volume then return just */

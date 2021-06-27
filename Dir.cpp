@@ -1275,13 +1275,12 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 						TDateTime DateTime(ClockData.year, (TMonth) ClockData.month, (ClockData.mday - 1),
 							ClockData.hour, ClockData.min, ClockData.sec, 0);
 
-						// TODO: CAW
 						/* If the file found is a link then special processing will be required to determine its */
-						/* real size, as ExamineDir() will return an ExamineData::FileSize of -1 for links.  If */
-						/* this fails then we will just print a warning and continue, as there is not much that */
-						/* can be done about it */
+						/* real size, as ExAll() will return an ExAllData::ed_Size of -1 for links.  If this fails */
+						/* then we will just print a warning and continue, as there is not much that can be done */
+						/* about it */
 
-						if (EXD_IS_LINK(iExAllData))
+						if (TYPE_IS_LINK(iExAllData->ed_Type))
 						{
 							/* Set the size to 0 by default */
 
@@ -1332,7 +1331,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 						/* And populate the new TEntry instance with information about the file or directory */
 
-						Entry->Set((iCurrent->ed_Type >= 0), EXD_IS_LINK(iCurrent), Size, iCurrent->ed_Prot, DateTime);
+						Entry->Set((iCurrent->ed_Type >= 0), TYPE_IS_LINK(iCurrent->ed_Type), Size, iCurrent->ed_Prot, DateTime);
 						Entry->iPlatformDate = DateStamp;
 					}
 					else

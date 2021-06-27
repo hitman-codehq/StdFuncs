@@ -20,6 +20,11 @@ void FreeSysObject(ULONG a_type, APTR a_object);
 #define EXDF_NO_EXECUTE		(1 << EXDB_NO_EXECUTE)
 #define EXDF_NO_DELETE		(1 << EXDB_NO_DELETE)
 
+/* This macro works like OS4's EXD_IS_LINK macro, but is passed the type itself so that it can be used with both */
+/* ExAllData.ed_Type and FileInfoBlock.fib_DirEntryType */
+
+#define TYPE_IS_LINK(Type)	((Type == ST_SOFTLINK) | (Type == ST_LINKDIR) | (Type == ST_LINKFILE))
+
 #define ZERO				((BPTR) 0)
 
 /* New entries in exec/exectags.h */
