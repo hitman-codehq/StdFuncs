@@ -109,7 +109,6 @@ RFont::RFont(CWindow *a_poWindow)
 
 	unsigned long Red, Green, Blue;
 	TInt Index;
-	LONG Pen;
 
 	m_iBaseline = 0;
 
@@ -127,8 +126,8 @@ RFont::RFont(CWindow *a_poWindow)
 			Green = Utils::Green32(g_aoColours[Index] & 0xff00);
 			Blue = Utils::Blue32(g_aoColours[Index] & 0xff0000);
 
-			Pen = ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
-			m_alPens[Index] = Pen;
+			m_alPens[Index] = ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
+			ASSERTM((m_alPens[Index] != -1), "RFont::RFont() => Unable to allocate pen");
 		}
 	}
 
@@ -359,6 +358,8 @@ void RFont::close()
 
 #ifdef __amigaos__
 
+	int Index;
+
 	/* If a user defined font was loaded and assigned to the rastport, set the rastport's font back */
 	/* to the default and free the font */
 
@@ -372,6 +373,13 @@ void RFont::close()
 
 		CloseFont(m_poFont);
 		m_poFont = NULL;
+	}
+
+	/* Free any pens that were successfully allocated */
+
+	for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
+	{
+		ReleasePen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, m_alPens[Index]);
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
