@@ -932,7 +932,7 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 {
 	char Path[1024]; // TODO: CAW - Possible overflow here and in a_pcFullName
 	TBool RetVal;
-	struct ExamineData *ExamineData;
+	struct TEntry Entry;
 
 	/* Assume failure */
 
@@ -944,30 +944,26 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 	{
 		if (NameFromLock(a_poWBArg->wa_Lock, Path, sizeof(Path)))
 		{
-			if ((ExamineData = ExamineObjectTags(EX_FileLockInput, a_poWBArg->wa_Lock, TAG_DONE)) != NULL)
+			/* Create the fully qualified path from the path and filename */
+
+			strcpy(a_pcFullName, Path);
+
+			if (strlen(a_poWBArg->wa_Name) > 0)
 			{
-				/* Create the fully qualified path from the path and filename */
+				DEBUGCHECK((AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)) != FALSE),
+					"Utils::FullNameFromWBArg() => Unable to build filename");
+			}
 
-				strcpy(a_pcFullName, Path);
+			/* Is this a directory? */
 
-				if (AddPart(a_pcFullName, a_poWBArg->wa_Name, sizeof(Path)))
-				{
-					RetVal = ETrue;
-
-					/* Is this a directory? */
-
-					*a_pbDirectory = EXD_IS_DIRECTORY(ExamineData);
-				}
-				else
-				{
-					Utils::info("Utils::FullNameFromWBArg() => Unable to build filename");
-				}
-
-				FreeDosObject(DOS_EXAMINEDATA, ExamineData);
+			if (GetFileInfo(a_pcFullName, &Entry) == KErrNone)
+			{
+				RetVal = ETrue;
+				*a_pbDirectory = Entry.iIsDir;
 			}
 			else
 			{
-				Utils::info("Utils::FullNameFromWBArg() => Unable to examine object");
+				Utils::info("Utils::FullNameFromWBArg() => Unable to obtain information about object");
 			}
 		}
 		else
