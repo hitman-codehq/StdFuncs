@@ -504,6 +504,28 @@ TInt RApplication::Main()
 												Window->OfferKeyEvent(KeyBuffer[0], ETrue);
 											}
 										}
+										else
+										{
+
+#ifndef __amigaos4__
+
+											/* OS3 does not support the new IDCMP_EXTENDEDMOUSE standard, but some */
+											/* variants of OS3 will send through the keycodes 0x7a (for scroll up) */
+											/* and 0x7b (for scroll down) so capture these and convert them into */
+											/* wheel events for the window */
+
+											if (Code == 0x7a)
+											{
+												Window->HandleWheelEvent(120);
+											}
+											else if (Code == 0x7b)
+											{
+												Window->HandleWheelEvent(-120);
+											}
+
+#endif /* ! __amigaos4__ */
+
+										}
 									}
 								}
 							}

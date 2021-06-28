@@ -77,7 +77,7 @@
 static const char g_accProgDir[] = "PROGDIR:";
 #define PROGDIR_LENGTH 8
 
-/* Amiga OS 4 allows using underscores to indicate hotkeys when using EasyRequest() but Amiga OS does not */
+/* OS4 allows using underscores to indicate hotkeys when using EasyRequest() but OS3 does not */
 
 #ifdef __amigaos4__
 
