@@ -1,6 +1,6 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -fno-strict-aliasing -fpermissive -Wall -Wextra -Wwrite-strings
-CFLAGS_EX = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=c++14 -Wall -Wextra -Wwrite-strings
+CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
+CFLAGS_EX = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
 IFLAGS = -D__USE_INLINE__
 
 ifdef PREFIX
