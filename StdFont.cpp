@@ -569,7 +569,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	{
 		/* Calculate the position at which to draw the cursor */
 
-		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth));
+		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + a_iX);
 		Y = (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight));
 
 		/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
@@ -715,14 +715,14 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 		/* the height of the current font and the baseline of the font, given that the Text() routine */
 		/* prints at the baseline position, not the top of the font */
 
-		Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
+		Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + a_iX),
 			(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 		/* Calculate the maximum number of characters that can fit in the client area of the window, */
 		/* as text is not automatically clipped by the Amiga OS text drawing routine.  The text may */
 		/* not start at the very left of the screen so take this into account */
 
-		Width = (m_iClipWidth - (a_iX * m_iWidth));
+		Width = (m_iClipWidth - m_iWidth);
 		Width = MAX(0, Width);
 
 		NumChars = TextFit(m_poWindow->m_poWindow->RPort, a_pccText, a_iSize, &TextExtent, NULL, 1,
