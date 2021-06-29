@@ -165,9 +165,10 @@ RFont::RFont(CWindow *a_poWindow)
  * @pre		Size of the font passed in must be larger than zero
  *
  * @date	Sunday 31-May-2010 3:38 pm
- * @param	a_iSize		Size of the font to be opened, in points
+ * @param	a_iSize		Size of the font to be opened, in points.  If -1 then the platform's default size
+ *						will be selected
  * @param	a_pccName	Ptr to the name of the font to be opened, which is platform specific.  If NULL
- *						then a platform specific generic monospaced font will be selected
+ *						then the platform's default font will be selected
  * @return	KErrNone if the font was opened successfully, else KErrGeneral
  */
 
@@ -175,7 +176,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 {
 	TInt RetVal;
 
-	ASSERTM((a_iSize > 0), "RFont::open() => a_iSize must be > 0");
+	ASSERTM((a_iSize >= -1), "RFont::open() => a_iSize must be >= -1");
 
 #ifdef __amigaos__
 
@@ -191,14 +192,21 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 	if (m_poWindow->m_poWindow)
 	{
-		/* If no font has been specified then use "DejaVu Sans Mono" */
+		/* If no font has been specified then use the one used by the current window */
 
 		if (a_pccName == NULL)
 		{
-			a_pccName = "DejaVu Sans Mono.font";
+			a_pccName = m_poWindow->m_poWindow->RPort->Font->tf_Message.mn_Node.ln_Name;
 		}
 
-		/* If the requested is different to the current one, or if it has a different size then try */
+		/* If no size has been specified then use the one used by the current window */
+
+		if (a_iSize == -1)
+		{
+			a_iSize = m_poWindow->m_poWindow->RPort->Font->tf_YSize;
+		}
+
+		/* If the requested font is different to the current one, or if it has a different size then try */
 		/* to load it from disc and make it the rastport's default font */
 
 		if ((strcmp(a_pccName, m_poWindow->m_poWindow->RPort->Font->tf_Message.mn_Node.ln_Name) != 0) ||
@@ -218,8 +226,15 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 			}
 			else
 			{
-				Utils::info("RFont::open() => Unable to open font \"%s\"", a_pccName);
+				Utils::info("RFont::open() => Unable to open font \"%s\", using system default", a_pccName);
 			}
+		}
+
+		/* If the requested font could not be found then fall back to the system font */
+
+		if (!m_poFont)
+		{
+			m_poFont = m_poWindow->m_poWindow->RPort->Font;
 		}
 
 		/* Determine the baseline, width & height of the font from the window */
@@ -363,13 +378,10 @@ void RFont::close()
 	/* If a user defined font was loaded and assigned to the rastport, set the rastport's font back */
 	/* to the default and free the font */
 
-	if (m_poFont)
+	if (m_poOldFont)
 	{
-		if (m_poOldFont)
-		{
-			SetFont(m_poWindow->m_poWindow->RPort, m_poOldFont);
-			m_poOldFont = NULL;
-		}
+		SetFont(m_poWindow->m_poWindow->RPort, m_poOldFont);
+		m_poOldFont = NULL;
 
 		CloseFont(m_poFont);
 		m_poFont = NULL;
