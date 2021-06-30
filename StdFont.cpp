@@ -102,7 +102,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 	m_bHighlight = EFalse;
 	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
-	m_iNumSizes = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
+	m_iNumSizes = m_iSize = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
 #ifdef __amigaos__
@@ -242,6 +242,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 		m_iBaseline = m_poWindow->m_poWindow->RPort->Font->tf_Baseline;
 		m_iWidth = m_poWindow->m_poWindow->RPort->Font->tf_XSize;
 		m_iHeight = m_poWindow->m_poWindow->RPort->Font->tf_YSize;
+		m_iSize = a_iSize;
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -286,6 +287,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 		m_iBaseline = Metrics.ascent();
 		m_iHeight = Metrics.height();
 		m_iWidth = Metrics.averageCharWidth();
+		m_iSize = a_iSize;
 
 		/* And assign the font to the window */
 
@@ -348,6 +350,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 			m_iWidth = TextMetric.tmAveCharWidth;
 			m_iHeight = TextMetric.tmHeight;
+			m_iSize = a_iSize;
 		}
 
 		/* Save the background and text colours for l8r use */

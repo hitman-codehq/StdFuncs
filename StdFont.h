@@ -68,6 +68,7 @@ private:
 	TInt		m_iNumSizes;		/**< Number of valid sizes in m_aiFontSizes */
 	TInt		m_iClipWidth;		/**< Number of pixels to draw horizontally before clipping */
 	TInt		m_iClipHeight;		/**< Number of pixels to draw vertically before clipping */
+	TInt		m_iSize;			/**< Size of the current font, in points */
 	TInt		m_iWidth;			/**< Width of a character in pixels.  Valid only for monospace fonts */
 	TInt		m_iHeight;			/**< Height of a character in pixels */
 	TInt		m_iXOffset;			/**< Offset from left of window at which to print */
@@ -102,6 +103,11 @@ public:
 	TInt Height()
 	{
 		return(m_iHeight);
+	}
+
+	TInt GetSize()
+	{
+		return(m_iSize);
 	}
 
 	int PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength);
