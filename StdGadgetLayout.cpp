@@ -153,7 +153,8 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 	/* Add the new BOOPSI gadget to the layout */
 
-	if (IDoMethod(m_poGadget, LM_ADDCHILD, NULL, a_poGadget->m_poGadget, NULL))
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
 		// TODO: CAW
 		RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
@@ -366,30 +367,15 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	m_iWeight = a_iWeight;
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	/* For Amiga OS we also need to notify the layout gadget itself so that it */
 	/* will resize itself */
 
-	struct lmModifyChild mc;
-	struct TagItem ti[] = { { CHILD_WeightedHeight, 0 }, { TAG_DONE, 0 } };
+	SetGadgetAttrs((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedHeight, a_iWeight, TAG_DONE);
 
-	/* Setup the lmModifyChild structure for this layout gadget */
-
-	mc.MethodID = LM_MODIFYCHILD;
-	mc.lm_Window = m_poParentWindow->m_poWindow;
-	mc.lm_Object = m_poGadget;
-	mc.lm_ObjectAttrs = ti;
-
-	/* Setup the weight of the gadget */
-
-	ti[0].ti_Data = a_iWeight;
-
-	/* And resize the gadget */
-
-	IDoMethodA(m_poParentWindow->m_poRootLayout, (Msg) &mc);
-
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 }
 
