@@ -221,15 +221,15 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 		while (RetVal)
 		{
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 			if ((void *) RetVal->m_iGadgetID == a_pvGadget)
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 			if (RetVal->m_poGadget == a_pvGadget)
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 			{
 				break;
@@ -252,15 +252,15 @@ CStdGadget *CStdGadgetLayout::FindNativeGadget(void *a_pvGadget)
 TInt CStdGadgetLayout::GetSpacing()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	return(INNER_SPACING);
 
-#else /* ! __amigaos4__ */
+#else /* ! __amigaos__ */
 
 	return(0);
 
-#endif /* ! __amigaos4__ */
+#endif /* ! __amigaos__ */
 
 }
 
@@ -402,11 +402,11 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 TInt CStdGadgetLayout::X()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_iX = (CStdGadget::X() - m_poParentWindow->m_poWindow->BorderLeft);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(m_iX);
 }
@@ -420,11 +420,11 @@ TInt CStdGadgetLayout::X()
 TInt CStdGadgetLayout::Y()
 {
 
-#ifdef __amigaos4__
+#ifdef __amigaos__
 
 	m_iY = (CStdGadget::Y() - m_poParentWindow->m_poWindow->BorderTop);
 
-#endif /* __amigaos4__ */
+#endif /* __amigaos__ */
 
 	return(m_iY);
 }
