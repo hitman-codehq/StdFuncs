@@ -19,7 +19,7 @@
  * CStdGadget destructor.
  * Deletes the underlying OS specific gadget.
  *
- * @date	Wednesday 21-Mar-2011 6:25 am, Hilton Košice
+ * @date	Wednesday 21-Mar-2011 6:25 am, Hilton KoÅ¡ice
  */
 
 CStdGadget::~CStdGadget()
@@ -43,9 +43,13 @@ CStdGadget::~CStdGadget()
 TInt CStdGadget::X()
 {
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	GetAttr(GA_Left, m_poGadget, (ULONG *) &m_iX);
+
+#elif defined(__amigaos__)
+
+	m_iX = ((struct Gadget *) m_poGadget)->LeftEdge;
 
 #endif /* __amigaos__ */
 
@@ -57,9 +61,13 @@ TInt CStdGadget::X()
 TInt CStdGadget::Y()
 {
 
-#ifdef __amigaos__
+#ifdef __amigaos4__
 
 	GetAttr(GA_Top, m_poGadget, (ULONG *) &m_iY);
+
+#elif defined(__amigaos__)
+
+	m_iY = ((struct Gadget *) m_poGadget)->TopEdge;
 
 #endif /* __amigaos__ */
 
@@ -88,7 +96,17 @@ TInt CStdGadget::Width()
 
 	if (!(m_bHidden))
 	{
+
+#ifdef __amigaos4__
+
 		GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
+
+#elif defined(__amigaos__)
+
+		m_iWidth = ((struct Gadget *) m_poGadget)->Width;
+
+#endif /* __amigaos__ */
+
 		RetVal = m_iWidth;
 	}
 	else
@@ -126,7 +144,17 @@ TInt CStdGadget::Height()
 
 	if (!(m_bHidden))
 	{
+
+#ifdef __amigaos4__
+
 		GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
+
+#elif defined(__amigaos__)
+
+		m_iHeight = ((struct Gadget *) m_poGadget)->Height;
+
+#endif /* __amigaos__ */
+
 		RetVal = m_iHeight;
 	}
 	else
