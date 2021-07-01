@@ -11,7 +11,7 @@
 
 #endif /* QT_GUI_LIB */
 
-/* The LAYOUT_InnerSpacing attribute cannot be queried so we need to know it, so we */
+/* The LAYOUT_InnerSpacing attribute cannot be queried but we need to know it, so we */
 /* explicitly set it to a value and use that value in CStdGadgetLayout::GetSpacing() */
 
 #define INNER_SPACING 3
@@ -21,20 +21,24 @@
  * Allocates and initialises the class, providing two phase construction.
  *
  * @date	Monday 11-Jul-2011 5:44 am
- * @param	a_pParentWindow	Pointer to the window in which to create the gadget
- * @param	a_poClient		The observer to call to indicate a resize operation.  May be NULL if no
- *							callbacks are required
+ * @param	a_poParentWindow	Pointer to the window in which to create the gadget
+ * @param	a_poParentLayout	Pointer to the layout to which to attach the gadget.  If NULL, the new layout
+ *								gadget will be attached to the parent window
+ * @param	a_bVertical			ETrue to create a vertical layout, else EFalse for a horizontal layout
+ * @param	a_poClient			The observer to call to indicate a resize operation.  May be NULL if no
+ *								callbacks are required
  * @return	A pointer to the initialised class instance if successful, else NULL
  */
 
-CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient)
+CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+	MStdGadgetLayoutObserver *a_poClient)
 {
 	TInt Result;
 	CStdGadgetLayout *RetVal;
 
 	ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
 
-	if ((RetVal = new CStdGadgetLayout(a_poParentWindow, a_poClient)) != NULL)
+	if ((RetVal = new CStdGadgetLayout(a_poParentWindow, a_poParentLayout, a_bVertical, a_poClient)) != NULL)
 	{
 		if ((Result = RetVal->Construct()) != KErrNone)
 		{
@@ -49,7 +53,17 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, MStdGadgetLay
 			//             attached in order for it to be destroyed when the layout is destroyed
 			//             due to Reaction ownership requirements.  If it is not attached then it
 			//             must be destroyed manually
-			a_poParentWindow->Attach(RetVal);
+			/* A layout can be inside another layout or inside a window.  Depending on whether a parent layout */
+			/* gadget was passed in, attach the new layout to the appropariate parent */
+
+			if (a_poParentLayout)
+			{
+				a_poParentLayout->Attach(RetVal);
+			}
+			else
+			{
+				a_poParentWindow->Attach(RetVal);
+			}
 		}
 	}
 
@@ -75,7 +89,21 @@ TInt CStdGadgetLayout::Construct()
 
 #ifdef __amigaos__
 
-	if ((m_poGadget = (Object *) VGroupObject, LAYOUT_InnerSpacing, INNER_SPACING, LAYOUT_HorizAlignment, LALIGN_RIGHT, EndGroup) != NULL)
+	TInt Orientation;
+
+	/* Decide whether to create a vertical or horizontal layout */
+
+	if (m_iGadgetType == EStdGadgetVerticalLayout)
+	{
+		Orientation = LAYOUT_VERTICAL;
+	}
+	else
+	{
+		Orientation = LAYOUT_HORIZONTAL;
+	}
+
+	if ((m_poGadget = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, Orientation,
+		LAYOUT_InnerSpacing, INNER_SPACING, TAG_DONE)) != NULL)
 	{
 		RetVal = KErrNone;
 	}

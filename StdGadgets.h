@@ -26,7 +26,8 @@ class QWidget;
 
 enum TStdGadgetType
 {
-	EStdGadgetLayout,			/* Dynamic Layout gadget */
+	EStdGadgetVerticalLayout,	/* Vertical dynamic layout gadget */
+	EStdGadgetHorizontalLayout,	/* Horizontal dynamic layout gadget */
 	EStdGadgetVerticalSlider,	/* Vertical scroller */
 	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
 	EStdGadgetStatusBar			/* Status bar */
@@ -132,13 +133,14 @@ private:
 
 private:
 
-	CStdGadgetLayout(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient = NULL) : CStdGadget()
+	CStdGadgetLayout(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+		MStdGadgetLayoutObserver *a_poClient) : CStdGadget()
 	{
 		m_poParentWindow = a_poParentWindow;
+		m_poParentLayout = a_poParentLayout;
+		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalLayout : EStdGadgetHorizontalLayout;
 		m_poClient = a_poClient;
-
 		m_iWeight = 50;
-		m_iGadgetType = EStdGadgetLayout;
 	}
 
 	TInt Construct();
@@ -149,7 +151,8 @@ public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
 
-	static CStdGadgetLayout *New(CWindow *a_poParentWindow, MStdGadgetLayoutObserver *a_poClient);
+	static CStdGadgetLayout *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical = ETrue,
+		MStdGadgetLayoutObserver *a_poClient = NULL);
 
 	~CStdGadgetLayout();
 
