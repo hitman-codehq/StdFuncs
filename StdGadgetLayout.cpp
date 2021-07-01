@@ -184,8 +184,6 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
-		// TODO: CAW
-		RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
 		rethinkLayout();
 	}
 
@@ -298,9 +296,13 @@ TInt CStdGadgetLayout::GetSpacing()
 void CStdGadgetLayout::rethinkLayout()
 {
 
-#if defined(WIN32) && !defined(QT_GUI_LIB)
+#ifdef __amigaos__
 
-	// TODO: CAW - A VERY temporary solution
+	RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
+
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+	// TODO: CAW - A VERY temporary solution - this needs to handle both horizontal and vertical layouts
 	TInt Height, InnerWidth;
 	RECT Rect;
 	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
