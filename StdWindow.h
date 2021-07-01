@@ -87,6 +87,12 @@ private:
 	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
 	Object				*m_poRootLayout;			/**< layout.gadget containing the window's gadgets */
 
+#ifndef __amigaos4__
+
+	struct Screen		*m_poScreen;				/**< Pointer to the screen on which to open the window */
+
+#endif /* ! __amigaos4__ */
+
 #elif defined(QT_GUI_LIB)
 
 	QVBoxLayout			*m_poRootLayout;			/**< Top level layout containing the window's gadgets */

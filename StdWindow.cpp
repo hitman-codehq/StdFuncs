@@ -1663,6 +1663,17 @@ void CWindow::close()
 		m_poWindowObj = NULL;
 	}
 
+#ifndef __amigaos4__
+
+	/* And the window's screen, if it is open */
+
+	if (m_poScreen)
+	{
+		CloseScreen(m_poScreen);
+	}
+
+#endif /* __amigaos4__ */
+
 #elif defined(QT_GUI_LIB)
 
 	if (m_poWindow)
@@ -2425,7 +2436,8 @@ TBool CWindow::MenuItemChecked(TInt a_iItemID)
  * @date	Monday 08-Feb-2010 7:13 am
  * @param	a_pccTitle		Ptr to a string to be placed into the title bar of the window
  * @param	a_pccScreenName	Ptr to the name of the screen on which to open the window.  Amiga
- *							OS only - this is ignored on other platforms
+ *							OS only - this is ignored on other platforms.  Pass in NULL to open
+ *							on the Workbench screen
  * @param	a_bResizeable	ETrue to enable resizing of the window.  Amiga OS only - on other
  *							platforms windows are always resizeable
  * @return	KErrNone if the window was opened successfully
@@ -2449,13 +2461,58 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	Utils::GetScreenSize(ScreenSize);
 
-	ASSERTM((a_pccScreenName != NULL), "CWindow::open() => Screen name must be specified");
-
 	/* Setup an IDCMP hook that can be used for monitoring gadgets for extra information not */
 	/* provided by Reaction, such as the movement of proportional gadgets */
 
-	m_oIDCMPHook.h_Entry = (ULONG (*)()) IDCMPFunction;
+#ifdef __amigaos4__
+
+	m_oIDCMPHook.h_Entry = (uint32 (*)()) IDCMPFunction;
+
+#else /* ! __amigaos4__ */
+
+	m_oIDCMPHook.h_Entry = (ULONG (*)()) HookEntry;
+	m_oIDCMPHook.h_SubEntry = (ULONG (*)()) IDCMPFunction;
+
+#endif /* ! __amigaos4__ */
+
 	m_oIDCMPHook.h_Data = this;
+
+#ifndef __amigaos4__
+
+	/* If a screen name was passed in then open a screen for the window to be opened on.  OS4 will do this */
+	/* automatically if the named screen has been configured in preferences, but on OS3 we must do it ourselves */
+
+	if (a_pccScreenName)
+	{
+		m_poScreen = OpenScreenTags(NULL, SA_LikeWorkbench, TRUE, SA_PubName, (ULONG) a_pccScreenName,
+			SA_Title, (ULONG) a_pccScreenName, TAG_DONE);
+
+		if (m_poScreen)
+		{
+			/* Public screens are private by default (!) so make the newly opened screen public */
+
+			DEBUGCHECK(((PubScreenStatus(m_poScreen, 0) & 0x01) == 1), "CWindow::open() => Unable to make screen public");
+		}
+		else
+		{
+			Utils::info("CWindow::open() => Unable to open screen \"%s\"", a_pccScreenName);
+		}
+	}
+
+#endif /* ! __amigaos4__ */
+
+	/* IDCMP bits to be used for the window.  Assign these to a variabe so they can be tweaked for OS4 */
+
+	ULONG HookBits = IDCMP_IDCMPUPDATE;
+	ULONG IDCMP = (IDCMP_CLOSEWINDOW |  IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE |
+				   IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE);
+
+#ifdef __amigaos4__
+
+	HookBits |= IDCMP_EXTENDEDMOUSE;
+	IDCMP |= IDCMP_EXTENDEDMOUSE;
+
+#endif /* __amigaos4__ */
 
 	/* Create a Reaction Window and open it on the requested screen at the maximum size of */
 	/* the screen.  If no screen name is specified, fall back to the Workbench */
@@ -2463,15 +2520,14 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	m_poWindowObj = (Object *) WindowObject,
 		WA_Title, (ULONG) a_pccTitle, WINDOW_Position, WPOS_CENTERSCREEN,
 		WA_PubScreenName, a_pccScreenName, WA_PubScreenFallBack, TRUE,
-		WA_Width, ScreenSize.m_iWidth, WA_Height, ScreenSize.m_iHeight, WA_Activate, TRUE,
+		WA_Width, (ULONG) ScreenSize.m_iWidth, WA_Height, (ULONG) ScreenSize.m_iHeight, WA_Activate, TRUE,
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE, WA_SizeGadget, a_bResizeable,
-		WINDOW_IDCMPHook, &m_oIDCMPHook, WINDOW_IDCMPHookBits, (IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE),
-		WA_IDCMP, (IDCMP_CLOSEWINDOW | IDCMP_EXTENDEDMOUSE | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE | IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE),
+		WINDOW_IDCMPHook, (ULONG) &m_oIDCMPHook, WINDOW_IDCMPHookBits, HookBits, WA_IDCMP, IDCMP,
 
-		WINDOW_Layout, m_poRootLayout = (Object *) VGroupObject,
+		WINDOW_Layout, m_poRootLayout = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, LAYOUT_VERTICAL,
 			/* This is an empty group into which can be placed BOOPSI objects */
-		EndGroup,
-	EndWindow;
+		TAG_DONE),
+	TAG_DONE);
 
 	if (m_poWindowObj)
 	{
