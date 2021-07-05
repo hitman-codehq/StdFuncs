@@ -88,7 +88,7 @@ public:
 		return(m_iGadgetType);
 	}
 
-	void SetVisible(bool a_bVisible);
+	virtual void SetVisible(bool a_bVisible);
 
 	bool Visible()
 	{
@@ -160,6 +160,12 @@ public:
 
 	TInt GetSpacing();
 
+#ifdef __amigaos__
+
+	void ReAttach(CStdGadget *a_poGadget);
+
+#endif /* __amigaos__ */
+
 	void rethinkLayout();
 
 	void SetWeight(TInt a_iWeight);
@@ -191,6 +197,7 @@ private:
 
 	TInt		m_iMaxRange;					/**< Maximum X/Y position of the slider */
 	TInt		m_iPageSize;					/**< Number of characters/lines/pixels per page */
+	TInt		m_iPosition;					/**< The position of the slider knob within the slider */
 	MStdGadgetSliderObserver *m_poClient;		/**< Ptr to client to notify when gadget changes */
 
 #ifdef QT_GUI_LIB
@@ -219,13 +226,20 @@ private:
 		m_poParentLayout = a_poParentLayout;
 		m_poClient = a_poClient;
 		m_iGadgetID = a_iGadgetID;
+
+		/* Set the default position to the top/left of the slider, which is 1, not 0 */
+
+		m_iPosition = 1;
 	}
 
 	TInt Construct();
 
+	bool CreateNative();
+
 public:
 
-	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
+	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout,
+		MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
 
 	~CStdGadgetSlider();
 
@@ -234,6 +248,12 @@ public:
 	void SetRange(TInt a_iPageSize, TInt a_iMaxRange);
 
 	/* From CStdGadget */
+
+#ifdef __amigaos__
+
+	void SetVisible(bool a_bVisible) override;
+
+#endif /* __amigaos__ */
 
 	void Updated(ULONG a_ulData);
 };

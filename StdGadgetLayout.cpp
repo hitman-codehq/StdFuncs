@@ -103,7 +103,7 @@ TInt CStdGadgetLayout::Construct()
 	}
 
 	if ((m_poGadget = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, Orientation,
-		LAYOUT_InnerSpacing, INNER_SPACING, TAG_DONE)) != NULL)
+		LAYOUT_HorizAlignment, LALIGN_RIGHT, LAYOUT_InnerSpacing, INNER_SPACING, TAG_DONE)) != NULL)
 	{
 		RetVal = KErrNone;
 	}
@@ -478,3 +478,30 @@ TInt CStdGadgetLayout::MinHeight()
 
 	return(RetVal);
 }
+
+#ifdef __amigaos__
+
+/**
+ * Reattaches a gadget to the layout.
+ * This is an internal Amiga OS only method that will reattach a BOOPSI gadget to the layout.  It basically
+ * works the same as CStdGadgetLayout::Attach() but it doesn't add the gadget to the m_oGadgets list.  It is
+ * useful for implementing overrides of the CStdGadget::SetVisible() method.
+ *
+ * @date	Sunday 04-Jul-2021 8:04 am, Code HQ Bergmannstrasse
+ * @param	a_poGadget		Pointer to the native gadget to attach to the layout
+ */
+
+void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
+{
+	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::ReAttach() => No gadget to be attached passed in");
+
+	/* Add the BOOPSI gadget to the layout */
+
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+	{
+		rethinkLayout();
+	}
+}
+
+#endif /* __amigaos__ */

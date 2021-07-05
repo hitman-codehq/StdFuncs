@@ -260,16 +260,16 @@ void CStdGadget::SetSize(TInt a_iWidth, TInt a_iHeight)
 }
 
 /**
-* Shows or hides the gadget.
-* This function will set the associated gadget to hidden and will redraw the
-* display to reflect this new state.  It also keeps track of the hidden state
-* internally so that if the gadget's size is queried it will return that it is
-* zero pixels high and zero pixels wide.  The gadget remains on the window's
-* list of gadgets but is now invisible to the eye.
-*
-* @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Wuerzburg
-* @param	a_bVisible		true to make gadget visible, else false to hide it
-*/
+ * Shows or hides the gadget.
+ * This function will set the associated gadget to hidden and will redraw the
+ * display to reflect this new state.  It also keeps track of the hidden state
+ * internally so that if the gadget's size is queried it will return that it is
+ * zero pixels high and zero pixels wide.  The gadget remains on the window's
+ * list of gadgets but is now invisible to the eye.
+ *
+ * @date	Sunday 19-May-2011 6:34 am, Sankt Josef Hotel & Restaurant, Wuerzburg
+ * @param	a_bVisible		true to make gadget visible, else false to hide it
+ */
 
 void CStdGadget::SetVisible(bool a_bVisible)
 {
@@ -282,12 +282,19 @@ void CStdGadget::SetVisible(bool a_bVisible)
 
 #ifdef __amigaos__
 
-	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back, */
-	/* and emulating the behaviour of the other versions proved to be surprisingly difficult.  So */
-	/* until a CStdGadget::UnHide() function is required we won't bother */
+	/* Unlike the Qt and Windows versions, once we get rid of this on Amiga OS we can't get it back as it */
+	/* is destroyed.  Gadgets that need to make themselves visible again will need to override this method */
+	/* and recreate the native gadget when true is passed in */
 
-	SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
+	if (!a_bVisible && (m_poGadget != NULL))
+	{
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+			LAYOUT_RemoveChild, m_poGadget, TAG_DONE);
+
+		/* The native gadget is destroyed when it is removed, so indicate this by setting its pointer to NULL */
+
+		m_poGadget = NULL;
+	}
 
 #elif defined(QT_GUI_LIB)
 
