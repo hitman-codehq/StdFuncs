@@ -441,6 +441,8 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 }
 
+#ifdef __amigaos__
+
 /**
  * Shows or hides the gadget.
  * This Amiga OS reimplementation of CStdGadget::SetVisible() will pass the call through to the super method
@@ -483,3 +485,5 @@ void CStdGadgetSlider::SetVisible(bool a_bVisible)
 		CStdGadget::SetVisible(a_bVisible);
 	}
 }
+
+#endif /* __amigaos__ */
