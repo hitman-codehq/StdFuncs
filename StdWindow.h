@@ -282,7 +282,7 @@ public:
 
 #ifdef __amigaos__
 
-	Object GetRootLayout() { return(*m_poRootLayout); }
+	Object *GetRootLayout() { return(m_poRootLayout); }
 
 #endif /* __amigaos__ */
 
