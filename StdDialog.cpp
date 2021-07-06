@@ -502,7 +502,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	{
 		RetVal = KErrNone;
 		Length = (m_poEditHookData->NumChars + 1);
-		Text = m_poEditHookData->WorkBuffer;
+		Text = (const char *) m_poEditHookData->WorkBuffer;
 	}
 	else
 	{
@@ -717,8 +717,10 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 		if ((Length = GetGadgetText(a_iGadgetID, EFalse)) > 0)
 		{
-			SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark,
-				(Length - 1), TAG_DONE);
+			if (SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark, (ULONG) (Length - 1), TAG_DONE) != 0)
+			{
+				RefreshGList((struct Gadget *) Gadget, m_poWindow, NULL, 1);
+			}
 		}
 	}
 
@@ -897,7 +899,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
 	{
-		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG *) a_pccText, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG) a_pccText, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
