@@ -236,12 +236,12 @@ public:
 
 	void InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight);
 
-	TInt InnerWidth()
+	virtual TInt InnerWidth()
 	{
 		return(m_iInnerWidth);
 	}
 
-	TInt InnerHeight()
+	virtual TInt InnerHeight()
 	{
 		return(m_iInnerHeight);
 	}
