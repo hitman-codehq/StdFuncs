@@ -166,6 +166,8 @@ public:
 
 #endif /* __amigaos__ */
 
+	void remove(CStdGadgetLayout *a_poLayoutGadget);
+
 	void rethinkLayout();
 
 	void SetWeight(TInt a_iWeight);

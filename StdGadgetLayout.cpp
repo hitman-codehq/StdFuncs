@@ -136,6 +136,10 @@ CStdGadgetLayout::~CStdGadgetLayout()
 {
 	CStdGadget *Gadget;
 
+	/* This layout gadget is now invalid, so ensure that no client status updates are called */
+
+	m_poClient = NULL;
+
 	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
 
 	while ((Gadget = m_oGadgets.remHead()) != NULL)
@@ -143,9 +147,16 @@ CStdGadgetLayout::~CStdGadgetLayout()
 		delete Gadget;
 	}
 
-	/* Now remove the layout gadget from its parent window */
+	/* Now remove the layout gadget from its parent window or layout */
 
-	m_poParentWindow->remove(this);
+	if (m_poParentLayout)
+	{
+		m_poParentLayout->remove(this);
+	}
+	else
+	{
+		m_poParentWindow->remove(this);
+	}
 
 #ifdef QT_GUI_LIB
 
@@ -505,3 +516,39 @@ void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
 }
 
 #endif /* __amigaos__ */
+
+/**
+ * Remove a gadget from the layout.
+ * This function will remove the gadget passed in from the layout.  This will take care of removing the gadget from
+ * the layout's internal list of gadgets, as well as removing it from the underlying OS specific layout system.
+ *
+ * @date	Thursday 15-Jul-2021 7:20 am, Code HQ Bergmannstrasse
+ * @param	a_poGadget		Pointer to the gadget to remove from the layout
+ */
+
+void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
+{
+
+#ifdef __amigaos__
+
+	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::remove() => No gadget to be removed passed in");
+
+	/* Remove the layout gadget from this layout's private list of layout gadgets */
+
+	m_oGadgets.remove(a_poLayoutGadget);
+
+	/* And remove the BOOPSI gadget from the layout */
+
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
+	{
+		rethinkLayout();
+	}
+
+#else /* ! __amigaos__ */
+
+	(void) a_poLayoutGadget;
+
+#endif /* ! __amigaos__ */
+
+}

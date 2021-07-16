@@ -136,6 +136,9 @@ TInt CStdGadgetSlider::Construct()
 
 CStdGadgetSlider::~CStdGadgetSlider()
 {
+	/* This gadget is now invalid, so ensure that no client status updates are called */
+
+	m_poClient = NULL;
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
