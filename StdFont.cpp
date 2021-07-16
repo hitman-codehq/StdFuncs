@@ -571,10 +571,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	/* the cursor.  This will cause it to be highlighted.  We toggle the highlight rather than */
 	/* use ETrue and EFalse so that the cursor works within highlighted blocks of text as well */
 
-	if (m_poWindow->IsActive())
-	{
-		SetHighlight(!(m_bHighlight));
-	}
+	SetHighlight(!(m_bHighlight));
 
 #ifdef __amigaos__
 
@@ -698,10 +695,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	/* Toggle the highlight state back to normal, remembering that calling SetHighlight() */
 	/* above will have set the state of the highlight flag */
 
-	if (m_poWindow->IsActive())
-	{
-		SetHighlight(!(m_bHighlight));
-	}
+	SetHighlight(!(m_bHighlight));
 }
 
 /**
