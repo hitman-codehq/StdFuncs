@@ -155,3 +155,24 @@ void FreeSysObject(ULONG a_type, APTR a_object)
 		FreeMem(a_object, sizeof(struct SignalSemaphore));
 	}
 }
+
+/**
+ * Sets one or more attributes and refreshes gadget.
+ * This is a convenience function that will perform a SetGadgetAttrsA() using the parameters given, and if the
+ * target gadget indicates that it needs to be refreshed, it will also perform a refresh of that gadget.
+ *
+ * @date	Wednesday 14-Jul-2021 8:20 am, Code HQ Bergmannstrasse
+ * @param	a_gadget		Pointer to the BOOPSI gadget object
+ * @param	a_window		Pointer to the window in which the gadget resides, or NULL
+ * @param	a_requester		Pointer to the requester in which the gadget resides, or NULL
+ * @param	a_taglist		Pointer to the taglist of attributes to be applied to the gadget
+ */
+
+void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	struct TagItem *a_taglist)
+{
+	if (SetGadgetAttrsA(a_gadget, a_window, a_requester, a_taglist) != 0)
+	{
+		RefreshGList(a_gadget, a_window, a_requester, 1);
+	}
+}

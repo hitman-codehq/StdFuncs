@@ -8,6 +8,7 @@
 #ifdef __amigaos__
 
 #include <intuition/sghooks.h>
+#include "OS4Support.h"
 
 #elif defined(QT_GUI_LIB)
 
@@ -717,10 +718,7 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 		if ((Length = GetGadgetText(a_iGadgetID, EFalse)) > 0)
 		{
-			if (SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark, (ULONG) (Length - 1), TAG_DONE) != 0)
-			{
-				RefreshGList((struct Gadget *) Gadget, m_poWindow, NULL, 1);
-			}
+			RefreshSetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_Mark, (ULONG) (Length - 1), TAG_DONE);
 		}
 	}
 

@@ -5,8 +5,11 @@
 #if defined(__amigaos__) && !defined(__amigaos4__)
 
 APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags);
+ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size);
 ULONG DateStampToSeconds(const struct DateStamp *a_dateStamp);
 void FreeSysObject(ULONG a_type, APTR a_object);
+void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	struct TagItem *a_taglist);
 
 /* New entries in dos/dos.h */
 
@@ -43,7 +46,11 @@ inline APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...)
 	return AllocSysObject(a_type, (struct TagItem *) &a_tag);
 }
 
-ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size);
+inline void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	Tag a_tag, ...)
+{
+	return RefreshSetGadgetAttrsA(a_gadget, a_window, a_requester, (struct TagItem *) &a_tag);
+}
 
 #endif /* defined(__amigaos__) && !defined(__amigaos4__) */
 
