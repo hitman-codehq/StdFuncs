@@ -66,7 +66,9 @@ else()
 	add_library(StdFuncs ${SourceFiles})
 endif()
 
-set_source_files_properties("StdSocket.cpp" PROPERTIES "COMPILE_OPTIONS" "-fexceptions")
+if(GCC)
+	set_source_files_properties("StdSocket.cpp" PROPERTIES "COMPILE_OPTIONS" "-fexceptions")
+endif()
 
 if(USE_CLANG_TIDY)
 	find_program(ClangTidy NAMES "clang-tidy")
