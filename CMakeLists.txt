@@ -66,7 +66,9 @@ else()
 	add_library(StdFuncs ${SourceFiles})
 endif()
 
-if(GCC)
+set_property(TARGET StdFuncs PROPERTY CXX_STANDARD 14)
+
+if(NOT MSVC)
 	set_source_files_properties("StdSocket.cpp" PROPERTIES "COMPILE_OPTIONS" "-fexceptions")
 endif()
 
