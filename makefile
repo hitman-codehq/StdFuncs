@@ -58,8 +58,8 @@ ifneq ($(UNAME), CYGWIN_NT-10.0)
 
 AUTO_OBJECTS = $(OBJ)/auto_asl.o $(OBJ)/auto_bitmap.o $(OBJ)/auto_datatypes.o $(OBJ)/auto_checkbox.o $(OBJ)/auto_diskfont.o \
 	$(OBJ)/auto_gadtools.o $(OBJ)/auto_graphics.o $(OBJ)/auto_icon.o $(OBJ)/auto_iffparse.o $(OBJ)/auto_intuition.o \
-	$(OBJ)/auto_keymap.o $(OBJ)/auto_label.o $(OBJ)/auto_layout.o $(OBJ)/auto_scroller.o $(OBJ)/auto_string.o \
-	$(OBJ)/auto_utility.o $(OBJ)/auto_window.o
+	$(OBJ)/auto_keymap.o $(OBJ)/auto_label.o $(OBJ)/auto_layout.o $(OBJ)/auto_listbrowser.o  $(OBJ)/auto_scroller.o \
+	$(OBJ)/auto_string.o $(OBJ)/auto_utility.o $(OBJ)/auto_window.o
 
 OBJECTS += $(OBJ)/OS4Support.o
 
