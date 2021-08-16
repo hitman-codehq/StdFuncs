@@ -82,12 +82,12 @@ APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags)
 ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size)
 {
 	const char *source = static_cast<const char *>(BADDR(a_bstring));
-	int sourceLength = (source != nullptr) ? *source++ : 0;
+	ULONG sourceLength = (source != nullptr) ? *source++ : 0;
 
 	/* Only try to copy anything if there is enough space in the target buffer */
 	if (a_size > 0)
 	{
-		int destLength = (sourceLength < a_size - 1) ? sourceLength : a_size - 1;
+		int destLength = (sourceLength < (a_size - 1)) ? sourceLength : a_size - 1;
 
 		/* And if a target buffer was actually passed in */
 		if (a_dest != nullptr)

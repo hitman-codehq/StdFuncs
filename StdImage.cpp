@@ -33,7 +33,7 @@ TInt RStdImage::open(const char *a_pccFileName)
 	/* that the highest possible number of colours are used and passing in a ptr to the screen the */
 	/* root window is opened on so that the colour mapping is correct.  No I don't understand it either! */
 
-	m_poBitMapObj = NewDTObject(a_pccFileName, PDTA_Screen, CWindow::GetRootWindowScreen(),
+	m_poBitMapObj = NewDTObject(a_pccFileName, PDTA_Screen, (ULONG) CWindow::GetRootWindowScreen(),
 		PDTA_DestMode, PMODE_V43, TAG_DONE);
 
 	if (m_poBitMapObj)
@@ -52,12 +52,12 @@ TInt RStdImage::open(const char *a_pccFileName)
 		/* And get a ptr to the bitmap data in the form of a BitMap so that it can be used by */
 		/* client code */
 
-		if (GetDTAttrs(m_poBitMapObj, PDTA_BitMap, &m_poBitMap, TAG_DONE) == 1)
+		if (GetDTAttrs(m_poBitMapObj, PDTA_BitMap, (ULONG) &m_poBitMap, TAG_DONE) == 1)
 		{
 			/* Also get the width and height of the BitMap, given that this is not easily able */
 			/* to be ascertained from the old graphics.library BitMap structure */
 
-			if (GetDTAttrs(m_poBitMapObj, PDTA_BitMapHeader, &BitMapHeader, TAG_DONE) == 1)
+			if (GetDTAttrs(m_poBitMapObj, PDTA_BitMapHeader, (ULONG) &BitMapHeader, TAG_DONE) == 1)
 			{
 				/* Signal success */
 

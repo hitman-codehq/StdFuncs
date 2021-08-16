@@ -93,7 +93,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 					/* Add the string gadget to the horizontal layout group, with the desired weighting */
 
 					SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LAYOUT_AddChild,
-						m_poPartsGadgets[Index], CHILD_WeightedWidth, a_piPartsOffsets[Index], TAG_DONE);
+						(ULONG) m_poPartsGadgets[Index], CHILD_WeightedWidth, (ULONG) a_piPartsOffsets[Index], TAG_DONE);
 				}
 				else
 				{
@@ -369,7 +369,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 	}
 }
 
-/* Written: Tuesday 20-Mar-2011 8:04 am, Hilton Koöice */
+/* Written: Tuesday 20-Mar-2011 8:04 am, Hilton Ko≈°ice */
 /* @param	a_iPart		Index of part of the status bar from which to obtain the text */
 /* @return	Ptr to the text from the status bar if it has been set, else an empty string */
 /* Gets the content of the specified subpart of the status bar.  The text is cached so this */

@@ -190,12 +190,12 @@ bool CStdGadgetSlider::CreateNative()
 	{
 		if (m_iMaxRange != 0 && m_iPageSize != 0)
 		{
-			SetAttrs((struct Gadget *) m_poGadget, SCROLLER_Visible, m_iPageSize, SCROLLER_Total, m_iMaxRange, TAG_DONE);
+			SetAttrs((struct Gadget *) m_poGadget, SCROLLER_Visible, (ULONG) m_iPageSize, SCROLLER_Total, (ULONG) m_iMaxRange, TAG_DONE);
 		}
 
 		if (m_iPosition != 1)
 		{
-			SetAttrs((struct Gadget *) m_poGadget, SCROLLER_Top, (m_iPosition - 1), TAG_DONE);
+			SetAttrs((struct Gadget *) m_poGadget, SCROLLER_Top, (ULONG) (m_iPosition - 1), TAG_DONE);
 		}
 	}
 
@@ -343,7 +343,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 #ifdef __amigaos__
 
 	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		SCROLLER_Top, (a_iPosition - 1), TAG_DONE);
+		SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
