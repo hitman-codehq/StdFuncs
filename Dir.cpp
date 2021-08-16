@@ -3,7 +3,6 @@
 
 #ifdef __amigaos__
 
-#include <proto/exec.h>
 #include <proto/utility.h>
 #include "OS4Support.h"
 
