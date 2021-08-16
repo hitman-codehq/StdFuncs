@@ -820,20 +820,25 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
  * will silently fail.  This means that the Size count mentioned above is the number of bytes to
  * be drawn, not the number of characters.
  *
+ * It is also possible to skip a number of characters at the start of the string by specifying
+ * the number of characters to skip in a_iStartOffset.
+ *
  * @date	Thursday 01-Dec-2011 8:43 pm, Munich Airport, awaiting flight EK 052 to Dubai
  * @param	a_pccText		Pointer to string to be drawn to the screen
- * @param	a_iX			X position in the window at which to draw, specified as a pixel offset
+ * @param	a_iStartOffset	Index into the text at which to start drawing
+ * @param	a_iX			X position in the window at which to draw, specified as a character offset
  * @param	a_iY			Y position in the window at which to draw, specified as a character offset
  * @param	a_eEncoding		Text encoding in which the string is encoded
  */
 
-void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding)
+void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding)
 {
-	TInt Colour, Size;
+	TInt Colour, Size, Skip, XPixels;
 
 	ASSERTM(a_pccText, "RFont::DrawColouredText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
 	ASSERTM(m_bBeginCalled, "RFont::DrawColouredText() => RFont::Begin() must be called before RFont::DrawColouredText()");
+	ASSERTM((a_iX == 0), "RFont::DrawColouredText() => Non zero X positions are not currently supported");
 
 #ifdef __amigaos__
 
@@ -854,6 +859,8 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 	{
 		/* Iterate through the source text and display the runs of characters in the required colour */
 
+		std::string LineText;
+
 		while (*a_pccText)
 		{
 			/* Get the size of the run and the colour in which to to display the run in */
@@ -861,27 +868,6 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 			Size = *a_pccText++;
 			Colour = *a_pccText++;
 			ASSERTM((Colour < STDFONT_NUM_COLOURS), "RFont::DrawColouredText() => Colour index out of range");
-
-			/* Move to the position at which to print, taking into account the left and top border sizes, */
-			/* the height of the current font and the baseline of the font, given that the Text() routine */
-			/* prints at the baseline position, not the top of the font */
-
-			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + (a_iX * m_iWidth)),
-				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
-
-			/* Calculate the maximum number of characters that can fit in the client area of the window, */
-			/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
-			/* clip width reduces as we print the parts of the string */
-
-			NumChars = TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Size, &TextExtent, NULL, 1,
-				Width, m_poWindow->InnerHeight());
-
-			/* If nothing fits then we may as well break out of the loop */
-
-			if (NumChars == 0)
-			{
-				break;
-			}
 
 			/* Display the text in the required colour.  If the highlight is set then */
 			/* the colours will already have been inversed so leave them as they are */
@@ -891,11 +877,54 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 				SetAPen(m_poWindow->m_poWindow->RPort, m_alPens[Colour]);
 			}
 
-			Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
+			/* If it has been requested to start drawing from an index into the string then update the pointer */
+			/* to the text to point to the character at that index */
+
+			if (a_iStartOffset > 0)
+			{
+				if (a_iX < a_iStartOffset)
+				{
+					Skip = (a_iStartOffset - a_iX);
+
+					if (Skip > Size)
+					{
+						Skip = Size;
+					}
+
+					a_iX += Skip;
+					a_pccText += Skip;
+					Size -= Skip;
+				}
+			}
+
+			/* Move to the position at which to print, taking into account the left and top border sizes, */
+			/* the height of the current font and the baseline of the font, given that the Text() routine */
+			/* prints at the baseline position, not the top of the font */
+
+			XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
+
+			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + XPixels),
+				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
+
+			/* Calculate the maximum number of characters that can fit in the client area of the window, */
+			/* as text is not automatically clipped by the Amiga OS text drawing routine.  Note that the */
+			/* clip width reduces as we print the parts of the string */
+
+			NumChars = TextFit(m_poWindow->m_poWindow->RPort, a_pccText, Size, &TextExtent, NULL, 1,
+				Width, m_poWindow->InnerHeight());
+
+			/* Only display the text if some of it is on the screen.  As well as being clipped, it could be */
+			/* that the text is scrolled to the left of the screen and thus is not visible */
+
+			if (NumChars > 0)
+			{
+				Text(m_poWindow->m_poWindow->RPort, a_pccText, NumChars);
+			}
 
 			/* And prepare for the next run to be displayed */
 
 			a_iX += Size;
+			LineText.append(a_pccText, Size);
 			a_pccText += Size;
 			Width -= TextExtent.te_Width;
 
@@ -927,16 +956,37 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 			m_oPainter.setPen(Pen);
 		}
 
+		/* If it has been requested to start drawing from an index into the string then update the pointer */
+		/* to the text to point to the character at that index */
+
+		if (a_iStartOffset > 0)
+		{
+			if (a_iX < a_iStartOffset)
+			{
+				Skip = (a_iStartOffset - a_iX);
+
+				if (Skip > Size)
+				{
+					Skip = Size;
+				}
+
+				a_iX += Skip;
+				a_pccText += Skip;
+				Size -= Skip;
+			}
+		}
+
 		/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 		/* the baseline of the font, not as the top */
 
 		QByteArray String(a_pccText, Size);
 
-		a_iX = TextWidthInPixels(LineText);
-		m_oPainter.drawText((m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
+		XPixels = TextWidthInPixels(LineText);
+		m_oPainter.drawText((m_iXOffset + XPixels), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
 
+		a_iX += Size;
 		LineText.append(a_pccText, Size);
 		a_pccText += Size;
 	}
@@ -963,13 +1013,34 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum T
 			SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
 		}
 
+		/* If it has been requested to start drawing from an index into the string then update the pointer */
+		/* to the text to point to the character at that index */
+
+		if (a_iStartOffset > 0)
+		{
+			if (a_iX < a_iStartOffset)
+			{
+				Skip = (a_iStartOffset - a_iX);
+
+				if (Skip > Size)
+				{
+					Skip = Size;
+				}
+
+				a_iX += Skip;
+				a_pccText += Skip;
+				Size -= Skip;
+			}
+		}
+
 		/* And call the normal monocolour text drawing method to display the string for us */
 
-		a_iX = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
-		DrawText(a_pccText, Size, (m_iXOffset + a_iX), a_iY, a_eEncoding);
+		XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
+		DrawText(a_pccText, Size, (m_iXOffset + XPixels), a_iY, a_eEncoding);
 
 		/* And prepare for the next run to be displayed */
 
+		a_iX += Size;
 		LineText.append(a_pccText, Size);
 		a_pccText += Size;
 	}

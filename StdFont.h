@@ -91,7 +91,7 @@ public:
 
 	void DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding);
 
-	void DrawColouredText(const char *a_pccText, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding);
+	void DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding);
 
 	TInt GetNextSize(TInt a_iSize, TBool a_bLarger);
 
