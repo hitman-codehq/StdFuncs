@@ -2607,6 +2607,11 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			if ((m_poRootLayout = new QVBoxLayout(m_poCentralWidget)) != NULL)
 			{
+				/* Ensure that there is no spacing around the layout widget or between its children */
+
+				m_poRootLayout->setContentsMargins(0, 0, 0, 0);
+				m_poRootLayout->setSpacing(0);
+
 				/* Set the window's title to the one passed in */
 
 				QString Title(a_pccTitle);
