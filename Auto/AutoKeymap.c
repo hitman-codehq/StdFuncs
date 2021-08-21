@@ -4,15 +4,15 @@
 
 struct Library *KeymapBase;
 
-void __open_KeymapBase() __attribute__((constructor));
-void __close_KeymapBase() __attribute__((destructor));
+void OpenKeymapBase() __attribute__((constructor));
+void CloseKeymapBase() __attribute__((destructor));
 
-void __open_KeymapBase()
+void OpenKeymapBase()
 {
 	KeymapBase = SafeOpenLibrary("keymap.library");
 }
 
-void __close_KeymapBase()
+void CloseKeymapBase()
 {
 	CloseLibrary(KeymapBase);
 }

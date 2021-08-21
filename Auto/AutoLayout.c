@@ -4,15 +4,15 @@
 
 struct Library *LayoutBase;
 
-void __open_LayoutBase() __attribute__((constructor));
-void __close_LayoutBase() __attribute__((destructor));
+void OpenLayoutBase() __attribute__((constructor));
+void CloseLayoutBase() __attribute__((destructor));
 
-void __open_LayoutBase()
+void OpenLayoutBase()
 {
 	LayoutBase = SafeOpenLibrary("Gadgets/layout.gadget");
 }
 
-void __close_LayoutBase()
+void CloseLayoutBase()
 {
 	CloseLibrary(LayoutBase);
 }

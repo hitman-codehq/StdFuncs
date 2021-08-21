@@ -4,15 +4,15 @@
 
 struct Library *CheckBoxBase;
 
-void __open_CheckBoxBase() __attribute__((constructor));
-void __close_CheckBoxBase() __attribute__((destructor));
+void OpenCheckBoxBase() __attribute__((constructor));
+void CloseCheckBoxBase() __attribute__((destructor));
 
-void __open_CheckBoxBase()
+void OpenCheckBoxBase()
 {
 	CheckBoxBase = SafeOpenLibrary("Gadgets/checkbox.gadget");
 }
 
-void __close_CheckBoxBase()
+void CloseCheckBoxBase()
 {
 	CloseLibrary(CheckBoxBase);
 }

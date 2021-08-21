@@ -4,15 +4,15 @@
 
 struct Library *LabelBase;
 
-void __open_LabelBase() __attribute__((constructor));
-void __close_LabelBase() __attribute__((destructor));
+void OpenLabelBase() __attribute__((constructor));
+void CloseLabelBase() __attribute__((destructor));
 
-void __open_LabelBase()
+void OpenLabelBase()
 {
 	LabelBase = SafeOpenLibrary("Images/label.image");
 }
 
-void __close_LabelBase()
+void CloseLabelBase()
 {
 	CloseLibrary(LabelBase);
 }

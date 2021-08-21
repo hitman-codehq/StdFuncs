@@ -4,15 +4,15 @@
 
 struct Library *DiskfontBase;
 
-void __open_DiskfontBase() __attribute__((constructor));
-void __close_DiskfontBase() __attribute__((destructor));
+void OpenDiskfontBase() __attribute__((constructor));
+void CloseDiskfontBase() __attribute__((destructor));
 
-void __open_DiskfontBase()
+void OpenDiskfontBase()
 {
 	DiskfontBase = SafeOpenLibrary("diskfont.library");
 }
 
-void __close_DiskfontBase()
+void CloseDiskfontBase()
 {
 	CloseLibrary(DiskfontBase);
 }

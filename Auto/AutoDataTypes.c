@@ -4,15 +4,15 @@
 
 struct Library *DataTypesBase;
 
-void __open_DataTypesBase() __attribute__((constructor));
-void __close_DataTypesBase() __attribute__((destructor));
+void OpenDataTypesBase() __attribute__((constructor));
+void CloseDataTypesBase() __attribute__((destructor));
 
-void __open_DataTypesBase()
+void OpenDataTypesBase()
 {
 	DataTypesBase = SafeOpenLibrary("datatypes.library");
 }
 
-void __close_DataTypesBase()
+void CloseDataTypesBase()
 {
 	CloseLibrary(DataTypesBase);
 }

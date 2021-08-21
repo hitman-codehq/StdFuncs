@@ -4,15 +4,15 @@
 
 struct Library *AslBase;
 
-void __open_AslBase() __attribute__((constructor));
-void __close_AslBase() __attribute__((destructor));
+void OpenAslBase() __attribute__((constructor));
+void CloseAslBase() __attribute__((destructor));
 
-void __open_AslBase()
+void OpenAslBase()
 {
 	AslBase = SafeOpenLibrary("asl.library");
 }
 
-void __close_AslBase()
+void CloseAslBase()
 {
 	CloseLibrary(AslBase);
 }

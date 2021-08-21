@@ -4,15 +4,15 @@
 
 struct Library *StringBase;
 
-void __open_StringBase() __attribute__((constructor));
-void __close_StringBase() __attribute__((destructor));
+void OpenStringBase() __attribute__((constructor));
+void CloseStringBase() __attribute__((destructor));
 
-void __open_StringBase()
+void OpenStringBase()
 {
 	StringBase = SafeOpenLibrary("Gadgets/string.gadget");
 }
 
-void __close_StringBase()
+void CloseStringBase()
 {
 	CloseLibrary(StringBase);
 }

@@ -4,15 +4,15 @@
 
 struct Library *ListBrowserBase;
 
-void __open_ListBrowserBase() __attribute__((constructor));
-void __close_ListBrowserBase() __attribute__((destructor));
+void OpenListBrowserBase() __attribute__((constructor));
+void CloseListBrowserBase() __attribute__((destructor));
 
-void __open_ListBrowserBase()
+void OpenListBrowserBase()
 {
 	ListBrowserBase = SafeOpenLibrary("Gadgets/listbrowser.gadget");
 }
 
-void __close_ListBrowserBase()
+void CloseListBrowserBase()
 {
 	CloseLibrary(ListBrowserBase);
 }

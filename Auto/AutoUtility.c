@@ -4,15 +4,15 @@
 
 struct Library *UtilityBase;
 
-void __open_UtilityBase() __attribute__((constructor));
-void __close_UtilityBase() __attribute__((destructor));
+void OpenUtilityBase() __attribute__((constructor));
+void CloseUtilityBase() __attribute__((destructor));
 
-void __open_UtilityBase()
+void OpenUtilityBase()
 {
 	UtilityBase = SafeOpenLibrary("utility.library");
 }
 
-void __close_UtilityBase()
+void CloseUtilityBase()
 {
 	CloseLibrary(UtilityBase);
 }

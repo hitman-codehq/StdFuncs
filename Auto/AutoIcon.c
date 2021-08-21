@@ -4,15 +4,15 @@
 
 struct Library *IconBase;
 
-void __open_IconBase() __attribute__((constructor));
-void __close_IconBase() __attribute__((destructor));
+void OpenIconBase() __attribute__((constructor));
+void CloseIconBase() __attribute__((destructor));
 
-void __open_IconBase()
+void OpenIconBase()
 {
 	IconBase = SafeOpenLibrary("icon.library");
 }
 
-void __close_IconBase()
+void CloseIconBase()
 {
 	CloseLibrary(IconBase);
 }

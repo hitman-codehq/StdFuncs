@@ -4,15 +4,15 @@
 
 struct Library *BitMapBase;
 
-void __open_BitMapBase() __attribute__((constructor));
-void __close_BitMapBase() __attribute__((destructor));
+void OpenBitMapBase() __attribute__((constructor));
+void CloseBitMapBase() __attribute__((destructor));
 
-void __open_BitMapBase()
+void OpenBitMapBase()
 {
 	BitMapBase = SafeOpenLibrary("Images/bitmap.image");
 }
 
-void __close_BitMapBase()
+void CloseBitMapBase()
 {
 	CloseLibrary(BitMapBase);
 }

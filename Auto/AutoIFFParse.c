@@ -4,15 +4,15 @@
 
 struct Library *IFFParseBase;
 
-void __open_IFFParseBase() __attribute__((constructor));
-void __close_IFFParseBase() __attribute__((destructor));
+void OpenIFFParseBase() __attribute__((constructor));
+void CloseIFFParseBase() __attribute__((destructor));
 
-void __open_IFFParseBase()
+void OpenIFFParseBase()
 {
 	IFFParseBase = SafeOpenLibrary("iffparse.library");
 }
 
-void __close_IFFParseBase()
+void CloseIFFParseBase()
 {
 	CloseLibrary(IFFParseBase);
 }

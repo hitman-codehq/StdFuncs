@@ -4,15 +4,15 @@
 
 struct Library *GfxBase;
 
-void __open_GfxBase() __attribute__((constructor));
-void __close_GfxBase() __attribute__((destructor));
+void OpenGfxBase() __attribute__((constructor));
+void CloseGfxBase() __attribute__((destructor));
 
-void __open_GfxBase()
+void OpenGfxBase()
 {
 	GfxBase = SafeOpenLibrary("graphics.library");
 }
 
-void __close_GfxBase()
+void CloseGfxBase()
 {
 	CloseLibrary(GfxBase);
 }

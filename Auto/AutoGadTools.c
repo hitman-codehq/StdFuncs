@@ -4,15 +4,15 @@
 
 struct Library *GadToolsBase;
 
-void __open_GadToolsBase() __attribute__((constructor));
-void __close_GadToolsBase() __attribute__((destructor));
+void OpenGadToolsBase() __attribute__((constructor));
+void CloseGadToolsBase() __attribute__((destructor));
 
-void __open_GadToolsBase()
+void OpenGadToolsBase()
 {
 	GadToolsBase = SafeOpenLibrary("gadtools.library");
 }
 
-void __close_GadToolsBase()
+void CloseGadToolsBase()
 {
 	CloseLibrary(GadToolsBase);
 }

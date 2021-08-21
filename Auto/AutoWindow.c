@@ -4,16 +4,15 @@
 
 struct Library *WindowBase;
 
-// TODO: CAW - Rename these
-void __open_WindowBase() __attribute__((constructor));
-void __close_WindowBase() __attribute__((destructor));
+void OpenWindowBase() __attribute__((constructor));
+void CloseWindowBase() __attribute__((destructor));
 
-void __open_WindowBase()
+void OpenWindowBase()
 {
 	WindowBase = SafeOpenLibrary("window.class");
 }
 
-void __close_WindowBase()
+void CloseWindowBase()
 {
 	CloseLibrary(WindowBase);
 }

@@ -4,15 +4,15 @@
 
 struct Library *IntuitionBase;
 
-void __open_IntuitionBase() __attribute__((constructor));
-void __close_IntuitionBase() __attribute__((destructor));
+void OpenIntuitionBase() __attribute__((constructor));
+void CloseIntuitionBase() __attribute__((destructor));
 
-void __open_IntuitionBase()
+void OpenIntuitionBase()
 {
 	IntuitionBase = SafeOpenLibrary("intuition.library");
 }
 
-void __close_IntuitionBase()
+void CloseIntuitionBase()
 {
 	CloseLibrary(IntuitionBase);
 }
