@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *IFFParseBase;
 
@@ -10,7 +9,7 @@ void __close_IFFParseBase() __attribute__((destructor));
 
 void __open_IFFParseBase()
 {
-	IFFParseBase = OpenLibrary("iffparse.library", MINIMUM_VERSION);
+	IFFParseBase = SafeOpenLibrary("iffparse.library");
 }
 
 void __close_IFFParseBase()

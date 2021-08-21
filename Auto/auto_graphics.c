@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *GfxBase;
 
@@ -10,7 +9,7 @@ void __close_GfxBase() __attribute__((destructor));
 
 void __open_GfxBase()
 {
-	GfxBase = OpenLibrary("graphics.library", MINIMUM_VERSION);
+	GfxBase = SafeOpenLibrary("graphics.library");
 }
 
 void __close_GfxBase()

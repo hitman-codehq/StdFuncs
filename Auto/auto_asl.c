@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *AslBase;
 
@@ -10,7 +9,7 @@ void __close_AslBase() __attribute__((destructor));
 
 void __open_AslBase()
 {
-	AslBase = OpenLibrary("asl.library", MINIMUM_VERSION);
+	AslBase = SafeOpenLibrary("asl.library");
 }
 
 void __close_AslBase()

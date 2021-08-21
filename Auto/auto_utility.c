@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *UtilityBase;
 
@@ -10,7 +9,7 @@ void __close_UtilityBase() __attribute__((destructor));
 
 void __open_UtilityBase()
 {
-	UtilityBase = OpenLibrary("utility.library", MINIMUM_VERSION);
+	UtilityBase = SafeOpenLibrary("utility.library");
 }
 
 void __close_UtilityBase()

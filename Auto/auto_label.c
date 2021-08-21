@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *LabelBase;
 
@@ -10,7 +9,7 @@ void __close_LabelBase() __attribute__((destructor));
 
 void __open_LabelBase()
 {
-	LabelBase = OpenLibrary("Images/label.image", MINIMUM_VERSION);
+	LabelBase = SafeOpenLibrary("Images/label.image");
 }
 
 void __close_LabelBase()

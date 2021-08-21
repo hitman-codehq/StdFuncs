@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *LayoutBase;
 
@@ -10,7 +9,7 @@ void __close_LayoutBase() __attribute__((destructor));
 
 void __open_LayoutBase()
 {
-	LayoutBase = OpenLibrary("Gadgets/layout.gadget", MINIMUM_VERSION);
+	LayoutBase = SafeOpenLibrary("Gadgets/layout.gadget");
 }
 
 void __close_LayoutBase()

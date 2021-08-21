@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *BitMapBase;
 
@@ -10,7 +9,7 @@ void __close_BitMapBase() __attribute__((destructor));
 
 void __open_BitMapBase()
 {
-	BitMapBase = OpenLibrary("Images/bitmap.image", MINIMUM_VERSION);
+	BitMapBase = SafeOpenLibrary("Images/bitmap.image");
 }
 
 void __close_BitMapBase()

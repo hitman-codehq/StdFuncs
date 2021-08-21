@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *DataTypesBase;
 
@@ -10,7 +9,7 @@ void __close_DataTypesBase() __attribute__((destructor));
 
 void __open_DataTypesBase()
 {
-	DataTypesBase = OpenLibrary("datatypes.library", MINIMUM_VERSION);
+	DataTypesBase = SafeOpenLibrary("datatypes.library");
 }
 
 void __close_DataTypesBase()

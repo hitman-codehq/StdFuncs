@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *KeymapBase;
 
@@ -10,7 +9,7 @@ void __close_KeymapBase() __attribute__((destructor));
 
 void __open_KeymapBase()
 {
-	KeymapBase = OpenLibrary("keymap.library", MINIMUM_VERSION);
+	KeymapBase = SafeOpenLibrary("keymap.library");
 }
 
 void __close_KeymapBase()

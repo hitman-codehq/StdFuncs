@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *ListBrowserBase;
 
@@ -10,7 +9,7 @@ void __close_ListBrowserBase() __attribute__((destructor));
 
 void __open_ListBrowserBase()
 {
-	ListBrowserBase = OpenLibrary("Gadgets/listbrowser.gadget", MINIMUM_VERSION);
+	ListBrowserBase = SafeOpenLibrary("Gadgets/listbrowser.gadget");
 }
 
 void __close_ListBrowserBase()

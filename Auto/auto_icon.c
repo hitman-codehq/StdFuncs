@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *IconBase;
 
@@ -10,7 +9,7 @@ void __close_IconBase() __attribute__((destructor));
 
 void __open_IconBase()
 {
-	IconBase = OpenLibrary("icon.library", MINIMUM_VERSION);
+	IconBase = SafeOpenLibrary("icon.library");
 }
 
 void __close_IconBase()

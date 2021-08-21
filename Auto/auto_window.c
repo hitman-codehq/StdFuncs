@@ -1,8 +1,6 @@
 
 #include <proto/exec.h>
-
-// TODO: CAW - Define this somewhere else or in a variable
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *WindowBase;
 
@@ -12,8 +10,7 @@ void __close_WindowBase() __attribute__((destructor));
 
 void __open_WindowBase()
 {
-	WindowBase = OpenLibrary("window.class", MINIMUM_VERSION);
-	// TODO: CAW - Automatic message if this fails
+	WindowBase = SafeOpenLibrary("window.class");
 }
 
 void __close_WindowBase()

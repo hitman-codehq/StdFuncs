@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *StringBase;
 
@@ -10,7 +9,7 @@ void __close_StringBase() __attribute__((destructor));
 
 void __open_StringBase()
 {
-	StringBase = OpenLibrary("Gadgets/string.gadget", MINIMUM_VERSION);
+	StringBase = SafeOpenLibrary("Gadgets/string.gadget");
 }
 
 void __close_StringBase()

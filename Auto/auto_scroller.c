@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *ScrollerBase;
 
@@ -10,7 +9,7 @@ void __close_ScrollerBase() __attribute__((destructor));
 
 void __open_ScrollerBase()
 {
-	ScrollerBase = OpenLibrary("Gadgets/scroller.gadget", MINIMUM_VERSION);
+	ScrollerBase = SafeOpenLibrary("Gadgets/scroller.gadget");
 }
 
 void __close_ScrollerBase()

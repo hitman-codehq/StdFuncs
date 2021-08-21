@@ -1,7 +1,6 @@
 
 #include <proto/exec.h>
-
-#define MINIMUM_VERSION 40
+#include "SafeOpenLibrary.h"
 
 struct Library *CheckBoxBase;
 
@@ -10,7 +9,7 @@ void __close_CheckBoxBase() __attribute__((destructor));
 
 void __open_CheckBoxBase()
 {
-	CheckBoxBase = OpenLibrary("Gadgets/checkbox.gadget", MINIMUM_VERSION);
+	CheckBoxBase = SafeOpenLibrary("Gadgets/checkbox.gadget");
 }
 
 void __close_CheckBoxBase()
