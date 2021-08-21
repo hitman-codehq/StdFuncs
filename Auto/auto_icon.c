@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *IconBase;
+struct Library *IconBase;
 
 void __open_IconBase() __attribute__((constructor));
 void __close_IconBase() __attribute__((destructor));

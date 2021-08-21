@@ -4,7 +4,7 @@
 // TODO: CAW - Define this somewhere else or in a variable
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *WindowBase;
+struct Library *WindowBase;
 
 // TODO: CAW - Rename these
 void __open_WindowBase() __attribute__((constructor));

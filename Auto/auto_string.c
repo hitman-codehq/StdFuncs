@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *StringBase;
+struct Library *StringBase;
 
 void __open_StringBase() __attribute__((constructor));
 void __close_StringBase() __attribute__((destructor));

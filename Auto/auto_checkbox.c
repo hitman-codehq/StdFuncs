@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *CheckBoxBase;
+struct Library *CheckBoxBase;
 
 void __open_CheckBoxBase() __attribute__((constructor));
 void __close_CheckBoxBase() __attribute__((destructor));

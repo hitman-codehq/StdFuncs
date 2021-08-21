@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *LabelBase;
+struct Library *LabelBase;
 
 void __open_LabelBase() __attribute__((constructor));
 void __close_LabelBase() __attribute__((destructor));

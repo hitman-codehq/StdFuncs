@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *KeymapBase;
+struct Library *KeymapBase;
 
 void __open_KeymapBase() __attribute__((constructor));
 void __close_KeymapBase() __attribute__((destructor));

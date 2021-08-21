@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *DataTypesBase;
+struct Library *DataTypesBase;
 
 void __open_DataTypesBase() __attribute__((constructor));
 void __close_DataTypesBase() __attribute__((destructor));

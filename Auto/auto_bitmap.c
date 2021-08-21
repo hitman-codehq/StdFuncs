@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *BitMapBase;
+struct Library *BitMapBase;
 
 void __open_BitMapBase() __attribute__((constructor));
 void __close_BitMapBase() __attribute__((destructor));

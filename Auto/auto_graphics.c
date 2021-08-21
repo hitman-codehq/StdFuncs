@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *GfxBase;
+struct Library *GfxBase;
 
 void __open_GfxBase() __attribute__((constructor));
 void __close_GfxBase() __attribute__((destructor));

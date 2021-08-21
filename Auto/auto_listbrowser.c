@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *ListBrowserBase;
+struct Library *ListBrowserBase;
 
 void __open_ListBrowserBase() __attribute__((constructor));
 void __close_ListBrowserBase() __attribute__((destructor));

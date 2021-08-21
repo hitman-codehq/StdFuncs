@@ -3,7 +3,7 @@
 
 #define MINIMUM_VERSION 40
 
-__attribute__((weak)) struct Library *ScrollerBase;
+struct Library *ScrollerBase;
 
 void __open_ScrollerBase() __attribute__((constructor));
 void __close_ScrollerBase() __attribute__((destructor));
