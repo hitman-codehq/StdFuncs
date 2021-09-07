@@ -96,7 +96,18 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 		{
 			if (String.length() == 0)
 			{
-				String.append((char) (NativeKey | 0x20));
+				/* On Mac OS, handling of the '~' key requires special handling, so do it here and */
+				/* send it to the client as a "normal" key so the client doesn't need to worry */
+				/* about it */
+
+				if (CWindow::AltPressed() && NativeKey == 'N')
+				{
+					String.append("~");
+				}
+				else
+				{
+					String.append((char) (NativeKey | 0x20));
+				}
 			}
 		}
 
