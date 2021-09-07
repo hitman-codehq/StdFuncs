@@ -1738,7 +1738,7 @@ void Utils::FreeTempBuffer(void *a_pvBuffer)
  * Displays an information or warning message.
  * Displays a printf() style formatted message.  The message is displayed in an OS specific manner.
  * On most systems, this means that it will be output to the debug console and will thus only be
- * viewable with a debugging tool, which is quite often the development IDE itself.  On MacOS it
+ * viewable with a debugging tool, which is quite often the development IDE itself.  On Mac OS it
  * is output to stdout.  The message is only displayed if the code is compiled in debug mode, and
  * thus this function should only be used for displaying informational messages.
  *
@@ -1769,7 +1769,7 @@ void Utils::info(const char *a_pccMessage, ...)
 
 #ifdef __APPLE__
 
-	/* On MacOS syslog output is difficult to find and doesn't get picked up by the output */
+	/* On Mac OS syslog output is difficult to find and doesn't get picked up by the output */
 	/* window of IDEs such as Qt Creator, so we'll output the messages to stdout as well. */
 	/* The call to fflush() is to ensure that it is still printed in the event of a crash */
 
