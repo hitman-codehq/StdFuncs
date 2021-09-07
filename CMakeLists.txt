@@ -5,7 +5,7 @@ project(StdFuncs)
 
 if(MSVC)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS)
-	add_compile_options(/EHa-)
+	add_compile_options(/EHsc /W4)
 else()
 	add_compile_options(-fno-asynchronous-unwind-tables -fno-exceptions -Wall -Wextra)
 endif()
