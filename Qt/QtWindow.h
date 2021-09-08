@@ -9,7 +9,7 @@ class CWindow;
 /**
  * Qt helper class that represents the main window of an application.
  * This custom class is required to intercept certain required Qt messages such as paint
- * events etc. so that we can pass them onto our framework
+ * events etc. so that we can pass them onto the framework.
  */
 
 class CQtWindow : public QMainWindow
