@@ -267,8 +267,32 @@ void CQtWindow::closeEvent(QCloseEvent *a_poCloseEvent)
 }
 
 /**
+ * Qt helper function to detect when events of interest occur.
+ * This method listens for events such as window resizing and passes them onto The Framework
+ * for processing.
+ *
+ * @date	Saturday 21-Aug-2021 10:02 am, Code HQ Bergmannstrasse
+ * @param	a_poObject		The object on which the event occurred
+ * @param	a_poEvent		The event that triggered the filter callback
+ * @return	false to continue propagating the event
+ */
+
+bool CQtWindow::eventFilter(QObject *a_poObject, QEvent *a_poEvent)
+{
+	(void) a_poObject;
+
+	if (a_poEvent->type() == QEvent::LayoutRequest)
+	{
+		QSize Size = centralWidget()->size();
+		m_poWindow->InternalResize(Size.width(), Size.height());
+	}
+
+	return(false);
+}
+
+/**
  * Qt helper function to detect when a window gains focus.
- * This function is called when the Qt framework detect that the window has gained focus
+ * This function is called when the Qt framework detects that the window has gained focus
  * and will simply pass the event onto The Framework.
  *
  * @date	Tuesday 05-Oct-2013 7:44 am
@@ -285,7 +309,7 @@ void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
 
 /**
  * Qt helper function to detect when a window gains focus.
- * This function is called when the Qt framework detect that the window has gained focus
+ * This function is called when the Qt framework detects that the window has gained focus
  * and will simply pass the event onto The Framework.
  *
  * @date	Tuesday 05-Oct-2013 7:42 am
