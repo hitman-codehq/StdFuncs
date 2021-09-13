@@ -9,6 +9,7 @@
 #elif defined(QT_GUI_LIB)
 
 #include "Qt/QtGadgetSlider.h"
+#include "Qt/QtGadgetTree.h"
 
 #endif /* QT_GUI_LIB */
 
@@ -30,7 +31,8 @@ enum TStdGadgetType
 	EStdGadgetHorizontalLayout,	/* Horizontal dynamic layout gadget */
 	EStdGadgetVerticalSlider,	/* Vertical scroller */
 	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
-	EStdGadgetStatusBar			/* Status bar */
+	EStdGadgetStatusBar,		/* Status bar */
+	EStdGadgetTree				/* Tree gadget */
 };
 
 /* The abstract base class used for all gadgets */
@@ -138,7 +140,7 @@ private:
 private:
 
 	CStdGadgetLayout(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
-		MStdGadgetLayoutObserver *a_poClient) : CStdGadget()
+		MStdGadgetLayoutObserver *a_poClient)
 	{
 		m_poParentWindow = a_poParentWindow;
 		m_poParentLayout = a_poParentLayout;
@@ -208,7 +210,7 @@ private:
 
 #ifdef QT_GUI_LIB
 
-	bool		m_bSettingValue;				/**< true if the slider's value is being changed */
+	bool			m_bSettingValue;			/**< true if the slider's value is being changed */
 	CQtGadgetSlider	m_oSlider;					/**< Helper class for listening for signals */
 
 #endif /* QT_GUI_LIB */
@@ -311,6 +313,72 @@ public:
 	const char *GetText(TInt a_iPart);
 
 	void SetText(TInt a_iPart, const char *a_pccText);
+};
+
+/* A class representing a node in a tree gadget */
+
+class CTreeNode
+{
+public:
+
+	StdListNode<CTreeNode>	m_oStdListNode;		/**< Standard list node */
+	std::string				m_text;				/**< Text to display in the tree gadget */
+
+public:
+
+	CTreeNode(const char *a_text) : m_text(a_text) { };
+};
+
+/* A class representing an expandable and collapsible tree gadget */
+
+class CStdGadgetTree : public CStdGadget
+{
+private:
+
+#ifdef __amigaos__
+
+	List			m_fileList;				/**< List of items in the tree */
+
+#elif defined(QT_GUI_LIB)
+
+	CQtTreeWidget	m_tree;					/**< Helper class for listening for signals */
+
+#endif /* QT_GUI_LIB */
+
+protected:
+
+#ifdef QT_GUI_LIB
+
+	CStdGadgetTree(CWindow *a_parentWindow, CStdGadgetLayout *a_parentLayout, int a_gadgetID)
+		: m_tree(this)
+
+#else /* ! QT_GUI_LIB */
+
+	CStdGadgetTree(CWindow *a_parentWindow, CStdGadgetLayout *a_parentLayout, int a_gadgetID)
+
+#endif /* ! QT_GUI_LIB */
+
+	{
+		m_poParentWindow = a_parentWindow;
+		m_poParentLayout = a_parentLayout;
+		m_iGadgetType = EStdGadgetTree;
+		m_iGadgetID = a_gadgetID;
+
+#ifdef __amigaos__
+
+		NewList(&m_fileList);
+
+#endif /* __amigaos__ */
+
+	}
+
+	int construct();
+
+public:
+
+	std::string getSelectedItem();
+
+	void setContent(StdList<CTreeNode> &a_items);
 };
 
 /* Mixin class for the slider or proportional gadget to be able to notify its client */
