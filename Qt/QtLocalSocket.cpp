@@ -153,41 +153,39 @@ int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplicatio
 
 	if ((m_poLocalServer = new QLocalServer(a_poApplication->Application())) != NULL)
 	{
-		/* Try to listen for a connection on the given socket.  If this succeeds then we are the */
-		/* server.  If it fails then there is already a server listening and we are the client */
+		/* Connect to the server.  It is safe to use an infinite wait time as the server is local */
+		/* and the connection is unlikely to fail */
 
+		m_oLocalSocket.connectToServer(a_pccName);
+
+		if (m_oLocalSocket.waitForConnected(-1))
 		{
-			/* And connect to the server.  It is safe to use an infinite wait time as the server is local */
-			/* and the connection is unlikely to fail */
+			RetVal = KErrNone;
+		}
+		else
+		{
+			/* If the connection failed then it is likely that the program using the local socket did */
+			/* not shut down cleanly, so delete the local socket now so that a later attempt to */
+			/* connect will work */
 
-			m_oLocalSocket.connectToServer(a_pccName);
+			QLocalServer::removeServer(a_pccName);
 
-			if (m_oLocalSocket.waitForConnected(-1))
+			/* Try to listen for a connection on the given socket.  If this succeeds then we are the */
+			/* server.  If it fails then there is already a server listening and we are the client */
+
+			if (m_poLocalServer->listen(a_pccName))
 			{
 				RetVal = KErrNone;
+				m_bIsServer = true;
+
+				connect(m_poLocalServer, SIGNAL(newConnection()), this, SLOT(Connected()));
 			}
 			else
 			{
-				/* If the connection failed then it is likely that the program using the local socket did */
-				/* not shut down cleanly, so delete the local socket now so that a later attempt to */
-				/* connect will work */
+				/* Free the unneeded local server */
 
-				QLocalServer::removeServer(a_pccName);
-
-				if (m_poLocalServer->listen(a_pccName))
-				{
-					RetVal = KErrNone;
-					m_bIsServer = true;
-
-					connect(m_poLocalServer, SIGNAL(newConnection()), this, SLOT(Connected()));
-				}
-				else
-				{
-					/* Free the unneeded local server */
-
-					delete m_poLocalServer;
-					m_poLocalServer = NULL;
-				}
+				delete m_poLocalServer;
+				m_poLocalServer = NULL;
 			}
 		}
 	}
