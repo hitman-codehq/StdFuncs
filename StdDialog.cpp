@@ -248,7 +248,7 @@ void CDialog::close()
 		/* it performs a redraw of the main window, resulting in an invisible cursor, so we have */
 		/* to manually re-enable display of the cursor when closing */
 
-		CWindow::RootWindow()->m_bIsActive = ETrue;
+		CWindow::GetRootWindow()->m_bIsActive = ETrue;
 	}
 
 #elif defined(WIN32)
