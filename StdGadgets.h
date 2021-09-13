@@ -64,6 +64,10 @@ protected:
 
 #endif /* WIN32 */
 
+public:
+
+	StdListNode<CStdGadget>	m_oStdListNode;		/**< Standard list node */
+
 private:
 
 	void SetPosition(TInt a_iX, TInt a_iY);
@@ -74,11 +78,11 @@ protected:
 
 public:
 
-	StdListNode<CStdGadget>	m_oStdListNode;		/**< Standard list node */
-
 	virtual ~CStdGadget();
 
-	TInt GadgetID()
+	/* Getters and setters */
+
+	TInt GetGadgetID()
 	{
 		return(m_iGadgetID);
 	}
