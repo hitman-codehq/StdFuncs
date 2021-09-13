@@ -2048,7 +2048,7 @@ TInt Utils::MessageBox(enum TMessageBoxType a_eMessageBoxType, const char *a_pcc
 	/* See if a root window has been set by the application and if so, open the message box on */
 	/* that window.  Otherwise just open it on the desktop or Workbench */
 
-	RootWindow = CWindow::RootWindow();
+	RootWindow = CWindow::GetRootWindow();
 
 #endif /* !defined(__unix__) || defined(QT_GUI_LIB) */
 

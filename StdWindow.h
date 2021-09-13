@@ -198,6 +198,18 @@ public:
 
 	virtual ~CWindow();
 
+	/* Getters and setters */
+
+	static CWindow *GetRootWindow()
+	{
+		return(g_poRootWindow);
+	}
+
+	void SetRootWindow()
+	{
+		g_poRootWindow = this;
+	}
+
 	TInt open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_bResizeable);
 
 	virtual void close();
@@ -246,17 +258,7 @@ public:
 		return(m_iInnerHeight);
 	}
 
-	void MakeRootWindow()
-	{
-		g_poRootWindow = this;
-	}
-
 	TBool MenuItemChecked(TInt a_iItemID);
-
-	static CWindow *RootWindow()
-	{
-		return(g_poRootWindow);
-	}
 
 	void remove(CStdGadgetLayout *a_poLayoutGadget);
 

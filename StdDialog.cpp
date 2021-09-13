@@ -50,7 +50,7 @@ static INT_PTR CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 
 			/* Determine the size of the screen and centre the dialog in the middle of it */
 
-			Utils::GetScreenSize(ScreenSize, g_poRootWindow);
+			Utils::GetScreenSize(ScreenSize, CWindow::GetRootWindow());
 			GetWindowRect(a_poWindow, &Size);
 			WindowWidth = (Size.right - Size.left);
 			WindowHeight = (Size.bottom - Size.top);
@@ -186,7 +186,7 @@ TInt CDialog::DoOpen(TInt a_iResourceID)
 		/* See if a root window has been set by the application and if so, open the dialog on that */
 		/* window.  Otherwise just open it on the desktop */
 
-		RootWindow = CWindow::RootWindow();
+		RootWindow = CWindow::GetRootWindow();
 		Window = (RootWindow) ? RootWindow->m_poWindow : NULL;
 
 		/* Open the dialog specified by the ID passed in */

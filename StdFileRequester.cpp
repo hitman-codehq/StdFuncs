@@ -140,7 +140,7 @@ TInt RFileRequester::GetFileName(const char *a_pccFileName, TBool a_bSaveAs)
 
 	/* Get the root window on which to open the requester */
 
-	RootWindow = CWindow::RootWindow();
+	RootWindow = CWindow::GetRootWindow();
 
 #ifdef __amigaos__
 
