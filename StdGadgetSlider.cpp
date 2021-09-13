@@ -68,7 +68,7 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Create the underlying Qt widget */
 
-	if ((m_poGadget = ScrollBar = new QScrollBar(Orientation, m_poParentWindow->m_poCentralWidget)) != NULL)
+	if ((m_poGadget = ScrollBar = new QScrollBar(Orientation)) != NULL)
 	{
 		/* And connect the valueChanged() signal to it so that we know when the slider is moved */
 
@@ -79,13 +79,14 @@ TInt CStdGadgetSlider::Construct()
 
 		if (m_iGadgetType == EStdGadgetVerticalSlider)
 		{
-			m_iWidth = m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-			m_iHeight = m_poParentLayout->Height();
+			// TODO: CAW (multi) - What to do about hard coded values, here and below
+			m_iWidth = 20; //m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+			m_iHeight = 500; //m_poParentLayout->Height();
 		}
 		else
 		{
 			m_iWidth = m_poParentLayout->Width();
-			m_iHeight = m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+			m_iHeight = 20; //m_poParentWindow->Application()->Application()->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
 		}
 	}
 
@@ -118,15 +119,11 @@ TInt CStdGadgetSlider::Construct()
 
 #endif /* ! QT_GUI_LIB */
 
+	/* Attach the gadget to the parent window, if it was created successfully */
+
 	if (m_poGadget)
 	{
-		/* And attach it to the parent window */
-
 		m_poParentLayout->Attach(this);
-	}
-	else
-	{
-		Utils::info("CStdGadgetSlider::Construct() => Unable to create scrollbar");
 	}
 
 	return((m_poGadget) ? KErrNone : KErrNoMemory);
@@ -139,6 +136,15 @@ CStdGadgetSlider::~CStdGadgetSlider()
 	/* This gadget is now invalid, so ensure that no client status updates are called */
 
 	m_poClient = NULL;
+
+#ifdef QT_GUI_LIB
+
+	if (m_poGadget)
+	{
+		delete m_poGadget;
+	}
+
+#endif
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -342,8 +348,12 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #ifdef __amigaos__
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
+	// TODO: CAW - Using GetRootWindow() is a temporary workaround + use assert if this is really necessary
+	if (CWindow::GetRootWindow())
+	{
+		SetGadgetAttrs((struct Gadget *) m_poGadget, CWindow::GetRootWindow()->m_poWindow /*m_poParentWindow->m_poWindow*/, NULL,
+			SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
+	}
 
 #elif defined(QT_GUI_LIB)
 
@@ -409,7 +419,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 #ifdef __amigaos__
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

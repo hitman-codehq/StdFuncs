@@ -42,7 +42,7 @@ int CStdGadgetTree::construct()
 		LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
 		TAG_DONE)) != NULL)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, NULL, NULL,
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->GetGadget(), NULL, NULL,
 			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedWidth, 25, TAG_DONE);
 	}
 	else

@@ -92,7 +92,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 				{
 					/* Add the string gadget to the horizontal layout group, with the desired weighting */
 
-					SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LAYOUT_AddChild,
+					SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LAYOUT_AddChild,
 						(ULONG) m_poPartsGadgets[Index], CHILD_WeightedWidth, (ULONG) a_piPartsOffsets[Index], TAG_DONE);
 				}
 				else
@@ -145,7 +145,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	QStatusBar *StatusBar;
 
-	if ((StatusBar = new QStatusBar(m_poParentWindow->m_poWindow)) != NULL)
+	if ((StatusBar = new QStatusBar()) != NULL)
 	{
 		/* Create a style sheet and assign it to the status bar, to ensure that it looks */
 		/* half decent and is actually usable.  Without this it is almost invisible! */
@@ -172,7 +172,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
-				m_poPartsGadgets[Index] = new QLabel(m_poParentWindow->m_poWindow);
+				m_poPartsGadgets[Index] = new QLabel();
 
 				if (m_poPartsGadgets[Index])
 				{
@@ -197,7 +197,8 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 				m_poGadget = StatusBar;
 				m_iNumParts = a_iNumParts;
-				m_iHeight = StatusBar->height();
+				// TODO: CAW (multi)
+				m_iHeight = 30;//StatusBar->height();
 			}
 
 			/* Otherwise destroy whatever labels were created.  The labels belong to the */
@@ -344,6 +345,7 @@ CStdGadgetStatusBar::~CStdGadgetStatusBar()
 	}
 
 	delete [] m_poPartsGadgets;
+	delete m_poGadget;
 
 #else /* ! QT_GUI_LIB */
 
@@ -490,7 +492,7 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 
 		if (Length < MAX_CHARS)
 		{
-			SetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+			SetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], NULL,
 				NULL, STRINGA_TextVal, a_pccText, TAG_DONE);
 		}
 
