@@ -25,10 +25,7 @@ private:
 
 public:
 
-	CQtGadgetSlider(CStdGadgetSlider *a_poParentSlider) : m_poParentSlider(a_poParentSlider)
-	{
-		m_poParentSlider = a_poParentSlider;
-	}
+	CQtGadgetSlider(CStdGadgetSlider *a_poParentSlider) : m_poParentSlider(a_poParentSlider) { }
 
 public slots:
 
