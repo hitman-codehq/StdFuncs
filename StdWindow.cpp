@@ -105,26 +105,21 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 
 		if ((TagItem = FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
+			// TODO: CAW (multi) - Comment is outdated and we are not sure about the name anyway
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Reaction slider that was just moved */
 
-			if ((LayoutGadget = Window->m_oGadgets.getHead()) != NULL)
+			if ((LayoutGadget = Window->m_poRootLayout) != NULL)
 			{
-				do
-				{
-					if ((Gadget = LayoutGadget->FindNativeGadget((void *) TagItem->ti_Data)) != NULL)
-					{
-						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
-						/* client of the update */
-
-						Gadget->Updated();
-
-						break;
-					}
-				}
-				while ((LayoutGadget = Window->m_oGadgets.getSucc(LayoutGadget)) != NULL);
+				LayoutGadget->UpdateGadgets((void *) TagItem->ti_Data);
 			}
 		}
+
+		// TODO: CAW (multi) - This isn't required and horizontal scrolling is crashing
+		/*if (Window->m_voDirtyRegions.size() > 0)
+		{
+			Window->InternalRedraw();
+		}*/
 	}
 
 	return(DOSTRUE);
@@ -1131,28 +1126,37 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
-	/* Add the new layout gadget to the window's list of gadgets */
+	/* Add the new layout gadget to the window's list of layouts */
 
-	m_oGadgets.addTail(a_poLayoutGadget);
+	m_oLayoutGadgets.addTail(a_poLayoutGadget);
 
 #ifdef __amigaos__
 
 	/* Add the new BOOPSI gadget to the window's root layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poRootLayout, m_poWindow, NULL,
-		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
-	{
-		/* Let the layout gadget know its new width and then calcuate its new height */
+	Object LayoutObj = 0;
 
-		a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-		rethinkLayout();
+	// TODO: CAW (multi) - This could be improved
+	GetAttr(WINDOW_Layout, m_poWindowObj, (ULONG *) &LayoutObj);
+
+	if (LayoutObj)
+	{
+		if (SetGadgetAttrs((struct Gadget *) LayoutObj /*m_poRootLayout->m_poGadget*/, m_poWindow, NULL,
+			LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
+		{
+			/* Let the layout gadget know its new width and then calcuate its new height */
+
+			a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+			rethinkLayout();
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
 
 	/* Add the new Qt layout to the window's root layout */
 
-	m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, 0);
+	// TODO: CAW (multi)
+	//m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, 0);
 
 	/* Let the layout know its new width and then calcuate its new height */
 
@@ -1648,6 +1652,17 @@ void CWindow::close()
 {
 	CStdGadget *LayoutGadget;
 
+	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
+	/* from the gadget list automatically.  Some GUIs will automatically destruct attached layouts */
+	/* and gadgets when the window is closed, and some don't.  So to cater for both systems, this */
+	/* loop will manually dispose of all class instances and the associated native widgets, so */
+	/* avoiding problems when closing the window */
+
+	while ((LayoutGadget = m_oLayoutGadgets.getHead()) != NULL)
+	{
+		delete LayoutGadget;
+	}
+
 #ifdef __amigaos__
 
 	/* Destroy the window's menus and associated resources */
@@ -1721,14 +1736,6 @@ void CWindow::close()
 	}
 
 #endif /* ! QT_GUI_LIB */
-
-	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
-	/* from the gadget list automatically */
-
-	while ((LayoutGadget = m_oGadgets.getHead()) != NULL)
-	{
-		delete LayoutGadget;
-	}
 
 	/* And remove the window from the application's list of windows, but only */
 	/* if it was added */
@@ -2504,7 +2511,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	/* IDCMP bits to be used for the window.  Assign these to a variabe so they can be tweaked for OS4 */
 
 	ULONG HookBits = IDCMP_IDCMPUPDATE;
-	ULONG IDCMP = (IDCMP_CLOSEWINDOW |  IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE |
+	ULONG IDCMP = (IDCMP_CLOSEWINDOW | IDCMP_IDCMPUPDATE | IDCMP_MENUPICK | IDCMP_MOUSEBUTTONS | IDCMP_MOUSEMOVE |
 				   IDCMP_RAWKEY | IDCMP_REFRESHWINDOW | IDCMP_NEWSIZE);
 
 #ifdef __amigaos4__
@@ -2524,7 +2531,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 		WA_CloseGadget, TRUE, WA_DepthGadget, TRUE, WA_DragBar, TRUE, WA_ReportMouse, TRUE, WA_SizeGadget, a_bResizeable,
 		WINDOW_IDCMPHook, (ULONG) &m_oIDCMPHook, WINDOW_IDCMPHookBits, HookBits, WA_IDCMP, IDCMP,
 
-		WINDOW_Layout, m_poRootLayout = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, LAYOUT_VERTICAL,
+		WINDOW_Layout, NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, LAYOUT_VERTICAL,
 			/* This is an empty group into which can be placed BOOPSI objects */
 		TAG_DONE),
 	TAG_DONE);
@@ -2538,29 +2545,32 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			GetAttr(WINDOW_Window, m_poWindowObj, (ULONG *) &m_poWindow);
 
-			/* And create the menus specific to this window */
+			/* Calculate the inner width and height of the window, for l8r use */
 
-			if (createMenus())
+			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
+			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+
+			if ((m_poRootLayout = CStdGadgetLayout::New(this, NULL, ETrue)) != NULL)
 			{
-				/* Indicate success */
+				/* And create the menus specific to this window */
 
-				RetVal = KErrNone;
+				if (createMenus())
+				{
+					/* Indicate success */
 
-				/* Calculate the inner width and height of the window, for l8r use */
+					RetVal = KErrNone;
 
-				m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
-				m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
+					/* And now bring the window's screen to the front, so that if an instance of the client */
+					/* application is already running on the screen, it will come to the front.  Without this, */
+					/* the screen would only come to the front when the first instance of the application was */
+					/* launched */
 
-				/* And now bring the window's screen to the front, so that if an instance of the client */
-				/* application is already running on the screen, it will come to the front.  Without this, */
-				/* the screen would only come to the front when the first instance of the application was */
-				/* launched */
-
-				ScreenToFront(m_poWindow->WScreen);
-			}
-			else
-			{
-				Utils::info("CWindow::open() => Unable to create menus for window");
+					ScreenToFront(m_poWindow->WScreen);
+				}
+				else
+				{
+					Utils::info("CWindow::open() => Unable to create menus for window");
+				}
 			}
 		}
 		else
@@ -2598,28 +2608,31 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	if ((m_poWindow = new CQtWindow(this, DesktopSize)) != NULL)
 	{
+		/* Install an event filter so that we receive notifications about events such as window resizing */
+
+		m_poWindow->installEventFilter(m_poWindow);
+
 		/* We also need a QWidget based class to use as the so-called "central widget" */
 
 		if ((m_poCentralWidget = new CQtCentralWidget(this)) != NULL)
 		{
+			/* Assign the widget as the main window's central widget */
+
+			m_poWindow->setCentralWidget(m_poCentralWidget);
+
 			/* Inside this we need a grid layout, to enable us to layout the window's contents */
 			/* how we want them */
 
-			if ((m_poRootLayout = new QVBoxLayout(m_poCentralWidget)) != NULL)
+			QSize Size = m_poCentralWidget->size();
+			m_iInnerWidth = Size.width();
+			m_iInnerHeight = Size.height();
+
+			if ((m_poRootLayout = CStdGadgetLayout::New(this, NULL, ETrue)) != NULL)
 			{
-				/* Ensure that there is no spacing around the layout widget or between its children */
-
-				m_poRootLayout->setContentsMargins(0, 0, 0, 0);
-				m_poRootLayout->setSpacing(0);
-
 				/* Set the window's title to the one passed in */
 
 				QString Title(a_pccTitle);
 				m_poWindow->setWindowTitle(Title);
-
-				/* Assign the widget as the main window's central widget */
-
-				m_poWindow->setCentralWidget(m_poCentralWidget);
 
 				/* And create the menus specific to this window */
 
@@ -2634,6 +2647,8 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 					/* Display the window maximised */
 
+					// TODO: CAW (multi) - Is this required?
+					m_poWindow->setFocus();
 					m_poWindow->showMaximized();
 
 					/* And indicate that the window is active, as Qt 5 performs a draw operation */
@@ -2796,21 +2811,22 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Remove the layout gadget from this window's private list of layout gadgets */
 
-	m_oGadgets.remove(a_poLayoutGadget);
+	m_oLayoutGadgets.remove(a_poLayoutGadget);
 
 #ifdef __amigaos__
 
 	/* Remove it from the top level Reaction layout */
 
-	DEBUGCHECK((SetGadgetAttrs((struct Gadget *) m_poRootLayout, m_poWindow, NULL,
+	// TODO: CAW (multi) - Why is this commented out, here and below?
+	/*DEBUGCHECK((SetGadgetAttrs((struct Gadget *) m_poRootLayout->m_poGadget, m_poWindow, NULL,
 		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE) != 0),
-		"CWindow::remove() => Unable to remove layout gadget from window");
+		"CWindow::remove() => Unable to remove layout gadget from window");*/
 
 #elif defined(QT_GUI_LIB)
 
 	/* Remove it from the top level Qt layout */
 
-	m_poRootLayout->removeItem(a_poLayoutGadget->m_poLayout);
+	//m_poRootLayout->remove(a_poLayoutGadget->m_poLayout);
 
 #endif /* QT_GUI_LIB */
 
@@ -3000,19 +3016,17 @@ void CWindow::rethinkLayout()
 
 	/* Rethink the layout gadget sizes, starting from the root gadget that holds them */
 
-	RethinkLayout((struct Gadget *) m_poRootLayout, m_poWindow, NULL, TRUE);
+	Object LayoutObj = 0;
 
-	/* Now iterate through the framework's gadgets and let them know they have been resized */
+	// TODO: CAW (multi) - This could be improved
+	GetAttr(WINDOW_Layout, m_poWindowObj, (ULONG *) &LayoutObj);
 
-	LayoutGadget = m_oGadgets.getHead();
-
-	while (LayoutGadget)
+	if (LayoutObj)
 	{
-		LayoutGadget->rethinkLayout();
-		LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
+		RethinkLayout((struct Gadget *) LayoutObj /*m_poRootLayout->m_poGadget*/, m_poWindow, NULL, TRUE);
 	}
 
-#else /* ! __amigaos__ */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	TInt InnerHeight, Height, MinHeight, RemainderHeight, Y;
 
@@ -3089,8 +3103,17 @@ void CWindow::rethinkLayout()
 		}
 	}
 
-#endif /* ! __amigaos__ */
+#endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
+	/* Now iterate through the framework's gadgets and let them know they have been resized */
+
+	LayoutGadget = m_oLayoutGadgets.getHead();
+
+	while (LayoutGadget)
+	{
+		LayoutGadget->rethinkLayout();
+		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+	}
 }
 
 /**

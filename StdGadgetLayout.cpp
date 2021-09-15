@@ -6,7 +6,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QBoxLayout>
 #include "Qt/QtWindow.h"
 
 #endif /* QT_GUI_LIB */
@@ -27,7 +27,7 @@
  * @param	a_bVertical			ETrue to create a vertical layout, else EFalse for a horizontal layout
  * @param	a_poClient			The observer to call to indicate a resize operation.  May be NULL if no
  *								callbacks are required
- * @return	A pointer to the initialised class instance if successful, else NULL
+ * @return	A pointer to an initialised class instance if successful, else NULL
  */
 
 CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
@@ -36,7 +36,8 @@ CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, CStdGadgetLay
 	TInt Result;
 	CStdGadgetLayout *RetVal;
 
-	ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
+	// TODO: CAW (multi)
+	//ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
 
 	if ((RetVal = new CStdGadgetLayout(a_poParentWindow, a_poParentLayout, a_bVertical, a_poClient)) != NULL)
 	{
@@ -102,17 +103,35 @@ TInt CStdGadgetLayout::Construct()
 		Orientation = LAYOUT_HORIZONTAL;
 	}
 
-	if ((m_poGadget = (Object *) NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, Orientation,
-		LAYOUT_HorizAlignment, LALIGN_RIGHT, LAYOUT_InnerSpacing, INNER_SPACING, TAG_DONE)) != NULL)
+	if ((m_poLayout = NewObject(LAYOUT_GetClass(), NULL, LAYOUT_Orientation, Orientation,
+		LAYOUT_HorizAlignment, LALIGN_RIGHT, LAYOUT_InnerSpacing, INNER_SPACING, TAG_DONE)) != 0)
 	{
 		RetVal = KErrNone;
+
+		m_poGadget = m_poLayout;
 	}
 
 #elif defined(QT_GUI_LIB)
 
-	if ((m_poLayout = new QGridLayout()) != NULL)
+	// TODO: CAW (multi) - Do we need to use m_poParentWindow here or not?
+	if (m_iGadgetType == EStdGadgetVerticalLayout)
+	{
+		m_poLayout = new QVBoxLayout(m_poParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
+	}
+	else
+	{
+		m_poLayout = new QHBoxLayout(m_poParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
+	}
+
+	if (m_poLayout)
 	{
 		RetVal = KErrNone;
+
+		/* Set the spacing between the layout and the content, and between the gadgets of the content */
+		/* to be zero, so that child gadgets sit flush against one another and the edges of the layout */
+
+		m_poLayout->setContentsMargins(0, 0, 0, 0);
+		m_poLayout->setSpacing(0);
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -140,7 +159,14 @@ CStdGadgetLayout::~CStdGadgetLayout()
 
 	m_poClient = NULL;
 
-	/* Iterate through the list of attached gadgets, remove them from the gadget list and delete them */
+	/* Iterate through the list of attached layout gadgets, remove them from the list and delete them */
+
+	while ((Gadget = m_oLayoutGadgets.remHead()) != NULL)
+	{
+		delete Gadget;
+	}
+
+	/* Iterate through the list of attached gadgets, remove them from the list and delete them */
 
 	while ((Gadget = m_oGadgets.remHead()) != NULL)
 	{
@@ -149,11 +175,12 @@ CStdGadgetLayout::~CStdGadgetLayout()
 
 	/* Now remove the layout gadget from its parent window or layout */
 
+	// TODO: CAW (multi) - Assert that only one of these is set
 	if (m_poParentLayout)
 	{
 		m_poParentLayout->remove(this);
 	}
-	else
+	else if (m_poParentWindow)
 	{
 		m_poParentWindow->remove(this);
 	}
@@ -186,13 +213,15 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 {
 	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::Attach() => No gadget to be attached passed in");
 
+	/* Add the gadget to the internal list of gadgets */
+
 	m_oGadgets.addTail(a_poGadget);
 
 #ifdef __amigaos__
 
 	/* Add the new BOOPSI gadget to the layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
 		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
 		rethinkLayout();
@@ -200,30 +229,67 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Add the new Qt gadget to the layout.  To simulate the behaviour of the Amiga version */
-	/* we add vertical sliders on the right of the layout and any other gadgets to the bottom. */
-	/* Some Framework gadgets do not have an underlying Qt widget so check that this exists */
-	/* before attaching it */
+	/* Add the new Qt gadget to the layout.  Vertical sliders are added on the right of the layout, horizontal */
+	/* sliders and status bars are added at the bottom and any other gadgets are added to the left.  Some */
+	/* Framework gadgets do not have an underlying Qt widget so check that this exists before attaching it */
 
 	if (a_poGadget->m_poGadget)
 	{
 		if (a_poGadget->GadgetType() == EStdGadgetVerticalSlider)
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, m_poLayout->columnCount(), 1, 1, Qt::AlignRight);
-
-			/* This code is not (yet) generic and will work properly only with Brunel.  Set the */
-			/* stretch factor of the slider so that it expands to fill as much space as possible */
-			/* or it will only take up half of the screen */
-
-			m_poLayout->setRowStretch(0, 1);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignRight);
+		}
+		else if ((a_poGadget->GadgetType() == EStdGadgetHorizontalSlider) || (a_poGadget->GadgetType() == EStdGadgetStatusBar))
+		{
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
 		}
 		else
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, m_poLayout->rowCount(), 0, 1, -1, Qt::AlignBottom);
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignLeft);
 		}
 
 		rethinkLayout();
 	}
+
+#else /* ! QT_GUI_LIB */
+
+	rethinkLayout();
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
+/**
+ * Attach a layout gadget to the layout.
+ * This method will attach the layout gadget passed in to the layout.  This will take care of adding the
+ * layout gadget to the layout's internal list of layouts, as well as attaching it to the underlying OS
+ * specific layout system.
+ *
+ * @date	Friday 13-Aug-2021 3:06 pm, Code HQ @ Thomas's House
+ * @param	a_poLayoutGadget	Pointer to the layout gadget to attach to the layout
+ */
+
+void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
+{
+	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::Attach() => No layout to be attached passed in");
+	ASSERTM((a_poLayoutGadget->m_poLayout != NULL), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
+
+	/* Add the layout to the internal list of layout gadgets */
+
+	m_oLayoutGadgets.addTail(a_poLayoutGadget);
+
+#ifdef __amigaos__
+
+	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
+		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))
+	{
+		rethinkLayout();
+	}
+
+#elif defined(QT_GUI_LIB)
+
+	m_poLayout->addLayout(a_poLayoutGadget->m_poLayout);
+	rethinkLayout();
 
 #else /* ! QT_GUI_LIB */
 
@@ -306,10 +372,15 @@ TInt CStdGadgetLayout::GetSpacing()
 
 void CStdGadgetLayout::rethinkLayout()
 {
+	CStdGadgetLayout *LayoutGadget;
 
 #ifdef __amigaos__
 
-	RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL, TRUE);
+	// TODO: CAW (multi) - Why not on this gadget?  Assert on non NULL
+	if ((m_poParentWindow) && (m_poParentWindow->m_poRootLayout))
+	{
+		RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -398,6 +469,16 @@ void CStdGadgetLayout::rethinkLayout()
 	{
 		m_poClient->Resize();
 	}
+
+	/* Now iterate through the framework's gadgets and let them know they have been resized */
+
+	LayoutGadget = m_oLayoutGadgets.getHead();
+
+	while (LayoutGadget)
+	{
+		LayoutGadget->rethinkLayout();
+		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+	}
 }
 
 /* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Soeflingen */
@@ -413,8 +494,11 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 	/* For Amiga OS we also need to notify the layout gadget itself so that it */
 	/* will resize itself */
 
-	SetGadgetAttrs((struct Gadget *) m_poParentWindow->m_poRootLayout, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedHeight, a_iWeight, TAG_DONE);
+	if (m_poParentWindow)
+	{
+		SetGadgetAttrs((struct Gadget *) m_poParentWindow->m_poRootLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedHeight, a_iWeight, TAG_DONE);
+	}
 
 #endif /* __amigaos__ */
 
@@ -431,9 +515,16 @@ TInt CStdGadgetLayout::X()
 
 #ifdef __amigaos__
 
-	m_iX = (CStdGadget::X() - m_poParentWindow->m_poWindow->BorderLeft);
+	if (m_poParentWindow)
+	{
+		m_iX = (CStdGadget::X() - m_poParentWindow->m_poWindow->BorderLeft);
+	}
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	m_iX = (m_poLayout) ? m_poLayout->geometry().x() : 0;
+
+#endif /* QT_GUI_LIB */
 
 	return(m_iX);
 }
@@ -449,11 +540,78 @@ TInt CStdGadgetLayout::Y()
 
 #ifdef __amigaos__
 
-	m_iY = (CStdGadget::Y() - m_poParentWindow->m_poWindow->BorderTop);
+	if (m_poParentWindow)
+	{
+		m_iY = (CStdGadget::Y() - m_poParentWindow->m_poWindow->BorderTop);
+	}
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	m_iY = (m_poLayout) ? m_poLayout->geometry().y() : 0;
+
+#endif /* QT_GUI_LIB */
 
 	return(m_iY);
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Friday 13-Aug-2021 4:28 pm, Code HQ @ Thomas's House
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+// TODO: CAW (multi) - Merge this into CStdGadget or update function header
+TInt CStdGadgetLayout::Width()
+{
+	TInt RetVal;
+
+#ifdef QT_GUI_LIB
+
+	// TODO: CAW - Double assign
+	RetVal = m_iWidth = (m_poLayout) ? m_poLayout->geometry().width() : 0;
+
+#else /* ! QT_GUI_LIB */
+
+	RetVal = CStdGadget::Width();
+
+#endif /* ! QT_GUI_LIB */
+
+	return(RetVal);
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Friday 13-Aug-2021 3:46 pm, Code HQ @ Thomas's House
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+// TODO: CAW (multi) - Merge this into CStdGadget or update function header
+TInt CStdGadgetLayout::Height()
+{
+	TInt RetVal;
+
+#ifdef QT_GUI_LIB
+
+	// TODO: CAW - Double assign
+	RetVal = m_iHeight = (m_poLayout) ? m_poLayout->geometry().height() : 0;
+
+#else /* ! QT_GUI_LIB */
+
+	RetVal = CStdGadget::Height();
+
+#endif /* ! QT_GUI_LIB */
+
+	return(RetVal);
 }
 
 /**
@@ -508,10 +666,14 @@ void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
 
 	/* Add the BOOPSI gadget to the layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+	// TODO: CAW (multi) - All of these need to be checked
+	if (m_poParentWindow)
 	{
-		rethinkLayout();
+		if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+			LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+		{
+			rethinkLayout();
+		}
 	}
 }
 
@@ -528,14 +690,13 @@ void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
 
 void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 {
-
-#ifdef __amigaos__
-
 	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::remove() => No gadget to be removed passed in");
 
 	/* Remove the layout gadget from this layout's private list of layout gadgets */
 
-	m_oGadgets.remove(a_poLayoutGadget);
+	m_oLayoutGadgets.remove(a_poLayoutGadget);
+
+#ifdef __amigaos__
 
 	/* And remove the BOOPSI gadget from the layout */
 
@@ -545,10 +706,44 @@ void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 		rethinkLayout();
 	}
 
-#else /* ! __amigaos__ */
+#endif /* __amigaos__ */
 
-	(void) a_poLayoutGadget;
+}
 
-#endif /* ! __amigaos__ */
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Sunday 15-Aug-2021 9:42 am, Code HQ @ Thomas's House
+ * @param	Parameter		Description
+ * @return	Return value
+ */
 
+// TODO: CAW (multi) - This needs to be renamed and made Amiga specific
+void CStdGadgetLayout::UpdateGadgets(void *a_pvGadget)
+{
+	CStdGadget *Gadget;
+	CStdGadgetLayout *LayoutGadget;
+
+	if ((LayoutGadget = m_oLayoutGadgets.getHead()) != NULL)
+	{
+		do
+		{
+			LayoutGadget->UpdateGadgets(a_pvGadget);
+
+			if ((Gadget = LayoutGadget->FindNativeGadget(a_pvGadget)) != NULL)
+			{
+				/* Got it!  Call the gadget's Updated() routine so that it can notify the */
+				/* client of the update */
+
+				Gadget->Updated();
+
+				// TODO: CAW - Return a result so that parent loops are also broken out
+				break;
+			}
+		}
+		while ((LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget)) != NULL);
+	}
 }

@@ -19,7 +19,7 @@ class CStdGadgetLayout;
 class CWindow;
 class MStdGadgetLayoutObserver;
 class MStdGadgetSliderObserver;
-class QGridLayout;
+class QBoxLayout;
 class QLabel;
 class QWidget;
 
@@ -84,6 +84,15 @@ public:
 
 	/* Getters and setters */
 
+#ifdef __amigaos__
+
+	Object *GetGadget()
+	{
+		return(m_poGadget);
+	}
+
+#endif /* __amigaos__ */
+
 	TInt GetGadgetID()
 	{
 		return(m_iGadgetID);
@@ -92,6 +101,11 @@ public:
 	enum TStdGadgetType GadgetType()
 	{
 		return(m_iGadgetType);
+	}
+
+	CWindow *GetParentWindow()
+	{
+		return(m_poParentWindow);
 	}
 
 	virtual void SetVisible(bool a_bVisible);
@@ -127,11 +141,18 @@ private:
 
 	TInt					m_iWeight;				/**< Weight of the layout gadget */
 	MStdGadgetLayoutObserver *m_poClient;			/**< Ptr to client to notify when gadget changes */
-	StdList<CStdGadget>		m_oGadgets;				/**< List of gadgets manually added to the window */
+	StdList<CStdGadget>		m_oGadgets;				/**< List of gadgets added to the layout */
+	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the layout */
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos__
 
-	QGridLayout				*m_poLayout;			/**< Ptr to underlying Qt widget.
+	Object					m_poLayout;				/**< Pointer to the underlying Amiga OS gadget */
+
+#elif defined(QT_GUI_LIB)
+
+public:
+
+	QBoxLayout				*m_poLayout;			/**< Pointer to the underlying Qt widget.
 														 Usually this is stored in m_poGadget but unfortunately
 														 QLayout derived objects do not derive from QWidget */
 
@@ -153,6 +174,9 @@ private:
 
 	CStdGadget *FindNativeGadget(void *a_pvGadget);
 
+	// TODO: CAW (multi) - Not sure if this is the best name + it should be Amiga OS only
+	void UpdateGadgets(void *a_pvGadget);
+
 public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
@@ -163,6 +187,8 @@ public:
 	~CStdGadgetLayout();
 
 	void Attach(CStdGadget *a_poGagdet);
+
+	void Attach(CStdGadgetLayout *a_poLayoutGadget);
 
 	TInt GetSpacing();
 
@@ -188,6 +214,10 @@ public:
 	virtual TInt X();
 
 	virtual TInt Y();
+
+	virtual TInt Width();
+
+	virtual TInt Height();
 
 	virtual TInt MinHeight();
 

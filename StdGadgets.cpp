@@ -31,7 +31,8 @@ CStdGadget::~CStdGadget()
 
 	if (m_poGadget)
 	{
-		delete m_poGadget;
+		// TODO: CAW (multi) - Why are some gadgets now deleting themselves?
+		//delete m_poGadget;
 	}
 
 #endif /* QT_GUI_LIB */
@@ -101,11 +102,11 @@ TInt CStdGadget::Width()
 
 		GetAttr(GA_Width, m_poGadget, (ULONG *) &m_iWidth);
 
-#elif defined(__amigaos__)
+#else /* ! __amigaos4__ */
 
 		m_iWidth = ((struct Gadget *) m_poGadget)->Width;
 
-#endif /* __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 		RetVal = m_iWidth;
 	}
@@ -116,7 +117,8 @@ TInt CStdGadget::Width()
 
 #else /* ! __amigaos__ */
 
-	RetVal = (m_bHidden) ? 0 : m_iWidth;
+	// TODO: CAW (multi) - Decide how this should work overall
+	RetVal = (m_bHidden) ? 0 : (m_poGadget) ? m_poGadget->width() : m_iWidth;
 
 #endif /* ! __amigaos__ */
 
@@ -149,11 +151,11 @@ TInt CStdGadget::Height()
 
 		GetAttr(GA_Height, m_poGadget, (ULONG *) &m_iHeight);
 
-#elif defined(__amigaos__)
+#else /* ! __amigaos4__ */
 
 		m_iHeight = ((struct Gadget *) m_poGadget)->Height;
 
-#endif /* __amigaos__ */
+#endif /* ! __amigaos4__ */
 
 		RetVal = m_iHeight;
 	}
@@ -164,7 +166,8 @@ TInt CStdGadget::Height()
 
 #else /* ! __amigaos__ */
 
-	RetVal = (m_bHidden) ? 0 : m_iHeight;
+	// TODO: CAW (multi) - Decide how this should work overall
+	RetVal = (m_bHidden) ? 0 : (m_poGadget) ? m_poGadget->height() : m_iHeight;
 
 #endif /* ! __amigaos__ */
 

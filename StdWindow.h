@@ -85,17 +85,12 @@ private:
 	bool				m_bPerformingRedraw;		/**< true if we are redrawing the dirty region */
 	std::vector<SRegion>	m_voDirtyRegions;		/**< List of dirty regions waiting to be drawn */
 	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
-	Object				*m_poRootLayout;			/**< layout.gadget containing the window's gadgets */
 
 #ifndef __amigaos4__
 
 	struct Screen		*m_poScreen;				/**< Pointer to the screen on which to open the window */
 
 #endif /* ! __amigaos4__ */
-
-#elif defined(QT_GUI_LIB)
-
-	QVBoxLayout			*m_poRootLayout;			/**< Top level layout containing the window's gadgets */
 
 #elif defined(WIN32)
 
@@ -115,8 +110,9 @@ protected:
 	TBool				m_bOpen;					/**< ETrue if window is open */
 	TInt				m_iInnerWidth;				/**< Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;				/**< Height of window, minus top and bottom borders */
-	StdList<CStdGadgetLayout>	m_oGadgets;			/**< List of layout gadgets manually added to the window */
+	CStdGadgetLayout	*m_poRootLayout;			/**< Root layout gadget in which all other gadgets are placed */
 	RApplication		*m_poApplication;			/**< Ptr to application that owns this window */
+	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the window */
 
 public:
 
@@ -282,11 +278,10 @@ public:
 
 	static TBool IsActive();
 
-#ifdef __amigaos__
-
-	Object *GetRootLayout() { return(m_poRootLayout); }
-
-#endif /* __amigaos__ */
+	CStdGadgetLayout *GetRootLayout()
+	{
+		return(m_poRootLayout);
+	}
 
 	/* Functions that can be implemented by client software */
 
