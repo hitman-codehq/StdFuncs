@@ -213,6 +213,7 @@
     <ClCompile Include="StdGadgets.cpp" />
     <ClCompile Include="StdGadgetSlider.cpp" />
     <ClCompile Include="StdGadgetStatusBar.cpp" />
+    <ClCompile Include="StdGadgetTree.cpp" />
     <ClCompile Include="StdImage.cpp" />
     <ClCompile Include="StdPool.cpp" />
     <ClCompile Include="StdRendezvous.cpp" />

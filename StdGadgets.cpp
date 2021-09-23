@@ -115,12 +115,16 @@ TInt CStdGadget::Width()
 		RetVal = 0;
 	}
 
-#else /* ! __amigaos__ */
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW (multi) - Decide how this should work overall
 	RetVal = (m_bHidden) ? 0 : (m_poGadget) ? m_poGadget->width() : m_iWidth;
 
-#endif /* ! __amigaos__ */
+#else /* ! QT_GUI_LIB */
+
+	RetVal = (m_bHidden) ? 0 : m_iWidth;
+
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }
@@ -164,12 +168,16 @@ TInt CStdGadget::Height()
 		RetVal = 0;
 	}
 
-#else /* ! __amigaos__ */
+#elif defined(QT_GUI_LIB)
 
 	// TODO: CAW (multi) - Decide how this should work overall
 	RetVal = (m_bHidden) ? 0 : (m_poGadget) ? m_poGadget->height() : m_iHeight;
 
-#endif /* ! __amigaos__ */
+#else /* ! QT_GUI_LIB */
+
+	RetVal = (m_bHidden) ? 0 : m_iHeight;
+
+#endif /* ! QT_GUI_LIB */
 
 	return(RetVal);
 }

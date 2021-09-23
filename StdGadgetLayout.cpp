@@ -272,13 +272,14 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
 {
 	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::Attach() => No layout to be attached passed in");
-	ASSERTM((a_poLayoutGadget->m_poLayout != NULL), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
 
 	/* Add the layout to the internal list of layout gadgets */
 
 	m_oLayoutGadgets.addTail(a_poLayoutGadget);
 
 #ifdef __amigaos__
+
+	ASSERTM((a_poLayoutGadget->m_poLayout != NULL), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
 
 	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
 		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))
@@ -287,6 +288,8 @@ void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	}
 
 #elif defined(QT_GUI_LIB)
+
+	ASSERTM((a_poLayoutGadget->m_poLayout != NULL), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
 
 	m_poLayout->addLayout(a_poLayoutGadget->m_poLayout);
 	rethinkLayout();

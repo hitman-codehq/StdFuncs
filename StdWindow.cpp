@@ -692,7 +692,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Windows slider that was just moved */
 
-			if ((LayoutGadget = Window->m_oGadgets.getHead()) != NULL)
+			if ((LayoutGadget = Window->m_oLayoutGadgets.getHead()) != NULL)
 			{
 				do
 				{
@@ -706,7 +706,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 						break;
 					}
 				}
-				while ((LayoutGadget = Window->m_oGadgets.getSucc(LayoutGadget)) != NULL);
+				while ((LayoutGadget = Window->m_oLayoutGadgets.getSucc(LayoutGadget)) != NULL);
 			}
 
 			break;
@@ -3032,7 +3032,7 @@ void CWindow::rethinkLayout()
 
 	Y = 0;
 	InnerHeight = m_iInnerHeight;
-	LayoutGadget = m_oGadgets.getHead();
+	LayoutGadget = m_oLayoutGadgets.getHead();
 
 	if (LayoutGadget)
 	{
@@ -3052,16 +3052,16 @@ void CWindow::rethinkLayout()
 				LayoutGadget->m_iHeight = -1;
 			}
 
-			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
+			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
 		}
 
 		/* Each vertical layout gadget will be the same height, but the last one might be slightly */
 		/* larger due to division rounding, so we calculate its height slightly differently */
 
-		Height = (m_iInnerHeight / m_oGadgets.Count());
-		RemainderHeight = (m_iInnerHeight - (Height * (m_oGadgets.Count() - 1)));
+		Height = (m_iInnerHeight / m_oLayoutGadgets.Count());
+		RemainderHeight = (m_iInnerHeight - (Height * (m_oLayoutGadgets.Count() - 1)));
 
-		LayoutGadget = m_oGadgets.getHead();
+		LayoutGadget = m_oLayoutGadgets.getHead();
 
 		while (LayoutGadget)
 		{
@@ -3074,7 +3074,7 @@ void CWindow::rethinkLayout()
 			}
 			else if (LayoutGadget->Weight() == 50)
 			{
-				if (m_oGadgets.getSucc(LayoutGadget) == NULL)
+				if (m_oLayoutGadgets.getSucc(LayoutGadget) == NULL)
 				{
 					LayoutGadget->m_iHeight = RemainderHeight;
 				}
@@ -3091,15 +3091,15 @@ void CWindow::rethinkLayout()
 				Y += InnerHeight;
 			}
 
-			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
+			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
 		}
 
-		LayoutGadget = m_oGadgets.getHead();
+		LayoutGadget = m_oLayoutGadgets.getHead();
 
 		while (LayoutGadget)
 		{
 			LayoutGadget->rethinkLayout();
-			LayoutGadget = m_oGadgets.getSucc(LayoutGadget);
+			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
 		}
 	}
 

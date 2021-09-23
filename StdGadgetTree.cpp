@@ -164,6 +164,10 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 	/* Add the new list of items to the tree widget */
 	static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
 
-#endif /* QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
+
+	(void) a_items;
+
+#endif /* ! QT_GUI_LIB */
 
 }
