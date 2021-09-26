@@ -13,9 +13,9 @@
 
 #ifdef __amigaos__
 
-static const struct ColumnInfo g_columnInfo[] =
+static struct ColumnInfo g_columnInfo[] =
 {
-	{ 100, "Files", CIF_SORTABLE } ,
+	{ 100, "", CIF_SORTABLE } ,
 	{ -1, (STRPTR) ~0, (ULONG) -1 }
 };
 
@@ -27,9 +27,10 @@ static const struct ColumnInfo g_columnInfo[] =
  * up upon failure.
  *
  * @date	Sunday 18-Jul-2021 12:32 pm, Am Theater Stralsund FeWo
+ * @param	a_title			Title to be displayed at the top of the tree's column
  */
 
-int CStdGadgetTree::construct()
+int CStdGadgetTree::construct(const std::string &a_title)
 {
 	int retVal = KErrNone;
 
@@ -37,6 +38,11 @@ int CStdGadgetTree::construct()
 	ASSERTM((m_poParentWindow->m_poWindow != nullptr), "CStdGadgetTree::Construct() => Parent native window is NULL");
 
 #ifdef __amigaos__
+
+	/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
+	/* before assigning it to the tree */
+	m_title = a_title;
+	g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
 
 	if ((m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
 		LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
@@ -54,7 +60,7 @@ int CStdGadgetTree::construct()
 
 	/* Initialise the Qt specific helper object */
 	m_poGadget = &m_tree;
-	m_tree.construct();
+	m_tree.construct(a_title);
 
 	// TODO: CAW - Why aren't these fetched automatically in CStdGadget?
 	m_iWidth = m_poGadget->width();

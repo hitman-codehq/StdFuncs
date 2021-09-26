@@ -25,7 +25,7 @@ public:
 
 	CQtTreeWidget(CStdGadgetTree *a_parentTree) : m_parentTree(a_parentTree) { }
 
-	void construct();
+	void construct(const std::string &a_title);
 
 public slots:
 

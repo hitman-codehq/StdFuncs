@@ -367,6 +367,7 @@ private:
 
 #ifdef __amigaos__
 
+	std::string		m_title;				/**< Persistent memory for the title string passed in */
 	List			m_fileList;				/**< List of items in the tree */
 
 #elif defined(QT_GUI_LIB)
@@ -402,7 +403,7 @@ protected:
 
 	}
 
-	int construct();
+	int construct(const std::string &a_title);
 
 public:
 
