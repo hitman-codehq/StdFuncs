@@ -977,6 +977,65 @@ TBool Utils::FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBoo
 #endif /* __amigaos__ */
 
 /**
+ * Determines the name of the current directory.
+ * Queries the underlying operating system to determine the current directory, and returns the
+ * directory's fully qualified path.
+ *
+ * @date	Sunday 26-Sep-2021 6:31 am, Code HQ Bergmannstrasse
+ * @return	The fully qualified name of the current directory, if successful, else ""
+ */
+
+std::string Utils::GetCurrentDirectory()
+{
+	std::string retVal;
+
+#ifdef __amigaos__
+
+	char *directory;
+
+	if ((directory = new char[MAX_PATH]) != nullptr)
+	{
+		if (GetCurrentDirName(directory, MAX_PATH))
+		{
+			retVal = directory;
+		}
+
+		delete [] directory;
+	}
+
+#elif defined(__unix__)
+
+	char directory[MAX_PATH];
+
+	if ((getcwd(directory, sizeof(directory))) != nullptr)
+	{
+		retVal = directory;
+	}
+
+#else /* ! __unix__ */
+
+	char *directory;
+	DWORD size;
+
+	if ((size = ::GetCurrentDirectory(0, NULL)) != 0)
+	{
+		if ((directory = new char[size]) != nullptr)
+		{
+			if ((::GetCurrentDirectory(size, directory)) != 0)
+			{
+				retVal = directory;
+			}
+
+			delete [] directory;
+		}
+	}
+
+#endif /* ! __unix__ */
+
+	return retVal;
+}
+
+/**
  * Obtains information about a given file or directory.
  * This function is useful for obtaining directory listing information about a single file or
  * directory, without the overhead of having to use the RDir class to do so.  It will query

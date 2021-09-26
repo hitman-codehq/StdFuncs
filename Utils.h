@@ -61,6 +61,8 @@ public:
 
 	static TBool FullNameFromWBArg(char *a_pcFullName, struct WBArg *a_poWBArg, TBool *a_pbDirectory);
 
+	static std::string GetCurrentDirectory();
+
 	static TInt GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bResolveLink = ETrue);
 
 	static void GetScreenSize(struct SRect &a_roScreenSize, CWindow *a_poWindow = NULL);
