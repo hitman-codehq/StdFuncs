@@ -115,8 +115,9 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Now create the underlying Windows control */
 
+	// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, m_iX, m_iY, m_iWidth, m_iHeight,
-		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
+		CWindow::GetRootWindow()->m_poWindow, NULL, NULL, NULL);
 
 #endif /* ! QT_GUI_LIB */
 

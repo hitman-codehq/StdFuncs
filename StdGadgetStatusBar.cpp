@@ -237,8 +237,9 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 
 	/* Create the underlying Windows control */
 
+	// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
 	m_poGadget = CreateWindowEx(0, STATUSCLASSNAME, NULL, (SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE),
-		0, 0, 0, 0, m_poParentWindow->m_poWindow, NULL, NULL, NULL);
+		0, 0, 0, 0, CWindow::GetRootWindow()->m_poWindow, NULL, NULL, NULL);
 
 	if (m_poGadget)
 	{
@@ -253,7 +254,8 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 			/* Windows control */
 
 			Offset = 0;
-			ParentWidth = m_poParentWindow->InnerWidth();
+			// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
+			ParentWidth = CWindow::GetRootWindow()->InnerWidth();
 
 			for (Index = 0; Index < a_iNumParts; ++Index)
 			{
@@ -420,7 +422,8 @@ void CStdGadgetStatusBar::SetSize(TInt a_iWidth, TInt a_iHeight)
 	if ((PartsOffsets = new TInt[m_iNumParts]) != NULL)
 	{
 		Offset = 0;
-		ParentWidth = m_poParentWindow->InnerWidth();
+		// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
+		ParentWidth = CWindow::GetRootWindow()->InnerWidth();
 
 		/* Convert the percentage offsets of the parts into pixel offsets */
 

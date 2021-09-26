@@ -410,7 +410,8 @@ void CStdGadgetLayout::rethinkLayout()
 	}
 
 	Gadget = m_oGadgets.getHead();
-	InnerWidth = m_poParentWindow->InnerWidth();
+	// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
+	InnerWidth = (CWindow::GetRootWindow()) ? CWindow::GetRootWindow()->InnerWidth() : 0;
 
 	while (Gadget)
 	{
