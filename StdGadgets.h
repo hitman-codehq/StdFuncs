@@ -181,7 +181,7 @@ public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
 
-	static CStdGadgetLayout *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical = ETrue,
+	static CStdGadgetLayout *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
 		MStdGadgetLayoutObserver *a_poClient = NULL);
 
 	~CStdGadgetLayout();
@@ -249,12 +249,12 @@ private:
 
 #ifdef QT_GUI_LIB
 
-	CStdGadgetSlider(TBool a_bVertical, CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+	CStdGadgetSlider(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 		: m_oSlider(this)
 
 #else /* ! QT_GUI_LIB */
 
-	CStdGadgetSlider(TBool a_bVertical, CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+	CStdGadgetSlider(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 
 #endif /* ! QT_GUI_LIB */
 
@@ -276,8 +276,8 @@ private:
 
 public:
 
-	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout,
-		MStdGadgetSliderObserver *a_poClient, TBool a_bVertical, TInt a_iGadgetID);
+	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+		MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
 	~CStdGadgetSlider();
 
