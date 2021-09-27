@@ -27,14 +27,12 @@ static const SKeyMapping g_aoKeyMap[] =
 #define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
 
 /**
- * Short description.
- * Long multi line description.
- *
- * @pre		Some precondition here
+ * CQtWindow constructor.
+ * Initialises the class and ensures the window is ready to accept keyboard input.
  *
  * @date	Friday 27-Sep-2019 3:02 pm, HERE Invalidenstrasse
- * @param	Parameter		Description
- * @return	Return value
+ * @param	a_poWindow		Pointer to the parent Framework window
+ * @param	a_roSize		The size of the new window to be created
  */
 
 CQtWindow::CQtWindow(CWindow *a_poWindow, QSize &a_roSize)
