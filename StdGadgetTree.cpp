@@ -66,7 +66,11 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	m_iWidth = m_poGadget->width();
 	m_iHeight = m_poGadget->height();
 
-#endif /* QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
+
+	(void) a_title;
+
+#endif /* ! QT_GUI_LIB */
 
 	/* Attach the gadget to the parent window, if it was created successfully */
 
