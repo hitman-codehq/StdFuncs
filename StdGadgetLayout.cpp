@@ -21,25 +21,40 @@
  * Allocates and initialises the class, providing two phase construction.
  *
  * @date	Monday 11-Jul-2011 5:44 am
- * @param	a_poParentWindow	Pointer to the window in which to create the gadget
- * @param	a_poParentLayout	Pointer to the layout to which to attach the gadget.  If NULL, the new layout
- *								gadget will be attached to the parent window
+ * @param	a_poParentLayout	Pointer to the layout to which to attach the gadget.  Must not be NULL
  * @param	a_bVertical			ETrue to create a vertical layout, else EFalse for a horizontal layout
  * @param	a_poClient			The observer to call to indicate a resize operation.  May be NULL if no
  *								callbacks are required
+ * @param	a_poParentWindow	Pointer to the window in which to create the gadget.  Must be NULL
  * @return	A pointer to an initialised class instance if successful, else NULL
  */
 
-CStdGadgetLayout *CStdGadgetLayout::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
-	MStdGadgetLayoutObserver *a_poClient)
+CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+	MStdGadgetLayoutObserver *a_poClient, CWindow *a_poParentWindow)
 {
 	TInt Result;
 	CStdGadgetLayout *RetVal;
 
-	// TODO: CAW (multi)
-	//ASSERTM((a_poParentWindow != NULL), "CStdGadgetLayout::New() => Ptr to parent window must be passed in");
+	/* The layout must always have a parent window.  Normally this is not passed in and must be obtained from the */
+	/* parent layout.  However, we have to handle the special use case of the very top level layout being created */
+	/* by The Framework.  This will not have a parent layout but will instead have the parent window passed in by */
+	/* the CWindow class during its initialisation.  Start by doing some parameter validation */
 
-	if ((RetVal = new CStdGadgetLayout(a_poParentWindow, a_poParentLayout, a_bVertical, a_poClient)) != NULL)
+#ifdef _DEBUG
+
+	if (a_poParentWindow)
+	{
+		ASSERTM((a_poParentLayout == NULL), "CStdGadgetLayout::New() => Parent layout must be NULL");
+	}
+	else
+	{
+		ASSERTM((a_poParentLayout != NULL), "CStdGadgetLayout::New() => Parent layout must not be NULL");
+	}
+
+#endif /* _DEBUG */
+
+	if ((RetVal = new CStdGadgetLayout(a_poParentWindow ? a_poParentWindow : a_poParentLayout->m_poParentWindow,
+		a_poParentLayout, a_bVertical, a_poClient)) != NULL)
 	{
 		if ((Result = RetVal->Construct()) != KErrNone)
 		{
@@ -279,7 +294,7 @@ void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 #ifdef __amigaos__
 
-	ASSERTM((a_poLayoutGadget->m_poLayout != NULL), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
+	ASSERTM((a_poLayoutGadget->m_poLayout != 0), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
 
 	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
 		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))

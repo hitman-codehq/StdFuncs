@@ -2550,7 +2550,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
 			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
 
-			if ((m_poRootLayout = CStdGadgetLayout::New(this, NULL, ETrue)) != NULL)
+			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
 			{
 				/* And create the menus specific to this window */
 
@@ -2620,14 +2620,13 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			m_poWindow->setCentralWidget(m_poCentralWidget);
 
-			/* Inside this we need a grid layout, to enable us to layout the window's contents */
-			/* how we want them */
+			/* Calculate the inner width and height of the window, for l8r use */
 
 			QSize Size = m_poCentralWidget->size();
 			m_iInnerWidth = Size.width();
 			m_iInnerHeight = Size.height();
 
-			if ((m_poRootLayout = CStdGadgetLayout::New(this, NULL, ETrue)) != NULL)
+			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
 			{
 				/* Set the window's title to the one passed in */
 
@@ -2751,6 +2750,11 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 						m_iInnerWidth = (Rect.right - Rect.left);
 						m_iInnerHeight = (Rect.bottom - Rect.top);
+
+						if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+						{
+							Utils::info("CWindow::open() => Unable to create root layout object");
+						}
 					}
 					else
 					{

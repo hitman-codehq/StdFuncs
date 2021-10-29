@@ -181,8 +181,8 @@ public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
 
-	static CStdGadgetLayout *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
-		MStdGadgetLayoutObserver *a_poClient = NULL);
+	static CStdGadgetLayout *New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+		MStdGadgetLayoutObserver *a_poClient = nullptr, CWindow *a_poParentWindow = nullptr);
 
 	~CStdGadgetLayout();
 
