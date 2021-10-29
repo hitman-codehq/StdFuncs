@@ -118,9 +118,8 @@ TInt CStdGadgetSlider::Construct()
 
 	/* Now create the underlying Windows control */
 
-	// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
 	m_poGadget = CreateWindow("SCROLLBAR", NULL, Style, m_iX, m_iY, m_iWidth, m_iHeight,
-		CWindow::GetRootWindow()->m_poWindow, NULL, NULL, NULL);
+		m_poParentWindow->m_poWindow, NULL, NULL, NULL);
 
 #endif /* ! QT_GUI_LIB */
 
@@ -353,12 +352,9 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #ifdef __amigaos__
 
-	// TODO: CAW - Using GetRootWindow() is a temporary workaround + use assert if this is really necessary
-	if (CWindow::GetRootWindow())
-	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, CWindow::GetRootWindow()->m_poWindow /*m_poParentWindow->m_poWindow*/, NULL,
-			SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
-	}
+	// TODO: CAW (multi) - Is using the window really necessary?  Check for all usages of this function
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
@@ -424,7 +420,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 #ifdef __amigaos__
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL,
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow , NULL,
 		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)

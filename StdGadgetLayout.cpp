@@ -397,7 +397,7 @@ void CStdGadgetLayout::rethinkLayout()
 	// TODO: CAW (multi) - Why not on this gadget?  Assert on non NULL
 	if ((m_poParentWindow) && (m_poParentWindow->m_poRootLayout))
 	{
-		RethinkLayout((struct Gadget *) m_poParentWindow->m_poRootLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
@@ -425,8 +425,7 @@ void CStdGadgetLayout::rethinkLayout()
 	}
 
 	Gadget = m_oGadgets.getHead();
-	// TODO: CAW (multi) - GetRootWindow() is temporary and should be m_poParentWindow
-	InnerWidth = (CWindow::GetRootWindow()) ? CWindow::GetRootWindow()->InnerWidth() : 0;
+	InnerWidth = m_poParentWindow->InnerWidth();
 
 	while (Gadget)
 	{
