@@ -27,23 +27,26 @@
 
 #endif /* __amigaos__ */
 
-/* Written: Sunday 01-May-2011 7:10 am */
-/* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
-/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
-/*			a_iNumParts			Number of parts to be created */
-/*			a_piPartsOffsets	Ptr to array of sizes of parts as percentages */
-/*			a_iGadgetID			Unique identifier of the status bar gadget */
-/* @return	Ptr to the newly created status bar if successful, else NULL */
-/* Creates an intance of the status bar gadget and attaches it to the parent window specified. */
-/* The a_piPartsOffsets array is reused for calculating the sizes of the parts and so is no */
-/* longer valid on return */
+/**
+ * Create a new instance of the CStdGadgetStatusBar class.
+ * Creates an intance of the status bar gadget and attaches it to the parent layout specified.
+ * The a_piPartsOffsets array is reused for calculating the sizes of the parts and its contents
+ * are no longer required on return.
+ *
+ * @date	Sunday 01-May-2011 7:10 am
+ * @param	a_poParentLayout	Pointer to the gadget layout that will hold this gadget
+ * @param	a_iNumParts			Number of parts to be created
+ * @param	a_piPartsOffsets	Ptr to array of sizes of parts as percentages
+ * @param	a_iGadgetID			Unique identifier of the status bar gadget
+ * @return	Pointer to the newly created status bar if successful, else NULL
+ */
 
-CStdGadgetStatusBar *CStdGadgetStatusBar::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout,
-	TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID)
+CStdGadgetStatusBar *CStdGadgetStatusBar::New(CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts,
+	TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
 	CStdGadgetStatusBar *RetVal;
 
-	if ((RetVal = new CStdGadgetStatusBar(a_poParentWindow, a_poParentLayout, a_iGadgetID)) != NULL)
+	if ((RetVal = new CStdGadgetStatusBar(a_poParentLayout, a_iGadgetID)) != NULL)
 	{
 		if (RetVal->Construct(a_iNumParts, a_piPartsOffsets) != KErrNone)
 		{

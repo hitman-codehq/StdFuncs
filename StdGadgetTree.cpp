@@ -155,7 +155,7 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 	}
 
 	/* Re-add the updated list of items to the list browser gadget */
-	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) &m_fileList, TAG_DONE);
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) &m_fileList, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 

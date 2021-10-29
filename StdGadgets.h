@@ -139,9 +139,9 @@ class CStdGadgetLayout : public CStdGadget
 {
 private:
 
-	TInt					m_iWeight;				/**< Weight of the layout gadget */
-	MStdGadgetLayoutObserver *m_poClient;			/**< Ptr to client to notify when gadget changes */
-	StdList<CStdGadget>		m_oGadgets;				/**< List of gadgets added to the layout */
+	TInt						m_iWeight;			/**< Weight of the layout gadget */
+	MStdGadgetLayoutObserver	*m_poClient;		/**< Ptr to client to notify when gadget changes */
+	StdList<CStdGadget>			m_oGadgets;			/**< List of gadgets added to the layout */
 	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the layout */
 
 #ifdef __amigaos__
@@ -163,9 +163,9 @@ private:
 	CStdGadgetLayout(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
 		MStdGadgetLayoutObserver *a_poClient)
 	{
-		m_poParentWindow = a_poParentWindow;
-		m_poParentLayout = a_poParentLayout;
 		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalLayout : EStdGadgetHorizontalLayout;
+		m_poParentLayout = a_poParentLayout;
+		m_poParentWindow = a_poParentWindow;
 		m_poClient = a_poClient;
 		m_iWeight = 50;
 	}
@@ -249,19 +249,19 @@ private:
 
 #ifdef QT_GUI_LIB
 
-	CStdGadgetSlider(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+	CStdGadgetSlider(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 		: m_oSlider(this)
 
 #else /* ! QT_GUI_LIB */
 
-	CStdGadgetSlider(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
+	CStdGadgetSlider(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 
 #endif /* ! QT_GUI_LIB */
 
 	{
 		m_iGadgetType = (a_bVertical) ? EStdGadgetVerticalSlider : EStdGadgetHorizontalSlider;
-		m_poParentWindow = a_poParentWindow;
 		m_poParentLayout = a_poParentLayout;
+		m_poParentWindow = a_poParentLayout->GetParentWindow();
 		m_poClient = a_poClient;
 		m_iGadgetID = a_iGadgetID;
 
@@ -276,7 +276,7 @@ private:
 
 public:
 
-	static CStdGadgetSlider *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+	static CStdGadgetSlider *New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
 		MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID);
 
 	~CStdGadgetSlider();
@@ -322,11 +322,11 @@ private:
 
 private:
 
-	CStdGadgetStatusBar(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iGadgetID)
+	CStdGadgetStatusBar(CStdGadgetLayout *a_poParentLayout, TInt a_iGadgetID)
 	{
 		m_iGadgetType = EStdGadgetStatusBar;
-		m_poParentWindow = a_poParentWindow;
 		m_poParentLayout = a_poParentLayout;
+		m_poParentWindow = a_poParentLayout->GetParentWindow();
 		m_iGadgetID = a_iGadgetID;
 	}
 
@@ -338,7 +338,7 @@ public:
 
 	~CStdGadgetStatusBar();
 
-	static CStdGadgetStatusBar *New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
+	static CStdGadgetStatusBar *New(CStdGadgetLayout *a_poParentLayout, TInt a_iNumParts, TInt *a_piPartsOffsets, TInt a_iGadgetID);
 
 	const char *GetText(TInt a_iPart);
 
@@ -380,19 +380,18 @@ protected:
 
 #ifdef QT_GUI_LIB
 
-	CStdGadgetTree(CWindow *a_parentWindow, CStdGadgetLayout *a_parentLayout, int a_gadgetID)
-		: m_tree(this)
+	CStdGadgetTree(CStdGadgetLayout *a_parentLayout, int a_gadgetID) : m_tree(this)
 
 #else /* ! QT_GUI_LIB */
 
-	CStdGadgetTree(CWindow *a_parentWindow, CStdGadgetLayout *a_parentLayout, int a_gadgetID)
+	CStdGadgetTree(CStdGadgetLayout *a_parentLayout, int a_gadgetID)
 
 #endif /* ! QT_GUI_LIB */
 
 	{
-		m_poParentWindow = a_parentWindow;
-		m_poParentLayout = a_parentLayout;
 		m_iGadgetType = EStdGadgetTree;
+		m_poParentLayout = a_parentLayout;
+		m_poParentWindow = a_parentLayout->GetParentWindow();
 		m_iGadgetID = a_gadgetID;
 
 #ifdef __amigaos__

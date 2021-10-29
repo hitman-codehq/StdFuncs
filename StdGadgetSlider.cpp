@@ -19,21 +19,24 @@
 
 #endif /* QT_GUI_LIB */
 
-/* Written: Sunday 01-May-2011 7:41 am */
-/* @param	a_poParentWindow	Ptr to the window to which the gadget should be attached */
-/*			a_poParentLayout	Ptr to the gadget layout that will position this gadget */
-/*			a_bVertical			ETrue if this is a vertical slider, else EFalse */
-/*			a_poClient			Ptr to the client to be notified when the slider's value changes */
-/*			a_iGadgetID			Unique identifier of the slider gadget */
-/* @return	Ptr to the newly created slider gadget if successful, else NULL */
-/* Creates an intance of the slider gadget and attaches it to the parent window specified. */
+/**
+ * Create a new instance of the CStdGadgetSlider class.
+ * Creates an intance of the slider gadget and attaches it to the parent layout specified.
+ *
+ * @date	Sunday 01-May-2011 7:41 am
+ * @param	a_poParentLayout	Pointer to the gadget layout that will hold this gadget
+ * @param	a_bVertical			ETrue if this is a vertical slider, else EFalse
+ * @param	a_poClient			Ptr to the client to be notified when the slider's value changes
+ * @param	a_iGadgetID			Unique identifier of the slider gadget
+ * @return	Pointer to the newly created slider gadget if successful, else NULL
+ */
 
-CStdGadgetSlider *CStdGadgetSlider::New(CWindow *a_poParentWindow, CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+CStdGadgetSlider *CStdGadgetSlider::New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
 	MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 {
 	CStdGadgetSlider *RetVal;
 
-	if ((RetVal = new CStdGadgetSlider(a_poParentWindow, a_poParentLayout, a_bVertical, a_poClient, a_iGadgetID)) != NULL)
+	if ((RetVal = new CStdGadgetSlider(a_poParentLayout, a_bVertical, a_poClient, a_iGadgetID)) != NULL)
 	{
 		if (RetVal->Construct() != KErrNone)
 		{
