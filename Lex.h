@@ -31,6 +31,7 @@ private:
 	char		*m_pcString;			/**< Ptr to string to be parsed by destructive routine */
 	TBool		m_bKeepQuotes;			/**< ETrue to keep the quote marks around strings */
 	TBool		m_bKeepWhitespace;		/**< ETrue to treat white space as a token */
+	TBool		m_bKeepNonAlphaNum;		/**< ETrue to treat non alpha numeric characters as a token */
 	TInt		m_iLength;				/**< Length of the string to be parsed */
 	TInt		m_iOriginalLength;		/**< Cached copy of m_iLength */
 	TInt		m_iQuotesLength;		/**< Number of characters of quotes to be checked */
@@ -54,7 +55,7 @@ public:
 
 	void MoveBackwards(TInt a_iLength);
 
-	void SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace);
+	void SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace, TBool a_bKeepNonAlphaNum);
 
 	void SetQuotes(const char *a_pccQuotes);
 

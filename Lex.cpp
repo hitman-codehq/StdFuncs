@@ -27,7 +27,7 @@ TLex::TLex(char *a_pcString)
 	m_iLength = m_iOriginalLength = (TInt) strlen(a_pcString);
 	m_iQuotesLength = 2;
 	m_iWhitespaceLength = 2;
-	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
+	m_bKeepQuotes = m_bKeepWhitespace = m_bKeepNonAlphaNum = EFalse;
 }
 
 /**
@@ -54,7 +54,7 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
 	m_iLength = m_iOriginalLength = a_iLength;
 	m_iQuotesLength = 2;
 	m_iWhitespaceLength = 2;
-	m_bKeepQuotes = m_bKeepWhitespace = EFalse;
+	m_bKeepQuotes = m_bKeepWhitespace = m_bKeepNonAlphaNum = EFalse;
 }
 
 /**
@@ -262,14 +262,46 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 		}
 
-		/* Otherwise just extract up until the next white space character */
+		/* Otherwise just extract up until the next non alpha numeric or white space character */
 
 		else
 		{
-			while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
+			if (m_bKeepNonAlphaNum)
 			{
-				++NextToken;
-				++Index;
+				/* If the next character is alpha numeric then extract the run of alpha numeric characters */
+				/* as a token */
+
+				if (isalnum(*NextToken))
+				{
+					while ((Index < m_iLength) && (isalnum(*NextToken)))
+					{
+						++NextToken;
+						++Index;
+					}
+				}
+
+				/* Otherwise extract the run of non alpha numeric characters as a token */
+
+				else
+				{
+					while ((Index < m_iLength) && (!(isalnum(*NextToken)) && (!CheckWhitespace(*NextToken)) &&
+						(*NextToken != '\"') && (*NextToken != '\'')))
+					{
+						++NextToken;
+						++Index;
+					}
+				}
+			}
+
+			/* Otherwise just extract until the next white space character is found */
+
+			else
+			{
+				while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
+				{
+					++NextToken;
+					++Index;
+				}
 			}
 		}
 	}
@@ -373,12 +405,14 @@ void TLex::MoveBackwards(TInt a_iLength)
  * @date	Tuesday 27-Nov-2012 5:52 am
  * @param	a_bKeepQuotes		ETrue to retain the " or ' quotation marks in extracted strings
  * @param	a_bKeepWhitespace	ETrue to return white space as a token
+ * @param	a_bKeepNonAlphaNum	ETrue to return non alpha numeric characters as a token
  */
 
-void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace)
+void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace, TBool a_bKeepNonAlphaNum)
 {
 	m_bKeepQuotes = a_bKeepQuotes;
 	m_bKeepWhitespace = a_bKeepWhitespace;
+	m_bKeepNonAlphaNum = a_bKeepNonAlphaNum;
 }
 
 /**
