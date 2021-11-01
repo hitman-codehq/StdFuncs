@@ -16,6 +16,10 @@
 
 #define INNER_SPACING 3
 
+/* ETrue to disable immediate refresh when adding new gadgets to the layout.  Affects Amiga OS only */
+
+TBool CStdGadgetLayout::m_bEnableRefresh = ETrue;
+
 /**
  * Creates an instance of the CStdGadgetLayout class.
  * Allocates and initialises the class, providing two phase construction.
@@ -239,7 +243,10 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
 		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
-		rethinkLayout();
+		if (m_bEnableRefresh)
+		{
+			rethinkLayout();
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -299,7 +306,10 @@ void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
 		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))
 	{
-		rethinkLayout();
+		if (m_bEnableRefresh)
+		{
+			rethinkLayout();
+		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -386,7 +396,13 @@ TInt CStdGadgetLayout::GetSpacing()
 
 }
 
-/* Written: Saturday 15-Oct-2011 12:42 pm, Code HQ Soeflingen */
+/**
+ * Rethink the layout of the gadget tree.
+ * Iterates through the gadgets owned by the layout, and through all of the layouts owned by the layout,
+ * rethinking their size and position.
+ *
+ * @date	Saturday 15-Oct-2011 12:42 pm, Code HQ Soeflingen
+ */
 
 void CStdGadgetLayout::rethinkLayout()
 {
@@ -397,7 +413,15 @@ void CStdGadgetLayout::rethinkLayout()
 	// TODO: CAW (multi) - Why not on this gadget?  Assert on non NULL
 	if ((m_poParentWindow) && (m_poParentWindow->m_poRootLayout))
 	{
-		RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		/* If a rethink is just starting then indicate that it is underway and trigger a native ReAction */
+		/* rethink.  If a rethink is already underway then this layout is a child of another layout that */
+		/* started the rethink, so a request for ReAction to rethink is redundant and would cause flicker */
+
+		if (!m_poRethinker)
+		{
+			m_poRethinker = this;
+			RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		}
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
@@ -488,7 +512,7 @@ void CStdGadgetLayout::rethinkLayout()
 		m_poClient->Resize();
 	}
 
-	/* Now iterate through the framework's gadgets and let them know they have been resized */
+	/* Now iterate through any child layouts that are owned by this one and request them to also perform a rethink */
 
 	LayoutGadget = m_oLayoutGadgets.getHead();
 
@@ -496,6 +520,13 @@ void CStdGadgetLayout::rethinkLayout()
 	{
 		LayoutGadget->rethinkLayout();
 		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+	}
+
+	/* If the layout that started the rethink is this one then the rethink is over, so indicate this */
+
+	if (m_poRethinker == this)
+	{
+		m_poRethinker = NULL;
 	}
 }
 
@@ -721,7 +752,10 @@ void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 	{
-		rethinkLayout();
+		if (m_bEnableRefresh)
+		{
+			rethinkLayout();
+		}
 	}
 
 #endif /* __amigaos__ */

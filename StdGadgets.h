@@ -140,7 +140,8 @@ class CStdGadgetLayout : public CStdGadget
 private:
 
 	TInt						m_iWeight;			/**< Weight of the layout gadget */
-	MStdGadgetLayoutObserver	*m_poClient;		/**< Ptr to client to notify when gadget changes */
+	CStdGadgetLayout			*m_poRethinker;		/**< Pointer to layout gadget currently rethinking, if any */
+	MStdGadgetLayoutObserver	*m_poClient;		/**< Pointer to client to notify when gadget changes */
 	StdList<CStdGadget>			m_oGadgets;			/**< List of gadgets added to the layout */
 	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the layout */
 
@@ -157,6 +158,11 @@ public:
 														 QLayout derived objects do not derive from QWidget */
 
 #endif /* QT_GUI_LIB */
+
+public:
+
+	static TBool				m_bEnableRefresh;	/**< ETrue to disable immediate refresh when adding new
+														 gadgets to the layout.  Affects Amiga OS only */
 
 private:
 
