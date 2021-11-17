@@ -1153,10 +1153,13 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Add the new Qt layout to the window's root layout */
+	/* Add the new Qt layout to the window's root layout, but only if it already has a root layout.  A root layout */
+	/* not being present will only happen during startup, during the creation of the root layout itself */
 
-	// TODO: CAW (multi)
-	//m_poRootLayout->addLayout(a_poLayoutGadget->m_poLayout, 0);
+	if (m_poRootLayout)
+	{
+		m_poRootLayout->Attach(a_poLayoutGadget);
+	}
 
 	/* Let the layout know its new width and then calcuate its new height */
 

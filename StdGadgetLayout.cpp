@@ -60,7 +60,12 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
 	if ((RetVal = new CStdGadgetLayout(a_poParentWindow ? a_poParentWindow : a_poParentLayout->m_poParentWindow,
 		a_poParentLayout, a_bVertical, a_poClient)) != NULL)
 	{
-		if ((Result = RetVal->Construct()) != KErrNone)
+		/* Normally gadgets are created and attached to the parent window or layout in a two stage process. */
+		/* However, because the root layout gadget is created before the window and layout framework is in place */
+		/* we need to handle this and attach the layout to the parent window in the one step.  That we are */
+		/* creating the root layout gadget is indicated by the parent window being non NULL */
+
+		if ((Result = RetVal->Construct(a_poParentWindow != NULL)) != KErrNone)
 		{
 			Utils::info("CStdGadgetLayout::New() => Unable to initialise layout gadget (Error %d)", Result);
 
@@ -96,10 +101,12 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
  * show the layout gadget.
  *
  * @date	Monday 11-Jul-2011 5:46 am
+ * @param	a_bUseParentWindow	true to attach the layout to the parent window immediately, else false
+ *								to follow the usual two stage create/attach process
  * @return	KErrNone if successful, otherwise KErrNoMemory
  */
 
-TInt CStdGadgetLayout::Construct()
+TInt CStdGadgetLayout::Construct(bool a_bUseParentWindow)
 {
 	TInt RetVal;
 
@@ -132,14 +139,13 @@ TInt CStdGadgetLayout::Construct()
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW (multi) - Do we need to use m_poParentWindow here or not?
 	if (m_iGadgetType == EStdGadgetVerticalLayout)
 	{
-		m_poLayout = new QVBoxLayout(m_poParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
+		m_poLayout = new QVBoxLayout(a_bUseParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
 	}
 	else
 	{
-		m_poLayout = new QHBoxLayout(m_poParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
+		m_poLayout = new QHBoxLayout(a_bUseParentWindow ? m_poParentWindow->m_poCentralWidget : NULL);
 	}
 
 	if (m_poLayout)

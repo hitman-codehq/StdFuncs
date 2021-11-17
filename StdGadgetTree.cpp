@@ -34,8 +34,8 @@ int CStdGadgetTree::construct(const std::string &a_title)
 {
 	int retVal = KErrNone;
 
-	ASSERTM((m_poParentWindow != nullptr), "CStdGadgetTree::Construct() => Parent window is NULL");
-	ASSERTM((m_poParentWindow->m_poWindow != nullptr), "CStdGadgetTree::Construct() => Parent native window is NULL");
+	ASSERTM((m_poParentWindow != nullptr), "CStdGadgetTree::construct() => Parent window is NULL");
+	ASSERTM((m_poParentWindow->m_poWindow != nullptr), "CStdGadgetTree::construct() => Parent native window is NULL");
 
 #ifdef __amigaos__
 

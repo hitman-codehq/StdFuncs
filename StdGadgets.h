@@ -176,7 +176,7 @@ private:
 		m_iWeight = 50;
 	}
 
-	TInt Construct();
+	TInt Construct(bool a_bUseParentWindow);
 
 	CStdGadget *FindNativeGadget(void *a_pvGadget);
 
