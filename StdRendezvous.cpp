@@ -104,10 +104,12 @@ TInt RRendezvous::open(RApplication *a_poApplication, const char *a_pccName)
 
 #elif defined(QT_GUI_LIB)
 
-		/* Open a local socket with which to read and write messages and let it know to call us when a */
+		m_poApplication = a_poApplication;
+
+		/* Open a local socket with which to read messages and let it know to call us when a */
 		/* message is received */
 
-		if ((RetVal = m_oLocalSocket.open(m_pcName, a_poApplication)) == KErrNone)
+		if ((RetVal = m_oLocalSocket.open(m_pcName, a_poApplication, true)) == KErrNone)
 		{
 			m_oLocalSocket.SetObserver(this);
 		}
@@ -288,9 +290,14 @@ TBool RRendezvous::Rendezvous(const unsigned char *a_pcucData, TInt a_iDataSize)
 
 	if (!m_oLocalSocket.IsServer())
 	{
-		if (m_oLocalSocket.write(a_pcucData, a_iDataSize) == KErrNone)
+		if (m_oLocalSocket.open(m_pcName, m_poApplication, false) == KErrNone)
 		{
-			RetVal = ETrue;
+			if (m_oLocalSocket.write(a_pcucData, a_iDataSize) == KErrNone)
+			{
+				RetVal = ETrue;
+			}
+
+			m_oLocalSocket.close();
 		}
 	}
 

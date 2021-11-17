@@ -67,7 +67,8 @@ private:
 
 #elif defined(QT_GUI_LIB)
 
-	RLocalSocket		m_oLocalSocket;	/**< Local socket for use in communicating between processes */
+	RApplication		*m_poApplication;	/**< Pointer to the parent application under which the program is running */
+	RLocalSocket		m_oLocalSocket;		/**< Local socket for use in communicating between processes */
 
 #endif /* QT_GUI_LIB */
 

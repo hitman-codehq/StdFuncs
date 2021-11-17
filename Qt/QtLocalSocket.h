@@ -46,7 +46,7 @@ private:
 
 private:
 
-	int OpenSocket(const char *a_pccName, RApplication *a_poApplication);
+	int OpenSocket(const char *a_pccName, RApplication *a_poApplication, bool a_bServerMode);
 
 public:
 
@@ -56,7 +56,7 @@ public:
 
 	bool IsServer();
 
-	int open(const char *a_pccName, RApplication *a_poApplication);
+	int open(const char *a_pccName, RApplication *a_poApplication, bool a_bServerMode);
 
 	void close();
 
