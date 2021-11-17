@@ -227,7 +227,7 @@ void CDialog::close(TInt a_iGadgetID)
 
 	if (m_poDialogObserver)
 	{
-		m_poDialogObserver->DialogClosed(this, a_iGadgetID);
+		m_poDialogObserver->HandleDialogCommand(this, a_iGadgetID);
 	}
 }
 

@@ -45,22 +45,19 @@ class MDialogObserver
 {
 public:
 
-	virtual void DialogClosed(CDialog *a_poDialog, TInt a_iGadgetID) = 0;
+	virtual void HandleDialogCommand(CDialog *a_poDialog, TInt a_iGadgetID) = 0;
 };
 
 /* This is the base class for all platform specific dialog boxes */
 
 class CDialog : public CWindow
 {
-private:
-
-	MDialogObserver			*m_poDialogObserver;	/**< Ptr to dialog's observer to notify of events */
-
 protected:
 
 	char					*m_pcTextBuffer;		/**< Scratch buffer containing last obtained text */
 	TInt					m_iTextBufferSize;		/**< Size of scratch buffer, in bytes */
 	TInt					m_iNumGadgetMappings;	/**< Number of entries in m_poGadgetMappings */
+	MDialogObserver			*m_poDialogObserver;	/**< Ptr to dialog's observer to notify of events */
 
 #ifdef __amigaos__
 
