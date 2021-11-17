@@ -27,7 +27,7 @@
  * @param	a_poParentLayout	Pointer to the gadget layout that will hold this gadget
  * @param	a_bVertical			ETrue if this is a vertical slider, else EFalse
  * @param	a_poClient			Ptr to the client to be notified when the slider's value changes
- * @param	a_iGadgetID			Unique identifier of the slider gadget
+ * @param	a_iGadgetID			Unique identifier of the slider gadget.  Must be > 0
  * @return	Pointer to the newly created slider gadget if successful, else NULL
  */
 
@@ -35,6 +35,8 @@ CStdGadgetSlider *CStdGadgetSlider::New(CStdGadgetLayout *a_poParentLayout, TBoo
 	MStdGadgetSliderObserver *a_poClient, TInt a_iGadgetID)
 {
 	CStdGadgetSlider *RetVal;
+
+	ASSERTM((a_iGadgetID > 0), "CStdGadgetSlider::New() => Gadget ID must be > 0");
 
 	if ((RetVal = new CStdGadgetSlider(a_poParentLayout, a_bVertical, a_poClient, a_iGadgetID)) != NULL)
 	{

@@ -37,7 +37,7 @@
  * @param	a_poParentLayout	Pointer to the gadget layout that will hold this gadget
  * @param	a_iNumParts			Number of parts to be created
  * @param	a_piPartsOffsets	Ptr to array of sizes of parts as percentages
- * @param	a_iGadgetID			Unique identifier of the status bar gadget
+ * @param	a_iGadgetID			Unique identifier of the status bar gadget  Must be > 0
  * @return	Pointer to the newly created status bar if successful, else NULL
  */
 
@@ -45,6 +45,8 @@ CStdGadgetStatusBar *CStdGadgetStatusBar::New(CStdGadgetLayout *a_poParentLayout
 	TInt *a_piPartsOffsets, TInt a_iGadgetID)
 {
 	CStdGadgetStatusBar *RetVal;
+
+	ASSERTM((a_iGadgetID > 0), "CStdGadgetStatusBar::New() => Gadget ID must be > 0");
 
 	if ((RetVal = new CStdGadgetStatusBar(a_poParentLayout, a_iGadgetID)) != NULL)
 	{
