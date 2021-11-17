@@ -69,6 +69,7 @@ else()
 endif()
 
 set_property(TARGET StdFuncs PROPERTY CXX_STANDARD 14)
+set_property(TARGET StdFuncs PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(NOT MSVC)
 	set_source_files_properties("StdSocket.cpp" PROPERTIES "COMPILE_OPTIONS" "-fexceptions")
