@@ -484,7 +484,7 @@ void CQtWindow::wheelEvent(QWheelEvent *a_poWheelEvent)
 	/* Pass the event directly onto the client and set it to ignored so that Qt performs */
 	/* no further processing of it */
 
-	m_poWindow->HandleWheelEvent(a_poWheelEvent->delta());
+	m_poWindow->HandleWheelEvent(a_poWheelEvent->angleDelta().y());
 	a_poWheelEvent->ignore();
 }
 
