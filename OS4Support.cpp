@@ -39,6 +39,7 @@ APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags)
 			}
 
 			/* And initialise the other mandatory fields in the port */
+			msgPort->mp_Node.ln_Type = NT_MSGPORT;
 			msgPort->mp_SigBit = AllocSignal(-1);
 			msgPort->mp_SigTask = FindTask(nullptr);
 			NewList(&msgPort->mp_MsgList);
