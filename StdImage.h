@@ -6,7 +6,11 @@
 
 #include <intuition/classes.h>
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+class QPixmap;
+
+#endif /* QT_GUI_LIB */
 
 /* A class to allow programs to load images without having to be concerned about their */
 /* type.  The range of images supported is platform dependent given that this class is */
@@ -25,11 +29,15 @@ private:
 	Object			*m_poBitMapObj;	/**< Datatype object representing the loaded image */
 	struct BitMap	*m_poBitMap;	/**< BitMap data extracted from the bitmap datatype */
 
-#elif defined(WIN32)
+#elif defined(QT_GUI_LIB)
+
+	QPixmap			*m_poBitmap;	/** Pointer to Qt bitmap representing the loaded image */
+
+#else /* ! QT_GUI_LIB */
 
 	HBITMAP			m_poBitmap;		/**< Handle to Windows bitmap representing the loaded image */
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 public:
 
@@ -42,11 +50,11 @@ public:
 		m_poBitMapObj = NULL;
 		m_poBitMap = NULL;
 
-#elif defined(WIN32)
+#else /* ! __amigaos__ */
 
 		m_poBitmap = NULL;
 
-#endif /* WIN32 */
+#endif /* ! __amigaos__ */
 
 	}
 
@@ -66,19 +74,26 @@ public:
 
 #ifdef __amigaos__
 
-	struct BitMap *BitMap()
+	const struct BitMap *BitMap() const
 	{
 		return(m_poBitMap);
 	}
 
-#elif defined(WIN32)
+#elif defined(QT_GUI_LIB)
 
-	HBITMAP Bitmap()
+	const QPixmap *Bitmap() const
 	{
 		return(m_poBitmap);
 	}
 
-#endif /* WIN32 */
+#else /* ! QT_GUI_LIB */
+
+	const HBITMAP Bitmap() const
+	{
+		return(m_poBitmap);
+	}
+
+#endif /* ! QT_GUI_LIB */
 
 };
 

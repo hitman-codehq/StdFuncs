@@ -2614,11 +2614,13 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 }
 
 /**
- * Takes a filename that may or may not contain the Amiga style "PROGDIR:" at the start and, if
- * this prefix is found, returns a pointer to a fully qualified path that can be used for opening
- * the file.  It is the responsibility of the client to free the buffer containing this path.
- * If the filename passed in does not contain this prefix, a pointer to the filename passed passed
- * in is returned
+ * Resolves an Amiga OS style PROGDIR: prefix.
+ * Takes a path and filename that may or may not contain the Amiga style "PROGDIR:" prefix at the start and,
+ * if this prefix is found, determines the directory from which the program was executed and replaces
+ * PROGDIR: with this path + '/'.  This is useful for loading resources from the directory in which the program
+ * resides.  It then returns a pointer to a fully qualified path that can be used for opening the file.  It is
+ * the responsibility of the client to free the buffer containing this path.  If the filename passed in does
+ * not contain this prefix, a pointer to the filename passed in is returned.
  *
  * @date	Monday 17-Dec-2012 6:24 am, John & Sally's House
  * @param	a_pccFileName	Pointer to filename to be resolved

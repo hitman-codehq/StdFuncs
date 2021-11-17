@@ -85,20 +85,37 @@ TInt RStdImage::open(const char *a_pccFileName)
 
 	return(RetVal);
 
-#elif defined(__unix__)
+#elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement and remove warning prevention cast
-	(void) a_pccFileName;
+	char *QualifiedFileName;
 
-	return(KErrNotFound);
+	/* If the filename has an Amiga OS style PROGDIR: prefix then resolve it so that the image can be */
+	/* loaded from the application directory */
 
-#else /* ! __unix__ */
+	if ((QualifiedFileName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
+	{
+		m_poBitmap = new QPixmap(QualifiedFileName);
+
+		/* If the bitmap could not be loaded then free the QPixmap, to indicate the failure to load to client code */
+
+		if (m_poBitmap->isNull())
+		{
+			delete m_poBitmap;
+			m_poBitmap = NULL;
+		}
+
+		delete [] QualifiedFileName;
+	}
+
+	return((m_poBitmap) ? KErrNone : KErrNotFound);
+
+#else /* ! QT_GUI_LIB */
 
 	m_poBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), a_pccFileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 	return((m_poBitmap) ? KErrNone : KErrNotFound);
 
-#endif /* ! __unix__ */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -121,7 +138,8 @@ void RStdImage::close()
 
 #elif defined(QT_GUI_LIB)
 
-	// TODO: CAW - Implement
+	delete m_poBitmap;
+	m_poBitmap = NULL;
 
 #else /* ! QT_GUI_LIB */
 
