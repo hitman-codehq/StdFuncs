@@ -161,6 +161,8 @@ TInt CStdGadgetLayout::Construct(bool a_bUseParentWindow)
 
 #else /* ! QT_GUI_LIB */
 
+	(void) a_bUseParentWindow;
+
 	RetVal = KErrNone;
 
 #endif /* ! QT_GUI_LIB */
@@ -281,6 +283,9 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 #else /* ! QT_GUI_LIB */
 
+	// TODO: CAW - Temporary until we decide on how this should work
+	m_iWidth = m_poParentWindow->m_iInnerWidth;
+	m_iHeight = m_poParentWindow->m_iInnerHeight;
 	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */

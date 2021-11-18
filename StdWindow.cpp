@@ -1170,7 +1170,9 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* Let the layout gadget know its new width and then calcuate its new height */
 
+	// TODO: CAW - Temporary until we decide on how this should work
 	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
+	a_poLayoutGadget->m_iHeight = m_iInnerHeight;
 	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */
@@ -2626,6 +2628,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			/* Calculate the inner width and height of the window, for l8r use */
 
 			QSize Size = m_poCentralWidget->size();
+			// TODO: CAW - Duplicated below
 			m_iInnerWidth = Size.width();
 			m_iInnerHeight = Size.height();
 
