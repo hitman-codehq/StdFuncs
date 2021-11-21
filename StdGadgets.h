@@ -151,8 +151,6 @@ private:
 
 #elif defined(QT_GUI_LIB)
 
-public:
-
 	QBoxLayout				*m_poLayout;			/**< Pointer to the underlying Qt widget.
 														 Usually this is stored in m_poGadget but unfortunately
 														 QLayout derived objects do not derive from QWidget */
@@ -195,6 +193,22 @@ public:
 	void Attach(CStdGadget *a_poGagdet);
 
 	void Attach(CStdGadgetLayout *a_poLayoutGadget);
+
+#ifdef __amigaos__
+
+	Object GetLayout()
+	{
+		return(m_poLayout);
+	}
+
+#elif defined(QT_GUI_LIB)
+
+	QBoxLayout *GetLayout()
+	{
+		return(m_poLayout);
+	}
+
+#endif /* QT_GUI_LIB */
 
 	TInt GetSpacing();
 
