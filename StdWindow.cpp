@@ -2621,7 +2621,6 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			/* Calculate the inner width and height of the window, for l8r use */
 
 			QSize Size = m_poCentralWidget->size();
-			// TODO: CAW - Duplicated below
 			m_iInnerWidth = Size.width();
 			m_iInnerHeight = Size.height();
 
@@ -2650,16 +2649,10 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 					m_poWindow->showMaximized();
 
 					/* And indicate that the window is active, as Qt 5 performs a draw operation */
-					/* operation before calling QMainWindow::focusInEvent(), resulting in the cursor */
-					/* not being displayed */
+					/* before calling QMainWindow::focusInEvent(), resulting in the cursor not being */
+					/* displayed */
 
 					m_bIsActive = ETrue;
-
-					/* And save the size of the client area */
-
-					QSize Size = m_poCentralWidget->size();
-					m_iInnerWidth = Size.width();
-					m_iInnerHeight = Size.height();
 				}
 				else
 				{
@@ -2749,7 +2742,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 						RetVal = KErrNone;
 
-						/* And save the size of the client area */
+						/* Calculate the inner width and height of the window, for l8r use */
 
 						m_iInnerWidth = (Rect.right - Rect.left);
 						m_iInnerHeight = (Rect.bottom - Rect.top);
