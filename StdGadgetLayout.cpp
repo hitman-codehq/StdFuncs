@@ -283,9 +283,6 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 #else /* ! QT_GUI_LIB */
 
-	// TODO: CAW - Temporary until we decide on how this should work
-	m_iWidth = m_poParentWindow->m_iInnerWidth;
-	m_iHeight = m_poParentWindow->m_iInnerHeight;
 	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */
@@ -438,9 +435,74 @@ void CStdGadgetLayout::rethinkLayout()
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 	// TODO: CAW - A VERY temporary solution - this needs to handle both horizontal and vertical layouts
-	TInt Height, InnerWidth;
+	TInt Height, InnerHeight, InnerWidth, MinHeight, RemainderHeight, Y;
 	RECT Rect;
 	CStdGadget *Gadget, *HorizontalSliderGadget, *StatusBarGadget;
+
+	Y = 0;
+	InnerHeight = m_iHeight;
+	LayoutGadget = m_oLayoutGadgets.getHead();
+
+	if (LayoutGadget)
+	{
+		while (LayoutGadget)
+		{
+			if (LayoutGadget->Weight() == 1)
+			{
+				/* CStdGadgetLayout::MinHeight() is expensive so cache the result */
+
+				MinHeight = LayoutGadget->MinHeight();
+
+				LayoutGadget->m_iHeight = MinHeight;
+				InnerHeight -= MinHeight;
+			}
+			else
+			{
+				LayoutGadget->m_iHeight = -1;
+			}
+
+			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+		}
+
+		/* Each vertical layout gadget will be the same height, but the last one might be slightly */
+		/* larger due to division rounding, so we calculate its height slightly differently */
+
+		Height = (m_iHeight / m_oLayoutGadgets.Count());
+		RemainderHeight = (m_iHeight - (Height * (m_oLayoutGadgets.Count() - 1)));
+
+		LayoutGadget = m_oLayoutGadgets.getHead();
+
+		while (LayoutGadget)
+		{
+			LayoutGadget->m_iY = Y;
+			LayoutGadget->m_iWidth = m_iWidth;
+
+			if (LayoutGadget->Weight() == 1)
+			{
+				Y += LayoutGadget->MinHeight();
+			}
+			else if (LayoutGadget->Weight() == 50)
+			{
+				if (m_oLayoutGadgets.getSucc(LayoutGadget) == NULL)
+				{
+					LayoutGadget->m_iHeight = RemainderHeight;
+				}
+				else
+				{
+					LayoutGadget->m_iHeight = Height;
+				}
+
+				Y += Height;
+			}
+			else
+			{
+				LayoutGadget->m_iHeight = InnerHeight;
+				Y += InnerHeight;
+			}
+
+			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+		}
+	}
 
 	Gadget = m_oGadgets.getHead();
 	HorizontalSliderGadget = StatusBarGadget = NULL;
@@ -516,13 +578,6 @@ void CStdGadgetLayout::rethinkLayout()
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
-	/* If there is a client interested in getting updates, let it know that the layout gadget has been resized */
-
-	if (m_poClient)
-	{
-		m_poClient->Resize();
-	}
-
 	/* Now iterate through any child layouts that are owned by this one and request them to also perform a rethink */
 
 	LayoutGadget = m_oLayoutGadgets.getHead();
@@ -531,6 +586,13 @@ void CStdGadgetLayout::rethinkLayout()
 	{
 		LayoutGadget->rethinkLayout();
 		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+	}
+
+	/* If there is a client interested in getting updates, let it know that the layout gadget has been resized */
+
+	if (m_poClient)
+	{
+		m_poClient->Resize();
 	}
 
 	/* If the layout that started the rethink is this one then the rethink is over, so indicate this */
@@ -769,7 +831,14 @@ void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 		}
 	}
 
-#endif /* __amigaos__ */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+	/* And rethink the layout to reflect the change.  Qt will do this via a QEvent::LayoutRequest in */
+	/* its event filter so no need to do it for Qt */
+
+	rethinkLayout();
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 

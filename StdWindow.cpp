@@ -1144,9 +1144,6 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		if (SetGadgetAttrs((struct Gadget *) LayoutObj /*m_poRootLayout->m_poGadget*/, m_poWindow, NULL,
 			LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 		{
-			/* Let the layout gadget know its new width and then calcuate its new height */
-
-			a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 			rethinkLayout();
 		}
 	}
@@ -1161,18 +1158,10 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		m_poRootLayout->Attach(a_poLayoutGadget);
 	}
 
-	/* Let the layout know its new width and then calcuate its new height */
-
-	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
 	rethinkLayout();
 
 #else /* ! QT_GUI_LIB */
 
-	/* Let the layout gadget know its new width and then calcuate its new height */
-
-	// TODO: CAW - Temporary until we decide on how this should work
-	a_poLayoutGadget->m_iWidth = m_iInnerWidth;
-	a_poLayoutGadget->m_iHeight = m_iInnerHeight;
 	rethinkLayout();
 
 #endif /* ! QT_GUI_LIB */
