@@ -2566,6 +2566,10 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 					Utils::info("CWindow::open() => Unable to create menus for window");
 				}
 			}
+			else
+			{
+				Utils::info("CWindow::open() => Unable to create root layout object");
+			}
 		}
 		else
 		{
@@ -2662,6 +2666,10 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 					Utils::info("CWindow::open() => Unable to create menus for window");
 				}
 			}
+			else
+			{
+				Utils::info("CWindow::open() => Unable to create root layout object");
+			}
 		}
 		else
 		{
@@ -2746,7 +2754,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 						m_iInnerWidth = (Rect.right - Rect.left);
 						m_iInnerHeight = (Rect.bottom - Rect.top);
 
-						if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+						if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) == NULL)
 						{
 							Utils::info("CWindow::open() => Unable to create root layout object");
 						}
