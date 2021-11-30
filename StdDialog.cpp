@@ -829,14 +829,20 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 		if ((Gadget = GetBOOPSIGadget(IDOK)) != NULL)
 		{
-			if (GetAttr(GA_Disabled, Gadget, &Disabled))
-			{
-				/* If is not disabled then send the fake IDOK command to the client */
+			/* GetAttr() returns 0 on OS3, even though GA_Disabled is a functioning tag.  So rather than */
+			/* check that the tag value could be obtained, we will just use a default value and ignore the */
+			/* return code of GetAttr().  This will function correctly when running on OS4 (also for the OS3 */
+			/* m68k build) and fail without problems on OS3 */
 
-				if (!(Disabled))
-				{
-					HandleCommand(IDOK);
-				}
+			Disabled = 0;
+
+			GetAttr(GA_Disabled, Gadget, &Disabled);
+
+			/* If is not disabled then send the fake IDOK command to the client */
+
+			if (!(Disabled))
+			{
+				HandleCommand(IDOK);
 			}
 		}
 	}
