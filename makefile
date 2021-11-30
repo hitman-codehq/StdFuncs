@@ -23,46 +23,36 @@ endif
 
 UNAME = $(shell uname)
 
-ifeq ($(UNAME), CYGWIN_NT-10.0)
-
-CFLAGS += -athread=native
-LFLAGS += -athread=native
-OBJ := $(OBJ)_OS4
-
-else
-
-AUTO_LIBRARY = $(OBJ)/libauto.a
-
+ifdef PREFIX
+	ifeq ($(UNAME), CYGWIN_NT-10.0)
+		CFLAGS += -athread=native
+		LFLAGS += -athread=native
+		OBJ := $(OBJ)_OS4
+	else
+		AUTO_LIBRARY = $(OBJ)/libauto.a
+	endif
 endif
 
 LIBRARY = $(OBJ)/libStdFuncs.a
 
 ifdef PREFIX
+	OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+		$(OBJ)/OS4Support.o $(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
+		$(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
+		$(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o \
+		$(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o \
+		$(OBJ)/Utils.o
 
-OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-	$(OBJ)/StdApplication.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
-	$(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
-	$(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o \
-	$(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o \
-	$(OBJ)/Utils.o
-
+	ifneq ($(UNAME), CYGWIN_NT-10.0)
+		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
+			$(OBJ)/AutoGadTools.o $(OBJ)/AutoGfx.o $(OBJ)/AutoIcon.o $(OBJ)/AutoIFFParse.o $(OBJ)/AutoIntuition.o $(OBJ)/AutoKeymap.o \
+			$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o \
+			$(OBJ)/AutoUtility.o $(OBJ)/AutoWindow.o $(OBJ)/SafeOpenLibrary.o
+	endif
 else
-
-OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/StdConfigFile.o \
-	$(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o \
-	$(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
-
-endif
-
-ifneq ($(UNAME), CYGWIN_NT-10.0)
-
-AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
-	$(OBJ)/AutoGadTools.o $(OBJ)/AutoGfx.o $(OBJ)/AutoIcon.o $(OBJ)/AutoIFFParse.o $(OBJ)/AutoIntuition.o $(OBJ)/AutoKeymap.o \
-	$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o \
-	$(OBJ)/AutoUtility.o $(OBJ)/AutoWindow.o $(OBJ)/SafeOpenLibrary.o
-
-OBJECTS += $(OBJ)/OS4Support.o
-
+	OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/StdConfigFile.o \
+		$(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o \
+		$(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 all: $(OBJ) $(LIBRARY) $(AUTO_LIBRARY)
@@ -74,9 +64,13 @@ $(LIBRARY): $(OBJECTS)
 	@echo Creating library $@...
 	$(AR) -rs $@ $(OBJECTS)
 
+ifdef PREFIX
+
 $(AUTO_LIBRARY): $(AUTO_OBJECTS)
 	@echo Creating library $@...
 	$(AR) -rs $@ $(AUTO_OBJECTS)
+
+endif
 
 $(OBJ)/%.o: %.cpp
 	@echo Compiling $<...

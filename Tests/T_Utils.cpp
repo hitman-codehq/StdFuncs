@@ -436,7 +436,7 @@ int main()
 	Result = Utils::GetFileInfo("", &Entry);
 	test(Result == KErrNotFound);
 
-#ifndef __linux__
+#ifndef __unix__
 
 	/* For non case dependent operating systems, ensure that using the incorrect case */
 	/* works and that it returns the correctly cased name of the directory or file */
@@ -449,7 +449,7 @@ int main()
 	test(Result == KErrNone);
 	test(strcmp(Entry.iName, "SomeFile.txt") == 0);
 
-#endif /* __linux__ */
+#endif /* __unix__ */
 
 	/* Test #15: Basic Utils::StringToInt() tests */
 

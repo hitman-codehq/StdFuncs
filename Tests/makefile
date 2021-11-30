@@ -1,14 +1,17 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -std=gnu++14 -Wall -Wextra
+CFLAGS = -c -fno-asynchronous-unwind-tables -std=gnu++14 -Wall -Wextra
 IFLAGS = -I.. -D__USE_INLINE__
 LFLAGS = -L../$(OBJ)
-LIBS = -lStdFuncs -lauto
+LIBS = -lStdFuncs
 
 ifdef PREFIX
 	AR = @$(PREFIX)ar
 	CC = @$(PREFIX)g++
 	LD = @$(PREFIX)g++
 	STRIP = @$(PREFIX)strip
+
+	LIBS += -lauto
+	STRIP_FLAGS = -R.comment
 else
 	AR = @ar
 	CC = @g++
@@ -26,19 +29,23 @@ endif
 
 UNAME = $(shell uname)
 
-ifeq ($(UNAME), CYGWIN_NT-10.0)
-
-CFLAGS += -athread=native
-LFLAGS += -athread=native
-OBJ := $(OBJ)_OS4
-
-else
-
-LFLAGS += -mcrt=clib2
-
+ifdef PREFIX
+	ifeq ($(UNAME), CYGWIN_NT-10.0)
+		CFLAGS += -athread=native
+		LFLAGS += -athread=native
+		OBJ := $(OBJ)_OS4
+	else
+		LFLAGS += -mcrt=clib2
+	endif
 endif
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_OS4SUPPORT) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
+
+ifdef PREFIX
+
+EXECUTABLES += $(T_OS4SUPPORT)
+
+endif
 
 T_ARGS = $(OBJ)/T_Args
 
@@ -96,62 +103,62 @@ $(OBJ):
 $(T_ARGS): $(T_ARGS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_ARGS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_CONFIGFILE): $(T_CONFIGFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_CONFIGFILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_DIR): $(T_DIR_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_DIR_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_FILE): $(T_FILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_FILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_LEX): $(T_LEX_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_LEX_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_OS4SUPPORT): $(T_OS4SUPPORT_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_OS4SUPPORT_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_POOL): $(T_POOL_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_POOL_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_STDTEXTFILE): $(T_STDTEXTFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_STDTEXTFILE_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_STRINGLIST): $(T_STRINGLIST_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_STRINGLIST_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_TIME): $(T_TIME_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_TIME_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_UTILS): $(T_UTILS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_UTILS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_WILDCARD): $(T_WILDCARD_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_WILDCARD_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
-	$(STRIP) -R.comment $@.debug -o $@
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(OBJ)/%.o: %.cpp
 	@echo Compiling $<...

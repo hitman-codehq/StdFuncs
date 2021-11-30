@@ -174,19 +174,19 @@ int main()
 	Test.Next("Test including spaces and quotes");
 
 	TLex QuotesAndSpace(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
-	QuotesAndSpace.SetConfig(ETrue, ETrue);
+	QuotesAndSpace.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(QuotesAndSpace, g_apccQuotesAndSpaceListResults, QUOTES_AND_SPACE_COUNT);
 
 	TLex Quotes(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
-	Quotes.SetConfig(ETrue, EFalse);
+	Quotes.SetConfig(ETrue, EFalse, EFalse);
 	CheckListNonDestructive(Quotes, g_apccQuotesListResults, QUOTES_COUNT);
 
 	TLex Spaces(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
-	Spaces.SetConfig(EFalse, ETrue);
+	Spaces.SetConfig(EFalse, ETrue, EFalse);
 	CheckListNonDestructive(Spaces, g_apccSpacesListResults, SPACES_COUNT);
 
 	TLex QuotesNoWhitespace(g_accQuotesListNoWhitespace, strlen(g_accQuotesListNoWhitespace));
-	QuotesNoWhitespace.SetConfig(ETrue, EFalse);
+	QuotesNoWhitespace.SetConfig(ETrue, EFalse, EFalse);
 	CheckListNonDestructive(QuotesNoWhitespace, g_apccQuotesListNoWhitespaceResults, QUOTES_LIST_NO_WHITESPACE_COUNT);
 
 	/* Test #5: Test alternate white space separator */
@@ -194,17 +194,17 @@ int main()
 	Test.Next("Test alternate white space separator");
 
 	TLex QuotesAndSpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
-	QuotesAndSpacesSemiColon.SetConfig(ETrue, ETrue);
+	QuotesAndSpacesSemiColon.SetConfig(ETrue, ETrue, EFalse);
 	QuotesAndSpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesAndSpacesSemiColon, g_apccQuotesAndSpacesSemiColonListResults, SEMICOLON_COUNT);
 
 	TLex QuotesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
-	QuotesSemiColon.SetConfig(ETrue, EFalse);
+	QuotesSemiColon.SetConfig(ETrue, EFalse, EFalse);
 	QuotesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesSemiColon, g_apccQuotesSemiColonListResults, QUOTES_SEMICOLON_COUNT);
 
 	TLex SpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
-	SpacesSemiColon.SetConfig(EFalse, ETrue);
+	SpacesSemiColon.SetConfig(EFalse, ETrue, EFalse);
 	SpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(SpacesSemiColon, g_apccSpacesSemiColonListResults, SPACES_SEMICOLON_COUNT);
 
@@ -229,7 +229,7 @@ int main()
 	/* handled precisely as expected */
 
 	TLex SingleQuote(g_accSingleQuote, strlen(g_accSingleQuote));
-	SingleQuote.SetConfig(ETrue, ETrue);
+	SingleQuote.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(SingleQuote, g_accSingleQuoteResults, SINGLE_QUOTE_COUNT);
 
 	TLex SingleQuoteSkip(g_accSingleQuote, strlen(g_accSingleQuote));
@@ -238,7 +238,7 @@ int main()
 	/* Also check that double quotes by themselves are handled as expected */
 
 	TLex DoubleQuote(g_accDoubleQuote, strlen(g_accDoubleQuote));
-	DoubleQuote.SetConfig(ETrue, ETrue);
+	DoubleQuote.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(DoubleQuote, g_accDoubleQuoteResults, DOUBLE_QUOTE_COUNT);
 
 	TLex DoubleQuoteSkip(g_accDoubleQuote, strlen(g_accDoubleQuote));
