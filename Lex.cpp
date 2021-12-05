@@ -271,9 +271,9 @@ const char *TLex::NextToken(TInt *a_piLength)
 				/* If the next character is alpha numeric then extract the run of alpha numeric characters */
 				/* as a token */
 
-				if (isalnum(*NextToken))
+				if (isalnum((unsigned char) *NextToken))
 				{
-					while ((Index < m_iLength) && (isalnum(*NextToken)))
+					while ((Index < m_iLength) && (isalnum((unsigned char) *NextToken)))
 					{
 						++NextToken;
 						++Index;
@@ -284,7 +284,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 				else
 				{
-					while ((Index < m_iLength) && (!(isalnum(*NextToken)) && (!CheckWhitespace(*NextToken)) &&
+					while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!CheckWhitespace(*NextToken)) &&
 						(*NextToken != '\"') && (*NextToken != '\'')))
 					{
 						++NextToken;
