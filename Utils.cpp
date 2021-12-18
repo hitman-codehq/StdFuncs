@@ -1217,6 +1217,13 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 
 						UnLock(_Lock);
 					}
+					else
+					{
+						if (IoErr() == ERROR_OBJECT_IN_USE)
+						{
+							RetVal = KErrInUse;
+						}
+					}
 
 					FreeDosObject(DOS_FIB, FileInfoBlock);
 				}

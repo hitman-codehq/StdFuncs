@@ -32,6 +32,148 @@ static void WriteToFile(RFile &a_roFile)
 	test(!(strcmp(Buffer, g_pccWriteText)));
 }
 
+void TestExclusiveMode()
+{
+	int Result;
+	RFile File, File2;
+
+	Result = BaflUtils::deleteFile("File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	/* Test #4: Test that RFile::Create() and RFile::open() work as expected */
+
+	Test.Next("Creating and opening files with RFile::Create() and RFile::open() in exclusive mode");
+
+	/* Ensure that files cannot be opened in an exclusive mode when created with RFile::Create() */
+
+	Result = File.Create("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead | EFileExclusive);
+	test(Result == KErrInUse);
+
+	Result = File2.open("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrInUse);
+
+	File.close();
+
+	/* Ensure that files cannot be opened in an exclusive mode when opened with RFile::open() */
+	/* in writeable mode */
+
+	Result = File.open("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead | EFileExclusive);
+	test(Result == KErrInUse);
+
+	Result = File2.open("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrInUse);
+
+	File.close();
+
+	/* Ensure that files cannot be opened in an exclusive mode when opened with RFile::open() */
+	/* in read only mode */
+
+	Result = File.open("File.txt", EFileRead | EFileExclusive);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead | EFileExclusive);
+	test(Result == KErrInUse);
+
+	Result = File2.open("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrInUse);
+
+	File.close();
+
+	/* Ensure that files cannot be opened in an exclusive mode using RFile::Create().  Note that */
+	/* unlike other file opening behaviour, this behaviour is the same regardless of whether the */
+	/* file was created in exclusive or shared mode (see shared tests) */
+
+	test(BaflUtils::deleteFile("File.txt") == KErrNone);
+
+	Result = File.Create("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrNone);
+
+	Result = File2.Create("File.txt", EFileWrite | EFileExclusive);
+	test(Result == KErrAlreadyExists);
+
+	File.close();
+}
+
+void TestSharedMode()
+{
+	int Result;
+	RFile File, File2, File3;
+
+	Result = BaflUtils::deleteFile("File.txt");
+	test((Result == KErrNone) || (Result == KErrNotFound));
+
+	/* Test #5: Test that RFile::Create() and RFile::open() work as expected */
+
+	Test.Next("Creating and opening files with RFile::Create() and RFile::open() in shared mode");
+
+	/* Ensure that files can be opened in a shared mode when created with RFile::Create() */
+
+	Result = File.Create("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = File3.open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	File3.close();
+	File2.close();
+	File.close();
+
+	/* Ensure that files cann be opened in a shared mode when opened with RFile::open() */
+	/* in writeable mode */
+
+	Result = File.open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = File3.open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	File3.close();
+	File2.close();
+	File.close();
+
+	/* Ensure that files can be opened in a shared mode when opened with RFile::open() */
+	/* in read only mode */
+
+	Result = File.open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = File2.open("File.txt", EFileRead);
+	test(Result == KErrNone);
+
+	Result = File3.open("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	File3.close();
+	File2.close();
+	File.close();
+
+	/* Ensure that files cannot be opened in a shared mode using RFile::Create().  Note that */
+	/* unlike other file opening behaviour, this behaviour is the same regardless of whether the */
+	/* file was created in exclusive or shared mode (see exclusive tests) */
+
+	test(BaflUtils::deleteFile("File.txt") == KErrNone);
+
+	Result = File.Create("File.txt", EFileWrite);
+	test(Result == KErrNone);
+
+	Result = File2.Create("File.txt", EFileWrite);
+	test(Result == KErrAlreadyExists);
+
+	File.close();
+}
+
 int main()
 {
 	char Buffer[256];
@@ -78,63 +220,8 @@ int main()
 	Result = BaflUtils::deleteFile("NewFile.txt");
 	test(Result == KErrNone);
 
-	/* Test #4: Test that RFile::Create() and RFile::open() work as expected */
-
-	Test.Next("Creating and opening files with RFile::Create() and RFile::open()");
-
-	/* Ensure that files cannot be opened in a shared mode when created */
-	/* with RFile::Create() */
-
-	Result = File.Create("File.txt", EFileWrite);
-	test(Result == KErrNone);
-
-	Result = File2.open("File.txt", EFileRead);
-	test(Result == KErrInUse);
-
-	Result = File2.open("File.txt", EFileWrite);
-	test(Result == KErrInUse);
-
-	File.close();
-
-	/* Ensure that files cannot be opened in a shared mode when opened */
-	/* with RFile::open() in writeable mode */
-
-	Result = File.open("File.txt", EFileWrite);
-	test(Result == KErrNone);
-
-	Result = File2.open("File.txt", EFileRead);
-	test(Result == KErrInUse);
-
-	Result = File2.open("File.txt", EFileWrite);
-	test(Result == KErrInUse);
-
-	File.close();
-
-	/* Ensure that files cannot be opened in a shared mode when opened */
-	/* with RFile::open() in read only mode */
-
-	Result = File.open("File.txt", EFileRead);
-	test(Result == KErrNone);
-
-	Result = File2.open("File.txt", EFileRead);
-	test(Result == KErrInUse);
-
-	Result = File2.open("File.txt", EFileWrite);
-	test(Result == KErrInUse);
-
-	File.close();
-
-	/* Ensure that files cannot be opened in a shared mode using RFile::Create() */
-
-	test(BaflUtils::deleteFile("File.txt") == KErrNone);
-
-	Result = File.Create("File.txt", EFileWrite);
-	test(Result == KErrNone);
-
-	Result = File2.Create("File.txt", EFileWrite);
-	test(Result == KErrInUse);
-
-	File.close();
+	TestExclusiveMode();
+	TestSharedMode();
 
 	/* Ensure other Create() and open() errors are as expected */
 
@@ -150,7 +237,7 @@ int main()
 	Result = File.open("UnknownFile.txt", EFileRead);
 	test(Result == KErrNotFound);
 
-	/* Test #5: Test that we are able to create and write to files using both supported APIs */
+	/* Test #6: Test that we are able to create and write to files using both supported APIs */
 
 	Test.Next("Creating and writing to files using both supported APIs");
 
@@ -198,7 +285,7 @@ int main()
 
 	File.close();
 
-	/* Test #5: Ensure that the PROGDIR: prefix works with RFile::open() */
+	/* Test #7: Ensure that the PROGDIR: prefix works with RFile::open() */
 
 	Test.Next("Ensure that the PROGDIR: prefix works with RFile::open()");
 

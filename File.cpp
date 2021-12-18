@@ -71,7 +71,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
 	{
-		if ((m_oHandle = Open(a_pccFileName, MODE_NEWFILE)) != 0)
+		if ((m_oHandle = Open(a_pccFileName, MODE_READWRITE)) != 0)
 		{
 			RetVal = KErrNone;
 
@@ -99,20 +99,20 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 	if ((m_oHandle = ::open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
-		/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
-		/* multiple locks on individual files */
+		RetVal = KErrNone;
 
-		if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+		/* Now lock the file so that it cannot be re-opened, if exclusive mode has been requested */
+
+		if (a_uiFileMode & EFileExclusive)
 		{
-			RetVal = KErrNone;
-		}
-		else
-		{
-			Utils::info("RFile::Create() => Unable to lock file for exclusive access");
+			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) != 0)
+			{
+				Utils::info("RFile::Create() => Unable to lock file for exclusive access");
 
-			RetVal = KErrGeneral;
+				RetVal = KErrGeneral;
 
-			close();
+				close();
+			}
 		}
 	}
 	else
@@ -120,24 +120,6 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
 		RetVal = Utils::MapLastFileError(a_pccFileName);
-
-		/* For UNIX we need some special handling as trying to open a file for */
-		/* writing when it already exists will return EEXIST but we want to treat */
-		/* it as an EBUSY, thus returning KErrInUse as on the other platforms.  So try */
-		/* to open the file in read only mode, and if it returns KErrInUse then change */
-		/* the error.  Otherwise the error is valid so we want to retain it as it is */
-
-		if (RetVal == KErrAlreadyExists)
-		{
-			if (open(a_pccFileName, EFileRead) == KErrInUse)
-			{
-				RetVal = KErrInUse;
-			}
-
-			/* Close the file as it may have been successfully opened by the above call */
-
-			close();
-		}
 	}
 
 #else /* ! __unix__ */
@@ -230,8 +212,7 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  * @param	a_pccFileName	Ptr to the name of the file to be opened
  * @param	a_uiFileMode	Mode in which to open the file; one of the @link TFileMode @endlink values
  * @return	KErrNone if successful
- * @return	KErrAlreadyExists if the file already exists
- * @return	KErrInUse if the file or directory is in use
+ * @return	KErrInUse if the file is in use
  * @return	KErrNoMemory if not enough memory was available
  * @return	KErrNotFound if the path is ok, but the file does not exist
  * @return	KErrPathNotFound if the path to the file does not exist
@@ -256,24 +237,24 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		if ((m_oHandle = Open(ResolvedFileName, MODE_OLDFILE)) != 0)
 		{
-			/* And change the shared lock to an exclusive lock as our API only */
-			/* supports opening files exclusively */
+			RetVal = KErrNone;
 
-			if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) != 0)
+			/* Save the read/write mode for l8r use */
+
+			m_uiFileMode = a_uiFileMode;
+
+			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
+
+			if (a_uiFileMode & EFileExclusive)
 			{
-				RetVal = KErrNone;
+				if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) == 0)
+				{
+					Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
-				/* Save the read/write mode for l8r use */
+					RetVal = KErrInUse;
 
-				m_uiFileMode = a_uiFileMode;
-			}
-			else
-			{
-				Utils::info("RFile::open() => Unable to lock file for exclusive access");
-
-				RetVal = KErrGeneral;
-
-				close();
+					close();
+				}
 			}
 		}
 		else
@@ -293,24 +274,24 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 
 		if ((m_oHandle = ::open(ResolvedFileName, Flags, 0)) != -1)
 		{
-			/* Now lock the file so that it cannot be re-opened.  The RFile API does not support having */
-			/* multiple locks on individual files */
+			RetVal = KErrNone;
 
-			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) == 0)
+			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
+
+			if (a_uiFileMode & EFileExclusive)
 			{
-				RetVal = KErrNone;
-			}
-			else
-			{
-				Utils::info("RFile::open() => Unable to lock file for exclusive access");
+				if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) != 0)
+				{
+					Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
-				/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
-				/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
-				/* in here rather than when open() fails */
+					/* UNIX behaves slightly differently to Amiga OS.  Amiga OS will fail to open the file when it is */
+					/* locked but UNIX will open it but then the call to lock will fail, so we have to return KErrInUse */
+					/* in here rather than when open() fails */
 
-				RetVal = KErrInUse;
+					RetVal = KErrInUse;
 
-				close();
+					close();
+				}
 			}
 		}
 		else

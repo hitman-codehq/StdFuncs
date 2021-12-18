@@ -13,7 +13,9 @@
 enum TFileMode
 {
 	EFileRead = 0x00,	/**< Opens the file in read only mode */
-	EFileWrite = 0x200	/**< Opens the file in read/write mode */
+	EFileWrite = 0x200,	/**< Opens the file in read/write mode */
+	EFileExclusive = 0x400	/**< Opens the file in exclusive mode, preventing access by other */
+							/**< processes or instances of the RFile class */
 };
 
 /**
