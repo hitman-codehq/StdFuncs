@@ -244,7 +244,7 @@ void MungWall::Free(void *pvBlock, const char *pccSourceFile, int iSourceLine, B
 				paArena->paNext->paPrev = paArena->paPrev;
 			}
 
-			MungeMem((ULONG *) paArena, paArena->stOrigSize);
+			MungeMem((uint32_t *) paArena, paArena->stOrigSize);
 			free(paArena);
 		}
 		else
@@ -267,17 +267,17 @@ void MungWall::Free(void *pvBlock, const char *pccSourceFile, int iSourceLine, B
 /********************************************************/
 /* MungWall::MungeMem will munge a block of memory.     */
 /* Written: Thursday 11-Dec-1997 3:56 pm                */
-/* Passed: pulBuffer => Ptr to the buffer to munge      */
+/* Passed: puiBuffer => Ptr to the buffer to munge      */
 /*         stBufferSize => Size of the buffer, in bytes */
 /********************************************************/
 
-void MungWall::MungeMem(ULONG *pulBuffer, size_t stBufferSize)
+void MungWall::MungeMem(uint32_t *puiBuffer, size_t stBufferSize)
 {
 	ULONG ulIndex;
 
 	for (ulIndex = 0; ulIndex < (stBufferSize / 4); ++ulIndex)
 	{
-		pulBuffer[ulIndex] = 0xdeadbeef;
+		puiBuffer[ulIndex] = 0xdeadbeef;
 	}
 }
 
@@ -306,8 +306,8 @@ void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 	if (pubBlock)
 	{
 		memset(pubBlock, 0, stMungedSize);
-		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena)), MungeSize);
-		MungeMem((ULONG *) (pubBlock + sizeof(struct Arena) + MungeSize + stSize), MungeSize);
+		MungeMem((uint32_t *) (pubBlock + sizeof(struct Arena)), MungeSize);
+		MungeMem((uint32_t *) (pubBlock + sizeof(struct Arena) + MungeSize + stSize), MungeSize);
 		paBlock = (struct Arena *) pubBlock;
 		paBlock->pccSourceFile = pccSourceFile;
 		paBlock->iSourceLine = iSourceLine;
@@ -590,6 +590,7 @@ void operator delete(void *pvBlock, std::size_t /*stSize*/) DELETE_THROW
  *
  * @date	Thursday 30-May-2019 4:25 pm, Code HQ Bergmannstrasse
  * @param	pvBlock			Pointer to the user's buffer to delete
+ * @param	stSize			The number of elements in the array to be deleted
  */
 
 void operator delete [](void *pvBlock, std::size_t /*stSize*/) DELETE_THROW

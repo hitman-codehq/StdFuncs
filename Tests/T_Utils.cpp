@@ -306,11 +306,11 @@ int main()
 
 #elif defined(__amigaos__)
 
-	/* Amiga OS uses ':' for the root directory.  Assume that this test is being run on the "Work:" volume */
+	/* Amiga OS uses ':' for the root directory.  Assume that this test is being run on the "Source:" or "Work:" volume */
 
 	FileName = Utils::ResolveFileName(":");
 	test(FileName != NULL);
-	test(strcmp(FileName, "Work:") == 0);
+	test((strcmp(FileName, "Source:") == 0) || strcmp(FileName, "Work:") == 0);
 	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;

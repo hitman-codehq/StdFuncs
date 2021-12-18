@@ -33,11 +33,11 @@ private:
 
 	QPixmap			*m_poBitmap;	/** Pointer to Qt bitmap representing the loaded image */
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	HBITMAP			m_poBitmap;		/**< Handle to Windows bitmap representing the loaded image */
 
-#endif /* ! QT_GUI_LIB */
+#endif /* WIN32 */
 
 public:
 
@@ -50,11 +50,11 @@ public:
 		m_poBitMapObj = NULL;
 		m_poBitMap = NULL;
 
-#else /* ! __amigaos__ */
+#elif defined(QT_GUI_LIB) || defined(WIN32)
 
 		m_poBitmap = NULL;
 
-#endif /* ! __amigaos__ */
+#endif /* defined(QT_GUI_LIB) || defined(WIN32) */
 
 	}
 
@@ -86,14 +86,14 @@ public:
 		return(m_poBitmap);
 	}
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	const HBITMAP Bitmap() const
 	{
 		return(m_poBitmap);
 	}
 
-#endif /* ! QT_GUI_LIB */
+#endif /* WIN32 */
 
 };
 

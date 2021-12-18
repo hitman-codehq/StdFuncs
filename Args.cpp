@@ -1086,7 +1086,7 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 	{
 		RetVal = KErrNoMemory;
 
-		Utils::info("RDArgs::open() => Unable to allocate buffer for arguments");
+		Utils::info("RDArgs::readArgs() => Unable to allocate buffer for arguments");
 	}
 
 	return(RetVal);

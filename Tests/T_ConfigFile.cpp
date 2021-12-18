@@ -98,7 +98,7 @@ static void TestDynamicReads(RConfigFile *a_poConfigFile)
 
 	Key = Group->FindNextKey(Key, "CommentDelimiters");
 	test(Key != NULL);
-	test(strcmp(Key->m_pcValue, "/*") == 0);
+	test(strcmp(Key->m_pcValue, "/* */") == 0);
 
 	Key = Group->FindNextKey(Key, "CommentDelimiters");
 	test(Key == NULL);

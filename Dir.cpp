@@ -722,7 +722,7 @@ TInt RDir::open(const char *a_pccPattern)
 
 #else /* ! __amigaos4__ */
 
-				if ((iLock = Lock(a_pccPattern, ACCESS_READ)) != 0)
+				if ((iLock = Lock(iPath, ACCESS_READ)) != 0)
 				{
 					/* Allocate a buffer for the file information to be returned, and a control block to keep track */
 					/* of the progress of the scan */

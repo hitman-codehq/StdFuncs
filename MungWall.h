@@ -2,6 +2,7 @@
 #ifndef MUNGWALL_H
 #define MUNGWALL_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifdef _MSC_VER
@@ -58,7 +59,7 @@ class MungWall
 	BOOL CheckBlockValidity(void *);
 	ULONG CheckOverWrite(UBYTE *);
 	void CheckOverWrites(struct Arena *);
-	void MungeMem(ULONG *, size_t);
+	void MungeMem(uint32_t *, size_t);
 
 public:
 
