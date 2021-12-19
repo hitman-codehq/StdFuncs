@@ -203,6 +203,7 @@
     <ClCompile Include="Lex.cpp" />
     <ClCompile Include="MungWall.cpp" />
     <ClCompile Include="StdApplication.cpp" />
+    <ClCompile Include="StdCharConverter.cpp" />
     <ClCompile Include="StdClipboard.cpp" />
     <ClCompile Include="StdConfigFile.cpp" />
     <ClCompile Include="StdCRC.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Lex.h" />
     <ClInclude Include="MungWall.h" />
     <ClInclude Include="StdApplication.h" />
+    <ClInclude Include="StdCharConverter.h" />
     <ClInclude Include="StdClipboard.h" />
     <ClInclude Include="StdConfigFile.h" />
     <ClInclude Include="StdCRC.h" />
