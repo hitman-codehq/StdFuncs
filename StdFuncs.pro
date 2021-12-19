@@ -26,14 +26,14 @@ MOC_DIR = $$OBJECTS_DIR
 DEFINES -= UNICODE
 
 SOURCES += Args.cpp BaUtils.cpp Dir.cpp File.cpp Lex.cpp MungWall.cpp \
-	StdApplication.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileRequester.cpp \
+	StdApplication.cpp StdCharConverter.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileRequester.cpp \
 	StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp StdGadgetTree.cpp \
 	StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp StdTextFile.cpp StdTime.cpp \
 	StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
 
 SOURCES += Qt/QtAction.cpp Qt/QtGadgetSlider.cpp Qt/QtGadgetTree.cpp Qt/QtLocalSocket.cpp Qt/QtWindow.cpp
 
-HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdClipboard.h \
+HEADERS += Args.h BaUtils.h Dir.h File.h Lex.h MungWall.h StdApplication.h StdCharConverter.h StdClipboard.h \
 	StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h StdImage.h StdList.h \
 	StdPool.h StdReaction.h StdRendezvous.h StdSocket.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h \
 	StdWindow.h Test.h Utils.h
