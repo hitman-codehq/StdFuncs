@@ -28,6 +28,7 @@ static struct ColumnInfo g_columnInfo[] =
  *
  * @date	Sunday 18-Jul-2021 12:32 pm, Am Theater Stralsund FeWo
  * @param	a_title			Title to be displayed at the top of the tree's column
+ * @return	KErrNone if successful, else KErrNoMemory
  */
 
 int CStdGadgetTree::construct(const std::string &a_title)
