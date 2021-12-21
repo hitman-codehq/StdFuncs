@@ -52,9 +52,9 @@ ifdef PREFIX
 		OBJECTS += $(OBJ)/OS4Support.o
 	endif
 else
-	OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/StdConfigFile.o \
-		$(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o \
-		$(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
+	OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o \
+		$(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 all: $(OBJ) $(LIBRARY) $(AUTO_LIBRARY)
