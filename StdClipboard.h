@@ -74,7 +74,7 @@ public:
 
 	void SetDataEnd();
 
-	const char *GetDataStart();
+	const char *GetDataStart(TEncoding a_eEncoding);
 
 	const char *GetNextLine(TInt *a_piLength, TBool *a_bHasEOL);
 

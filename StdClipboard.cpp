@@ -301,7 +301,7 @@ void RClipboard::SetDataEnd()
 
 /* Written: Tuesday 06-Jul-2010 7:47 am */
 
-const char *RClipboard::GetDataStart()
+const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 {
 	const char *RetVal;
 
@@ -363,10 +363,18 @@ const char *RClipboard::GetDataStart()
 
 #elif defined(QT_GUI_LIB)
 
-	/* The data returned by clipboard()->text() needs to be persistent for the life */
-	/* of the RClipboard class, so copy it into a temporary QByteArray */
+	/* The data returned by clipboard()->text() needs to be persistent for the life of the RClipboard class, */
+	/* so copy it into a temporary QByteArray.  Also, the data must be returned in a format appropriate for */
+	/* the currently used encoding */
 
-	m_oGetData = QApplication::clipboard()->text().toLatin1();
+	if (a_eEncoding == EEncoding8859)
+	{
+		m_oGetData = QApplication::clipboard()->text().toLatin1();
+	}
+	else
+	{
+		m_oGetData = QApplication::clipboard()->text().toLocal8Bit();
+	}
 
 	/* Now return a ptr to the start of the clipboard data */
 
