@@ -3157,6 +3157,39 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
 }
 
 /**
+ * Enables display of the cursor.
+ * This function only has an effect on systems that supply cursor functionality, such as Windows.
+ *
+ * @pre		The window has been opened
+ *
+ * @date	Thursday 30-Jun-2022 6:51 am, Oakwood Hotels & Apartments, Tokyo
+ * @param	a_bShow			true to show the cursor, else false to hide it
+ */
+
+void CWindow::ShowCursor(bool a_bShow)
+{
+	ASSERTM(m_poWindow != NULL, "CWindow::ShowCursor() => Trying to set cursor state in unopened window");
+
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	if (a_bShow)
+	{
+		ShowCaret(m_poWindow);
+	}
+	else
+	{
+		HideCaret(m_poWindow);
+	}
+
+#else /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
+
+	(void) a_bShow;
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
+}
+
+/**
  * Returns whether the meta key is currently pressed.
  * Allows client code to query whether the meta key is currently pressed, in
  * order to use that key in shortcut sequences.  Note that the meta key differs

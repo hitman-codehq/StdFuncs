@@ -264,6 +264,8 @@ public:
 
 	void SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight);
 
+	void ShowCursor(bool a_bShow);
+
 	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
 
 	/* Accessor functions */
