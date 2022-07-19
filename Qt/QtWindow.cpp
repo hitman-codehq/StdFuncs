@@ -115,7 +115,19 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 		if (String.length() >= 1)
 		{
-			Key = (unsigned char) String[0].toLatin1();
+			QByteArray UTF8 = String.toUtf8();
+			ASSERTM((UTF8.size() <= (int) sizeof(Key)), "CQtWindow::HandleKeyEvent() => Encoded glyph cannot fit in an integer");
+
+			/* Extract the UTF-8 character to a little endian integer, that can be treated */
+			/* like a keypress by the client software */
+
+			Key = 0;
+
+			for (int Index = UTF8.size() -1; Index >= 0; --Index)
+			{
+				Key <<= 8;
+				Key |= (unsigned char) UTF8.at(Index);
+			}
 
 			/* It seems that Qt keyboard handling is just as complex as Windows.  :-( */
 			/* We have to take care of a complex combination of key presses that come in, */
@@ -127,7 +139,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 			/* that are pressed while ctrl is held down are processed by the second one. */
 			/* In this case text() returns an incorrect keycode so we use key() instead */
 
-			if ((Key >= 32) && (Key <= 254))
+			if (((Key >= 32) && (Key <= 254)) | (Key > STD_KEY_F12))
 			{
 				m_poWindow->OfferKeyEvent(Key, a_bKeyDown);
 			}
