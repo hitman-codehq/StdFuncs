@@ -116,7 +116,7 @@ public:
 
 	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);
 
-	int TextWidthInPixels(const char *a_pccText, int a_iLength);
+	int TextWidthInPixels(const char *a_pccText, int a_iLength, int a_iSize);
 
 #ifdef QT_GUI_LIB
 

@@ -1326,16 +1326,18 @@ void RFont::SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt
 
 /**
  * Calculates the width of a string, in pixels.
- * Determines how many horizontal pixels are required to display a string.  This method is not
- * UTF-8 aware.
+ * Determines how many horizontal pixels are required to display a string.  This method is UTF-8 aware.
+ * Both the length of the string (as characters/code points) and the size of the string (in bytes) are
+ * passed in as both are required for the calculation of the string's width.
  *
  * @date	Tuesday 29-May-2018 7:06 am, Code HQ Bergmannstrasse
  * @param	a_pccText	Pointer to the string for which to calculate the width
  * @param	a_iLength	The length of the text, in characters
+ * @param	a_iSize		The size of the text, in bytes
  * @return	The number of horizontel pixels required to display the string
  */
 
-int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
+int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength, int a_iSize)
 {
 	int RetVal;
 
@@ -1344,14 +1346,17 @@ int RFont::TextWidthInPixels(const char *a_pccText, int a_iLength)
 
 #if defined(QT_GUI_LIB) && defined(__APPLE__)
 
+	(void) a_iLength;
+
 	QFontMetrics Metrics(*m_poFont);
-	QByteArray Text(a_pccText, a_iLength);
+	QByteArray Text(a_pccText, a_iSize);
 
 	RetVal = Metrics.horizontalAdvance(Text);
 
 #else /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
 
 	(void) a_pccText;
+	(void) a_iSize;
 
 	RetVal = (a_iLength * m_iWidth);
 
