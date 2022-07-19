@@ -17,6 +17,11 @@ public:
 	int construct();
 
 	std::pair<uint32_t, int> toUTF8(int a_character);
+
+	QTextCodec *getTextCodec()
+	{
+		return m_textCodec;
+	}
 };
 
 #endif /* ! STDCHARCONVERTER_H */
