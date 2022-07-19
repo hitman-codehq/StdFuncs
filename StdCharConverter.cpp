@@ -110,7 +110,7 @@ std::pair<uint32_t, int> CStdCharConverter::to8859(uint32_t a_character)
 
 #else /* ! QT_GUI_LIB */
 
-	(void) a_character;
+	retVal.first |= a_character;
 
 #endif /* ! QT_GUI_LIB */
 
@@ -168,7 +168,7 @@ std::pair<uint32_t, int> CStdCharConverter::toUTF8(uint32_t a_character)
 
 #else /* ! QT_GUI_LIB */
 
-	(void) a_character;
+	retVal.first |= a_character;
 
 #endif /* ! QT_GUI_LIB */
 
