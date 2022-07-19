@@ -443,7 +443,12 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 		((QScrollBar *) m_poGadget)->setPageStep(a_iPageSize);
 	}
 
+	/* Setting the new range might tigger an Updated() callback.  For compatibility with the other */
+	/* versions, don't notify the client during this operation */
+
+	m_bSettingValue = true;
 	((QScrollBar *) m_poGadget)->setRange(0, m_iMaxRange);
+	m_bSettingValue = false;
 
 #else /* ! QT_GUI_LIB */
 
