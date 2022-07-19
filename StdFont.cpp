@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "StdCharConverter.h"
 #include "StdFont.h"
 #include "StdWindow.h"
 
@@ -268,6 +269,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 	if ((m_poFont = new QFont(a_pccName, a_iSize)) != NULL)
 	{
+
 		RetVal = KErrNone;
 
 		/* As this is a programmer's editor, we want a fixed width font */
@@ -533,33 +535,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #if defined(__amigaos__) || defined(QT_GUI_LIB)
 
-	char Buffer[4];
-	int Size;
-	TUint Mask;
-
-	/* Determine the number of bytes that make up the character.  The character is encoded in little endian */
-	/* format, even on big endian systems, to ensure that when Unicode is not in use the character byte is in */
-	/* the lowest byte.  The upper bytes are zero, allowing easy counting */
-
-	Size = 0;
-	Mask = 0xff;
-
-	while (a_uiCharacter & Mask)
-	{
-		++Size;
-		Mask <<= 8;
-	}
-
-	/* Now unpack the character into a buffer in the order in which it would naturally appear in text, in */
-	/* order that it can be printed */
-
-	memset(Buffer, 0, sizeof(Buffer));
-
-	for (int Index = 0; Index < Size; ++Index)
-	{
-		Buffer[Index] = (a_uiCharacter & 0xff);
-		a_uiCharacter >>= 8;
-	}
+	std::string Buffer = CStdCharConverter::makeString(a_uiCharacter);
 
 #else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
@@ -606,7 +582,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 			if (m_poWindow->IsActive())
 			{
-				Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
+				Text(m_poWindow->m_poWindow->RPort, Buffer.data(), Buffer.size());
 			}
 			else
 			{
@@ -645,7 +621,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 					OldDrawMode = GetDrMd(m_poWindow->m_poWindow->RPort);
 					SetDrMd(m_poWindow->m_poWindow->RPort, JAM1);
-					Text(m_poWindow->m_poWindow->RPort, Buffer, Size);
+					Text(m_poWindow->m_poWindow->RPort, Buffer.data(), Buffer.size());
 					SetDrMd(m_poWindow->m_poWindow->RPort, OldDrawMode);
 
 					FreeRaster(PlanePtr, 16, 16);
@@ -670,7 +646,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 		/* And render the inverted character in the cursor, taking into account that QPainter::drawText() */
 		/* uses the Y position as the baseline of the font, not as the top */
 
-		QByteArray String(Buffer, Size);
+		QByteArray String = QByteArray::fromRawData(Buffer.data(), (int) Buffer.size());
 		m_oPainter.drawText(X, (Y + m_iBaseline), String);
 
 		/* Set the background mode back to transparent so that if there is a pretty transparent background or a */

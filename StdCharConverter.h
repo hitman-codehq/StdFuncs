@@ -24,6 +24,10 @@ public:
 
 	int construct();
 
+	static std::string makeString(uint32_t a_character);
+
+	static std::string makeString(uint32_t a_character, int a_size);
+
 	std::pair<uint32_t, int> to8859(uint32_t a_character);
 
 	std::pair<uint32_t, int> toUTF8(uint32_t a_character);

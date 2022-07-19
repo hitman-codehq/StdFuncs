@@ -61,6 +61,75 @@ int CStdCharConverter::construct()
 }
 
 /**
+ * Converts a multibyte character into a string.
+ * This UTF-8 aware function will convert a character containing between 1 and 4 bytes of little endian data
+ * into a string.  Characters can usually be treated as an integer, without regard for the number of bytes of
+ * data they contain, but sometimes a string representation is needed, to ensure that byte ordering and
+ * alignment is machine independent.  The number of valid (non zero) bytes within the character will be
+ * calculated by this function.
+ *
+ * This function will never produce an invalid string, but passing in the special character of 0 (NUL) will
+ * result in an empty string being returned.
+ *
+ * @date	Saturday 09-Jul-2022 8:05 am, Oakwood Hotel & Apartments, Tokyo Azabu
+ * @param	a_character		The character to be converted
+ * @return	The character, represented as a string
+ */
+
+std::string CStdCharConverter::makeString(uint32_t a_character)
+{
+	int size;
+	TUint mask;
+
+	/* Determine the number of bytes that make up the character.  The character is encoded in little endian */
+	/* format, even on big endian systems, to ensure that when Unicode is not in use the character byte is in */
+	/* the lowest byte.  The upper bytes are zero, allowing easy counting */
+
+	size = 0;
+	mask = 0xff;
+
+	while (a_character & mask)
+	{
+		++size;
+		mask <<= 8;
+	}
+
+	return makeString(a_character, size);
+}
+
+/**
+ * Converts a multibyte character into a string.
+ * This UTF-8 aware function will convert a character containing between 1 and 4 bytes of little endian data
+ * into a string.  Characters can usually be treated as an integer, without regard for the number of bytes of
+ * data they contain, but sometimes a string representation is needed, to ensure that byte ordering and
+ * alignment is machine independent.
+ *
+ * This function will never produce an invalid string, but passing in the special character of 0 (NUL) will
+ * result in an empty string being returned.
+ *
+ * @date	Saturday 09-Jul-2022 8:06 am, Oakwood Hotel & Apartments, Tokyo Azabu
+ * @param	a_character		The character to be converted
+ * @param	a_size			The number of valid (non zero) bytes within the character
+ * @return	The character, represented as a string
+ */
+
+std::string CStdCharConverter::makeString(uint32_t a_character, int a_size)
+{
+	std::string retVal;
+
+	/* Unpack the character into a buffer in the order in which it would naturally appear in text, in order */
+	/* that it can be printed */
+
+	for (int index = 0; index < a_size; ++index)
+	{
+		retVal.push_back(a_character & 0xff);
+		a_character >>= 8;
+	}
+
+	return retVal;
+}
+
+/**
  * Convert a UTF-8 character to 8859-15.
  * This method takes a character in the UTF-8 character set and returns its 8859-15 equivalent and
  * the size of that 8859-15 character in bytes.  The character is returned in a std::pair with .first
