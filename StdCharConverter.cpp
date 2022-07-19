@@ -149,16 +149,21 @@ std::pair<uint32_t, int> CStdCharConverter::toUTF8(uint32_t a_character)
 	/* not, then just return a 0 character to indicate this */
 	if (unicode.length() > 0)
 	{
-		/* The Unicode string contains the data as code points so convert it to 1 or 2 byte UTF-8 encoded characters */
+		/* The Unicode string contains the data as code points so convert it to UTF-8 encoded character */
 		QByteArray UTF8 = unicode.toUtf8();
 
-		retVal = std::pair<uint32_t, int>(static_cast<unsigned char>(UTF8[0]), 1);
+		uint32_t character = 0;
+		int size = UTF8.size() - 1;
 
-		if (UTF8.size() > 1)
+		/* Iterate through the array of UTF-8 encoded bytes, packing them into a single little endian encoded */
+		/* UTF-8 32 bit character */
+		while (size >= 0)
 		{
-			retVal.first |= static_cast<unsigned char>(UTF8[1]) << 8;
-			++retVal.second;
+			character |= static_cast<uint8_t>(UTF8[size]) << size * 8;
+			--size;
 		}
+
+		retVal = std::pair<uint32_t, int>(character, UTF8.size());
 	}
 
 #else /* ! QT_GUI_LIB */
