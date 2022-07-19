@@ -901,7 +901,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 			/* the height of the current font and the baseline of the font, given that the Text() routine */
 			/* prints at the baseline position, not the top of the font */
 
-			XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
+			XPixels = TextWidthInPixels(LineText.c_str(), LineText.size(), LineText.size());
 
 			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + XPixels),
 				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
@@ -1035,7 +1035,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 
 		/* And call the normal monocolour text drawing method to display the string for us */
 
-		XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size());
+		XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size(), (int) LineText.size());
 		DrawText(a_pccText, Size, (m_iXOffset + XPixels), a_iY, a_eEncoding);
 
 		/* And prepare for the next run to be displayed */
