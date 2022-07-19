@@ -43,13 +43,23 @@ enum enAllocSysObjectTypes
 
 inline APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...)
 {
-	return AllocSysObject(a_type, (struct TagItem *) &a_tag);
+	va_list args;
+
+	va_start(args, a_tag);
+	APTR retVal = AllocSysObject(a_type, (struct TagItem *) &a_tag);
+	va_end(args);
+
+	return retVal;
 }
 
 inline void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
 	Tag a_tag, ...)
 {
-	return RefreshSetGadgetAttrsA(a_gadget, a_window, a_requester, (struct TagItem *) &a_tag);
+	va_list args;
+
+	va_start(args, a_tag);
+	RefreshSetGadgetAttrsA(a_gadget, a_window, a_requester, (struct TagItem *) &a_tag);
+	va_end(args);
 }
 
 #endif /* defined(__amigaos__) && !defined(__amigaos4__) */
