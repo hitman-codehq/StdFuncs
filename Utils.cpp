@@ -2078,6 +2078,19 @@ void Utils::NormalisePath(char *a_pcPath)
 			a_pcPath[Index] = '/';
 		}
 	}
+
+#ifdef WIN32
+
+	/* Some Windows APIs return a capital drive letter and some return a lower case one, so */
+	/* make it consistent */
+
+	if (Length >= 2)
+	{
+		a_pcPath[0] = (char) toupper(a_pcPath[0]);
+	}
+
+#endif /* WIN32 */
+
 }
 
 /**
@@ -2560,8 +2573,7 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 
 	TBool RemoveSlash;
 
-	/* If the filename could not be resolved or we are compiling using MSVC6 then fall through */
-	/* to the simplified implementation of this function */
+	/* If the filename could not be resolved then fall through to the simplified implementation of this function */
 
 	if (!RetVal)
 	{
@@ -2595,6 +2607,10 @@ char *Utils::ResolveFileName(const char *a_pccFileName, TBool a_bGetDeviceName)
 					{
 						RetVal[Length - 1] = '\0';
 					}
+
+					/* Ensure that forward slashes and an upper case drive letter are used */
+
+					NormalisePath(RetVal);
 				}
 				else
 				{
