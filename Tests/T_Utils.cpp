@@ -290,7 +290,7 @@ int main()
 
 	FileName = Utils::ResolveFileName("c:/");
 	test(FileName != NULL);
-	test(strcmp(FileName, "c:\\") == 0);
+	test(strcmp(FileName, "C:/") == 0);
 	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
@@ -299,7 +299,7 @@ int main()
 
 	FileName = Utils::ResolveFileName("/");
 	test(FileName != NULL);
-	test(strcmp(&FileName[1], ":\\") == 0);
+	test(strcmp(&FileName[1], ":/") == 0);
 	Test.printf("Resolved name is %s\n", FileName);
 
 	delete [] (char *) FileName;
