@@ -264,44 +264,41 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 		/* Otherwise just extract up until the next non alpha numeric or white space character */
 
-		else
+		else if (m_bKeepNonAlphaNum)
 		{
-			if (m_bKeepNonAlphaNum)
+			/* If the next character is alpha numeric then extract the run of alpha numeric characters */
+			/* as a token */
+
+			if (isalnum((unsigned char) *NextToken))
 			{
-				/* If the next character is alpha numeric then extract the run of alpha numeric characters */
-				/* as a token */
-
-				if (isalnum((unsigned char) *NextToken))
-				{
-					while ((Index < m_iLength) && (isalnum((unsigned char) *NextToken)))
-					{
-						++NextToken;
-						++Index;
-					}
-				}
-
-				/* Otherwise extract the run of non alpha numeric characters as a token */
-
-				else
-				{
-					while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!CheckWhitespace(*NextToken)) &&
-						(*NextToken != '\"') && (*NextToken != '\'')))
-					{
-						++NextToken;
-						++Index;
-					}
-				}
-			}
-
-			/* Otherwise just extract until the next white space character is found */
-
-			else
-			{
-				while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
+				while ((Index < m_iLength) && (isalnum((unsigned char) *NextToken)))
 				{
 					++NextToken;
 					++Index;
 				}
+			}
+
+			/* Otherwise extract the run of non alpha numeric characters as a token */
+
+			else
+			{
+				while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!CheckWhitespace(*NextToken)) &&
+					(*NextToken != '\"') && (*NextToken != '\'')))
+				{
+					++NextToken;
+					++Index;
+				}
+			}
+		}
+
+		/* Otherwise just extract until the next white space character is found */
+
+		else
+		{
+			while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
+			{
+				++NextToken;
+				++Index;
 			}
 		}
 	}
