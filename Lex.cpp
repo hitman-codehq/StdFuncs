@@ -58,6 +58,32 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
 }
 
 /**
+ * Checks to see if a character is a quote.
+ * Checks a character against the contents of the quote list to see if it is a
+ * quote.  This function uses an internal (and user definable) list to define
+ * what a quote is.
+ *
+ * @date	Tuesday 26-Jul-2022 7:11 am, Code HQ Tokyo
+ * @param	a_cCharacter Character to be checked
+ * @return	ETrue if a_cCharacter is a quote, else EFalse
+ */
+
+TBool TLex::IsQuote(char a_cCharacter)
+{
+	TInt QuoteIndex;
+
+	for (QuoteIndex = 0; QuoteIndex < m_iQuotesLength; ++QuoteIndex)
+	{
+		if (a_cCharacter == m_pccQuotes[QuoteIndex])
+		{
+			break;
+		}
+	}
+
+	return(QuoteIndex < m_iQuotesLength);
+}
+
+/**
  * Checks to see if a character is white space.
  * Checks a character against the contents of the white space list to see
  * if it is white space.  This function uses an internal (and user definable)
@@ -69,7 +95,7 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
  * @return	ETrue if a_cCharacter is white space, else EFalse
  */
 
-TBool TLex::CheckWhitespace(char a_cCharacter)
+TBool TLex::IsWhitespace(char a_cCharacter)
 {
 	TInt Index;
 
@@ -205,7 +231,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	/* Skip past any white space at the start of the string */
 
-	while ((Index < m_iLength) && (CheckWhitespace(*NextToken)))
+	while ((Index < m_iLength) && (IsWhitespace(*NextToken)))
 	{
 		++NextToken;
 		++Index;
@@ -267,7 +293,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 		else if (!m_bKeepNonAlphaNum)
 		{
-			while ((Index < m_iLength) && (!(CheckWhitespace(*NextToken))))
+			while ((Index < m_iLength) && (!(IsWhitespace(*NextToken))))
 			{
 				++NextToken;
 				++Index;
@@ -290,7 +316,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 			else
 			{
-				while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!CheckWhitespace(*NextToken)) &&
+				while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!IsWhitespace(*NextToken)) &&
 					(*NextToken != '\"') && (*NextToken != '\'')))
 				{
 					++NextToken;
@@ -311,7 +337,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 		/* a NULL terminator into what is currently pointed to by NextToken, */
 		/* thus causing the next call to this function to fail */
 
-		if (CheckWhitespace(*NextToken))
+		if (IsWhitespace(*NextToken))
 		{
 			/* Only skip if we are not configured to treat white space as a */
 			/* token.  Note that this is incompatible with the destructive */

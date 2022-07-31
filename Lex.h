@@ -43,7 +43,9 @@ public:
 
 	TLex(char *a_pcString);
 
-	TBool CheckWhitespace(char a_cCharacter);
+	TBool IsQuote(char a_cCharacter);
+
+	TBool IsWhitespace(char a_cCharacter);
 
 	TInt Count();
 
