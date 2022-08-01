@@ -217,7 +217,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 	char QuoteChar;
 	const char *NextToken, *RetVal;
 	TBool FoundQuotes;
-	TInt Index, QuoteIndex;
+	TInt Index;
 
 	ASSERTM((m_pccString != NULL), "TLex::NextToken() => String to parse not initialised");
 	ASSERTM((a_piLength != NULL), "TLex::NextToken() => Address of length variable must be given");
@@ -226,7 +226,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	NextToken = RetVal = m_pccString;
 	Index = 0;
-	FoundQuotes = EFalse;
+	FoundQuotes = (m_iQuotesLength != 2);
 	QuoteChar = '"';
 
 	/* Skip past any white space at the start of the string */
@@ -244,20 +244,10 @@ const char *TLex::NextToken(TInt *a_piLength)
 	{
 		RetVal = NextToken;
 
-		/* Check against the user defined list of quote characters */
-
-		for (QuoteIndex= 0; QuoteIndex < m_iQuotesLength; ++QuoteIndex)
-		{
-			if (*NextToken == m_pccQuotes[QuoteIndex])
-			{
-				break;
-			}
-		}
-
 		/* If the new token starts with a quote then extract up until the next quote and include any */
-		/* white space found between the start and end quote characters.  This is the simple case */
+		/* white space found between the start and end quote characters */
 
-		if (QuoteIndex < m_iQuotesLength)
+		if (IsQuote(*NextToken) && !FoundQuotes)
 		{
 			QuoteChar = *NextToken;
 			++NextToken;
@@ -288,8 +278,27 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 		}
 
-		/* Otherwise if we are not configured to treat runs of non alpha numeric characters as a token, then */
-		/* just extract until the next white space character is found.  This is the second simple case */
+		/* If we are in the middle of extracting a quoted string then just continue extracting that */
+
+		else if (FoundQuotes)
+		{
+			while ((Index < m_iLength) && !IsQuote(*NextToken))
+			{
+				++NextToken;
+				++Index;
+			}
+
+			/* And extract the end " or ' if we are configured to keep it and if it actually exists */
+
+			if ((Index < m_iLength) && m_bKeepQuotes && IsQuote(*NextToken))
+			{
+				++NextToken;
+				++Index;
+			}
+		}
+
+		/* If we are not configured to treat runs of non alpha numeric characters as a token, then */
+		/* just extract until the next white space character is found */
 
 		else if (!m_bKeepNonAlphaNum)
 		{
@@ -308,7 +317,8 @@ const char *TLex::NextToken(TInt *a_piLength)
 		{
 			if (isalnum((unsigned char) *NextToken))
 			{
-				while ((Index < m_iLength) && (isalnum((unsigned char) *NextToken)))
+				while ((Index < m_iLength) && isalnum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
+					(!IsQuote(*NextToken)))
 				{
 					++NextToken;
 					++Index;
@@ -316,8 +326,8 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 			else
 			{
-				while ((Index < m_iLength) && (!(isalnum((unsigned char) *NextToken)) && (!IsWhitespace(*NextToken)) &&
-					(*NextToken != '\"') && (*NextToken != '\'')))
+				while ((Index < m_iLength) && !isalnum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
+					!IsQuote(*NextToken))
 				{
 					++NextToken;
 					++Index;
