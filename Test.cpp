@@ -56,7 +56,12 @@ void RTest::operator()(TInt a_iResult, TInt a_iLineNumber, const char *a_pccFile
 {
 	if (!(a_iResult))
 	{
+
+#ifdef _DEBUG
+
 		oMungWall.EnableOutput(FALSE);
+
+#endif /* _DEBUG */
 
 		printf("RTEST: FAIL : %s failed check at line %d of %s\n", m_pccTitle, a_iLineNumber, a_pccFileName);
 		exit(RETURN_ERROR);
