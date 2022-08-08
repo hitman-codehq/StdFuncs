@@ -54,6 +54,7 @@ class MungWall
 		struct Arena *paNext;
 	 };
 
+	BOOL bEnableOutput;
 	ULONG ulNumNews;
 	struct Arena *paFirstArena;
 	BOOL CheckBlockValidity(void *);
@@ -63,8 +64,9 @@ class MungWall
 
 public:
 
-	MungWall() { ulNumNews = 0; paFirstArena = NULL; }
+	MungWall() { bEnableOutput = TRUE; ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
+	void EnableOutput(BOOL bEnable);
 	void Free(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);
 	void *New(size_t stSize, const char *pccSourceFile, int iSourceLine);
 	void *ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);

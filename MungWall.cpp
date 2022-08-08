@@ -34,44 +34,47 @@ MungWall::~MungWall()
 	ULONG ulNews;
 	struct Arena *paArena;
 
-	if (ulNumNews > 100)
+	if (bEnableOutput)
 	{
-		ulNews = ulNumNews;
-		paArena = paFirstArena;
-		stBytesLeaked = 0;
-
-		while (paArena)
+		if (ulNumNews > 100)
 		{
-			stBytesLeaked += paArena->stOrigSize;
-			pvBlock = ((UBYTE *) paArena + sizeof(struct Arena) + MungeSize);
-			paArena = paArena->paNext;
-			Free(pvBlock);
+			ulNews = ulNumNews;
+			paArena = paFirstArena;
+			stBytesLeaked = 0;
+
+			while (paArena)
+			{
+				stBytesLeaked += paArena->stOrigSize;
+				pvBlock = ((UBYTE*) paArena + sizeof(struct Arena) + MungeSize);
+				paArena = paArena->paNext;
+				Free(pvBlock);
+			}
+
+			Utils::info(accLeakage, stBytesLeaked, ulNews);
+			printf(accLeakage, stBytesLeaked, ulNews);
+			printf("\n");
 		}
-
-		Utils::info(accLeakage, stBytesLeaked, ulNews);
-		printf(accLeakage, stBytesLeaked, ulNews);
-		printf("\n");
-	}
-	else
-	{
-		paArena = paFirstArena;
-
-		while (paArena)
+		else
 		{
-			if (paArena->iSourceLine)
-			{
-				Utils::info(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
-				printf(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
-				printf("\n");
-			}
-			else
-			{
-				Utils::info(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
-				printf(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
-				printf("\n");
-			}
+			paArena = paFirstArena;
 
-			paArena = paArena->paNext;
+			while (paArena)
+			{
+				if (paArena->iSourceLine)
+				{
+					Utils::info(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+					printf(accStillAllocatedLine, paArena->pccSourceFile, paArena->iSourceLine, paArena->stOrigSize);
+					printf("\n");
+				}
+				else
+				{
+					Utils::info(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
+					printf(accStillAllocated, paArena->pccSourceFile, paArena->stOrigSize);
+					printf("\n");
+				}
+
+				paArena = paArena->paNext;
+			}
 		}
 	}
 
@@ -192,6 +195,24 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 		Utils::info(acMessage);
 		printf("%s\n", acMessage);
 	}
+}
+
+/**
+ * Enables or disables reporting.
+ * This method can be called to disable reporting of memory leaks in
+ * situations where such reporting is not desired.  For instance, when
+ * performing a call to exit() after a failed unit test when there will
+ * be leaks due to cleanup methods and destructors not being called,
+ * you may wish to observe the output of the test without lots of false
+ * memory leaks being reported.
+ *
+ * @date	Monday 08-Aug-2022 7:38 am, Code HQ Tokyo Tsukuda
+ * @param	bEnableOutput	TRUE to enable reporting, else FALSE
+ */
+
+void MungWall::EnableOutput(BOOL bEnable)
+{
+	bEnableOutput = bEnable;
 }
 
 /**********************************************************************/
