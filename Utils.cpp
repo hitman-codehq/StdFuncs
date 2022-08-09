@@ -209,7 +209,7 @@ TInt Utils::MapLastError()
 	{
 		RetVal = KErrNotFound;
 	}
-	else if ((errno == ENOTEMPTY) || (errno == EBUSY))
+	else if ((errno == ENOTEMPTY) || (errno == EBUSY) || (errno == ETXTBSY))
 	{
 		RetVal = KErrInUse;
 	}
