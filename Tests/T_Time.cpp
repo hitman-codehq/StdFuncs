@@ -1,6 +1,5 @@
 
 #include <StdFuncs.h>
-//#include <StdTime.h>
 #include <Test.h>
 
 static RTest Test("T_Time");	/* Class to use for testing and reporting results */
@@ -29,7 +28,6 @@ int main()
 	test(originalTime.Minute() == rebuiltTime.Minute());
 	test(originalTime.Second() == rebuiltTime.Second());
 
-	// TODO: CAW - What tests are done in T_Utils.cpp?
 	/* Test #3: Check file datestamp obtained from Utils::GetFileInfo() */
 	Test.Next("Check file datestamp obtained from Utils::GetFileInfo()");
 
