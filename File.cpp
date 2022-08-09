@@ -76,6 +76,20 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 			RetVal = KErrNone;
 
 			m_uiFileMode = EFileWrite;
+
+			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
+
+			if (a_uiFileMode & EFileExclusive)
+			{
+				if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) == 0)
+				{
+					Utils::info("RFile::open() => Unable to lock file for exclusive access");
+
+					RetVal = KErrInUse;
+
+					close();
+				}
+			}
 		}
 		else
 		{
@@ -124,9 +138,16 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __unix__ */
 
+	DWORD ShareMode = 0;
+
+	if (!(a_uiFileMode & EFileExclusive))
+	{
+		ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE);
+	}
+
 	/* Create a new file in read/write mode */
 
-	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, ShareMode, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
@@ -135,25 +156,6 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
 		RetVal = Utils::MapLastFileError(a_pccFileName);
-
-		/* For Windows we need some special handling as trying to open a file for */
-		/* writing when it already exists will return ERROR_FILE_EXISTS but we want */
-		/* to treat it as an ERROR_SHARING_VIOLATION, thus returning KErrInUse as on */
-		/* the other platforms.  So try to open the file in read only mode, and if */
-		/* it returns KErrInUse then change the error.  Otherwise the error is valid */
-		/* so we want to retain it as it is */
-
-		if (RetVal == KErrAlreadyExists)
-		{
-			if (open(a_pccFileName, EFileRead) == KErrInUse)
-			{
-				RetVal = KErrInUse;
-			}
-
-			/* Close the file as it may have been successfully opened by the above call */
-
-			close();
-		}
 	}
 
 #endif /* ! __unix__ */
@@ -303,20 +305,26 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 
 #else /* ! __unix__ */
 
-		DWORD FileMode;
+		DWORD FileMode, ShareMode;
 
 		/* Determine whether to open the file in read or write mode */
 
 		FileMode = GENERIC_READ;
+		ShareMode = 0;
 
 		if (a_uiFileMode & EFileWrite)
 		{
 			FileMode |= GENERIC_WRITE;
 		}
 
+		if (!(a_uiFileMode & EFileExclusive))
+		{
+			ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE);
+		}
+
 		/* And open the file */
 
-		if ((m_oHandle = CreateFile(ResolvedFileName, FileMode, 0, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+		if ((m_oHandle = CreateFile(ResolvedFileName, FileMode, ShareMode, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 		{
 			RetVal = KErrNone;
 		}
