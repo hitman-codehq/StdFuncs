@@ -63,7 +63,7 @@ TLex::TLex(const char *a_pccString, TInt a_iLength)
  * quote.  This function uses an internal (and user definable) list to define
  * what a quote is.
  *
- * @date	Tuesday 26-Jul-2022 7:11 am, Code HQ Tokyo
+ * @date	Tuesday 26-Jul-2022 7:11 am, Code HQ Tokyo Tsukuda
  * @param	a_cCharacter Character to be checked
  * @return	ETrue if a_cCharacter is a quote, else EFalse
  */

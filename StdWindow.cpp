@@ -3162,7 +3162,7 @@ void CWindow::SetCursorInfo(TInt a_iX, TInt a_iY, TInt a_iHeight)
  *
  * @pre		The window has been opened
  *
- * @date	Thursday 30-Jun-2022 6:51 am, Oakwood Hotels & Apartments, Tokyo
+ * @date	Thursday 30-Jun-2022 6:51 am, Oakwood Hotels & Apartments, Tokyo Azabu
  * @param	a_bShow			true to show the cursor, else false to hide it
  */
 
