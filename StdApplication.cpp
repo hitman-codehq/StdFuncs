@@ -14,7 +14,7 @@
 
 /* Array of key mappings for mapping Amiga keys onto standard keys.  Amiga OS differentiates between left alt and */
 /* right alt.  When handling keyboard input, we will treat the right alt key differently depending on whether the */
-/* keyboard layout has an alt or an alt-gr key, so keep track of the index of this entry in this array with a #define */
+/* keyboard layout has an alt or an alt+gr key, so keep track of the index of this entry in this array with a #define */
 
 #define RALT_INDEX 4
 
@@ -104,8 +104,8 @@ TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 
 	m_bUseAltGr = ETrue;
 
-	/* If the keyboard layout has an alt-gr key then filter out the mapping that would convert it */
-	/* to a normal alt key on keybords without an alt-gr key */
+	/* If the keyboard layout has an alt+gr key then filter out the mapping that would convert it */
+	/* to a normal alt key on keybords without an alt+gr key */
 
 	if (m_bUseAltGr)
 	{
@@ -467,9 +467,9 @@ TInt RApplication::Main()
 
 										QualifierMask = (IEQUALIFIER_CONTROL | IEQUALIFIER_LALT);
 
-										/* If we are using a keyboard that does not have an alt-gr key then we also filter */
+										/* If we are using a keyboard that does not have an alt+gr key then we also filter */
 										/* the right alt key out from processing so that it acts like the left alt key.  If */
-										/* the keyboard has an alt-gr key then we want it to be cooked so that we receive */
+										/* the keyboard has an alt+gr key then we want it to be cooked so that we receive */
 										/* the special characters that it generates */
 
 										if (!m_bUseAltGr)

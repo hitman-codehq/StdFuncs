@@ -17,7 +17,7 @@ private:
 
 	ULONG			m_ulWindowSignals;			/**< Signals representing all currently open windows */
 	TBool			m_bDone;					/**< Set to ETrue when it's time to exit the main loop */
-	TBool			m_bUseAltGr;				/**< ETrue if we are using a keyboard with an alt-gr key */
+	TBool			m_bUseAltGr;				/**< ETrue if we are using a keyboard with an alt+gr key */
 	TInt			m_iLastX;					/**< X and Y positions of the mouse the last time the */
 	TInt			m_iLastY;					/**< LMB was clicked or released */
 	ULONG			m_ulMainSeconds;			/**< Tick count in seconds and microseconds of when */
