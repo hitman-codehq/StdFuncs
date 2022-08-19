@@ -168,13 +168,13 @@ void CQtCentralWidget::paintEvent(QPaintEvent *a_poPaintEvent)
 
 LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_oWParam, LPARAM a_oLParam)
 {
+	bool Result;
 	TBool Checked;
 	TInt Command, Index, Key;
 	TBool Handled;
 	HKL KeyboardLayout;
 	LRESULT RetVal;
 	const struct SStdMenuItem *MenuItem;
-	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
 	COPYDATASTRUCT *CopyData;
@@ -692,21 +692,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Windows slider that was just moved */
 
-			if ((LayoutGadget = Window->m_oLayoutGadgets.getHead()) != NULL)
+			Result = false;
+			LayoutGadget = Window->m_oLayoutGadgets.getHead();
+
+			// TODO: CAW - The list of layouts should probably be removed now and only one root
+			//             layout should be allowed
+			while ((LayoutGadget != NULL) && !Result)
 			{
-				do
-				{
-					if ((Gadget = LayoutGadget->FindNativeGadget((void *) a_oLParam)) != NULL)
-					{
-						/* Got it!  Call the gadget's Updated() routine so that it can notify the */
-						/* client of the update, letting it know what type of update this is */
-
-						Gadget->Updated(LOWORD(a_oWParam));
-
-						break;
-					}
-				}
-				while ((LayoutGadget = Window->m_oLayoutGadgets.getSucc(LayoutGadget)) != NULL);
+				Result = LayoutGadget->SendUpdate((void *) a_oLParam, LOWORD(a_oWParam));
+				LayoutGadget = Window->m_oLayoutGadgets.getSucc(LayoutGadget);
 			}
 
 			break;

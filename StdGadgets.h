@@ -178,8 +178,7 @@ private:
 
 	CStdGadget *FindNativeGadget(void *a_pvGadget);
 
-	// TODO: CAW (multi) - Not sure if this is the best name + it should be Amiga OS only
-	void UpdateGadgets(void *a_pvGadget);
+	bool SendUpdate(void *a_pvGadget, ULONG a_ulData);
 
 public:
 

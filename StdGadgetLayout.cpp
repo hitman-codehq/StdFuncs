@@ -843,39 +843,54 @@ void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 }
 
 /**
- * Short description.
- * Long multi line description.
+ * Search for a gadget and send an update to it.
+ * This method will search the tree of layout gadgets, looking for the first one
+ * that contains the target gadget.  If found, an update will be sent to that gadget
+ * and the search will stop.  This means that at most only one gadget will receive
+ * an update.
  *
- * @pre		Some precondition here
+ * Note that the gadget passed in is *not* a CStdGadget derived object.  It is an
+ * identifier for the CStdGadget's underlying native gadget.  For Windows, this is
+ * the gadget's numeric ID and for Amiga OS this is a BOOPSI gadget.  That is because
+ * this method is only meant for use by The Framework to map system events onto
+ * framework events.
  *
  * @date	Sunday 15-Aug-2021 9:42 am, Code HQ @ Thomas's House
- * @param	Parameter		Description
- * @return	Return value
+ * @param	a_pvGadget		Identifier of the native gadget to which to send the update
+ * @param	a_ulData		Data to be sent with the update
+ * @return	true if the update was sent, else false
  */
 
-// TODO: CAW (multi) - This needs to be renamed and made Amiga specific
-void CStdGadgetLayout::UpdateGadgets(void *a_pvGadget)
+bool CStdGadgetLayout::SendUpdate(void *a_pvGadget, ULONG a_ulData)
 {
+	bool RetVal;
 	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
 
-	if ((LayoutGadget = m_oLayoutGadgets.getHead()) != NULL)
+	RetVal = false;
+	LayoutGadget = m_oLayoutGadgets.getHead();
+
+	/* Iterate through the layout's list of layouts and search for the target gadget */
+
+	while ((LayoutGadget != NULL) && !RetVal)
 	{
-		do
+		if ((Gadget = LayoutGadget->FindNativeGadget(a_pvGadget)) != NULL)
 		{
-			LayoutGadget->UpdateGadgets(a_pvGadget);
+			/* Got it!  Let the gadget know that it has been updated */
 
-			if ((Gadget = LayoutGadget->FindNativeGadget(a_pvGadget)) != NULL)
-			{
-				/* Got it!  Call the gadget's Updated() routine so that it can notify the */
-				/* client of the update */
-
-				Gadget->Updated();
-
-				// TODO: CAW - Return a result so that parent loops are also broken out
-				break;
-			}
+			Gadget->Updated(a_ulData);
+			RetVal = true;
 		}
-		while ((LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget)) != NULL);
+
+		/* The gadget was not found, so try sending the update to the next layout gadget */
+
+		else
+		{
+			RetVal = LayoutGadget->SendUpdate(a_pvGadget, a_ulData);
+		}
+
+		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
 	}
+
+	return(RetVal);
 }
