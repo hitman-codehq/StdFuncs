@@ -382,6 +382,8 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 
 #else /* ! QT_GUI_LIB */
 
+	(void) a_eEncoding;
+
 	HANDLE Handle;
 
 	/* Check to see if there is any plain text available on the clipboard and if so, get a handle to it */
