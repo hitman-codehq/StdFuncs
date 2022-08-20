@@ -111,7 +111,7 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 
 			if ((LayoutGadget = Window->m_poRootLayout) != NULL)
 			{
-				LayoutGadget->UpdateGadgets((void *) TagItem->ti_Data);
+				LayoutGadget->SendUpdate((void *) TagItem->ti_Data, 0);
 			}
 		}
 
