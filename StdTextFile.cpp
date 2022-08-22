@@ -15,6 +15,7 @@
 
 TInt RTextFile::open(const char *a_pccFileName)
 {
+	char CurrentChar;
 	TInt RetVal;
 
 	/* Load the entire file into memory */
@@ -26,7 +27,7 @@ TInt RTextFile::open(const char *a_pccFileName)
 		RetVal = KErrNone;
 
 		/* Now iterate through the file until EOF, CR or LF is found and break the file into lines */
-		/* thate are separated by NULL terminators */
+		/* that are separated by NULL terminators */
 
 		m_pcBufferPtr = m_pcBuffer;
 		m_pcBufferEnd = (m_pcBuffer + m_iSize);
@@ -38,13 +39,19 @@ TInt RTextFile::open(const char *a_pccFileName)
 				++m_pcBufferPtr;
 			}
 
-			/* NULL terminate the line and point the current line pointer to the next line */
+			/* NULL terminate the line and point the current line pointer to the next line.  In order */
+			/* to work with both DOS and UNIX files, we have to mark the LF of a CRLF pair as invalid, so */
+			/* that we know to skip over it when reading the lines.  Otherwise, if it remains as a LF */
+			/* then we don't know whether to skip it (DOS) or return it (UNIX).  This solution will also */
+			/* work for broken text files containing mixed DOS and UNIX line endings */
 
+			CurrentChar = *m_pcBufferPtr;
 			*m_pcBufferPtr = '\0';
 			++m_pcBufferPtr;
 
-			if (*m_pcBufferPtr == 0x0a)
+			if ((CurrentChar == 0x0d) && (*m_pcBufferPtr == 0x0a))
 			{
+				*m_pcBufferPtr = 0x01;
 				++m_pcBufferPtr;
 			}
 		}
@@ -93,9 +100,9 @@ const char *RTextFile::GetLine()
 
 		RetVal = m_pcBufferPtr;
 
-		/* Now iterate through the current line until EOF, CR or LF is found.  It is guaranteed that */
-		/* the file is NULL terminated, even if it is a zero byte file, as Utils::LoadFile() will do */
-		/* this for us */
+		/* Now iterate through the current line until EOL or EOF is found.  It is guaranteed that the */
+		/* file is NULL terminated, even if it is a zero byte file, as Utils::LoadFile() will do this */
+		/* for us */
 
 		while (*m_pcBufferPtr != '\0')
 		{
@@ -109,7 +116,10 @@ const char *RTextFile::GetLine()
 			++m_pcBufferPtr;
 		}
 
-		if ((m_pcBufferPtr < m_pcBufferEnd) && (*m_pcBufferPtr == '\n'))
+		/* If present in a DOS file, the LF would have been marked with an invalid character (0x01) to */
+		/* indicate that it should be skipped */
+
+		if ((m_pcBufferPtr < m_pcBufferEnd) && (*m_pcBufferPtr == 0x01))
 		{
 			++m_pcBufferPtr;
 		}
