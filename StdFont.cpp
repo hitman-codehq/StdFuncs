@@ -22,7 +22,7 @@
 /* Colours that can be printed by RFont::DrawColouredText().  This must match */
 /* STDFONT_NUM_COLOURS in StdFont.h */
 
-static const COLORREF g_aoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
+static const COLORREF g_acoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -123,9 +123,9 @@ RFont::RFont(CWindow *a_poWindow)
 
 		for (Index = 0; Index < STDFONT_NUM_COLOURS; ++Index)
 		{
-			Red = Utils::Red32(g_aoColours[Index] & 0xff);
-			Green = Utils::Green32(g_aoColours[Index] & 0xff00);
-			Blue = Utils::Blue32(g_aoColours[Index] & 0xff0000);
+			Red = Utils::Red32(g_acoColours[Index] & 0xff);
+			Green = Utils::Green32(g_acoColours[Index] & 0xff00);
+			Blue = Utils::Blue32(g_acoColours[Index] & 0xff0000);
 
 			m_alPens[Index] = ObtainBestPen(m_poWindow->m_poWindow->WScreen->ViewPort.ColorMap, Red, Green, Blue, TAG_DONE);
 			ASSERTM((m_alPens[Index] != -1), "RFont::RFont() => Unable to allocate pen");
@@ -928,7 +928,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 
 		if (!(m_bHighlight))
 		{
-			QPen Pen(QColor((g_aoColours[Colour] & 0xff), ((g_aoColours[Colour] & 0xff00) >> 8), (g_aoColours[Colour] >> 16)));
+			QPen Pen(QColor((g_acoColours[Colour] & 0xff), ((g_acoColours[Colour] & 0xff00) >> 8), (g_acoColours[Colour] >> 16)));
 			m_oPainter.setPen(Pen);
 		}
 
@@ -986,7 +986,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 
 		if (!(m_bHighlight))
 		{
-			SetTextColor(m_poWindow->m_poDC, g_aoColours[Colour]);
+			SetTextColor(m_poWindow->m_poDC, g_acoColours[Colour]);
 		}
 
 		/* If it has been requested to start drawing from an index into the string then update the pointer */

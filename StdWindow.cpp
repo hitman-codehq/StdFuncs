@@ -43,7 +43,7 @@
 
 /* Array of key mappings for mapping Windows keys onto standard keys */
 
-static const SKeyMapping g_aoKeyMap[] =
+static const SKeyMapping g_acoKeyMap[] =
 {
 	{ STD_KEY_SHIFT, VK_SHIFT }, { STD_KEY_CONTROL, VK_CONTROL }, { STD_KEY_BACKSPACE, VK_BACK },
 	{ STD_KEY_ENTER, VK_RETURN }, { STD_KEY_UP, VK_UP }, { STD_KEY_DOWN, VK_DOWN },
@@ -55,7 +55,7 @@ static const SKeyMapping g_aoKeyMap[] =
 	{ STD_KEY_F11, VK_F11 }, { STD_KEY_F12, VK_F12 }
 };
 
-#define NUM_KEYMAPPINGS (sizeof(g_aoKeyMap) / sizeof(struct SKeyMapping))
+#define NUM_KEYMAPPINGS (sizeof(g_acoKeyMap) / sizeof(struct SKeyMapping))
 
 CWindow *CWindow::m_poActiveDialog;	/* Ptr to currently active dialog, if any */
 
@@ -116,7 +116,7 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 		}
 
 		// TODO: CAW (multi) - This isn't required and horizontal scrolling is crashing
-		/*if (Window->m_voDirtyRegions.size() > 0)
+		/*if (Window->m_oDirtyRegions.size() > 0)
 		{
 			Window->InternalRedraw();
 		}*/
@@ -401,7 +401,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 			Window->OfferRawKeyEvent((TInt) a_oWParam, (a_uiMessage == WM_SYSKEYDOWN));
 
 			/* Have some special processing for the alt key, passing it onto the client code.  Even */
-			/* though the the alt key is not handled through the usual g_aoKeyMap array, to client */
+			/* though the the alt key is not handled through the usual g_acoKeyMap array, to client */
 			/* code its handling will appear consistent */
 
 			if (a_oWParam == VK_MENU)
@@ -437,7 +437,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			for (Index = 0; Index < (TInt) NUM_KEYMAPPINGS; ++Index)
 			{
-				if (g_aoKeyMap[Index].m_iNativeKey == (int) a_oWParam)
+				if (g_acoKeyMap[Index].m_iNativeKey == (int) a_oWParam)
 				{
 					break;
 				}
@@ -448,7 +448,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			if (Index < (TInt) NUM_KEYMAPPINGS)
 			{
-				Key = g_aoKeyMap[Index].m_iStdKey;
+				Key = g_acoKeyMap[Index].m_iStdKey;
 
 				/* First record the state of the shift key, it it was indeed shift that was pressed */
 				/* or released */
@@ -1827,7 +1827,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		/* Iterate through the dirty regions and try to find one that overlaps with the new */
 		/* region that is to be invalidated */
 
-		for (it = m_voDirtyRegions.begin(); it != m_voDirtyRegions.end(); ++it)
+		for (it = m_oDirtyRegions.begin(); it != m_oDirtyRegions.end(); ++it)
 		{
 			if ((a_iTop <= (*it).m_iBottom) && (a_iBottom >= (*it).m_iTop))
 			{
@@ -1838,7 +1838,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		/* If the new region overlaps an existing region then extend the existing region to */
 		/* include the area represented by the new one */
 
-		if (it != m_voDirtyRegions.end())
+		if (it != m_oDirtyRegions.end())
 		{
 			if (a_iTop < (*it).m_iTop)
 			{
@@ -1857,7 +1857,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		{
 			SRegion Region = { a_iTop, a_iBottom };
 
-			m_voDirtyRegions.push_back(Region);
+			m_oDirtyRegions.push_back(Region);
 		}
 
 		/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
@@ -2026,14 +2026,14 @@ void CWindow::InternalRedraw()
 	/* Iterate through the list of dirty regions and, for each one, call the derived rendering method */
 	/* to perform the actual drawing */
 
-	for (it = m_voDirtyRegions.begin(); it != m_voDirtyRegions.end(); ++it)
+	for (it = m_oDirtyRegions.begin(); it != m_oDirtyRegions.end(); ++it)
 	{
 		draw((*it).m_iTop, (*it).m_iBottom);
 	}
 
 	/* Indicate that there are no longer any dirty regions to be drawn */
 
-	m_voDirtyRegions.clear();
+	m_oDirtyRegions.clear();
 
 	/* And clear the protection flag */
 

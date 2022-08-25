@@ -83,7 +83,7 @@ private:
 #ifdef __amigaos__
 
 	bool				m_bPerformingRedraw;		/**< true if we are redrawing the dirty region */
-	std::vector<SRegion>	m_voDirtyRegions;		/**< List of dirty regions waiting to be drawn */
+	std::vector<SRegion>	m_oDirtyRegions;		/**< List of dirty regions waiting to be drawn */
 	struct Hook			m_oIDCMPHook;				/**< IDCMP hook for watching gadgets such as sliders */
 
 #ifndef __amigaos4__
