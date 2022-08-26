@@ -61,6 +61,54 @@ int CStdCharConverter::construct()
 }
 
 /**
+* Determine the size of a character.
+* This method is a Unicode aware routine that will examine an in-memory character and determine
+* its size in bytes.  For speed, this method uses a shortcut way of testing the size of the
+* character, which assumes that the data is indeed UTF-8.  This could lead to errors if used
+* with non UTF-8 data.  Thus, this method should only be used on data that is known to be UTF-8.
+* There is also no check for buffer overflows - this is a low level routine so it is assumed that
+* the caller is checking for this.
+*
+* Note that the routine assumes that the character passed in is in little endian format, hence the
+* use of a memory pointer rather than an integral variable, to avoid problems on big endian systems.
+*
+* @date		Thursday 01-Feb-2018 9:41 am, Starbucks Friedrichstrasse
+* @param	a_pcucBuffer	Pointer to the character to be checked
+* @return	Return value	The size of the next character in bytes
+*/
+
+int CStdCharConverter::charSize(const unsigned char *a_buffer)
+{
+	int retVal;
+
+	/* Get the first byte of the character to be checked */
+
+	unsigned char character = *a_buffer;
+
+	/* Apply some shortcut checks to determine the character's size, according to the rules */
+	/* for the bitwise layout of UTF-8 characters */
+
+	if ((character & 0xf1) == 0xf0)
+	{
+		retVal = 4;
+	}
+	else if ((character & 0xf0) == 0xe0)
+	{
+		retVal = 3;
+	}
+	else if ((character & 0xe0) == 0xc0)
+	{
+		retVal = 2;
+	}
+	else
+	{
+		retVal = 1;
+	}
+
+	return retVal;
+}
+
+/**
  * Converts a multibyte character into a string.
  * This UTF-8 aware function will convert a character containing between 1 and 4 bytes of little endian data
  * into a string.  Characters can usually be treated as an integer, without regard for the number of bytes of

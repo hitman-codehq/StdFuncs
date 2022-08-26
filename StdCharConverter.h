@@ -24,6 +24,8 @@ public:
 
 	int construct();
 
+	static int charSize(const unsigned char *a_buffer);
+
 	static std::string makeString(uint32_t a_character);
 
 	static std::string makeString(uint32_t a_character, int a_size);
