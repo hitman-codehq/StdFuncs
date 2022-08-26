@@ -291,7 +291,7 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 	/* Find a ptr to the BOOPSI gadget and if found then set the state of the checkbox gadget */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Selected, TRUE, TAG_DONE);
 	}
@@ -303,7 +303,7 @@ void CDialog::CheckGadget(TInt a_iGadgetID)
 
 	/* Find a pointer to the Qt widget and if found then set the state of the checkbox gadget */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		CheckBox = (QCheckBox *) Widget;
 		CheckBox->setChecked(true);
@@ -332,7 +332,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	/* Find a ptr to the BOOPSI gadget and if found then enable or disable it */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, GA_Disabled, (!(a_bEnable)), TAG_DONE);
 	}
@@ -343,7 +343,7 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 
 	/* Find a pointer to the Qt widget and if found then enable or disable it */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		Widget->setEnabled(a_bEnable);
 	}
@@ -364,42 +364,6 @@ void CDialog::EnableGadget(TInt a_iGadgetID, TBool a_bEnable)
 #endif /* ! QT_GUI_LIB */
 
 }
-
-#ifdef __amigaos__
-
-/**
- * Scans the requester's list of gadgets for a particular ID.
- * Amiga OS only method that will scan the requester's list of BOOPSI gadgets for
- * one that matches a specified ID.
- * @date	Sunday 24-Sep-2010 1:45 pm
- * @param	a_iGadgetID	ID of the gadget to be found
- * @return	Pointer to the BOOPSI gadget if successful, else NULL if not found
- */
-
-Object *CDialog::GetBOOPSIGadget(TInt a_iGadgetID)
-{
-	TInt Index;
-	Object *RetVal;
-
-	/* Iterate through the list of gadget mappings and find the BOOPSI pointer that matches */
-	/* the gadget ID */
-
-	RetVal = NULL;
-
-	for (Index = 0; Index < m_iNumGadgetMappings; ++Index)
-	{
-		if (m_poGadgetMappings[Index].m_iID == a_iGadgetID)
-		{
-			RetVal = m_poGadgetMappings[Index].m_poGadget;
-
-			break;
-		}
-	}
-
-	return(RetVal);
-}
-
-#endif /* __amigaos__ */
 
 /* Written: Saturday 27-Aug-2010 10:12 am */
 /* @param	a_iGadgetID	ID of the gadget whose value to obtain */
@@ -423,7 +387,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 	/* Find a pointer to the BOOPSI gadget and if found then get a pointer to its numeric text and convert it to an integer */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		DEBUGCHECK((GetAttr(STRINGA_LongVal, Gadget, (ULONG *) &RetVal) != 0), "CDialog::GetGadgetInt() => Unable to get gadget integer");
 	}
@@ -435,7 +399,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 	/* Find a pointer to the Qt widget and if found then get a pointer to its numeric text and convert it to an integer */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		LineEdit = (QLineEdit *) Widget;
 		RetVal = LineEdit->text().toInt();
@@ -509,7 +473,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	{
 		/* Find a pointer to BOOPSI gadget and if found then get its text and save its length */
 
-		if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+		if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 		{
 			if (GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
 			{
@@ -535,7 +499,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 	/* Find a pointer to the Qt widget and if found then get its text and save its length */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		RetVal = KErrNone;
 
@@ -648,7 +612,41 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	return(RetVal);
 }
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos__
+
+/**
+ * Scans the requester's list of gadgets for a particular ID.
+ * Amiga OS only method that will scan the requester's list of BOOPSI gadgets for
+ * one that matches a specified ID.
+ * @date	Sunday 24-Sep-2010 1:45 pm
+ * @param	a_iGadgetID	ID of the gadget to be found
+ * @return	Pointer to the BOOPSI gadget if successful, else NULL if not found
+ */
+
+Object *CDialog::GetNativeGadget(TInt a_iGadgetID)
+{
+	TInt Index;
+	Object *RetVal;
+
+	/* Iterate through the list of gadget mappings and find the BOOPSI pointer that matches */
+	/* the gadget ID */
+
+	RetVal = NULL;
+
+	for (Index = 0; Index < m_iNumGadgetMappings; ++Index)
+	{
+		if (m_poGadgetMappings[Index].m_iID == a_iGadgetID)
+		{
+			RetVal = m_poGadgetMappings[Index].m_poGadget;
+
+			break;
+		}
+	}
+
+	return(RetVal);
+}
+
+#elif defined(QT_GUI_LIB)
 
 /**
  * Scans the requester's list of gadgets for a particular ID.
@@ -661,7 +659,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
  * @return	Pointer to the Qt widget if successful, else NULL if not found
  */
 
-QWidget	*CDialog::GetQtWidget(int a_iGadgetID)
+QWidget	*CDialog::GetNativeGadget(int a_iGadgetID)
 {
 	int Index;
 	QWidget *RetVal;
@@ -709,7 +707,7 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 	/* Find a ptr to the BOOPSI gadget for which to highlight the text */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		/* STRINGA_Mark is an odd tag.  You can't set the end position to 0xff and expect */
 		/* it to work things out or the string gadget will go crazy and will never work */
@@ -729,7 +727,7 @@ void CDialog::HighlightGadgetText(TInt a_iGadgetID)
 
 	/* Find a pointer to the Qt widget for which to highlight the text and highlight it all */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		LineEdit = (QLineEdit *) Widget;
 		LineEdit->selectAll();
@@ -770,7 +768,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	/* Find a pointer to the BOOPSI gadget and if found then get the state of the checkbox gadget */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		if (GetAttr(GA_Selected, Gadget, &Checked) > 0)
 		{
@@ -785,7 +783,7 @@ TBool CDialog::IsGadgetChecked(TInt a_iGadgetID)
 
 	/* Find a pointer to the Qt widget and if found then get the state of the checkbox gadget */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		CheckBox = (QCheckBox *) Widget;
 		RetVal = CheckBox->isChecked();
@@ -827,7 +825,7 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 		/* We only want to do this if there is an active IDOK gadget present so find */
 		/* a ptr to the BOOPSI gadget and if found then query its disable state */
 
-		if ((Gadget = GetBOOPSIGadget(IDOK)) != NULL)
+		if ((Gadget = GetNativeGadget(IDOK)) != NULL)
 		{
 			/* GetAttr() returns 0 on OS3, even though GA_Disabled is a functioning tag.  So rather than */
 			/* check that the tag value could be obtained, we will just use a default value and ignore the */
@@ -865,7 +863,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	/* Find a pointer to the BOOPSI gadget and if found then set its focus */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		DEBUGCHECK(ActivateLayoutGadget((struct Gadget *) m_poRootGadget, m_poWindow, NULL, (uint32_t) Gadget),
 			"CDialog::SetGadgetFocus() => Unable to set focus of gadget");
@@ -877,7 +875,7 @@ void CDialog::SetGadgetFocus(TInt a_iGadgetID)
 
 	/* Find a pointer to the Qt widget and if found then set its focus */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		Widget->setFocus();
 	}
@@ -901,7 +899,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	/* Find a pointer to the BOOPSI gadget and if found then set its contents to the given text */
 
-	if ((Gadget = GetBOOPSIGadget(a_iGadgetID)) != NULL)
+	if ((Gadget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		SetGadgetAttrs((struct Gadget *) Gadget, m_poWindow, NULL, STRINGA_TextVal, (ULONG) a_pccText, TAG_DONE);
 	}
@@ -913,7 +911,7 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 	/* Find a pointer to the Qt widget and if found then set its contents to the given text */
 
-	if ((Widget = GetQtWidget(a_iGadgetID)) != NULL)
+	if ((Widget = GetNativeGadget(a_iGadgetID)) != NULL)
 	{
 		LineEdit = (QLineEdit *) Widget;
 		LineEdit->setText(a_pccText);

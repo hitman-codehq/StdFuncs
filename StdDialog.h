@@ -88,7 +88,7 @@ protected:
 
 #ifdef __amigaos__
 
-	Object *GetBOOPSIGadget(TInt a_iGadgetID);
+	Object *GetNativeGadget(TInt a_iGadgetID);
 
 #endif /* __amigaos__ */
 
@@ -108,7 +108,7 @@ protected:
 
 #ifdef QT_GUI_LIB
 
-	QWidget	*GetQtWidget(int a_iGadgetID);
+	QWidget	*GetNativeGadget(int a_iGadgetID);
 
 	void SetMappingTable(const struct SStdGadgetMapping *a_pcoMappings, int a_iNumMappings);
 
