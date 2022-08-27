@@ -834,7 +834,15 @@ TBool CDialog::OfferKeyEvent(TInt a_iKey, TBool a_bKeyDown)
 
 			Disabled = 0;
 
+#ifdef __amigaos4__
+
 			GetAttr(GA_Disabled, Gadget, &Disabled);
+
+#else /* ! __amigaos4__ */
+
+			Disabled = (((struct Gadget *) Gadget)->Flags & GFLG_DISABLED);
+
+#endif /* ! __amigaos4__ */
 
 			/* If is not disabled then send the fake IDOK command to the client */
 
