@@ -170,7 +170,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Pool\</AssemblerListingLocation>
-      <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Pool\T_Pool.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(Platform)\$(Configuration)\T_Pool\</ObjectFileName>
       <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Pool\</ProgramDataBaseFileName>
@@ -209,7 +208,6 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>$(Platform)\$(Configuration)\T_Pool\</AssemblerListingLocation>
-      <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>$(Platform)\$(Configuration)\T_Pool\T_Pool.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(Platform)\$(Configuration)\T_Pool\</ObjectFileName>
       <ProgramDataBaseFileName>$(Platform)\$(Configuration)\T_Pool\</ProgramDataBaseFileName>
