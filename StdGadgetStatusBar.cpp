@@ -23,7 +23,7 @@
 
 #ifdef __amigaos__
 
-#define MAX_CHARS 100
+#define MAX_CHARS 110
 
 #endif /* __amigaos__ */
 
