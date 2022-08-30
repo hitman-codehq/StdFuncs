@@ -46,7 +46,6 @@ private:
 
 #elif defined(WIN32)
 
-	const char	*m_pccName;			/**< The name of the font */
 	int			m_iWideBufferLength;	/**< Length of the wide buffer, in characters */
 	WCHAR		*m_pwcWideBuffer;	/**< Pointer to a temporary buffer for holding wide characters */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
@@ -63,6 +62,7 @@ private:
 
 #endif /* _DEBUG */
 
+	const char	*m_pccName;			/**< The name of the font */
 	TBool		m_bHighlight;		/**< ETrue if text will be drawn highlighted, else EFalse */
 	TInt		m_aiFontSizes[20];	/**< Array of available font sizes */
 	TInt		m_iNumSizes;		/**< Number of valid sizes in m_aiFontSizes */
@@ -105,7 +105,12 @@ public:
 		return(m_iHeight);
 	}
 
-	TInt GetSize()
+	const char *Name()
+	{
+		return(m_pccName);
+	}
+
+	TInt Size()
 	{
 		return(m_iSize);
 	}

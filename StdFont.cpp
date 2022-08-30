@@ -195,10 +195,12 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 	{
 		/* If no font has been specified then use the one used by the current window */
 
-		if (a_pccName == NULL)
+		if (!a_pccName)
 		{
 			a_pccName = m_poWindow->m_poWindow->RPort->Font->tf_Message.mn_Node.ln_Name;
 		}
+
+		m_pccName = a_pccName;
 
 		/* If no size has been specified then use the one used by the current window */
 
@@ -248,9 +250,9 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 #elif defined(QT_GUI_LIB)
 
-	/* If no font has been specified then use "Monospace" */
+	/* If no font has been specified then use "Monaco" or "Monospace", depending on the platform */
 
-	if (!(a_pccName))
+	if (!a_pccName)
 	{
 
 #ifdef __APPLE__
@@ -264,6 +266,8 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 #endif /* ! __APPLE__ */
 
 	}
+
+	m_pccName = a_pccName;
 
 	/* Create a monospace font in the desired point size */
 
@@ -311,7 +315,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 	/* If no DC is specified for the window, create a temporary one for use by the class */
 
-	if (m_poWindow->m_poDC == NULL)
+	if (!m_poWindow->m_poDC)
 	{
 		m_poDC = m_poWindow->m_poDC = GetDC(m_poWindow->m_poWindow);
 	}
@@ -321,7 +325,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 		/* If no font has been specified then use "Courier" which is as ugly as sin but has been */
 		/* the default on Brunel since day one and fits lots of lines on my netbook! */
 
-		if (!(a_pccName))
+		if (!a_pccName)
 		{
 			a_pccName = "Courier";
 		}
