@@ -101,6 +101,7 @@ RFont::RFont(CWindow *a_poWindow)
 {
 	ASSERTM(a_poWindow, "RFont::RFont() => Window handle must not be NULL");
 
+	m_pccName = NULL;
 	m_bHighlight = EFalse;
 	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
 	m_iNumSizes = m_iSize = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
@@ -143,6 +144,7 @@ RFont::RFont(CWindow *a_poWindow)
 
 #else /* ! QT_GUI_LIB */
 
+	m_pcRealName = NULL;
 	m_iWideBufferLength = 0;
 	m_pwcWideBuffer = NULL;
 	m_poDC = NULL;
@@ -295,6 +297,15 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 		m_iWidth = Metrics.averageCharWidth();
 		m_iSize = a_iSize;
 
+		/* If the font we requested was not found, the Qt will try to choose a different but similar font */
+		/* to what we requested.  So query the name of the selected font and save this, rather than just */
+		/* saving the name of the requested font */
+
+		QFontInfo FontInfo(*m_poFont);
+		m_oRealName = FontInfo.family().toStdString();
+		m_pccName = m_oRealName.c_str();
+		printf("Chose %s\n", m_pccName);
+
 		/* And assign the font to the window */
 
 		m_poWindow->m_poCentralWidget->setFont(*m_poFont);
@@ -306,7 +317,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 #else /* ! QT_GUI_LIB */
 
-	TInt Height;
+	TInt Height, Length;
 	TEXTMETRIC TextMetric;
 
 	/* Assume failure */
@@ -337,7 +348,6 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 		Height = -MulDiv(a_iSize, GetDeviceCaps(m_poWindow->m_poDC, LOGPIXELSY), 72);
 
-		// TODO: CAW - This is an expensive routine - can we shorten it?
 		if ((m_poFont = CreateFont(Height, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, (FF_MODERN | FIXED_PITCH), a_pccName)) != NULL)
 		{
@@ -357,6 +367,20 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 			m_iWidth = TextMetric.tmAveCharWidth;
 			m_iHeight = TextMetric.tmHeight;
 			m_iSize = a_iSize;
+		}
+
+		/* If the font we requested ws not found, the Windows font mapper will try to choose a different but similar */
+		/* font to what we requested.  So query the name of the selected font and save this, rather than just saving */
+		/* the name of the requested font */
+
+		if ((Length = GetTextFace(m_poWindow->m_poDC, 0, NULL)) > 0)
+		{
+			m_pcRealName = new char[Length + 1];
+
+			if (GetTextFace(m_poWindow->m_poDC, Length, m_pcRealName) > 0)
+			{
+				m_pccName = m_pcRealName;
+			}
 		}
 
 		/* Save the background and text colours for l8r use */
@@ -379,6 +403,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 void RFont::close()
 {
+	m_pccName = NULL;
 
 #ifdef __amigaos__
 
@@ -404,6 +429,9 @@ void RFont::close()
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+	delete [] m_pcRealName;
+	m_pcRealName = NULL;
 
 	Utils::FreeTempBuffer(m_pwcWideBuffer);
 	m_iWideBufferLength = 0;

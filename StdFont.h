@@ -33,12 +33,13 @@ private:
 
 #ifdef __amigaos__
 
-	LONG		m_alPens[STDFONT_NUM_COLOURS]; /* Array of pens found using IGraphics->ObtainBestPen() */
+	LONG		m_alPens[STDFONT_NUM_COLOURS]; /**< Array of pens found using IGraphics->ObtainBestPen() */
 	struct TextFont	*m_poFont;		/**< Amiga font with which to render */
 	struct TextFont *m_poOldFont;	/**< Default system font used for rendering text */
 
 #elif defined(QT_GUI_LIB)
 
+	std::string	m_oRealName;		/**< The name of the font actually chosen by QFont */
 	QPainter	m_oPainter;			/**< Object used for rendering text to the screen */
 	QColor		m_oBackground;		/**< Background and text colours at the time */
 	QColor		m_oText;			/**< that RFont.Begin() was called */
@@ -46,6 +47,7 @@ private:
 
 #elif defined(WIN32)
 
+	char		*m_pcRealName;		/**< The name of the font actually chosen by CreateFont() */
 	int			m_iWideBufferLength;	/**< Length of the wide buffer, in characters */
 	WCHAR		*m_pwcWideBuffer;	/**< Pointer to a temporary buffer for holding wide characters */
 	HDC			m_poDC;				/**< Ptr to temporary DC, if required */
