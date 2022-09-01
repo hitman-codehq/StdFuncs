@@ -263,7 +263,7 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 #else /* ! __APPLE__ */
 
-		a_pccName = "Monospace";
+		a_pccName = "Courier New";
 
 #endif /* ! __APPLE__ */
 
@@ -304,7 +304,6 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 		QFontInfo FontInfo(*m_poFont);
 		m_oRealName = FontInfo.family().toStdString();
 		m_pccName = m_oRealName.c_str();
-		printf("Chose %s\n", m_pccName);
 
 		/* And assign the font to the window */
 
@@ -333,12 +332,11 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 	if (m_poWindow->m_poDC)
 	{
-		/* If no font has been specified then use "Courier" which is as ugly as sin but has been */
-		/* the default on Brunel since day one and fits lots of lines on my netbook! */
+		/* If no font has been specified then use "Courier New" */
 
 		if (!a_pccName)
 		{
-			a_pccName = "Courier";
+			a_pccName = "Courier New";
 		}
 
 		m_pccName = a_pccName;
