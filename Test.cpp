@@ -57,11 +57,11 @@ void RTest::operator()(TInt a_iResult, TInt a_iLineNumber, const char *a_pccFile
 	if (!(a_iResult))
 	{
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
 		oMungWall.EnableOutput(FALSE);
 
-#endif /* _DEBUG */
+#endif /* defined(_DEBUG) && !defined(QT_GUI_LIB) */
 
 		printf("RTEST: FAIL : %s failed check at line %d of %s\n", m_pccTitle, a_iLineNumber, a_pccFileName);
 		exit(RETURN_ERROR);
