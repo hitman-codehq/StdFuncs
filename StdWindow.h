@@ -110,6 +110,8 @@ protected:
 	TBool				m_bOpen;					/**< ETrue if window is open */
 	TInt				m_iInnerWidth;				/**< Width of window, minus left and right borders */
 	TInt				m_iInnerHeight;				/**< Height of window, minus top and bottom borders */
+	TInt				m_iWidth;					/**< Width of window, including left and right borders */
+	TInt				m_iHeight;					/**< Height of window, including top and bottom borders */
 	CStdGadgetLayout	*m_poRootLayout;			/**< Root layout gadget in which all other gadgets are placed */
 	RApplication		*m_poApplication;			/**< Ptr to application that owns this window */
 	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the window */
@@ -247,6 +249,16 @@ public:
 	virtual TInt InnerWidth()
 	{
 		return(m_iInnerWidth);
+	}
+
+	TInt Height()
+	{
+		return(m_iHeight);
+	}
+
+	TInt Width()
+	{
+		return(m_iWidth);
 	}
 
 	virtual TInt InnerHeight()

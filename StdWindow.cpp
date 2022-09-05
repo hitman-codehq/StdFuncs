@@ -2538,6 +2538,11 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			m_iInnerWidth = (m_poWindow->Width - (m_poWindow->BorderRight + m_poWindow->BorderLeft));
 			m_iInnerHeight = (m_poWindow->Height - (m_poWindow->BorderBottom + m_poWindow->BorderTop));
 
+			/* Also save the outer width and height of the window */
+
+			m_iWidth = m_poWindow->Width;
+			m_iHeight = m_poWindow->Height;
+
 			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
 			{
 				/* And create the menus specific to this window */
@@ -2642,6 +2647,12 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 					m_poWindow->setFocus();
 					m_poWindow->showMaximized();
 
+					/* Save the outer width and height of the window */
+
+					Size = m_poWindow->size();
+					m_iWidth = Size.width();
+					m_iHeight = Size.height();
+
 					/* And indicate that the window is active, as Qt 5 performs a draw operation */
 					/* before calling QMainWindow::focusInEvent(), resulting in the cursor not being */
 					/* displayed */
@@ -2722,28 +2733,40 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 				SetWindowLongPtr(m_poWindow, GWLP_USERDATA, (LONG_PTR) this);
 
-				/* And create the menus specific to this window */
+				/* Create the menus specific to this window */
 
 				if (createMenus())
 				{
-					/* And display the window on the screen, maximised */
+					/* Display the window on the screen, maximised */
 
 					ShowWindow(m_poWindow, SW_MAXIMIZE);
 
 					if (GetClientRect(m_poWindow, &Rect))
 					{
-						/* Indicate success */
-
-						RetVal = KErrNone;
-
 						/* Calculate the inner width and height of the window, for l8r use */
 
 						m_iInnerWidth = (Rect.right - Rect.left);
 						m_iInnerHeight = (Rect.bottom - Rect.top);
 
-						if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) == NULL)
+						/* Also save the outer width and height of the window */
+
+						if (GetWindowRect(m_poWindow, &Rect))
 						{
-							Utils::info("CWindow::open() => Unable to create root layout object");
+							m_iWidth = (Rect.right - Rect.left);
+							m_iHeight = (Rect.bottom - Rect.top);
+
+							if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+							{
+								RetVal = KErrNone;
+							}
+							else
+							{
+								Utils::info("CWindow::open() => Unable to create root layout object");
+							}
+						}
+						else
+						{
+							Utils::info("CWindow::open() => Unable to obtain window dimensions");
 						}
 					}
 					else
