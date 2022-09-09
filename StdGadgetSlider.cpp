@@ -433,7 +433,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	/* the range to account for this.  We do not want the slider to return values greater */
 	/* than (maxrange - pagesize) */
 
-	m_iMaxRange -= a_iPageSize;
+	a_iMaxRange -= a_iPageSize;
 
 	/* Now let Qt know the page size and range to be used.  A page size causes the slider to be */
 	/* invisible, so check for that */
@@ -447,7 +447,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	/* versions, don't notify the client during this operation */
 
 	m_bSettingValue = true;
-	((QScrollBar *) m_poGadget)->setRange(0, m_iMaxRange);
+	((QScrollBar *) m_poGadget)->setRange(0, a_iMaxRange);
 	m_bSettingValue = false;
 
 #else /* ! QT_GUI_LIB */
