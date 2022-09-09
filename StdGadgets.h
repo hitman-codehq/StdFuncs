@@ -300,6 +300,11 @@ public:
 
 	~CStdGadgetSlider();
 
+	TInt MaxRange()
+	{
+		return(m_iMaxRange);
+	}
+
 	void SetPosition(TInt a_iPosition);
 
 	void SetRange(TInt a_iPageSize, TInt a_iMaxRange);
