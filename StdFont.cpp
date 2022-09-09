@@ -373,6 +373,13 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 		if ((Length = GetTextFace(m_poWindow->m_poDC, 0, NULL)) > 0)
 		{
+			/* Delete the old real name instance, if it was already allocated */
+
+			if (m_pcRealName)
+			{
+				delete [] m_pcRealName;
+			}
+
 			m_pcRealName = new char[Length + 1];
 
 			if (GetTextFace(m_poWindow->m_poDC, Length, m_pcRealName) > 0)
