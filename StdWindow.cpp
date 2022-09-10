@@ -74,7 +74,6 @@ TBool CWindow::m_bIsActive;			/* ETrue if the window is currently active */
 ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, struct IntuiMessage *a_poIntuiMessage)
 {
 	struct TagItem *TagItem;
-	CStdGadget *Gadget;
 	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
 
@@ -105,7 +104,6 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 
 		if ((TagItem = FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
-			// TODO: CAW (multi) - Comment is outdated and we are not sure about the name anyway
 			/* Iterate through the window's list of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Reaction slider that was just moved */
 
@@ -115,11 +113,14 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 			}
 		}
 
-		// TODO: CAW (multi) - This isn't required and horizontal scrolling is crashing
-		/*if (Window->m_oDirtyRegions.size() > 0)
+		/* It could be that the gadget that was updated has requested a redraw, which will be */
+		/* indicated by one or more dirty regions being present.  Check for this and perform a */
+		/* redraw so that the redraw happens immediately */
+
+		if (Window->m_oDirtyRegions.size() > 0)
 		{
 			Window->InternalRedraw();
-		}*/
+		}
 	}
 
 	return(DOSTRUE);
