@@ -776,39 +776,33 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 #else /* ! QT_GUI_LIB */
 
 	TInt WideLength;
+	UINT CodePage;
 
-	/* If the text is in UTF-8 format then it must first be converted to UTF-16 before it can be displayed */
+	/* The text must be converted to UTF-16 format before it can be displayed, or some characters will not be displayed */
+	/* correctly, such as the Euro sign */
 
-	if (a_eEncoding == EEncodingUTF8)
+	CodePage = (a_eEncoding == EEncodingUTF8) ? CP_UTF8 : 28605;
+
+	/* Determine how many characters will be in the converted text.  If this is larger than the number of */
+	/* characters in the currently allocated temporary buffer then reallocate it */
+
+	if ((WideLength = MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, NULL, 0)) > m_iWideBufferLength)
 	{
-		/* Determine how many characters will be in the converted text.  If this is larger than the number of */
-		/* characters in the currently allocated temporary buffer then reallocate it */
-
-		if ((WideLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, NULL, 0)) > m_iWideBufferLength)
+		if ((m_pwcWideBuffer = (WCHAR *) Utils::GetTempBuffer((char *) m_pwcWideBuffer, (WideLength * sizeof(WCHAR)), 0)) != NULL)
 		{
-			if ((m_pwcWideBuffer = (WCHAR *) Utils::GetTempBuffer((char *) m_pwcWideBuffer, (WideLength * sizeof(WCHAR)), 0)) != NULL)
-			{
-				m_iWideBufferLength = WideLength;
-			}
-		}
-
-		/* If the temporary buffer was successfully allocated then convert the text to UTF-16 and draw it.  In the */
-		/* unlikely event that something went wrong then this method will just fail silently */
-
-		if (m_pwcWideBuffer)
-		{
-			if ((WideLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
-			{
-				TextOutW(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
-			}
+			m_iWideBufferLength = WideLength;
 		}
 	}
 
-	/* Otherwise it can be displayed directly */
+	/* If the temporary buffer was successfully allocated then convert the text to UTF-16 and draw it.  In the */
+	/* unlikely event that something went wrong then this method will just fail silently */
 
-	else
+	if (m_pwcWideBuffer)
 	{
-		TextOut(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), a_pccText, a_iSize);
+		if ((WideLength = MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
+		{
+			TextOutW(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
+		}
 	}
 
 #endif /* ! QT_GUI_LIB */
