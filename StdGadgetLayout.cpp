@@ -618,11 +618,17 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	if (m_poParentWindow)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poParentWindow->m_poRootLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
 			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedHeight, a_iWeight, TAG_DONE);
 	}
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	/* This is also the case for Qt.  For Windows, we will perform the layout ourselves later on */
+
+	m_poParentLayout->GetLayout()->setStretchFactor(GetLayout(), a_iWeight);
+
+#endif /* QT_GUI_LIB */
 
 }
 
