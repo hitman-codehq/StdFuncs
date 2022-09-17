@@ -114,7 +114,6 @@ protected:
 	TInt				m_iHeight;					/**< Height of window, including top and bottom borders */
 	CStdGadgetLayout	*m_poRootLayout;			/**< Root layout gadget in which all other gadgets are placed */
 	RApplication		*m_poApplication;			/**< Ptr to application that owns this window */
-	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the window */
 
 public:
 

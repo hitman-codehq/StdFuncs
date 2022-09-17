@@ -104,7 +104,7 @@ ULONG CWindow::IDCMPFunction(struct Hook *a_poHook, Object * /*a_poObject*/, str
 
 		if ((TagItem = FindTagItem(GA_ID, (struct TagItem *) a_poIntuiMessage->IAddress)) != NULL)
 		{
-			/* Iterate through the window's list of layout gadgets and search each one to see */
+			/* Recursively search through the window's tree of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Reaction slider that was just moved */
 
 			if ((LayoutGadget = Window->m_poRootLayout) != NULL)
@@ -176,7 +176,6 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 	HKL KeyboardLayout;
 	LRESULT RetVal;
 	const struct SStdMenuItem *MenuItem;
-	CStdGadgetLayout *LayoutGadget;
 	CWindow *Window;
 	COPYDATASTRUCT *CopyData;
 
@@ -690,18 +689,15 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 		case WM_HSCROLL :
 		case WM_VSCROLL :
 		{
-			/* Iterate through the window's list of layout gadgets and search each one to see */
+			/* Recursively search through the window's tree of layout gadgets and search each one to see */
 			/* if it contains a gadget that represents the Windows slider that was just moved */
 
 			Result = false;
-			LayoutGadget = Window->m_oLayoutGadgets.getHead();
 
-			// TODO: CAW - The list of layouts should probably be removed now and only one root
-			//             layout should be allowed
-			while ((LayoutGadget != NULL) && !Result)
+			// TODO: CAW - Only one root layout should be allowed (assert on window parameter)
+			if (Window->m_poRootLayout)
 			{
-				Result = LayoutGadget->SendUpdate((void *) a_oLParam, LOWORD(a_oWParam));
-				LayoutGadget = Window->m_oLayoutGadgets.getSucc(LayoutGadget);
+				Result = Window->m_poRootLayout->SendUpdate((void *) a_oLParam, LOWORD(a_oWParam));
 			}
 
 			break;
@@ -1121,10 +1117,6 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
 
-	/* Add the new layout gadget to the window's list of layouts */
-
-	m_oLayoutGadgets.addTail(a_poLayoutGadget);
-
 #ifdef __amigaos__
 
 	/* Add the new BOOPSI gadget to the window's root layout */
@@ -1150,12 +1142,22 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	if (m_poRootLayout)
 	{
-		m_poRootLayout->Attach(a_poLayoutGadget);
+		// Sort this out once it's sorted on Qt
+		//m_poRootLayout->Attach(a_poLayoutGadget);
+	}
+	else
+	{
+		m_poRootLayout = a_poLayoutGadget;
 	}
 
 	rethinkLayout();
 
 #else /* ! QT_GUI_LIB */
+
+	if (!m_poRootLayout)
+	{
+		m_poRootLayout = a_poLayoutGadget;
+	}
 
 	rethinkLayout();
 
@@ -1639,18 +1641,14 @@ void CWindow::ClearBackground(TInt a_iY, TInt a_iHeight, TInt a_iX, TInt a_iWidt
 
 void CWindow::close()
 {
-	CStdGadget *LayoutGadget;
-
-	/* Iterate through the list of attached gadgets and delete them.  They will remove themselves */
-	/* from the gadget list automatically.  Some GUIs will automatically destruct attached layouts */
-	/* and gadgets when the window is closed, and some don't.  So to cater for both systems, this */
-	/* loop will manually dispose of all class instances and the associated native widgets, so */
+	/* Delete the window's single layout gadget.  This will in turn delete all child layout gadgets */
+	/* and all gadgets that are attached to them.  Some GUIs will automatically destruct attached */
+	/* layouts and gadgets when the window is closed, and some don't.  So to cater for both systems, */
+	/* this will manually dispose of all class instances and the associated native widgets, so */
 	/* avoiding problems when closing the window */
 
-	while ((LayoutGadget = m_oLayoutGadgets.getHead()) != NULL)
-	{
-		delete LayoutGadget;
-	}
+	delete m_poRootLayout;
+	m_poRootLayout = NULL;
 
 #ifdef __amigaos__
 
@@ -2827,10 +2825,6 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 {
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::remove() => No gadget to be removed passed in");
 
-	/* Remove the layout gadget from this window's private list of layout gadgets */
-
-	m_oLayoutGadgets.remove(a_poLayoutGadget);
-
 #ifdef __amigaos__
 
 	/* Remove it from the top level Reaction layout */
@@ -3028,7 +3022,6 @@ void CWindow::RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand)
 
 void CWindow::rethinkLayout()
 {
-	CStdGadgetLayout *LayoutGadget;
 
 #ifdef __amigaos__
 
@@ -3046,91 +3039,20 @@ void CWindow::rethinkLayout()
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 
-	TInt InnerHeight, Height, MinHeight, RemainderHeight, Y;
-
-	Y = 0;
-	InnerHeight = m_iInnerHeight;
-	LayoutGadget = m_oLayoutGadgets.getHead();
-
-	if (LayoutGadget)
+	if (m_poRootLayout)
 	{
-		while (LayoutGadget)
-		{
-			if (LayoutGadget->Weight() == 1)
-			{
-				/* CStdGadgetLayout::MinHeight() is expensive so cache the result */
-
-				MinHeight = LayoutGadget->MinHeight();
-
-				LayoutGadget->m_iHeight = MinHeight;
-				InnerHeight -= MinHeight;
-			}
-			else
-			{
-				LayoutGadget->m_iHeight = -1;
-			}
-
-			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
-		}
-
-		/* Each vertical layout gadget will be the same height, but the last one might be slightly */
-		/* larger due to division rounding, so we calculate its height slightly differently */
-
-		Height = (m_iInnerHeight / m_oLayoutGadgets.Count());
-		RemainderHeight = (m_iInnerHeight - (Height * (m_oLayoutGadgets.Count() - 1)));
-
-		LayoutGadget = m_oLayoutGadgets.getHead();
-
-		while (LayoutGadget)
-		{
-			LayoutGadget->m_iY = Y;
-			LayoutGadget->m_iWidth = m_iInnerWidth;
-
-			if (LayoutGadget->Weight() == 1)
-			{
-				Y += LayoutGadget->MinHeight();
-			}
-			else if (LayoutGadget->Weight() == 50)
-			{
-				if (m_oLayoutGadgets.getSucc(LayoutGadget) == NULL)
-				{
-					LayoutGadget->m_iHeight = RemainderHeight;
-				}
-				else
-				{
-					LayoutGadget->m_iHeight = Height;
-				}
-
-				Y += Height;
-			}
-			else
-			{
-				LayoutGadget->m_iHeight = InnerHeight;
-				Y += InnerHeight;
-			}
-
-			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
-		}
-
-		LayoutGadget = m_oLayoutGadgets.getHead();
-
-		while (LayoutGadget)
-		{
-			LayoutGadget->rethinkLayout();
-			LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
-		}
+		m_poRootLayout->m_iWidth = m_iInnerWidth;
+		m_poRootLayout->m_iHeight = m_iInnerHeight;
 	}
 
 #endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
-	/* Now iterate through the framework's gadgets and let them know they have been resized */
+	/* Now recursively iterate through the window's tree of layout gadgets and let them know they */
+	/* have been resized */
 
-	LayoutGadget = m_oLayoutGadgets.getHead();
-
-	while (LayoutGadget)
+	if (m_poRootLayout)
 	{
-		LayoutGadget->rethinkLayout();
-		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+		m_poRootLayout->rethinkLayout();
 	}
 }
 
