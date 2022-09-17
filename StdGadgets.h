@@ -209,6 +209,11 @@ public:
 
 #endif /* QT_GUI_LIB */
 
+	const StdList<CStdGadgetLayout> *GetLayoutGadgets()
+	{
+		return(&m_oLayoutGadgets);
+	}
+
 	TInt GetSpacing();
 
 #ifdef __amigaos__
