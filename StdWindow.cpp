@@ -694,7 +694,6 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 			Result = false;
 
-			// TODO: CAW - Only one root layout should be allowed (assert on window parameter)
 			if (Window->m_poRootLayout)
 			{
 				Result = Window->m_poRootLayout->SendUpdate((void *) a_oLParam, LOWORD(a_oWParam));
@@ -1106,16 +1105,20 @@ TInt CWindow::AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLab
  * Attach a layout to the window.
  * This function will attach the layout passed in to the window.  This will take care of adding the
  * layout to the window's internal list of gadgets, as well as attaching it to the underlying OS
- * specific layout system.
+ * specific layout system if required.
+ *
+ * This is not a general purpose method and should only be used by The Framework when creating the
+ * initial window and root layout.  User code must not call this method.
  *
  * @date	Monday 11-Jul-2011 6:16 am
- * @param	a_poGadget		Pointer to the gadget to attach to the layout
+ * @param	a_poGadget		Pointer to the layout gadget to attach to the layout
  */
 
 void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 {
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::Attach() => No gadget to be attached passed in");
 	ASSERTM((m_poWindow != NULL), "CWindow::Attach() => Window not yet open");
+	ASSERTM((m_poRootLayout == NULL), "CWindow::Attach() => Root layout already attached");
 
 #ifdef __amigaos__
 
@@ -1135,24 +1138,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		}
 	}
 
-#elif defined(QT_GUI_LIB)
-
-	/* Add the new Qt layout to the window's root layout, but only if it already has a root layout.  A root layout */
-	/* not being present will only happen during startup, during the creation of the root layout itself */
-
-	if (m_poRootLayout)
-	{
-		// Sort this out once it's sorted on Qt
-		//m_poRootLayout->Attach(a_poLayoutGadget);
-	}
-	else
-	{
-		m_poRootLayout = a_poLayoutGadget;
-	}
-
-	rethinkLayout();
-
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
 	if (!m_poRootLayout)
 	{
@@ -1161,7 +1147,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	rethinkLayout();
 
-#endif /* ! QT_GUI_LIB */
+#endif /* WIN32 */
 
 }
 
