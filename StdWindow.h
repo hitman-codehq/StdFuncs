@@ -144,6 +144,10 @@ private:
 
 	TBool createMenus();
 
+	void Attach(CStdGadgetLayout* a_poLayoutGagdet);
+
+	void remove(CStdGadgetLayout* a_poLayoutGadget);
+
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	TInt AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem);
@@ -215,8 +219,6 @@ public:
 
 	TInt AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand);
 
-	void Attach(CStdGadgetLayout *a_poLayoutGagdet);
-
 	RApplication *Application()
 	{
 		return(m_poApplication);
@@ -266,8 +268,6 @@ public:
 	}
 
 	TBool MenuItemChecked(TInt a_iItemID);
-
-	void remove(CStdGadgetLayout *a_poLayoutGadget);
 
 	void RemoveMenuItem(TInt a_iOrdinal, TInt a_iCommand);
 

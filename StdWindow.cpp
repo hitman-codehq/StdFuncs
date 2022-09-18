@@ -2803,6 +2803,9 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  * This function will remove the given layout gadget from the window's internal list of layouts,
  * and will also remove it from the underlying OS specific window.
  *
+ * This is not a general purpose method and should only be used by The Framework when destroying the
+ * initial window and root layout.  User code must not call this method.
+ *
  * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Soeflingen
  * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
  */
