@@ -2,14 +2,13 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdGadgets.h"
-#include "StdReaction.h"
-#include "StdRendezvous.h"
 #include "StdWindow.h"
 #include <ctype.h>
 #include <string.h>
 
 #ifdef __amigaos__
 
+#include "StdReaction.h"
 #include "Amiga/AmiMenus.h"
 #include <proto/gadtools.h>
 #include <proto/graphics.h>
@@ -35,6 +34,7 @@
 
 #elif defined(WIN32)
 
+#include "StdRendezvous.h"
 #include <VersionHelpers.h>
 
 #endif /* WIN32 */
@@ -1138,7 +1138,11 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 		}
 	}
 
-#elif defined(WIN32)
+#elif defined(QT_GUI_LIB)
+
+	(void) a_poLayoutGadget;
+
+#else /* ! QT_GUI_LIB */
 
 	if (!m_poRootLayout)
 	{
@@ -1147,7 +1151,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	rethinkLayout();
 
-#endif /* WIN32 */
+#endif /* ! QT_GUI_LIB */
 
 }
 
@@ -2824,6 +2828,8 @@ void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
 		"CWindow::remove() => Unable to remove layout gadget from window");*/
 
 #elif defined(QT_GUI_LIB)
+
+	(void) a_poLayoutGadget;
 
 	/* Remove it from the top level Qt layout */
 

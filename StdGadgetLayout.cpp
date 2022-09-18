@@ -1,10 +1,13 @@
 
 #include "StdFuncs.h"
 #include "StdGadgets.h"
-#include "StdReaction.h"
 #include "StdWindow.h"
 
-#ifdef QT_GUI_LIB
+#ifdef __amigaos__
+
+#include "StdReaction.h"
+
+#elif defined(QT_GUI_LIB)
 
 #include <QtWidgets/QBoxLayout>
 #include "Qt/QtWindow.h"
