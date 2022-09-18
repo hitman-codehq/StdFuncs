@@ -77,10 +77,6 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
 		}
 		else
 		{
-			// TODO: CAW - Move & ensure consistency with others.  Note that object MUST be
-			//             attached in order for it to be destroyed when the layout is destroyed
-			//             due to Reaction ownership requirements.  If it is not attached then it
-			//             must be destroyed manually
 			/* A layout can be inside another layout or inside a window.  Depending on whether a parent layout */
 			/* gadget was passed in, attach the new layout to the appropariate parent */
 
