@@ -1126,12 +1126,11 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	Object LayoutObj = 0;
 
-	// TODO: CAW (multi) - This could be improved
 	GetAttr(WINDOW_Layout, m_poWindowObj, (ULONG *) &LayoutObj);
 
 	if (LayoutObj)
 	{
-		if (SetGadgetAttrs((struct Gadget *) LayoutObj /*m_poRootLayout->m_poGadget*/, m_poWindow, NULL,
+		if (SetGadgetAttrs((struct Gadget *) LayoutObj, m_poWindow, NULL,
 			LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 		{
 			rethinkLayout();
@@ -2814,26 +2813,21 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
  */
 
-void CWindow::remove(CStdGadgetLayout *a_poLayoutGadget)
+void CWindow::remove(CStdGadgetLayout* a_poLayoutGadget)
 {
 	ASSERTM((a_poLayoutGadget != NULL), "CWindow::remove() => No gadget to be removed passed in");
 
 #ifdef __amigaos__
 
-	/* Remove it from the top level Reaction layout */
-
-	// TODO: CAW (multi) - Why is this commented out, here and below?
-	/*DEBUGCHECK((SetGadgetAttrs((struct Gadget *) m_poRootLayout->m_poGadget, m_poWindow, NULL,
-		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE) != 0),
-		"CWindow::remove() => Unable to remove layout gadget from window");*/
+	/* For Amiga OS we won't remove the layout gadget from the root window.  Doing so causes a crash */
+	/* the next time a rethinkLayout() happens (even though it shouldn't).  This could be a bug in the */
+	/* OS3 version of Reaction.  It doesn't matter anyway because this call will only occur during */
+	/* shutdown of the application and the layout gadget will be automatically disposed of when the */
+	/* window is destroyed */
 
 #elif defined(QT_GUI_LIB)
 
 	(void) a_poLayoutGadget;
-
-	/* Remove it from the top level Qt layout */
-
-	//m_poRootLayout->remove(a_poLayoutGadget->m_poLayout);
 
 #endif /* QT_GUI_LIB */
 
@@ -3024,12 +3018,12 @@ void CWindow::rethinkLayout()
 
 	Object LayoutObj = 0;
 
-	// TODO: CAW (multi) - This could be improved
 	GetAttr(WINDOW_Layout, m_poWindowObj, (ULONG *) &LayoutObj);
+	ASSERTM((LayoutObj != 0), "CWindow::rethinkLayout() => Unable to obtain window's BOOPSI layout object");
 
 	if (LayoutObj)
 	{
-		RethinkLayout((struct Gadget *) LayoutObj /*m_poRootLayout->m_poGadget*/, m_poWindow, NULL, TRUE);
+		RethinkLayout((struct Gadget *) LayoutObj, m_poWindow, NULL, TRUE);
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)

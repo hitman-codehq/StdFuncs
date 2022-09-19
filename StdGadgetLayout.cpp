@@ -115,6 +115,8 @@ TInt CStdGadgetLayout::Construct(bool a_bUseParentWindow)
 
 #ifdef __amigaos__
 
+	(void) a_bUseParentWindow;
+
 	TInt Orientation;
 
 	/* Decide whether to create a vertical or horizontal layout */
@@ -201,7 +203,6 @@ CStdGadgetLayout::~CStdGadgetLayout()
 
 	/* Now remove the layout gadget from its parent window or layout */
 
-	// TODO: CAW (multi) - Assert that only one of these is set
 	if (m_poParentLayout)
 	{
 		m_poParentLayout->remove(this);
