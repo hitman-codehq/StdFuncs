@@ -350,6 +350,16 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 		return;
 	}
 
+	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
+	/* don't take care of this and gadgets will flicker if nothing has changed.  Setting the position when it */
+	/* has not changed can also cause some feedback loops where the client changes the position, is then */
+	/* notified that the position has changed and tries to change it again */
+
+	if (a_iPosition == m_iPosition)
+	{
+		return;
+	}
+
 	m_iPosition = a_iPosition;
 
 #ifdef __amigaos__
