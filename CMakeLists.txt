@@ -42,6 +42,7 @@ if(${Qt5_FOUND} EQUAL 1)
 	set(CMAKE_AUTOUIC ON)
 
 	set(SourceFiles ${SourceFiles} "StdApplication.cpp")
+	set(SourceFiles ${SourceFiles} "StdCharConverter.cpp")
 	set(SourceFiles ${SourceFiles} "StdClipboard.cpp")
 	set(SourceFiles ${SourceFiles} "StdDialog.cpp")
 	set(SourceFiles ${SourceFiles} "StdFileRequester.cpp")
