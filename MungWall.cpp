@@ -15,6 +15,7 @@ class MungWall oMungWall;
 
 /* Error message strings that can be used in multiple places */
 
+static const char accAllocating[] = "*** MungWall info: Allocating %zu bytes in file %s, line %d";
 static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %zu bytes in %lu allocation(s) manually";
 static const char accStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %zd bytes still allocated";
 static const char accStillAllocated[] = "*** MungWall alert: File %s: %zd bytes still allocated";
@@ -204,7 +205,8 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
  * performing a call to exit() after a failed unit test when there will
  * be leaks due to cleanup methods and destructors not being called,
  * you may wish to observe the output of the test without lots of false
- * memory leaks being reported.
+ * memory leaks being reported.  Reporting memory leaks is enabled by
+ * default.
  *
  * @date	Monday 08-Aug-2022 7:38 am, Code HQ Tokyo Tsukuda
  * @param	bEnableOutput	TRUE to enable reporting, else FALSE
@@ -213,6 +215,22 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 void MungWall::EnableOutput(BOOL bEnable)
 {
 	bEnableOutput = bEnable;
+}
+
+/**
+ * Enables or disables profiling.
+ * This method can be called to enable or disable reporting of allocations.
+ * Reporting allocatings is disabled by default as it can result in a lot of
+ * debug logs being printed, but it can be useful to temporarily enable it to
+ * check what is being allocated in performance critical parts of the code.
+ *
+ * @date	Tuesday 27-Sep-2022 7:15 am, Code HQ Tsukuda
+ * @param	bEnableOutput	TRUE to enable reporting, else FALSE
+ */
+
+void MungWall::EnableProfiling(BOOL bEnable)
+{
+	bEnableProfiling = bEnable;
 }
 
 /**********************************************************************/
@@ -321,6 +339,13 @@ void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 	size_t stMungedSize = (sizeof(struct Arena) + (MungeSize * 2) + stSize);
 	void *pvRetVal = NULL;
 	struct Arena *paBlock;
+
+	if (bEnableProfiling)
+	{
+		Utils::info(accAllocating, stSize, pccSourceFile, iSourceLine);
+		printf(accAllocating, stSize, pccSourceFile, iSourceLine);
+		printf("\n");
+	}
 
 	pubBlock = (UBYTE *) malloc(stMungedSize);
 

@@ -55,6 +55,7 @@ class MungWall
 	 };
 
 	BOOL bEnableOutput;
+	BOOL bEnableProfiling;
 	ULONG ulNumNews;
 	struct Arena *paFirstArena;
 	BOOL CheckBlockValidity(void *);
@@ -64,9 +65,10 @@ class MungWall
 
 public:
 
-	MungWall() { bEnableOutput = TRUE; ulNumNews = 0; paFirstArena = NULL; }
+	MungWall() { bEnableOutput = TRUE; bEnableProfiling = FALSE; ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
 	void EnableOutput(BOOL bEnable);
+	void EnableProfiling(BOOL bEnable);
 	void Free(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);
 	void *New(size_t stSize, const char *pccSourceFile, int iSourceLine);
 	void *ReNew(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);
@@ -97,8 +99,6 @@ extern "C"
 void *DebugMalloc(size_t stSize, const char *pccSourceFile, int iSourceLine);
 void *DebugReAlloc(void *pvBlock, size_t stSize, const char *pccSourceFile, int iSourceLine);
 void DebugFree(void *pvBlock, const char *pccSourceFile, int iSourceLine);
-APTR DebugAllocMem(ULONG ulSize, const char *pccSourceFile, int iSourceLine);
-void DebugFreeMem(APTR apBlock, const char *pccSourceFile, int iSourceLine, ULONG ulSize);
 
 #ifdef __cplusplus
 
