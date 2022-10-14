@@ -1700,7 +1700,7 @@ bool Utils::GetString(std::string &a_roString)
 /**
  * Allocates or reallocates a temporary buffer.
  * This function is useful if you have a situation that calls for a temporary buffer of an unknown
- * and varying size (thus preventing the use of a satic buffer) and do not want to dynamically
+ * and varying size (thus preventing the use of a static buffer) and do not want to dynamically
  * allocate and delete the buffer every time you use it.  If you use this function instead then
  * the buffer will only be reallocated if the new buffer is larger than the old one.  The first
  * time you call this function you should pass in NULL as the buffer pointer.  For subsequent

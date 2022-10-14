@@ -155,4 +155,28 @@ public:
 
 #endif /* ! _DEBUG */
 
+/* Profiling macros, which can report on the time spent in a method or block of code */
+
+#ifdef STD_PROFILE
+
+#define STD_PROFILE_START(Message) \
+	TTime StartTime, EndTime; \
+	TUint MilliSeconds; \
+\
+	StartTime.HomeTime(); \
+	Utils::info(Message);
+
+#define STD_PROFILE_END(Message) \
+	EndTime.HomeTime(); \
+	MilliSeconds = (TUint) ((EndTime.Int64() - StartTime.Int64()) / 1000); \
+\
+	Utils::info(Message" => %lu ms", MilliSeconds);
+
+#else /* ! STD_PROFILE */
+
+#define STD_PROFILE_START(Message)
+#define STD_PROFILE_END(Message)
+
+#endif /* ! STD_PROFILE */
+
 #endif /* ! UTILS_H */
