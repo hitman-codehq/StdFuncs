@@ -237,14 +237,7 @@
     <ClCompile Include="T_ConfigFile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Dir.h" />
-    <ClInclude Include="..\MungWall.h" />
     <ClInclude Include="..\StdConfigFile.h" />
-    <ClInclude Include="..\StdFuncs.h" />
-    <ClInclude Include="..\StdList.h" />
-    <ClInclude Include="..\StdTime.h" />
-    <ClInclude Include="..\Test.h" />
-    <ClInclude Include="..\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StdFuncs.vcxproj">
