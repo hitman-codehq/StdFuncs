@@ -56,6 +56,7 @@ class MungWall
 
 	BOOL bEnableOutput;
 	BOOL bEnableProfiling;
+	ULONG ulNumProfiledNews;
 	ULONG ulNumNews;
 	struct Arena *paFirstArena;
 	BOOL CheckBlockValidity(void *);
@@ -67,6 +68,12 @@ public:
 
 	MungWall() { bEnableOutput = TRUE; bEnableProfiling = FALSE; ulNumNews = 0; paFirstArena = NULL; }
 	~MungWall();
+
+	ULONG NumProfiledNews()
+	{
+		return(ulNumProfiledNews);
+	}
+
 	void EnableOutput(BOOL bEnable);
 	void EnableProfiling(BOOL bEnable);
 	void Free(void *pvBlock, const char *pccSourceFile = NULL, int iSourceLine = 0, BOOL bHasSource = FALSE);

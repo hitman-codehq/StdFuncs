@@ -231,6 +231,11 @@ void MungWall::EnableOutput(BOOL bEnable)
 void MungWall::EnableProfiling(BOOL bEnable)
 {
 	bEnableProfiling = bEnable;
+
+	if (bEnable)
+	{
+		ulNumProfiledNews = 0;
+	}
 }
 
 /**********************************************************************/
@@ -342,6 +347,7 @@ void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 
 	if (bEnableProfiling)
 	{
+		++ulNumProfiledNews;
 		Utils::info(accAllocating, stSize, pccSourceFile, iSourceLine);
 		printf(accAllocating, stSize, pccSourceFile, iSourceLine);
 		printf("\n");
