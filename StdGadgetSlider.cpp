@@ -341,7 +341,8 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
 
 void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 {
-	ASSERTM((a_iPosition >= 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
+	ASSERTM((a_iPosition > 0), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
+	ASSERTM((a_iPosition <= (m_iMaxRange - m_iPageSize) + 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too large");
 
 	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
 
@@ -408,7 +409,9 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 {
+	ASSERTM((a_iPageSize > 0), "CStdGadgetSlider::SetRange() => a_iPageSize is too small");
 	ASSERTM((a_iPageSize <= a_iMaxRange), "CStdGadgetSlider::SetRange() => a_iPageSize is too large");
+	ASSERTM((a_iMaxRange > 0), "CStdGadgetSlider::SetRange() => a_iMaxRange is too small");
 
 	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
 
