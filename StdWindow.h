@@ -291,11 +291,6 @@ public:
 
 	static TBool IsActive();
 
-	CStdGadgetLayout *GetRootLayout()
-	{
-		return(m_poRootLayout);
-	}
-
 	/* Functions that can be implemented by client software */
 
 	virtual void Activated(TBool /*a_bActivated*/) { }
