@@ -3024,6 +3024,11 @@ void CWindow::rethinkLayout()
 	if (LayoutObj)
 	{
 		RethinkLayout((struct Gadget *) LayoutObj, m_poWindow, NULL, TRUE);
+
+		/* Indicate to the root gadget that an Intuition rethink is already underway, to prevent it from */
+		/* triggering another one and thus causing flicker */
+
+		CStdGadgetLayout::m_poRethinker = m_poRootLayout;
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)

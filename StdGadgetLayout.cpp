@@ -422,9 +422,9 @@ void CStdGadgetLayout::rethinkLayout()
 	// TODO: CAW (multi) - Why not on this gadget?  Assert on non NULL
 	if ((m_poParentWindow) && (m_poParentWindow->m_poRootLayout))
 	{
-		/* If a rethink is just starting then indicate that it is underway and trigger a native ReAction */
+		/* If a rethink is just starting then indicate that it is underway and trigger a native Intuition */
 		/* rethink.  If a rethink is already underway then this layout is a child of another layout that */
-		/* started the rethink, so a request for ReAction to rethink is redundant and would cause flicker */
+		/* started the rethink, so a request for Intuition to rethink is redundant and would cause flicker */
 
 		if (!m_poRethinker)
 		{
