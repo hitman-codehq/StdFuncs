@@ -139,8 +139,9 @@ class CStdGadgetLayout : public CStdGadget
 {
 private:
 
+	static CStdGadgetLayout		*m_poRethinker;		/**< Pointer to layout gadget currently rethinking, if any */
+
 	TInt						m_iWeight;			/**< Weight of the layout gadget */
-	CStdGadgetLayout			*m_poRethinker;		/**< Pointer to layout gadget currently rethinking, if any */
 	MStdGadgetLayoutObserver	*m_poClient;		/**< Pointer to client to notify when gadget changes */
 	StdList<CStdGadget>			m_oGadgets;			/**< List of gadgets added to the layout */
 	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the layout */

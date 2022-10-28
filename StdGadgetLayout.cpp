@@ -19,9 +19,10 @@
 
 #define INNER_SPACING 3
 
-/* ETrue to disable immediate refresh when adding new gadgets to the layout.  Affects Amiga OS only */
+/* Amiga OS member variables pertaining to magic flicker avoidance */
 
 TBool CStdGadgetLayout::m_bEnableRefresh = ETrue;
+CStdGadgetLayout *CStdGadgetLayout::m_poRethinker = NULL;
 
 /**
  * Creates an instance of the CStdGadgetLayout class.
