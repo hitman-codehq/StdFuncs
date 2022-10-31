@@ -2319,6 +2319,14 @@ void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 		m_iInnerHeight = 0;
 	}
 
+	/* We're going to cheat a bit here.  We have to let the client code know that the layout has changed, but if */
+	/* we just call rethinkLayout() then this will generate another native rethink on Amiga OS, even though the */
+	/* resize has alrady performed a rethink.  This will cause the gadgets to be drawn twice.  So we'll set the */
+	/* rethinker to prevent the layout system from triggering another native rethink */
+
+	CStdGadgetLayout::m_poRethinker = m_poRootLayout;
+	rethinkLayout();
+
 	/* Now let the derived window class know that the window's size has changed */
 
 	Resize(OldInnerWidth, OldInnerHeight);
@@ -3023,12 +3031,17 @@ void CWindow::rethinkLayout()
 
 	if (LayoutObj)
 	{
-		RethinkLayout((struct Gadget *) LayoutObj, m_poWindow, NULL, TRUE);
+		/* Trigger a native Intuition rethink only if one has not already happened */
 
-		/* Indicate to the root gadget that an Intuition rethink is already underway, to prevent it from */
-		/* triggering another one and thus causing flicker */
+		if (!CStdGadgetLayout::m_poRethinker)
+		{
+			RethinkLayout((struct Gadget *) LayoutObj, m_poWindow, NULL, TRUE);
 
-		CStdGadgetLayout::m_poRethinker = m_poRootLayout;
+			/* Indicate to the root gadget that an Intuition rethink is already underway, to prevent it from */
+			/* triggering another one and thus causing flicker */
+
+			CStdGadgetLayout::m_poRethinker = m_poRootLayout;
+		}
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
