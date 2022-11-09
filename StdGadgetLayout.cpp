@@ -606,8 +606,16 @@ void CStdGadgetLayout::rethinkLayout()
 
 /* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Soeflingen */
 
-void CStdGadgetLayout::SetWeight(TInt a_iWeight)
+bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
+	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
+	/* don't take care of this and gadgets will flicker if nothing has changed */
+
+	if (a_iWeight == m_iWeight)
+	{
+		return false;
+	}
+
 	/* Save the gadget's new weight */
 
 	m_iWeight = a_iWeight;
@@ -631,6 +639,7 @@ void CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 #endif /* QT_GUI_LIB */
 
+	return(true);
 }
 
 /* Written: Thursday 31-May-2012 7:16 am, Code HQ Ehinger Tor */

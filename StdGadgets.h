@@ -227,7 +227,7 @@ public:
 
 	void rethinkLayout();
 
-	void SetWeight(TInt a_iWeight);
+	bool SetWeight(TInt a_iWeight);
 
 	TInt Weight()
 	{
