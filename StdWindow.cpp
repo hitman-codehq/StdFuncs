@@ -1744,7 +1744,17 @@ void CWindow::CompleteOpen()
 	m_bOpen = ETrue;
 }
 
-/* Written: Saturday 29-May-2010 1:07 pm*/
+/**
+ * Draws the entire client area.
+ * Invalidates the entire client area inside the window and instigates a draw of it.
+ *
+ * The draw does not happen immediately but is performed the next time the application's
+ * message loop is executed.
+ *
+ * @pre		A draw must not already be in progress when this method is called
+ *
+ * @date	Saturday 29-May-2010 1:07 pm
+ */
 
 void CWindow::DrawNow()
 {
@@ -1765,7 +1775,7 @@ void CWindow::DrawNow()
 	RECT Rect;
 
 	/* Get the dimensions of the client area and adjust it to only represent the vertical */
-	/* band that we wish to redraw, also adjusting the size of the area to be cleared and */
+	/* band that we wish to draw, also adjusting the size of the area to be cleared and */
 	/* drawn to take into account any attached gadgets */
 
 	if (GetClientRect(m_poWindow, &Rect))
@@ -1781,16 +1791,24 @@ void CWindow::DrawNow()
 
 }
 
-/* Written: Saturday 30-Nov-2010 9:15 pm */
-/* @param	a_iTop		Offset from top of client area from which to invalidate */
-/*			a_iBottom	Bottom most part of client area to which to invalidate */
-/*			a_iWidth	Width of client area to invalidate.  If -1 then the entire width */
-/*						is invalidated.  This is useful if you don't want to redraw the */
-/*						entire width of the client area for some reason */
-/* @pre		A redraw must not already be in progress when this method is called */
-/* Invalidates a vertical band of the client area and instigates a redraw of that area. */
-/* The bottom of the area, represented by a_iBottom, is considered exclusive, so the area */
-/* redrawn is between a_iTop and (a_iBottom - 1) */
+/**
+ * Draws a region of the client area.
+ * Invalidates a vertical band of the client area and instigates a draw of that area.
+ * The bottom of the area, represented by a_iBottom, is considered exclusive, so the area
+ * drawn is between a_iTop and (a_iBottom - 1).
+ *
+ * The draw does not happen immediately but is performed the next time the application's
+ * message loop is executed.
+ *
+ * @pre		A draw must not already be in progress when this method is called
+ *
+ * @date	Saturday 30-Nov-2010 9:15 pm
+ * @param	a_iTop			Offset from top of client area from which to invalidate
+ * @param	a_iBottom		Bottom most part of client area to which to invalidate
+ * @param	a_iWidth		Width of client area to invalidate.  If -1 then the entire width
+ *							is invalidated.  This is useful if you don't want to draw the
+ *							entire width of the client area for some reason
+ */
 
 void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 {
@@ -1806,7 +1824,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	// TODO: CAW - Temporary until we sort out refreshing the screen
 	(void) a_iWidth;
 
-	ASSERTM(!m_bPerformingRedraw, "CWindow::DrawNow() => New redraws must not be requested during a redraw");
+	ASSERTM(!m_bPerformingRedraw, "CWindow::DrawNow() => New draws must not be requested during a draw");
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
@@ -1879,7 +1897,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	QWidget *CentralWidget;
 
-	/* If no width was passed in then we want to redraw the entire width of the client area */
+	/* If no width was passed in then we want to draw the entire width of the client area */
 
 	if (a_iWidth == -1)
 	{
@@ -1893,8 +1911,8 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		CentralWidget = m_poWindow->centralWidget();
 		ASSERTM((CentralWidget != NULL), "CWindow::DrawNow() => Central widget has not been assigned to window");
 
-		/* And invalidate the vertical band.  Liken Windows, this will defer the dredrawing until l8r, */
-		/* possibly coalescing multiple redraws into one */
+		/* And invalidate the vertical band.  Like Windows, this will defer the drawing until l8r, */
+		/* possibly coalescing multiple draws into one */
 
 		CentralWidget->update(0, a_iTop, a_iWidth, a_iBottom);
 	}
@@ -1904,7 +1922,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	RECT Rect;
 
 	/* Get the dimensions of the client area and adjust it to only represent the vertical */
-	/* band that we wish to redraw, also adjusting the size of the area to be cleared and */
+	/* band that we wish to draw, also adjusting the size of the area to be cleared and */
 	/* drawn to take into account any attached gadgets */
 
 	if (GetClientRect(m_poWindow, &Rect))
