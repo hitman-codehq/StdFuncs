@@ -1818,7 +1818,6 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 #ifdef __amigaos__
 
-	int Bottom, Top;
 	std::vector<SRegion>::iterator it;
 
 	// TODO: CAW - Temporary until we sort out refreshing the screen
@@ -1865,32 +1864,6 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 			m_oDirtyRegions.push_back(Region);
 		}
-
-		/* Fill the window background with the standard background colour.  The IIntuition->ShadeRect() */
-		/* function is passed the inclusive right and bottom offsets to which to draw, not the size of */
-		/* the rect to draw.  We only fill the background if required to as client code can disable */
-		/* this functionality */
-
-		if (m_bFillBackground)
-		{
-			Top = (m_poWindow->BorderTop + a_iTop);
-			Bottom = (m_poWindow->BorderTop + a_iBottom);
-
-			/* If the bottom line is off the bottom of the client area then clip it to the bottom line */
-			/* of the client area */
-
-			if (Bottom > (m_poWindow->BorderTop + m_iInnerHeight - 1))
-			{
-				Bottom = (m_poWindow->BorderTop + m_iInnerHeight - 1);
-			}
-
-			/* Now fill in the background before drawing */
-
-			// TODO: CAW - Why is this commented out?
-			//IIntuition->ShadeRect(m_poWindow->RPort, m_poWindow->BorderLeft, Top,
-			//	  (m_poWindow->BorderLeft + m_iInnerWidth - 1), Bottom,
-			//	  LEVEL_NORMAL, BT_BACKGROUND, IDS_NORMAL, IIntuition->GetScreenDrawInfo(m_poWindow->WScreen), TAG_DONE);
-		}
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -1933,7 +1906,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 		/* And invalidate the vertical band */
 
-		InvalidateRect(m_poWindow, &Rect, m_bFillBackground);
+		InvalidateRect(m_poWindow, &Rect, TRUE);
 	}
 	else
 	{

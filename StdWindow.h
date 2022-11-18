@@ -77,7 +77,6 @@ private:
 	TInt				m_iCursorX;					/**< Current X position of the cursor */
 	TInt				m_iCursorY;					/**< Current Y position of the cursor */
 	TInt				m_iCursorHeight;			/**< Height of the cursor to be displayed */
-	TBool				m_bFillBackground;			/**< ETrue to fill background when drawing */
 	CWindow				*m_poNext;					/**< Ptr to next window in list */
 
 #ifdef __amigaos__
@@ -193,7 +192,6 @@ public:
 	CWindow(RApplication *a_poApplication)
 	{
 		m_iCursorHeight = 16;
-		m_bFillBackground = ETrue;
 		m_poApplication = a_poApplication;
 	}
 
@@ -231,11 +229,6 @@ public:
 	void DrawNow();
 
 	void DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth = -1);
-
-	void EnableFillBackground(TBool a_bFillBackground)
-	{
-		m_bFillBackground = a_bFillBackground;
-	}
 
 	void EnableMenuItem(TInt a_iItemID, TBool a_bEnable);
 
