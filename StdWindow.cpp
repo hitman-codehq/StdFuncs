@@ -2304,11 +2304,18 @@ const char *CWindow::InitialiseMenuLabel(const struct SStdMenuItem *a_pcoMenuIte
 
 #endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
-/* Written: Sunday 01-May-2011 10:48 am */
-/* @param	a_iInnerWidth	New width of client area */
-/*			a_iInnerHeight	New height of client area */
-/* This function is called whenever the size of the window changes and will reposition any auto-position */
-/* gadgets and will notify the derived window class that the size has changed. */
+/**
+ * Perform a relayout based on the window size changing.
+ * This function is called whenever the size of the window changes and will reposition any auto-position
+ * gadgets and will notify the derived window class that the size has changed.
+ *
+ * Note that this is an update method that is triggered in response to the window changing size.
+ * It does not itself change the window's size.
+ *
+ * @date	Sunday 01-May-2011 10:48 am
+ * @param	a_iInnerWidth	New width of client area
+ * @param	a_iInnerHeight	New height of client area
+ */
 
 void CWindow::InternalResize(TInt a_iInnerWidth, TInt a_iInnerHeight)
 {
