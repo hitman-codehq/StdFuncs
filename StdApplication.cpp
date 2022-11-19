@@ -543,16 +543,6 @@ TInt RApplication::Main()
 						break;
 					}
 
-					// TODO: CAW - Needs to be implemented
-					/*case WHMI_REFRESHWINDOW :
-					{
-						IDOS->Printf("Calling Draw()\n");
-
-						Window->Draw();
-
-						break;
-					}*/
-
 					case WMHI_NEWSIZE :
 					{
 						/* Determine the new size of the window */
