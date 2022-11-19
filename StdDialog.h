@@ -117,12 +117,7 @@ protected:
 public:
 
 	CDialog(RApplication *a_poApplication, MDialogObserver *a_poDialogObserver = NULL)
-		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver)
-	{
-		/* Dialogs don't have their backgrounds filled */
-
-		EnableFillBackground(EFalse);
-	}
+		: CWindow(a_poApplication), m_poDialogObserver(a_poDialogObserver) { }
 
 	virtual ~CDialog();
 
