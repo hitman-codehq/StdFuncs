@@ -202,15 +202,11 @@ CStdGadgetLayout::~CStdGadgetLayout()
 		delete Gadget;
 	}
 
-	/* Now remove the layout gadget from its parent window or layout */
+	/* Now remove the layout gadget from its parent layout */
 
 	if (m_poParentLayout)
 	{
 		m_poParentLayout->remove(this);
-	}
-	else if (m_poParentWindow)
-	{
-		m_poParentWindow->remove(this);
 	}
 
 #ifdef QT_GUI_LIB
