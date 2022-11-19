@@ -228,7 +228,7 @@ public:
 
 	void DrawNow();
 
-	void DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth = -1);
+	void DrawNow(TInt a_iTop, TInt a_iBottom);
 
 	void EnableMenuItem(TInt a_iItemID, TBool a_bEnable);
 

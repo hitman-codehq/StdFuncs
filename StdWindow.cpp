@@ -1805,12 +1805,9 @@ void CWindow::DrawNow()
  * @date	Saturday 30-Nov-2010 9:15 pm
  * @param	a_iTop			Offset from top of client area from which to invalidate
  * @param	a_iBottom		Bottom most part of client area to which to invalidate
- * @param	a_iWidth		Width of client area to invalidate.  If -1 then the entire width
- *							is invalidated.  This is useful if you don't want to draw the
- *							entire width of the client area for some reason
  */
 
-void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
+void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 {
 	ASSERTM((a_iTop >= 0), "CWindow::DrawNow() => Y offset to draw from must not be negative");
 	ASSERTM((a_iBottom >= 0), "CWindow::DrawNow() => Y offset to draw to must not be negative");
@@ -1819,9 +1816,6 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 #ifdef __amigaos__
 
 	std::vector<SRegion>::iterator it;
-
-	// TODO: CAW - Temporary until we sort out refreshing the screen
-	(void) a_iWidth;
 
 	ASSERTM(!m_bPerformingRedraw, "CWindow::DrawNow() => New draws must not be requested during a draw");
 
@@ -1870,13 +1864,6 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 
 	QWidget *CentralWidget;
 
-	/* If no width was passed in then we want to draw the entire width of the client area */
-
-	if (a_iWidth == -1)
-	{
-		a_iWidth = m_iInnerWidth;
-	}
-
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
 	if (m_poWindow)
@@ -1887,7 +1874,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 		/* And invalidate the vertical band.  Like Windows, this will defer the drawing until l8r, */
 		/* possibly coalescing multiple draws into one */
 
-		CentralWidget->update(0, a_iTop, a_iWidth, a_iBottom);
+		CentralWidget->update(0, a_iTop, m_iInnerWidth, a_iBottom);
 	}
 
 #elif defined(WIN32)
@@ -1902,7 +1889,7 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom, TInt a_iWidth)
 	{
 		Rect.bottom = (Rect.top + a_iBottom);
 		Rect.top += a_iTop;
-		Rect.right = (a_iWidth != -1) ? a_iWidth : m_iInnerWidth;
+		Rect.right = m_iInnerWidth;
 
 		/* And invalidate the vertical band */
 
