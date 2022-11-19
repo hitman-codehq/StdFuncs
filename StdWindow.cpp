@@ -2794,41 +2794,6 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	return(RetVal);
 }
 
-/**
- * Removes a layout gadget from the window.
- * This function will remove the given layout gadget from the window's internal list of layouts,
- * and will also remove it from the underlying OS specific window.
- *
- * This is not a general purpose method and should only be used by The Framework when destroying the
- * initial window and root layout.  User code must not call this method.
- *
- * @date	Saturday 05-Nov-2011 9:03 am, Code HQ Soeflingen
- * @param	a_poLayoutGadget	Pointer to the layout gadget to be removed
- */
-
-void CWindow::remove(CStdGadgetLayout* a_poLayoutGadget)
-{
-	ASSERTM((a_poLayoutGadget != NULL), "CWindow::remove() => No gadget to be removed passed in");
-
-#ifdef __amigaos__
-
-	/* For Amiga OS we won't remove the layout gadget from the root window.  Doing so causes a crash */
-	/* the next time a rethinkLayout() happens (even though it shouldn't).  This could be a bug in the */
-	/* OS3 version of Reaction.  It doesn't matter anyway because this call will only occur during */
-	/* shutdown of the application and the layout gadget will be automatically disposed of when the */
-	/* window is destroyed */
-
-#elif defined(QT_GUI_LIB)
-
-	(void) a_poLayoutGadget;
-
-#endif /* QT_GUI_LIB */
-
-	/* And rethink the layout to reflect the change */
-
-	rethinkLayout();
-}
-
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /**

@@ -145,8 +145,6 @@ private:
 
 	void Attach(CStdGadgetLayout* a_poLayoutGagdet);
 
-	void remove(CStdGadgetLayout* a_poLayoutGadget);
-
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	TInt AddAccelerator(const struct SStdMenuItem *a_pcoMenuItem);
