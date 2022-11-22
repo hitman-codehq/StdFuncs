@@ -365,7 +365,6 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #ifdef __amigaos__
 
-	// TODO: CAW (multi) - Is using the window really necessary?  Check for all usages of this function
 	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 		SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
 
