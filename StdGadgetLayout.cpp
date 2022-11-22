@@ -415,18 +415,17 @@ void CStdGadgetLayout::rethinkLayout()
 
 #ifdef __amigaos__
 
-	// TODO: CAW (multi) - Why not on this gadget?  Assert on non NULL
-	if ((m_poParentWindow) && (m_poParentWindow->m_poRootLayout))
-	{
-		/* If a rethink is just starting then indicate that it is underway and trigger a native Intuition */
-		/* rethink.  If a rethink is already underway then this layout is a child of another layout that */
-		/* started the rethink, so a request for Intuition to rethink is redundant and would cause flicker */
+	ASSERTM((m_poParentWindow != NULL), "CStdGadgetLayout::rethinkLayout() => Layout gadget does not have a parent window");
+	ASSERTM((m_poGadget != NULL), "CStdGadgetLayout::rethinkLayout() => Layout gadget not initialised");
 
-		if (!m_poRethinker)
-		{
-			m_poRethinker = this;
-			RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
-		}
+	/* If a rethink is just starting then indicate that it is underway and trigger a native Intuition */
+	/* rethink.  If a rethink is already underway then this layout is a child of another layout that */
+	/* started the rethink, so a request for Intuition to rethink is redundant and would cause flicker */
+
+	if (!m_poRethinker)
+	{
+		m_poRethinker = this;
+		RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
