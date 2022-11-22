@@ -2624,8 +2624,6 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 					/* Display the window maximised */
 
-					// TODO: CAW (multi) - Is this required?
-					m_poWindow->setFocus();
 					m_poWindow->showMaximized();
 
 					/* Save the outer width and height of the window */
