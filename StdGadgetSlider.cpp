@@ -336,13 +336,13 @@ void CStdGadgetSlider::Updated(ULONG a_ulData)
  * number that will represent the line number of the top line of the screen, that is to say, (MaxRange - PageSize).
  *
  * @date	Tuesday 30-Nov-2010 7:38 am
- * @param	The position, between 1 and (MaxRange - PageSize), to which to set the slider
+ * @param	The position, between 1 and MaxRange, to which to set the slider
  */
 
 void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 {
-	ASSERTM((a_iPosition > 0), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
-	ASSERTM((a_iPosition <= (m_iMaxRange - m_iPageSize) + 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too large");
+	ASSERTM((a_iPosition >= 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
+	ASSERTM((a_iPosition <= m_iMaxRange), "CStdGadgetSlider::SetPosition() => a_iPosition is too large");
 
 	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
 
