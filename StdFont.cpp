@@ -103,7 +103,8 @@ RFont::RFont(CWindow *a_poWindow)
 
 	m_pccName = NULL;
 	m_bHighlight = EFalse;
-	m_iClipWidth = m_iClipHeight = -1; // TODO: CAW - Check for this being -1 in DrawText()
+	// TODO: CAW - These are not used by all routines and -1 is probably not a good default
+	m_iClipWidth = m_iClipHeight = -1;
 	m_iNumSizes = m_iSize = m_iWidth = m_iHeight = m_iXOffset = m_iYOffset = 0;
 	m_poWindow = a_poWindow;
 
@@ -840,7 +841,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 
 void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_iX, TInt a_iY, enum TEncoding a_eEncoding)
 {
-	TInt Colour, Size, Skip, XPixels;
+	TInt Colour, Size, Skip, XPixels, XPosition;
 
 	ASSERTM(a_pccText, "RFont::DrawColouredText() => Text ptr must not be NULL");
 	ASSERTM(m_poWindow, "RFont::DrawColouredText() => Window handle not set");
@@ -909,8 +910,18 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 			/* prints at the baseline position, not the top of the font */
 
 			XPixels = TextWidthInPixels(LineText.c_str(), LineText.size(), LineText.size());
+			XPosition = (m_iXOffset + XPixels);
 
-			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + XPixels),
+			/* If it is outside of the clipping rectangle, break out.  Unlike the other versions, on Amiga OS, */
+			/* continuing to print outside the clipping rectangle would actually print text outside the clipping */
+			/* rectangle so we have to clip manually */
+
+			if (XPosition > m_iClipWidth)
+			{
+				break;
+			}
+
+			Move(m_poWindow->m_poWindow->RPort, (m_poWindow->m_poWindow->BorderLeft + XPosition),
 				(m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight) + m_iBaseline));
 
 			/* Calculate the maximum number of characters that can fit in the client area of the window, */
@@ -983,13 +994,24 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 			}
 		}
 
+		/* Determine the starting X position at which to print.  If it is outside of the clipping rectangle, */
+		/* break out as there is no point continuing to print the text runs, which would be clipped by the */
+		/* system print routine */
+
+		XPixels = TextWidthInPixels(LineText);
+		XPosition = (m_iXOffset + XPixels);
+
+		if (XPosition > m_iClipWidth)
+		{
+			break;
+		}
+
 		/* Render the string passed in, taking into account that QPainter::drawText() uses the Y position as */
 		/* the baseline of the font, not as the top */
 
 		QByteArray String(a_pccText, Size);
 
-		XPixels = TextWidthInPixels(LineText);
-		m_oPainter.drawText((m_iXOffset + XPixels), (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
+		m_oPainter.drawText(XPosition, (m_iYOffset + (a_iY * m_iHeight) + m_iBaseline), String);
 
 		/* And prepare for the next run to be displayed */
 
@@ -1040,10 +1062,21 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 			}
 		}
 
-		/* And call the normal monocolour text drawing method to display the string for us */
+		/* Determine the starting X position at which to print.  If it is outside of the clipping rectangle, */
+		/* break out as there is no point continuing to print the text runs, which would be clipped by the */
+		/* system print routine */
 
 		XPixels = TextWidthInPixels(LineText.c_str(), (int) LineText.size(), (int) LineText.size());
-		DrawText(a_pccText, Size, (m_iXOffset + XPixels), a_iY, a_eEncoding);
+		XPosition = (m_iXOffset + XPixels);
+
+		if (XPosition > m_iClipWidth)
+		{
+			break;
+		}
+
+		/* And call the normal monocolour text drawing method to display the string for us */
+
+		DrawText(a_pccText, Size, XPosition, a_iY, a_eEncoding);
 
 		/* And prepare for the next run to be displayed */
 
