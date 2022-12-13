@@ -31,8 +31,6 @@ class CWindow;
 
 extern TBool g_bUsingGUI;	/**< ETrue if running a GUI based program */
 
-typedef TBool (*ScanFunc)(const char *a_pccFileName, void *a_pvUserData);
-
 class Utils
 {
 private:
