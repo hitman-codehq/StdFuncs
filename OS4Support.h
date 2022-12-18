@@ -64,4 +64,12 @@ inline void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_wind
 
 #endif /* defined(__amigaos__) && !defined(__amigaos4__) */
 
+#ifdef __amigaos4__
+
+/* Functions renamed in OS4 but still compatible with their OS3 equivalents */
+
+#define GetCurrentDirName(buffer, length) GetCliCurrentDirName(buffer, length)
+
+#endif /* __amigaos4__ */
+
 #endif /* ! OS4SUPPORT_H */
