@@ -1,0 +1,8 @@
+.vs
+.vscode
+*.user
+build
+Debug
+Debug_OS4
+Release
+Release_OS4
