@@ -3341,12 +3341,12 @@ void Utils::TrimString(char *a_pcString)
 }
 
 /**
-* Extracts the red component of an RGB colour.
-*
-* @date		Saturday 16-Sep-2006 4:49 pm
-* @param	a_ulColour		The RGB value from which to extract
-* @return	The red component of the RGB value passed in
-*/
+ * Extracts the red component of an RGB colour.
+ *
+ * @date		Saturday 16-Sep-2006 4:49 pm
+ * @param	a_ulColour		The RGB value from which to extract
+ * @return	The red component of the RGB value passed in
+ */
 
 ULONG Utils::Red32(unsigned long a_ulColour)
 {
@@ -3358,12 +3358,12 @@ ULONG Utils::Red32(unsigned long a_ulColour)
 }
 
 /**
-* Extracts the green component of an RGB colour.
-*
-* @date		Saturday 16-Sep-2006 4:49 pm
-* @param	a_ulColour		The RGB value from which to extract
-* @return	The green component of the RGB value passed in
-*/
+ * Extracts the green component of an RGB colour.
+ *
+ * @date		Saturday 16-Sep-2006 4:49 pm
+ * @param	a_ulColour		The RGB value from which to extract
+ * @return	The green component of the RGB value passed in
+ */
 
 ULONG Utils::Green32(unsigned long a_ulColour)
 {
