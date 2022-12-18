@@ -112,7 +112,7 @@ static void CheckList(TLex &a_roLex, const char *a_apccList[], TInt a_iListCount
 	test(a_roLex.NextToken() == NULL);
 }
 
-/* Written: Wednesday 28-Nov-2012 6:32 pm, Vis à Vis Hotel, Lindau */
+/* Written: Wednesday 28-Nov-2012 6:32 pm, Vis Ã  Vis Hotel, Lindau */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
 /*			a_apccList		Array of ptrs to strings containing the exepcted results */
 /*			a_iListCount	Number of items in a_apccList */

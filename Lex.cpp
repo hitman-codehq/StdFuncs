@@ -395,7 +395,7 @@ const char *TLex::NextToken(TInt *a_piLength)
  * It is supplied only so that the Lex class can be used by more advanced
  * tokenising code.
  *
- * @date	Tuesday 08-Jan-2013 6:34 am, Vis à Vis Hotel, Lindau
+ * @date	Tuesday 08-Jan-2013 6:34 am, Vis Ã  Vis Hotel, Lindau
  * @param	a_iLength	Number of characters to skip
  */
 
@@ -414,7 +414,7 @@ void TLex::MoveForwards(TInt a_iLength)
  * It is supplied only so that the Lex class can be used by more advanced
  * tokenising code.
  *
- * @date	Tuesday 08-Jan-2013 6:24 am, Vis à Vis Hotel, Lindau
+ * @date	Tuesday 08-Jan-2013 6:24 am, Vis Ã  Vis Hotel, Lindau
  * @param	a_iLength	Number of characters to skip backwards
  */
 
