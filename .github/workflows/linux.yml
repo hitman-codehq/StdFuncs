@@ -1,8 +1,6 @@
 name: Linux
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -25,3 +23,10 @@ jobs:
           cd Tests
           make
           for file in Debug/T_*.debug; do $file; done
+      - name: Archive Libraries
+        uses: actions/upload-artifact@v3
+        with:
+          name: Libraries
+          path: |
+            Debug/*.a
+            Release/*.a
