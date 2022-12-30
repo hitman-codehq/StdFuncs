@@ -28,7 +28,7 @@ jobs:
           doxygen
       - name: Setup Pages
         uses: actions/configure-pages@v2
-      - name: Upload artifact
+      - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v1
         with:
           path: 'html'
