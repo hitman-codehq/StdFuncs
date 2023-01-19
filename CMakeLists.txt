@@ -31,6 +31,7 @@ set(SourceFiles ${SourceFiles} "StdTime.cpp")
 set(SourceFiles ${SourceFiles} "StdWildcard.cpp")
 set(SourceFiles ${SourceFiles} "Test.cpp")
 set(SourceFiles ${SourceFiles} "Utils.cpp")
+set(SourceFiles ${SourceFiles} "Yggdrasil/Handler.cpp")
 
 find_package(Qt5 COMPONENTS Core)
 
@@ -69,6 +70,7 @@ else()
 	add_library(StdFuncs ${SourceFiles})
 endif()
 
+target_include_directories(StdFuncs PUBLIC ".")
 set_property(TARGET StdFuncs PROPERTY CXX_STANDARD 14)
 set_property(TARGET StdFuncs PROPERTY CXX_STANDARD_REQUIRED ON)
 

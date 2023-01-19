@@ -1,7 +1,7 @@
 
 CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
 CFLAGS_EX = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
-IFLAGS = -D__USE_INLINE__
+IFLAGS = -I. -D__USE_INLINE__
 
 ifdef PREFIX
 	AR = @$(PREFIX)ar
@@ -57,6 +57,8 @@ else
 		$(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
+OBJECTS += $(OBJ)/Handler.o
+
 all: $(OBJ) $(LIBRARY) $(AUTO_LIBRARY)
 
 $(OBJ):
@@ -83,6 +85,10 @@ $(OBJ)/%.o: Amiga/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
 
 $(OBJ)/%.o: Auto/%.c
+	@echo Compiling $<...
+	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
+
+$(OBJ)/%.o: Yggdrasil/%.cpp
 	@echo Compiling $<...
 	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
 
