@@ -41,8 +41,9 @@
  * succeed and the file will be flagged for deletion when the client process quits.
  * Thus in this case KErrNone will be returned, even though the file will continue
  * to exist for the duration of the lifetime of the client process.
+ *
  * @date	Wednesday 01-Jul-2009 7:54 pm
- * @param	a_pccFileName	Name of the file to be deleted
+ * @param	a_fileName	Name of the file to be deleted
  * @return	KErrNone if successful
  * @return	KErrInUse if the file or directory is in use
  * @return	KErrNoMemory if not enough memory was available
@@ -51,13 +52,13 @@
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt RFileUtils::deleteFile(const char *a_pccFileName)
+int RFileUtils::deleteFile(const char *a_fileName)
 {
-	TInt RetVal;
+	int RetVal;
 
 	/* First try to delete the file */
 
-	if (DELETE_FILE(a_pccFileName))
+	if (DELETE_FILE(a_fileName))
 	{
 		RetVal = KErrNone;
 	}
@@ -65,32 +66,56 @@ TInt RFileUtils::deleteFile(const char *a_pccFileName)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = Utils::MapLastFileError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_fileName);
 	}
 
 	return(RetVal);
 }
 
-/* Written: Monday 19-Apr-2010 6:26 am */
+/**
+ * Obtains information about a given local file or directory.
+ * Wrapper method that enables local operation of the @link Utils::GetFileInfo @endlink method.
+ * See @link Utils::GetFileInfo @endlink for more detailed information.
+ *
+ * @pre		Pointer to filename passed in must not be NULL
+ * @pre		Pointer to TEntry structure passed in must not be NULL
+ *
+ * @date	Saturday 25-Feb-2023 6:06 am, Code HQ Tokyo Tsukuda
+ * @param	a_fileName	Pointer to the name of the file for which to obtain information
+ * @param	a_entry		Pointer to the TEntry structure into which to place the information
+ * @return	KErrNone if successful, otherwise one of the system errors
+ */
 
-// TODO: CAW - What does this return on Symbian OS?  KErrAlreadyExists?  Create target directories if required
-int RFileUtils::renameFile(const char *a_pccOldFullName, const char *a_pccNewFullName)
+int RFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 {
-	TInt RetVal;
+	return Utils::GetFileInfo(a_fileName, a_entry);
+}
+
+/**
+ * Renames a file.
+ * Renames the specified file to the new name passed in.
+ *
+ * @date	Monday 19-Apr-2010 6:26 am
+ * @param	a_oldFullName	The current name of the file to be renamed
+ * @param	a_newFullName	The new name to which to rename the file
+ * @return	KErrNone if successful, else KErrGeneral
+ */
+
+int RFileUtils::renameFile(const char *a_oldFullName, const char *a_newFullName)
+{
 
 #ifdef __amigaos__
 
-	RetVal = (Rename(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
+	return (Rename(a_oldFullName, a_newFullName)) ? KErrNone : KErrGeneral;
 
 #elif defined(__unix__)
 
-	RetVal = (rename(a_pccOldFullName, a_pccNewFullName) == 0) ? KErrNone : KErrGeneral;
+	return (rename(a_oldFullName, a_newFullName) == 0) ? KErrNone : KErrGeneral;
 
 #else /* ! __unix__ */
 
-	RetVal = (MoveFile(a_pccOldFullName, a_pccNewFullName)) ? KErrNone : KErrGeneral;
+	return (MoveFile(a_oldFullName, a_newFullName)) ? KErrNone : KErrGeneral;
 
 #endif /* ! __unix__ */
 
-	return(RetVal);
 }

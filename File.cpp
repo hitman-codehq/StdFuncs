@@ -20,15 +20,15 @@ RFile::RFile()
 
 #ifdef __amigaos__
 
-	m_uiFileMode = m_oHandle = 0;
+	m_fileMode = m_handle = 0;
 
 #elif defined(__unix__)
 
-	m_oHandle = -1;
+	m_handle = -1;
 
 #else /* ! __unix__ */
 
-	m_oHandle = INVALID_HANDLE_VALUE;
+	m_handle = INVALID_HANDLE_VALUE;
 
 #endif /* ! __unix__ */
 
@@ -37,14 +37,13 @@ RFile::RFile()
 /**
  * Creates a new file for writing.
  * Creates a new file that can subsequently be used for writing operations.  If a file already
- * exists with the same name then the function will fail.  The a_pccFileName parameter can additionally
+ * exists with the same name then the function will fail.  The a_fileName parameter can additionally
  * include a path to the file but the path must already exist.  It will not be created if it does
  * not already exist.
  *
  * @date	Friday 02-Jan-2009 8:54 pm
- * @param	a_pccFileName	Ptr to the name of the file to be created
- * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
- *							API and is ignored (but should be EFileWrite for consistency); one of
+ * @param	a_fileName		Ptr to the name of the file to be created
+ * @param	a_fileMode		Mode in which to create the file; one of
  *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
@@ -55,11 +54,9 @@ RFile::RFile()
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
+int RFile::create(const char *a_fileName, TUint a_fileMode)
 {
 	TInt RetVal;
-
-	(void) a_uiFileMode;
 
 #ifdef __amigaos__
 
@@ -69,19 +66,19 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	/* have a mode that allows us to do this so we have to manually perform a */
 	/* check ourselves */
 
-	if (Utils::GetFileInfo(a_pccFileName, &Entry) == KErrNotFound)
+	if (Utils::GetFileInfo(a_fileName, &Entry) == KErrNotFound)
 	{
-		if ((m_oHandle = Open(a_pccFileName, MODE_READWRITE)) != 0)
+		if ((m_handle = Open(a_fileName, MODE_READWRITE)) != 0)
 		{
 			RetVal = KErrNone;
 
-			m_uiFileMode = EFileWrite;
+			a_fileMode = EFileWrite;
 
 			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
 
-			if (a_uiFileMode & EFileExclusive)
+			if (a_fileMode & EFileExclusive)
 			{
-				if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) == 0)
+				if (ChangeMode(CHANGE_FH, m_handle, EXCLUSIVE_LOCK) == 0)
 				{
 					Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
@@ -95,7 +92,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = Utils::MapLastFileError(a_pccFileName);
+			RetVal = Utils::MapLastFileError(a_fileName);
 		}
 	}
 	else
@@ -105,21 +102,21 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 
 #elif defined(__unix__)
 
-	TInt Flags;
+	int Flags;
 
 	Flags = (O_CREAT | O_EXCL | O_RDWR);
 
 	/* Create a new file in read/write mode */
 
-	if ((m_oHandle = ::open(a_pccFileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
+	if ((m_handle = ::open(a_fileName, Flags, (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) != -1)
 	{
 		RetVal = KErrNone;
 
 		/* Now lock the file so that it cannot be re-opened, if exclusive mode has been requested */
 
-		if (a_uiFileMode & EFileExclusive)
+		if (a_fileMode & EFileExclusive)
 		{
-			if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) != 0)
+			if (flock(m_handle, (LOCK_EX | LOCK_NB)) != 0)
 			{
 				Utils::info("RFile::Create() => Unable to lock file for exclusive access");
 
@@ -133,21 +130,21 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = Utils::MapLastFileError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_fileName);
 	}
 
 #else /* ! __unix__ */
 
 	DWORD ShareMode = 0;
 
-	if (!(a_uiFileMode & EFileExclusive))
+	if (!(a_fileMode & EFileExclusive))
 	{
 		ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE);
 	}
 
 	/* Create a new file in read/write mode */
 
-	if ((m_oHandle = CreateFile(a_pccFileName, GENERIC_WRITE, ShareMode, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
+	if ((m_handle = CreateFile(a_fileName, GENERIC_WRITE, ShareMode, NULL, CREATE_NEW, 0, NULL)) != INVALID_HANDLE_VALUE)
 	{
 		RetVal = KErrNone;
 	}
@@ -155,7 +152,7 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
 	{
 		/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-		RetVal = Utils::MapLastFileError(a_pccFileName);
+		RetVal = Utils::MapLastFileError(a_fileName);
 	}
 
 #endif /* ! __unix__ */
@@ -170,8 +167,8 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
  * a convenience wrapper around RFile::Create();  see that function for further details.
  *
  * @date	Monday 19-Apr-2010 6:26 am
- * @param	a_pccFileName	Ptr to the name of the file to be created
- * @param	a_uiFileMode	Mode in which to create the file.  Only for compatibility with Symbian
+ * @param	a_fileName		Ptr to the name of the file to be created
+ * @param	a_fileMode		Mode in which to create the file.  Only for compatibility with Symbian
  *							API and is ignored (but should be EFileWrite for consistency); one of
  *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
@@ -183,20 +180,20 @@ TInt RFile::Create(const char *a_pccFileName, TUint a_uiFileMode)
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
+int RFile::replace(const char *a_fileName, TUint a_fileMode)
 {
-	TInt RetVal;
+	int RetVal;
 
 	/* Try to delete the file specified so that it can be recreated */
 
 	RFileUtils FileUtils;
-	RetVal = FileUtils.deleteFile(a_pccFileName);
+	RetVal = FileUtils.deleteFile(a_fileName);
 
 	/* If the file was deleted successfully or if it didn't exist, continue on to create a new file */
 
 	if ((RetVal == KErrNone) || (RetVal == KErrNotFound))
 	{
-		RetVal = Create(a_pccFileName, a_uiFileMode);
+		RetVal = create(a_fileName, a_fileMode);
 	}
 
 	return(RetVal);
@@ -207,13 +204,13 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  * Opens an existing file that can subsequently be used for reading or writing operations,
  * or both.  The file can be opened using the file mode flags EFileRead, EFileWrite, or a
  * logical combination of them both to elicit the desired behaviour.  If the file mode
- * EFileWrite is specified then the file will also be writeable.  The a_pccFileName parameter can
+ * EFileWrite is specified then the file will also be writeable.  The a_fileName parameter can
  * optionally specify a path to the file and can also be prefixed with an Amiga OS style "PROGDIR:"
  * prefix.
  *
  * @date	Friday 02-Jan-2009 8:57 pm
- * @param	a_pccFileName	Ptr to the name of the file to be opened
- * @param	a_uiFileMode	Mode in which to open the file; one of the @link TFileMode @endlink values
+ * @param	a_fileName		Ptr to the name of the file to be opened
+ * @param	a_fileMode		Mode in which to open the file; one of the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrInUse if the file is in use
  * @return	KErrNoMemory if not enough memory was available
@@ -222,14 +219,14 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
+int RFile::open(const char *a_fileName, TUint a_fileMode)
 {
 	char *ResolvedFileName;
-	TInt RetVal;
+	int RetVal;
 
 	/* If the filename is prefixed with an Amiga OS style "PROGDIR:" then resolve it */
 
-	if ((ResolvedFileName = Utils::ResolveProgDirName(a_pccFileName)) != NULL)
+	if ((ResolvedFileName = Utils::ResolveProgDirName(a_fileName)) != NULL)
 	{
 
 #ifdef __amigaos__
@@ -238,19 +235,19 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		/* and being read only if EFileWrite is not specified but neither of */
 		/* these features are supported by Amiga OS so we will emulate them l8r */
 
-		if ((m_oHandle = Open(ResolvedFileName, MODE_OLDFILE)) != 0)
+		if ((m_handle = Open(ResolvedFileName, MODE_OLDFILE)) != 0)
 		{
 			RetVal = KErrNone;
 
 			/* Save the read/write mode for l8r use */
 
-			m_uiFileMode = a_uiFileMode;
+			m_fileMode = a_fileMode;
 
 			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
 
-			if (a_uiFileMode & EFileExclusive)
+			if (a_fileMode & EFileExclusive)
 			{
-				if (ChangeMode(CHANGE_FH, m_oHandle, EXCLUSIVE_LOCK) == 0)
+				if (ChangeMode(CHANGE_FH, m_handle, EXCLUSIVE_LOCK) == 0)
 				{
 					Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
@@ -264,26 +261,26 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = Utils::MapLastFileError(a_pccFileName);
+			RetVal = Utils::MapLastFileError(a_fileName);
 		}
 
 #elif defined(__unix__)
 
-		TInt Flags;
+		int Flags;
 
 		/* Open an existing file in read or read/write mode as requested */
 
-		Flags = (a_uiFileMode & EFileWrite) ? O_RDWR : O_RDONLY;
+		Flags = (a_fileMode & EFileWrite) ? O_RDWR : O_RDONLY;
 
-		if ((m_oHandle = ::open(ResolvedFileName, Flags, 0)) != -1)
+		if ((m_handle = ::open(ResolvedFileName, Flags, 0)) != -1)
 		{
 			RetVal = KErrNone;
 
 			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
 
-			if (a_uiFileMode & EFileExclusive)
+			if (a_fileMode & EFileExclusive)
 			{
-				if (flock(m_oHandle, (LOCK_EX | LOCK_NB)) != 0)
+				if (flock(m_handle, (LOCK_EX | LOCK_NB)) != 0)
 				{
 					Utils::info("RFile::open() => Unable to lock file for exclusive access");
 
@@ -301,7 +298,7 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = Utils::MapLastFileError(a_pccFileName);
+			RetVal = Utils::MapLastFileError(a_fileName);
 		}
 
 #else /* ! __unix__ */
@@ -313,19 +310,19 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		FileMode = GENERIC_READ;
 		ShareMode = 0;
 
-		if (a_uiFileMode & EFileWrite)
+		if (a_fileMode & EFileWrite)
 		{
 			FileMode |= GENERIC_WRITE;
 		}
 
-		if (!(a_uiFileMode & EFileExclusive))
+		if (!(a_fileMode & EFileExclusive))
 		{
 			ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE);
 		}
 
 		/* And open the file */
 
-		if ((m_oHandle = CreateFile(ResolvedFileName, FileMode, ShareMode, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
+		if ((m_handle = CreateFile(ResolvedFileName, FileMode, ShareMode, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE)
 		{
 			RetVal = KErrNone;
 		}
@@ -333,21 +330,21 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
 		{
 			/* See if this was successful.  If it wasn't due to path not found etc. then return this error */
 
-			RetVal = Utils::MapLastFileError(a_pccFileName);
+			RetVal = Utils::MapLastFileError(a_fileName);
 		}
 
 #endif /* ! __unix__ */
 
 		/* And free the resolved filename, but only if it contained the prefix */
 
-		if (ResolvedFileName != a_pccFileName)
+		if (ResolvedFileName != a_fileName)
 		{
 			delete [] ResolvedFileName;
 		}
 	}
 	else
 	{
-		Utils::info("RFile::open() => Unable to resolve program name for %s", a_pccFileName);
+		Utils::info("RFile::open() => Unable to resolve program name for %s", a_fileName);
 
 		RetVal = KErrPathNotFound;
 	}
@@ -364,20 +361,20 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
  * @pre		The file must be open
  *
  * @date	Friday 02-Jan-2009 10:20 pm
- * @param	a_pucBuffer		Ptr to the buffer to read the data into
- * @param	a_iLength		Number of bytes in the buffer to be read
+ * @param	a_buffer	Ptr to the buffer to read the data into
+ * @param	a_length	Number of bytes in the buffer to be read
  * @return	Number of bytes read, if successful, otherwise KErrGeneral
  */
 
-TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
+int RFile::read(unsigned char *a_buffer, int a_length)
 {
-	TInt RetVal;
+	int RetVal;
 
-	ASSERTM(m_oHandle, "RFile::read() => File is not open");
+	ASSERTM(m_handle, "RFile::read() => File is not open");
 
 #ifdef __amigaos__
 
-	RetVal = Read(m_oHandle, a_pucBuffer, a_iLength);
+	RetVal = Read(m_handle, a_buffer, a_length);
 
 	if (RetVal == -1)
 	{
@@ -386,7 +383,7 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 
 #elif defined(__unix__)
 
-	RetVal = ::read(m_oHandle, a_pucBuffer, a_iLength);
+	RetVal = ::read(m_handle, a_buffer, a_length);
 
 	if (RetVal == -1)
 	{
@@ -401,9 +398,9 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
 	/* try to read 0 bytes (it returns ERROR_ACCESS_DENIED) even though it can handle trying */
 	/* to write 0 bytes, so we will handle the 0 length ourselves */
 
-	if (a_iLength > 0)
+	if (a_length > 0)
 	{
-		if (ReadFile(m_oHandle, a_pucBuffer, a_iLength, &BytesRead, NULL))
+		if (ReadFile(m_handle, a_buffer, a_length, &BytesRead, NULL))
 		{
 			RetVal = BytesRead;
 		}
@@ -430,16 +427,16 @@ TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
  * @pre		The file must be open
  *
  * @date	Saturday 27-May-2017 6:49 am, Tegel Airport, awaiting flight AB 8062 to Gothenburg
- * @param	a_iBytes		The number of bytes from the start of the file to which to seek
+ * @param	a_bytes		The number of bytes from the start of the file to which to seek
  * @return	KErrNone if successful
  * @return	KErrGeneral if the seek could not be performed
  */
 
-TInt RFile::seek(TInt a_iBytes)
+int RFile::seek(int a_bytes)
 {
 	TInt RetVal;
 
-	ASSERTM(m_oHandle, "RFile::seek() => File is not open");
+	ASSERTM(m_handle, "RFile::seek() => File is not open");
 
 	/* Assume failure */
 
@@ -447,14 +444,14 @@ TInt RFile::seek(TInt a_iBytes)
 
 #ifdef __amigaos__
 
-	if (Seek(m_oHandle, a_iBytes, OFFSET_BEGINNING))
+	if (Seek(m_handle, a_bytes, OFFSET_BEGINNING))
 	{
 		RetVal = KErrNone;
 	}
 
 #elif defined(__unix__)
 
-	if (lseek(m_oHandle, a_iBytes, SEEK_SET) != -1)
+	if (lseek(m_handle, a_bytes, SEEK_SET) != -1)
 	{
 		RetVal = KErrNone;
 	}
@@ -463,7 +460,7 @@ TInt RFile::seek(TInt a_iBytes)
 
 	DWORD Position;
 
-	if ((Position = SetFilePointer(m_oHandle, a_iBytes, NULL, FILE_BEGIN)) != INVALID_SET_FILE_POINTER)
+	if ((Position = SetFilePointer(m_handle, a_bytes, NULL, FILE_BEGIN)) != INVALID_SET_FILE_POINTER)
 	{
 		RetVal = KErrNone;
 	}
@@ -483,27 +480,27 @@ TInt RFile::seek(TInt a_iBytes)
  * @pre		The file must be open
  *
  * @date	Friday 02-Jan-2009 10:29 pm
- * @param	a_pcucBuffer	Ptr to the buffer to be written to the file
- * @param	a_iLength		Number of bytes in the buffer to be written
+ * @param	a_buffer	Ptr to the buffer to be written to the file
+ * @param	a_length		Number of bytes in the buffer to be written
  * @return	Number of bytes written, if successful, otherwise KErrGeneral
  */
 
-TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
+int RFile::write(const unsigned char *a_buffer, int a_length)
 {
 	TInt RetVal;
 
-	ASSERTM(m_oHandle, "RFile::write() => File is not open");
+	ASSERTM(m_handle, "RFile::write() => File is not open");
 
 #ifdef __amigaos__
 
 	/* Only allow writing if the file was opened using the EFileWrite file mode.  Amiga OS */
 	/* doesn't support this functionality so we have to emulate it */
 
-	if (m_uiFileMode & EFileWrite)
+	if (m_fileMode & EFileWrite)
 	{
 		/* Now perform the write and ensure all of the bytes were written */
 
-		RetVal = Write(m_oHandle, a_pcucBuffer, a_iLength);
+		RetVal = Write(m_handle, a_buffer, a_length);
 
 		if (RetVal == -1)
 		{
@@ -517,9 +514,9 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 #elif defined(__unix__)
 
-	RetVal = ::write(m_oHandle, a_pcucBuffer, a_iLength);
+	RetVal = ::write(m_handle, a_buffer, a_length);
 
-	if (RetVal != a_iLength)
+	if (RetVal != a_length)
 	{
 		RetVal = KErrGeneral;
 	}
@@ -530,10 +527,10 @@ TInt RFile::write(const unsigned char *a_pcucBuffer, TInt a_iLength)
 
 	/* Perform the write and ensure all of the bytes were written */
 
-	if ((WriteFile(m_oHandle, a_pcucBuffer, a_iLength, &BytesWritten, NULL)) &&
-		((TInt) BytesWritten == a_iLength))
+	if ((WriteFile(m_handle, a_buffer, a_length, &BytesWritten, NULL)) &&
+		((TInt) BytesWritten == a_length))
 	{
-		RetVal = a_iLength;
+		RetVal = a_length;
 	}
 	else
 	{
@@ -557,26 +554,26 @@ void RFile::close()
 
 #ifdef __amigaos__
 
-	if (m_oHandle != 0)
+	if (m_handle != 0)
 	{
-		DEBUGCHECK((Close(m_oHandle) != 0), "RFile::close() => Unable to close file");
-		m_oHandle = 0;
+		DEBUGCHECK((Close(m_handle) != 0), "RFile::close() => Unable to close file");
+		m_handle = 0;
 	}
 
 #elif defined(__unix__)
 
-	if (m_oHandle != -1)
+	if (m_handle != -1)
 	{
-		DEBUGCHECK((::close(m_oHandle) == 0), "RFile::close() => Unable to close file");
-		m_oHandle = -1;
+		DEBUGCHECK((::close(m_handle) == 0), "RFile::close() => Unable to close file");
+		m_handle = -1;
 	}
 
 #else /* ! __unix__ */
 
-	if (m_oHandle != INVALID_HANDLE_VALUE)
+	if (m_handle != INVALID_HANDLE_VALUE)
 	{
-		DEBUGCHECK((CloseHandle(m_oHandle) != FALSE), "RFile::close() => Unable to close file");
-		m_oHandle = INVALID_HANDLE_VALUE;
+		DEBUGCHECK((CloseHandle(m_handle) != FALSE), "RFile::close() => Unable to close file");
+		m_handle = INVALID_HANDLE_VALUE;
 	}
 
 #endif /* ! __unix__ */

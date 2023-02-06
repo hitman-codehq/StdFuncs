@@ -19,8 +19,8 @@ enum TFileMode
 };
 
 /**
- * A class for reading from or writing to files.
- * This class enables the creation, reading and writing of file in a platform independent manner.
+ * A class for reading from or writing to local files.
+ * This class enables the local creation, reading and writing of file in a platform independent manner.
  */
 
 class RFile
@@ -29,16 +29,16 @@ private:
 
 #ifdef __amigaos__
 
-	TUint	m_uiFileMode;	/* Mode in which file was opened for access */
-	BPTR	m_oHandle;		/* Handle to the open file or 0 if closed */
+	TUint	m_fileMode;		/* Mode in which file was opened for access */
+	BPTR	m_handle;		/* Handle to the open file or 0 if closed */
 
 #elif defined(__unix__)
 
-	TInt		m_oHandle;	/* Handle to the open file or 0 if closed */
+	int		m_handle;		/* Handle to the open file or 0 if closed */
 
 #else /* ! __unix__ */
 
-	HANDLE	m_oHandle;		/**< Handle to the open file or 0 if closed */
+	HANDLE	m_handle;		/**< Handle to the open file or 0 if closed */
 
 #endif /* ! __unix__ */
 
@@ -46,17 +46,17 @@ public:
 
 	RFile();
 
-	TInt Create(const char *a_pccFileName, TUint a_uiFileMode);
+	int create(const char *a_fileName, TUint a_fileMode);
 
-	TInt Replace(const char *a_pccFileName, TUint a_uiFileMode);
+	int replace(const char *a_fileName, TUint a_fileMode);
 
-	TInt open(const char *a_pccFileName, TUint a_uiFileMode);
+	int open(const char *a_fileName, TUint a_fileMode);
 
-	TInt read(unsigned char *a_pucBuffer, TInt a_iLength) const;
+	int read(unsigned char *a_buffer, int a_length);
 
-	TInt seek(TInt a_iBytes);
+	int seek(int a_bytes);
 
-	TInt write(const unsigned char *a_pcucBuffer, TInt a_iLength);
+	int write(const unsigned char *a_buffer, int a_length);
 
 	void close();
 };

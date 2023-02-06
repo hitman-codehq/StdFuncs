@@ -119,7 +119,10 @@ public:
 	void Sort(enum TDirSortOrder a_eSortOrder);
 };
 
-/* A class for scanning directories for directory and file entries */
+/**
+ * A class for scanning directories for local directory and file entries.
+ * Instances of this class can be used to scan for file information on the local file system.
+ */
 
 class RDir
 {
@@ -158,7 +161,7 @@ private:
 
 	TEntry			iSingleEntry;	/**< If a single entry is being examined, open() will populate this */
 	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */
-	TEntryArray		iEntries;		/**< Array of TEntry classes containing directory and file information */
+	TEntryArray		m_entries;		/**< Array of TEntry classes containing directory and file information */
 
 private:
 

@@ -562,7 +562,7 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 	{
 		/* Allocate a TEntry structure and simultaneously append it to the list */
 
-		if ((Entry = iEntries.Append(a_poFindData->cFileName)) != NULL)
+		if ((Entry = m_entries.Append(a_poFindData->cFileName)) != NULL)
 		{
 			/* Determine the time that the object was last written to */
 
@@ -643,7 +643,7 @@ TInt RDir::open(const char *a_pccPattern)
 
 			/* Append the entry to the array of files and directories being listed */
 
-			if ((Entry = iEntries.Append(iSingleEntry.iName)) != NULL)
+			if ((Entry = m_entries.Append(iSingleEntry.iName)) != NULL)
 			{
 				RetVal = KErrNone;
 
@@ -957,7 +957,7 @@ void RDir::close()
 {
 	/* Free the contents of the TEntry array in case it the RDir class is reused */
 
-	iEntries.Purge();
+	m_entries.Purge();
 
 #ifdef __amigaos__
 
@@ -1037,14 +1037,14 @@ void RDir::close()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
+TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 {
 	TInt RetVal;
 
 	/* Assume success */
 
 	RetVal = KErrNone;
-	a_rpoEntries = &iEntries;
+	a_rpoEntries = &m_entries;
 
 #ifdef __amigaos4__
 
@@ -1081,7 +1081,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 			if (AddFile)
 			{
-				if ((Entry = iEntries.Append(ExamineData->Name)) != NULL)
+				if ((Entry = m_entries.Append(ExamineData->Name)) != NULL)
 				{
 					/* Convert the new style date structure into something more usable that also contains */
 					/* year, month and day information */
@@ -1257,7 +1257,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 				if (AddFile)
 				{
-					if ((Entry = iEntries.Append((char *) iCurrent->ed_Name)) != NULL)
+					if ((Entry = m_entries.Append((char *) iCurrent->ed_Name)) != NULL)
 					{
 						/* Convert the date information into something more usable that also contains year, month */
 						/* and day information */
@@ -1381,7 +1381,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 			errno = 0;
 
-			/* Scan through the directory and fill the iEntries array with filenames */
+			/* Scan through the directory and fill the m_entries array with filenames */
 
 			while ((RetVal == KErrNone) && ((DirEnt = readdir(iDir)) != NULL))
 			{
@@ -1409,7 +1409,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 				if (Append)
 				{
-					if ((Entry = iEntries.Append(DirEnt->d_name)) != NULL)
+					if ((Entry = m_entries.Append(DirEnt->d_name)) != NULL)
 					{
 						/* UNIX only returns the filename itself when scanning the directory so get all of */
 						/* the other details for the directory entry */
@@ -1505,7 +1505,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
 
 	if (a_eSortOrder != EDirSortNone)
 	{
-		iEntries.Sort(a_eSortOrder);
+		m_entries.Sort(a_eSortOrder);
 	}
 
 	return(RetVal);

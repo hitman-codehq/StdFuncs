@@ -33,7 +33,7 @@ private:
 
 #ifdef __amigaos__
 
-	LONG		m_alPens[STDFONT_NUM_COLOURS]; /**< Array of pens found using IGraphics->ObtainBestPen() */
+	LONG		m_alPens[STDFONT_NUM_COLOURS];	/**< Array of pens found using IGraphics->ObtainBestPen() */
 	struct TextFont	*m_poFont;		/**< Amiga font with which to render */
 	struct TextFont *m_poOldFont;	/**< Default system font used for rendering text */
 
