@@ -74,8 +74,8 @@ int RFileUtils::deleteFile(const char *a_fileName)
 
 /**
  * Obtains information about a given local file or directory.
- * Wrapper method that enables local operation of the @link Utils::GetFileInfo @endlink method.
- * See @link Utils::GetFileInfo @endlink for more detailed information.
+ * Wrapper method that enables local operation of the @link Utils::GetFileInfo() @endlink method.
+ * See @link Utils::GetFileInfo() @endlink for more detailed information.
  *
  * @pre		Pointer to filename passed in must not be NULL
  * @pre		Pointer to TEntry structure passed in must not be NULL
@@ -88,6 +88,9 @@ int RFileUtils::deleteFile(const char *a_fileName)
 
 int RFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 {
+	ASSERTM((a_entry != NULL), "RFileUtils::getFileInfo() => Pointer to filename passed in must not be NULL");
+	ASSERTM((a_entry != NULL), "RFileUtils::getFileInfo() => TEntry structure passed in must not be NULL");
+
 	return Utils::GetFileInfo(a_fileName, a_entry);
 }
 

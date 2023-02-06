@@ -208,6 +208,9 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Lex.cpp" />
     <ClCompile Include="MungWall.cpp" />
+    <ClCompile Include="RemoteDir.cpp" />
+    <ClCompile Include="RemoteFile.cpp" />
+    <ClCompile Include="RemoteFileUtils.cpp" />
     <ClCompile Include="StdApplication.cpp" />
     <ClCompile Include="StdCharConverter.cpp" />
     <ClCompile Include="StdClipboard.cpp" />
@@ -241,6 +244,10 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="Lex.h" />
     <ClInclude Include="MungWall.h" />
+    <ClInclude Include="RemoteDir.h" />
+    <ClInclude Include="RemoteFactory.h" />
+    <ClInclude Include="RemoteFile.h" />
+    <ClInclude Include="RemoteFileUtils.h" />
     <ClInclude Include="StdApplication.h" />
     <ClInclude Include="StdCharConverter.h" />
     <ClInclude Include="StdClipboard.h" />
