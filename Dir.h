@@ -119,9 +119,33 @@ public:
 	void Sort(enum TDirSortOrder a_eSortOrder);
 };
 
-/* A class for scanning directories for directory and file entries */
+/**
+ * Interface for all directory scanning classes.
+ * This pure virtual base class defines the interface that all directory scanning classes will adhere to.  Instances
+ * of these classes can either be used directly, or obtained from RRemoteFactory::getDirObject().
+ */
 
-class RDir
+class RDirObject
+{
+protected:
+
+	TEntryArray		iEntries;		/**< Array of TEntry classes containing directory and file information */
+
+public:
+
+	virtual TInt open(const char *a_pccPattern) = 0;
+
+	virtual void close() = 0;
+
+	virtual TInt read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone) = 0;
+};
+
+/**
+ * A class for scanning directories for local directory and file entries.
+ * Instances of this class can be used to scan for file information on the local file system.
+ */
+
+class RDir : public RDirObject
 {
 private:
 
@@ -158,7 +182,6 @@ private:
 
 	TEntry			iSingleEntry;	/**< If a single entry is being examined, open() will populate this */
 	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */
-	TEntryArray		iEntries;		/**< Array of TEntry classes containing directory and file information */
 
 private:
 
