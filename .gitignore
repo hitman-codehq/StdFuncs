@@ -1,8 +1,13 @@
+.qmake.stash
 .vs
 .vscode
 *.user
 build
+Makefile.Debug
+Makefile.Release
 Debug
+DebugQt
 Debug_OS4
 Release
+ReleaseQt
 Release_OS4
