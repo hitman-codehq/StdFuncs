@@ -47,7 +47,7 @@ void TestExclusiveMode()
 
 	/* Ensure that files cannot be opened in an exclusive mode when created with RFile::Create() */
 
-	Result = File.Create("File.txt", EFileWrite | EFileExclusive);
+	Result = File.create("File.txt", EFileWrite | EFileExclusive);
 	test(Result == KErrNone);
 
 	Result = File2.open("File.txt", EFileRead | EFileExclusive);
@@ -92,10 +92,10 @@ void TestExclusiveMode()
 
 	test(g_oFileUtils.deleteFile("File.txt") == KErrNone);
 
-	Result = File.Create("File.txt", EFileWrite | EFileExclusive);
+	Result = File.create("File.txt", EFileWrite | EFileExclusive);
 	test(Result == KErrNone);
 
-	Result = File2.Create("File.txt", EFileWrite | EFileExclusive);
+	Result = File2.create("File.txt", EFileWrite | EFileExclusive);
 	test(Result == KErrAlreadyExists);
 
 	File.close();
@@ -115,7 +115,7 @@ void TestSharedMode()
 
 	/* Ensure that files can be opened in a shared mode when created with RFile::Create() */
 
-	Result = File.Create("File.txt", EFileWrite);
+	Result = File.create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	Result = File2.open("File.txt", EFileRead);
@@ -166,10 +166,10 @@ void TestSharedMode()
 
 	test(g_oFileUtils.deleteFile("File.txt") == KErrNone);
 
-	Result = File.Create("File.txt", EFileWrite);
+	Result = File.create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = File2.Create("File.txt", EFileWrite);
+	Result = File2.create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists);
 
 	File.close();
@@ -196,11 +196,11 @@ int main()
 
 	/* Ensure that RFile::Replace() works both when the file does not exist and when it does */
 
-	Result = File.Replace("File.txt", EFileWrite);
+	Result = File.replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 	File.close();
 
-	Result = File.Replace("File.txt", EFileWrite);
+	Result = File.replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 	File.close();
 
@@ -226,10 +226,10 @@ int main()
 
 	/* Ensure other Create() and open() errors are as expected */
 
-	Result = File.Create("File.txt", EFileWrite);
+	Result = File.create("File.txt", EFileWrite);
 	test(Result == KErrAlreadyExists);
 
-	Result = File.Create("UnknownPath/File.txt", EFileWrite);
+	Result = File.create("UnknownPath/File.txt", EFileWrite);
 	test(Result == KErrPathNotFound);
 
 	Result = File.open("UnknownPath/UnknownFile.txt", EFileRead);
@@ -245,7 +245,7 @@ int main()
 	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = File.Create("File.txt", EFileWrite);
+	Result = File.create("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	/* Ensure that trying to read 0 bytes is handled sanely */

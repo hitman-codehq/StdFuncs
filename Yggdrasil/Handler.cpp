@@ -53,7 +53,7 @@ int CHandler::readFile(const char *a_fileName)
 	FileUtils.deleteFile(a_fileName);
 
 	/* Now create a new empty file into which to write */
-	int retVal = file.Create(a_fileName, EFileWrite);
+	int retVal = file.create(a_fileName, EFileWrite);
 
 	if (retVal == KErrNone)
 	{

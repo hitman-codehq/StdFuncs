@@ -135,7 +135,7 @@ int main()
 	Result = g_oFileUtils.deleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = File.Create("TimeFile.txt", EFileWrite);
+	Result = File.create("TimeFile.txt", EFileWrite);
 	test(Result == KErrNone);
 	File.close();
 
@@ -190,7 +190,7 @@ int main()
 	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = File.Replace("File.txt", EFileWrite);
+	Result = File.replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	Result = g_oFileUtils.deleteFile("File.txt");
@@ -211,7 +211,7 @@ int main()
 	Result = Utils::CreateDirectory("InUseDirectory");
 	test(Result == KErrNone);
 
-	Result = File.Create("InUseDirectory/File.txt", EFileWrite);
+	Result = File.create("InUseDirectory/File.txt", EFileWrite);
 	test(Result == KErrNone);
 
 	Result = Utils::DeleteDirectory("InUseDirectory");

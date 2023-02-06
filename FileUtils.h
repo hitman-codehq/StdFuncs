@@ -6,9 +6,11 @@ class RFileUtils
 {
 public:
 
-	int deleteFile(const char *a_pccFileName);
+	int deleteFile(const char *a_fileName);
 
-	int renameFile(const char *a_pccOldFullName, const char *a_pccNewFullName);
+	int getFileInfo(const char *a_fileName, TEntry *a_entry);
+
+	int renameFile(const char *a_oldFullName, const char *a_newFullName);
 };
 
 #endif /* ! FILEUTILS_H */

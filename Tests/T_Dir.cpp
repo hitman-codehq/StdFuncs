@@ -136,7 +136,7 @@ int main()
 	Result = g_oFileUtils.deleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = File.Create("TimeFile.txt", EFileWrite);
+	Result = File.create("TimeFile.txt", EFileWrite);
 	test(Result == KErrNone);
 	File.close();
 
