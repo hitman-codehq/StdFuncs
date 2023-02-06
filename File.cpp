@@ -189,7 +189,8 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 
 	/* Try to delete the file specified so that it can be recreated */
 
-	RetVal = BaflUtils::deleteFile(a_pccFileName);
+	BaflUtils BaflUtils;
+	RetVal = BaflUtils.deleteFile(a_pccFileName);
 
 	/* If the file was deleted successfully or if it didn't exist, continue on to create a new file */
 
@@ -368,7 +369,7 @@ TInt RFile::open(const char *a_pccFileName, TUint a_uiFileMode)
  * @return	Number of bytes read, if successful, otherwise KErrGeneral
  */
 
-TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength) const
+TInt RFile::read(unsigned char *a_pucBuffer, TInt a_iLength)
 {
 	TInt RetVal;
 

@@ -38,9 +38,12 @@ enum TCommands
 {
 	/* EVersion is first so that other commands can be added without breaking the version check */
 	EVersion,
+	EDelete,
 	EDir,
 	EExecute,
+	EFileInfo,
 	EGet,
+	ERename,
 	ESend,
 	EShutdown
 };
@@ -84,8 +87,11 @@ struct SResponse
 
 struct SFileInfo
 {
-	TInt64	m_microseconds;	/**< Timestamp of the file, in microseconds since 01.01.01 */
-	char	m_fileName[1];	/**< The file's name, without a path component */
+	TInt64			m_microseconds;	/**< Timestamp of the file, in microseconds since 01.01.01 */
+	unsigned int	m_isDir;		/**< True if the file object is a directory */
+	unsigned int	m_isLink;		/**< True if the file object is a link */
+	unsigned int	m_size;			/**< File size in bytes */
+	char			m_fileName[1];	/**< The file's name, without a path component */
 };
 
 /**
@@ -105,6 +111,8 @@ protected:
 	unsigned char	*m_responsePayload;	/**< Buffer containing response's payload, if any (client) */
 
 protected:
+
+	int getFileInformation(const char *a_fileName, SFileInfo *&a_fileInfo);
 
 	int readFile(const char *a_fileName);
 
@@ -140,6 +148,27 @@ public:
 
 	/** Method for executing the handler on the client */
 	virtual void sendRequest() = 0;
+
+	const SResponse *getResponse() { return &m_response; }
+
+	/*const*/ unsigned char* getResponsePayload() { return m_responsePayload; }
+};
+
+class CDelete : public CHandler
+{
+	const char *m_fileName;
+
+public:
+
+	/** Constructor to be used when creating client instances */
+	CDelete(RSocket *a_socket, const char *a_fileName) : CHandler(a_socket, EDelete), m_fileName(a_fileName) { }
+
+	/** Constructor to be used when creating server instances */
+	CDelete(RSocket *a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
+
+	void execute() override;
+
+	void sendRequest() override;
 };
 
 /**
@@ -201,6 +230,29 @@ public:
 };
 
 /**
+ * Command for querying file information on the remote host.
+ * Given the name of a remote file, this command requests information about the attributes of that file, and returns
+ * them as a TODO structure.
+ */
+
+class CFileInfo : public CHandler
+{
+	const char	*m_fileName;	/**< The name of the file for which to request information */
+
+public:
+
+	/** Constructor to be used when creating client instances */
+	CFileInfo(RSocket *a_socket, const char *a_fileName) : CHandler(a_socket, EFileInfo), m_fileName(a_fileName) { }
+
+	/** Constructor to be used when creating server instances */
+	CFileInfo(RSocket* a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
+
+	void execute() override;
+
+	void sendRequest() override;
+};
+
+/**
  * Command for transferring a file from the remote host.
  * Given the name of a file to be fetched, this command requests that file from the remote host and transfers
  * it to the local host.
@@ -217,6 +269,25 @@ public:
 
 	/** Constructor to be used when creating server instances */
 	CGet(RSocket *a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
+
+	void execute() override;
+
+	void sendRequest() override;
+};
+
+class CRename : public CHandler
+{
+	const char* m_newName;
+	const char* m_oldName;
+
+public:
+
+	/** Constructor to be used when creating client instances */
+	CRename(RSocket *a_socket, const char *a_newName, const char *a_oldName) : CHandler(a_socket, ERename),
+		m_newName(a_newName), m_oldName(a_oldName) { }
+
+	/** Constructor to be used when creating server instances */
+	CRename(RSocket *a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
 
 	void execute() override;
 
@@ -285,5 +356,8 @@ public:
 };
 
 extern const char *g_commandNames[];
+
+#define SIGNATURE_SIZE 4
+extern const char g_signature[];
 
 #endif /* ! COMMANDS_H */

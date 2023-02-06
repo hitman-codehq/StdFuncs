@@ -1037,7 +1037,7 @@ void RDir::close()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RDir::read(TEntryArray *&a_rpoEntries, TDirSortOrder a_eSortOrder)
+TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 {
 	TInt RetVal;
 

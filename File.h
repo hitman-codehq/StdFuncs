@@ -19,11 +19,36 @@ enum TFileMode
 };
 
 /**
- * A class for reading from or writing to files.
- * This class enables the creation, reading and writing of file in a platform independent manner.
+ * Interface for all file access classes.
+ * This pure virtual base class defines the interface that all file access classes will adhere to.  Instances
+ * of these classes can either be used directly, or obtained from RRemoteFactory::getFileObject().
  */
 
-class RFile
+class RFileObject
+{
+public:
+
+	virtual TInt Create(const char *a_fileName, TUint a_fileMode) = 0;
+
+	virtual TInt Replace(const char *a_fileName, TUint a_fileMode) = 0;
+
+	virtual TInt open(const char *a_fileName, TUint a_fileMode) = 0;
+
+	virtual TInt read(unsigned char *a_buffer, TInt a_length) = 0;
+
+	virtual TInt seek(TInt a_bytes) = 0;
+
+	virtual TInt write(const unsigned char *a_buffer, TInt a_length) = 0;
+
+	virtual void close() = 0;
+};
+
+/**
+ * A class for reading from or writing to local files.
+ * This class enables the local creation, reading and writing of file in a platform independent manner.
+ */
+
+class RFile : public RFileObject
 {
 private:
 
@@ -52,7 +77,7 @@ public:
 
 	TInt open(const char *a_pccFileName, TUint a_uiFileMode);
 
-	TInt read(unsigned char *a_pucBuffer, TInt a_iLength) const;
+	TInt read(unsigned char *a_pucBuffer, TInt a_iLength);
 
 	TInt seek(TInt a_iBytes);
 

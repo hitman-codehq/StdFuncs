@@ -2,13 +2,22 @@
 #ifndef BAUTILS_H
 #define BAUTILS_H
 
-class BaflUtils
+class RFileUtilsObject
 {
 public:
 
-	static TInt deleteFile(const char *a_pccFileName);
+	virtual int deleteFile(const char *a_pccFileName) = 0;
 
-	static TInt RenameFile(const char *a_pccOldFullName, const char *a_pccNewFullName);
+	virtual int RenameFile(const char *a_pccOldFullName, const char *a_pccNewFullName) = 0;
+};
+
+class BaflUtils : public RFileUtilsObject
+{
+public:
+
+	int deleteFile(const char *a_pccFileName);
+
+	int RenameFile(const char *a_pccOldFullName, const char *a_pccNewFullName);
 };
 
 #endif /* ! BAUTILS_H */
