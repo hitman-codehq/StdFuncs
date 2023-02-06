@@ -23,6 +23,12 @@
 /* The size of the buffer used for capturing stdout */
 #define STDOUT_BUFFER_SIZE 1024
 
+#define STREAM_INT(Dest, Source) \
+	Dest = (*Source << 24) | \
+	(*(Source + 1) << 16) | \
+	(*(Source + 2) << 8) | \
+	*(Source + 3)
+
 /**
  * The commands supported by the program.
  * Each of these commands is implemented by a matching CHandler derived class.
@@ -30,11 +36,13 @@
 
 enum TCommands
 {
+	/* EVersion is first so that other commands can be added without breaking the version check */
+	EVersion,
+	EDir,
 	EExecute,
 	EGet,
 	ESend,
-	EShutdown,
-	EVersion
+	EShutdown
 };
 
 /**
@@ -132,6 +140,28 @@ public:
 
 	/** Method for executing the handler on the client */
 	virtual void sendRequest() = 0;
+};
+
+/**
+ * Command for listing directory contents on the remote host.
+ * Given the name of a directory to be listed, this command requests a listing of that directory from the remote host.
+ */
+
+class CDir : public CHandler
+{
+	const char *m_directoryName;	/**< The name of the directory to be listed */
+
+public:
+
+	/** Constructor to be used when creating client instances */
+	CDir(RSocket* a_socket, const char *a_directoryName) : CHandler(a_socket, EDir), m_directoryName(a_directoryName) { }
+
+	/** Constructor to be used when creating server instances */
+	CDir(RSocket* a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
+
+	void execute() override;
+
+	void sendRequest() override;
 };
 
 /**

@@ -14,6 +14,16 @@
 /* Number of bytes to be transferred per call to read() or write() */
 #define TRANSFER_SIZE 1024
 
+const char *g_commandNames[] =
+{
+	"version",
+	"dir",
+	"execute",
+	"get",
+	"send",
+	"shutdown"
+};
+
 /**
  * Reads a file from a connected socket.
  * A convenience method used to read a file from a socket and to write its contents to a local file in
