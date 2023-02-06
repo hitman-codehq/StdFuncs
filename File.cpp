@@ -80,7 +80,7 @@ int RFile::create(const char *a_fileName, TUint a_fileMode)
 			{
 				if (ChangeMode(CHANGE_FH, m_handle, EXCLUSIVE_LOCK) == 0)
 				{
-					Utils::info("RFile::open() => Unable to lock file for exclusive access");
+					Utils::info("RFile::create() => Unable to lock file for exclusive access");
 
 					RetVal = KErrInUse;
 
@@ -200,12 +200,10 @@ int RFile::replace(const char *a_fileName, TUint a_fileMode)
 
 /**
  * Opens an existing file for reading and/or writing.
- * Opens an existing file that can subsequently be used for reading or writing operations,
- * or both.  The file can be opened using the file mode flags EFileRead, EFileWrite, or a
- * logical combination of them both to elicit the desired behaviour.  If the file mode
- * EFileWrite is specified then the file will also be writeable.  The a_fileName parameter can
- * optionally specify a path to the file and can also be prefixed with an Amiga OS style "PROGDIR:"
- * prefix.
+ * Opens an existing file that can subsequently be used for reading or writing operations, or both.
+ * The file can be opened using the file mode flags EFileRead, EFileWrite, or a logical combination
+ * of them both to elicit the desired behaviour.  The a_fileName parameter can optionally include a
+ * path to the file and can also be prefixed with an Amiga OS style "PROGDIR:" prefix.
  *
  * @date	Friday 02-Jan-2009 8:57 pm
  * @param	a_fileName		Ptr to the name of the file to be opened

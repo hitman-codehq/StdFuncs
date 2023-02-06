@@ -120,11 +120,32 @@ public:
 };
 
 /**
+ * Interface for all directory scanning classes.
+ * This pure virtual base class defines the interface that all directory scanning classes will adhere to.  Instances
+ * of these classes can either be used directly, or obtained from RRemoteFactory::getDirObject().
+ */
+
+class RDirObject
+{
+protected:
+
+	TEntryArray		m_entries;		/**< Array of TEntry classes containing directory and file information */
+
+public:
+
+	virtual TInt open(const char *a_pattern) = 0;
+
+	virtual void close() = 0;
+
+	virtual TInt read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder = EDirSortNone) = 0;
+};
+
+/**
  * A class for scanning directories for local directory and file entries.
  * Instances of this class can be used to scan for file information on the local file system.
  */
 
-class RDir
+class RDir : public RDirObject
 {
 private:
 
@@ -161,7 +182,6 @@ private:
 
 	TEntry			iSingleEntry;	/**< If a single entry is being examined, open() will populate this */
 	TBool			iSingleEntryOk;	/**< ETrue if the contents of iSingleEntry are valid, else EFalse */
-	TEntryArray		m_entries;		/**< Array of TEntry classes containing directory and file information */
 
 private:
 

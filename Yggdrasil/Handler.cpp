@@ -4,6 +4,7 @@
 #include <FileUtils.h>
 #include <StdSocket.h>
 #include "Commands.h"
+#include <string.h>
 
 #ifdef __unix__
 
@@ -14,15 +15,67 @@
 /* Number of bytes to be transferred per call to read() or write() */
 #define TRANSFER_SIZE 1024
 
+/* String versions of the commands supported by RADRunner.  These can be indexed by the TCommand enumeration */
 const char *g_commandNames[] =
 {
 	"version",
+	"delete",
 	"dir",
 	"execute",
+	"fileinfo",
 	"get",
+	"rename",
 	"send",
 	"shutdown"
 };
+
+/* Signature sent by the client when connecting, to identify it as a RADRunner client */
+const char g_signature[] = "RADR";
+
+/**
+ * Obtains information about a given file or directory.
+ * This is an internal method for obtaining directory listing information about a single file or
+ * directory, to be used by the remote file access functionality.
+ *
+ * @date	Thursday 06-Apr-2023 6:30 am, Code HQ Tokyo Tsukuda
+ * @param	a_fileName		Pointer to the name of the file for which to obtain information
+ * @param	a_fileInfo		Reference to a pointer into which to allocate an instance of the
+ *							@link SFileInfo @endlink structure that contains information about the file
+ * KErrNone if successful, otherwise one of the errors returned by @link Utils::GetFileInfo() @endlink
+ */
+
+int CHandler::getFileInformation(const char *a_fileName, SFileInfo *&a_fileInfo)
+{
+	int retVal;
+	TEntry entry;
+
+	/* Determine if the file exists */
+	retVal = Utils::GetFileInfo(a_fileName, &entry);
+
+	/* If the file exists then send a response and a payload, containing the file's timestamp */
+	if (retVal == KErrNone)
+	{
+		/* Include the size of just the filename in the payload size */
+		int32_t payloadSize = static_cast<int32_t>(sizeof(SFileInfo) + strlen(entry.iName) + 1);
+
+		/* Allocate an SFileInfo structure of a size large enough to hold the file's name */
+		a_fileInfo = reinterpret_cast<SFileInfo*>(new unsigned char[payloadSize]);
+
+		/* Initialise it with the file's name and timestamp */
+		a_fileInfo->m_microseconds = entry.iModified.Int64();
+		SWAP64(&a_fileInfo->m_microseconds);
+		strcpy(a_fileInfo->m_fileName, entry.iName);
+
+		/* And other fields of interest */
+		a_fileInfo->m_isDir = entry.iIsDir;
+		a_fileInfo->m_isLink = entry.iIsLink;
+
+		a_fileInfo->m_size = entry.iSize;
+		SWAP(&a_fileInfo->m_size);
+	}
+
+	return retVal;
+}
 
 /**
  * Reads a file from a connected socket.
@@ -242,13 +295,17 @@ void CHandler::setFileInformation(const SFileInfo &a_fileInfo)
 {
 	int result;
 
-	/* Create a TEntry instance and use the given microseconds value to initialise its timestamp */
-	/* related members, so that it can be used to set the timestamp of the file just received */
-	TEntry entry(TDateTime(a_fileInfo.m_microseconds));
-
-	if ((result = Utils::setFileDate(a_fileInfo.m_fileName, entry)) != KErrNone)
+	/* It is legal to pass in a microsecond count of 0, in which case the time of the file will not be changed */
+	if (a_fileInfo.m_microseconds != 0)
 	{
-		Utils::Error("Unable to set datestamp on file \"%s\" (Error %d)", a_fileInfo.m_fileName, result);
+		/* Create a TEntry instance and use the given microseconds value to initialise its timestamp */
+		/* related members, so that it can be used to set the timestamp of the file just received */
+		TEntry entry(TDateTime(a_fileInfo.m_microseconds));
+
+		if ((result = Utils::setFileDate(a_fileInfo.m_fileName, entry)) != KErrNone)
+		{
+			Utils::Error("Unable to set datestamp on file \"%s\" (Error %d)", a_fileInfo.m_fileName, result);
+		}
 	}
 
 #ifdef __amigaos__
