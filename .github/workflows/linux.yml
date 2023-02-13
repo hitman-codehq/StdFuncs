@@ -13,17 +13,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Build Debug
-        run: |
-          make DEBUG=1
-          cd Tests
-          make DEBUG=1
-          for file in Debug/T_*.debug; do $file; done
       - name: Build
         run: |
           make
           cd Tests
           make
+      - name: Build Debug
+        run: |
+          make DEBUG=1
+          cd Tests
+          make DEBUG=1
+      - name: Test
+        run: |
+          cd Tests
+          for file in Release/T_*.debug; do $file; done
+      - name: Test Debug
+        run: |
+          cd Tests
           for file in Debug/T_*.debug; do $file; done
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
