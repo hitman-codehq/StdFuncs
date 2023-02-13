@@ -47,12 +47,7 @@ int CStdGadgetTree::construct(const std::string &a_title)
 
 	if ((m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
 		LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
-		TAG_DONE)) != NULL)
-	{
-		SetGadgetAttrs((struct Gadget *) m_poParentLayout->GetGadget(), NULL, NULL,
-			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedWidth, 25, TAG_DONE);
-	}
-	else
+		TAG_DONE)) == nullptr)
 	{
 		retVal = KErrNoMemory;
 	}
@@ -78,6 +73,14 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	if (m_poGadget)
 	{
 		m_poParentLayout->Attach(this);
+
+#ifdef __amigaos__
+
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->GetGadget(), m_poParentWindow->m_poWindow, NULL,
+			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedWidth, 25, TAG_DONE);
+
+#endif /* __amigaos__ */
+
 	}
 
 	return retVal;
@@ -147,7 +150,7 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 		struct Node *node;
 
 		if ((node = AllocListBrowserNode(1, LBNCA_CopyText, TRUE, LBNCA_Text, (ULONG) treeNode->m_text.c_str(),
-			TAG_DONE)) != NULL)
+			TAG_DONE)) != nullptr)
 		{
 			AddTail(&m_fileList, node);
 		}
