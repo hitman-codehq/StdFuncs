@@ -2,6 +2,8 @@
 #ifndef STDIMAGE_H
 #define STDIMAGE_H
 
+/** @file */
+
 #ifdef __amigaos__
 
 #include <intuition/classes.h>

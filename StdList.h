@@ -2,6 +2,8 @@
 #ifndef STDLIST_H
 #define STDLIST_H
 
+/** @file */
+
 /* Template class for the node that goes onto the list and owns a C++ class instance. */
 /* The use of macros for Mungwall means that we cannot implement a placement new */
 /* operator.  To enable client code to create instances of the StdListNode simply */

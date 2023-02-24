@@ -2,6 +2,8 @@
 #ifndef QTWINDOW_H
 #define QTWINDOW_H
 
+/** @file */
+
 #include <QtWidgets/QMainWindow>
 
 class CWindow;

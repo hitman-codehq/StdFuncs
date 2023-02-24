@@ -2,6 +2,8 @@
 #ifndef STDDIALOG_H
 #define STDDIALOG_H
 
+/** @file */
+
 #include "StdWindow.h"
 
 /* Forward declaration to avoid circular dependency */

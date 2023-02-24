@@ -2,6 +2,8 @@
 #ifndef LEX_H
 #define LEX_H
 
+/** @file */
+
 /**
  * A class for parsing text strings and extracting parts of them.
  * This class allows the parsing of text strings and the extraction of tokens from

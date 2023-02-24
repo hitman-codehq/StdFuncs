@@ -575,7 +575,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 				}
 
 				/* Number keys also do not generate a WM_CHAR if the control key is pressed, so again we */
-				/* must simulate it.   Numbers do not need to be mapped as their virtual keys are the same as */
+				/* must simulate it.  Numbers do not need to be mapped as their virtual keys are the same as */
 				/* their character values */
 
 				else if ((a_oWParam >= 0x30) && (a_oWParam <= 0x39))

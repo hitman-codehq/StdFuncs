@@ -207,7 +207,8 @@ int RSocket::listen(unsigned short a_usPort)
  * @param	a_pvBuffer		Pointer to the buffer into which to read the data
  * @param	a_iSize			The number of bytes to be read
  * @param	a_bReadAll		true to read entire number of bytes specified
- * @return	The number of bytes received, -1 if an error occurred or 0 if socket was closed
+ * @throw	Error			If the socket could not be read from or was closed
+ * @return	The number of bytes received
  */
 
 int RSocket::read(void *a_pvBuffer, int a_iSize, bool a_bReadAll)
@@ -262,7 +263,8 @@ int RSocket::read(void *a_pvBuffer, int a_iSize, bool a_bReadAll)
  * @date	Saturday 11-Feb-2017 5:55 pm, Code HQ Habersaathstrasse
  * @param	a_pcvBuffer		Pointer to the buffer from which to write the data
  * @param	a_iSize			The number of bytes to be written
- * @return	The number of bytes sent, or -1 if an error occurred
+ * @throw	Error			If the socket could not be written to or was closed
+ * @return	The number of bytes sent
  */
 
 int RSocket::write(const void *a_pcvBuffer, int a_iSize)

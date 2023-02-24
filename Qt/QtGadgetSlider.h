@@ -2,6 +2,8 @@
 #ifndef QTGADGETSLIDER_H
 #define QTGADGETSLIDER_H
 
+/** @file */
+
 #include <QtCore/QObject>
 
 /* Forward declaration to reduce the # of includes required */

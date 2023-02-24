@@ -2,6 +2,8 @@
 #ifndef STDWINDOW_H
 #define STDWINDOW_H
 
+/** @file */
+
 #include <vector>
 #include "StdGadgets.h"
 

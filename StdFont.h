@@ -2,6 +2,8 @@
 #ifndef STDFONT_H
 #define STDFONT_H
 
+/** @file */
+
 /* Forward declaration to reduce the # of includes required */
 
 class CWindow;

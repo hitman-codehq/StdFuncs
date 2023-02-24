@@ -2,6 +2,8 @@
 #ifndef TEST_H
 #define TEST_H
 
+/** @file */
+
 #define test(Assertion) Test(Assertion, __LINE__, __FILE__)
 
 class RTest

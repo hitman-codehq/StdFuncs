@@ -2,6 +2,8 @@
 #ifndef STDCLIPBOARD_H
 #define STDCLIPBOARD_H
 
+/** @file */
+
 #ifdef QT_GUI_LIB
 
 #include <QtCore/QByteArray>

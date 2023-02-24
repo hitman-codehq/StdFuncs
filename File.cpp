@@ -118,7 +118,7 @@ int RFile::create(const char *a_fileName, TUint a_fileMode)
 		{
 			if (flock(m_handle, (LOCK_EX | LOCK_NB)) != 0)
 			{
-				Utils::info("RFile::Create() => Unable to lock file for exclusive access");
+				Utils::info("RFile::create() => Unable to lock file for exclusive access");
 
 				RetVal = KErrGeneral;
 
@@ -164,12 +164,11 @@ int RFile::create(const char *a_fileName, TUint a_fileMode)
  * Creates a new file for writing, deleting any that previously exists.
  * Creates a new file that can subsequently be used for writing operations.  If a file
  * already exists with the same name then the function will replace it.  This function is
- * a convenience wrapper around RFile::Create();  see that function for further details.
+ * a convenience wrapper around RFile::create();  see that function for further details.
  *
  * @date	Monday 19-Apr-2010 6:26 am
  * @param	a_fileName		Ptr to the name of the file to be created
- * @param	a_fileMode		Mode in which to create the file.  Only for compatibility with Symbian
- *							API and is ignored (but should be EFileWrite for consistency); one of
+ * @param	a_fileMode		Mode in which to create the file; one of
  *							the @link TFileMode @endlink values
  * @return	KErrNone if successful
  * @return	KErrAlreadyExists if the file already exists
@@ -355,7 +354,7 @@ int RFile::open(const char *a_fileName, TUint a_fileMode)
 /**
  * Reads a number of bytes from the file.
  * Reads a number of bytes from the file.  There must be sufficient data in the file to be
- * able to satisfy the read request, or the function will fail.  It is safe to try and write
+ * able to satisfy the read request, or the function will fail.  It is safe to try and read
  * 0 bytes.  In this case 0 will be returned.
  *
  * @pre		The file must be open
@@ -363,7 +362,8 @@ int RFile::open(const char *a_fileName, TUint a_fileMode)
  * @date	Friday 02-Jan-2009 10:20 pm
  * @param	a_buffer	Ptr to the buffer to read the data into
  * @param	a_length	Number of bytes in the buffer to be read
- * @return	Number of bytes read, if successful, otherwise KErrGeneral
+ * @return	Number of bytes read, if successful
+ * @return	KErrGeneral if the read could not be performed
  */
 
 int RFile::read(unsigned char *a_buffer, int a_length)
@@ -427,7 +427,7 @@ int RFile::read(unsigned char *a_buffer, int a_length)
  * @pre		The file must be open
  *
  * @date	Saturday 27-May-2017 6:49 am, Tegel Airport, awaiting flight AB 8062 to Gothenburg
- * @param	a_bytes		The number of bytes from the start of the file to which to seek
+ * @param	a_bytes			The number of bytes from the start of the file to which to seek
  * @return	KErrNone if successful
  * @return	KErrGeneral if the seek could not be performed
  */
@@ -473,7 +473,7 @@ int RFile::seek(int a_bytes)
 /**
  * Writes a number of bytes to the file.
  * Writes a number of bytes to the file.  The file must have been opened in a writeable mode,
- * either by using RFile::open(EFileWrite) or with RFile::Replace() or RFile::Create().  In the
+ * either by using RFile::open(EFileWrite), RFile::replace() or RFile::create().  In the
  * latter two cases, files are always opened as writeable, regardless of the file mode passed in.
  * It is safe to try and write 0 bytes.  In this case 0 will be returned
  *
@@ -482,7 +482,8 @@ int RFile::seek(int a_bytes)
  * @date	Friday 02-Jan-2009 10:29 pm
  * @param	a_buffer	Ptr to the buffer to be written to the file
  * @param	a_length		Number of bytes in the buffer to be written
- * @return	Number of bytes written, if successful, otherwise KErrGeneral
+ * @return	Number of bytes written, if successful
+ * @return	KErrGeneral if the write could not be performed
  */
 
 int RFile::write(const unsigned char *a_buffer, int a_length)

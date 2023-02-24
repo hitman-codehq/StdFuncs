@@ -2,6 +2,8 @@
 #ifndef AMIMENUS_H
 #define AMIMENUS_H
 
+/** @file */
+
 /**
  * A class enabling the easy creation and modification of Amiga native menus.
  * This class is an elaborate wrapper around the not-so-easy-to-use Intuition menus as

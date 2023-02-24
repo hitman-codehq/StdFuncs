@@ -2,6 +2,8 @@
 #ifndef QTLOCALSOCKET_H
 #define QTLOCALSOCKET_H
 
+/** @file */
+
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 

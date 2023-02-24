@@ -2,6 +2,8 @@
 #ifndef MUNGWALL_H
 #define MUNGWALL_H
 
+/** @file */
+
 #include <stdint.h>
 #include <stdlib.h>
 
