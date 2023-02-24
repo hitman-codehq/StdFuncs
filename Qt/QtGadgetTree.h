@@ -2,6 +2,8 @@
 #ifndef QTGADGETTREE_H
 #define QTGADGETTREE_H
 
+/** @file */
+
 #include <QtWidgets/QTreeWidget>
 
 class CStdGadgetTree;

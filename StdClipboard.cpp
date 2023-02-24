@@ -12,8 +12,8 @@
 
 #include <proto/iffparse.h>
 
-#define  ID_FTXT        MAKE_ID('F','T','X','T')
-#define  ID_CHRS        MAKE_ID('C','H','R','S')
+#define  ID_FTXT		MAKE_ID('F','T','X','T')
+#define  ID_CHRS		MAKE_ID('C','H','R','S')
 
 #elif defined(QT_GUI_LIB)
 

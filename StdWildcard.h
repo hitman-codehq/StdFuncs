@@ -2,6 +2,8 @@
 #ifndef WILDCARD_H
 #define WILDCARD_H
 
+/** @file */
+
 class RWildcard
 {
 private:

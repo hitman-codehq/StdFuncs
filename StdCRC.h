@@ -2,6 +2,8 @@
 #ifndef STDCRC_H
 #define STDCRC_H
 
+/** @file */
+
 /**
  * Class for calculating CRC values.
  * This class is used for calculating 32 bit CRC values from arbitrarily sized blocks of data.

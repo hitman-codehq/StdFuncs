@@ -2,6 +2,8 @@
 #ifndef STDCONFIGFILE_H
 #define STDCONFIGFILE_H
 
+/** @file */
+
 /**
  * Represents a single key::value pair from a configuration file.
  * This class represents a key and its value that has been found inside a section.  It is

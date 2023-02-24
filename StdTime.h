@@ -2,6 +2,8 @@
 #ifndef STDTIME_H
 #define STDTIME_H
 
+/** @file */
+
 /* The months of the year, to be used by TDateTime */
 
 enum TMonth

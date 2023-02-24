@@ -2,6 +2,8 @@
 #ifndef OS4SUPPORT_H
 #define OS4SUPPORT_H
 
+/** @file */
+
 #if defined(__amigaos__) && !defined(__amigaos4__)
 
 APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags);

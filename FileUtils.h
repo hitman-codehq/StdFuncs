@@ -2,6 +2,8 @@
 #ifndef FILEUTILS_H
 #define FILEUTILS_H
 
+/** @file */
+
 class RFileUtils
 {
 public:

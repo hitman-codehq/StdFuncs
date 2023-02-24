@@ -2,6 +2,8 @@
 #ifndef STDREACTION_H
 #define STDREACTION_H
 
+/** @file */
+
 /* A small header to avoid having to repeat this sequence in each framework */
 /* implementation file */
 

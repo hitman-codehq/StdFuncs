@@ -2,6 +2,8 @@
 #ifndef STDGADGETS_H
 #define STDGADGETS_H
 
+/** @file */
+
 #ifdef __amigaos__
 
 #include <intuition/classes.h>

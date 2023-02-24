@@ -2,6 +2,8 @@
 #ifndef STDSTRINGLIST_H
 #define STDSTRINGLIST_H
 
+/** @file */
+
 /**
  * A class to easily split strings into individual words.
  * This class allows splitting strings into individual words in a style similar to that used

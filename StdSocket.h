@@ -2,6 +2,8 @@
 #ifndef STDSOCKET_H
 #define STDSOCKET_H
 
+/** @file */
+
 #include <stdexcept>
 
 #ifdef WIN32

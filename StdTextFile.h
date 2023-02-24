@@ -2,6 +2,8 @@
 #ifndef STDTEXTFILE_H
 #define STDTEXTFILE_H
 
+/** @file */
+
 /* This class will allow clients to read in a text file in its entirity and easily extract */
 /* lines from that file, one at a time */
 

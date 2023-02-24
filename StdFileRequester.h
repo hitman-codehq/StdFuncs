@@ -2,6 +2,8 @@
 #ifndef STDFILEREQUESTER_H
 #define STDFILEREQUESTER_H
 
+/** @file */
+
 #define MAX_FILEREQUESTER_PATH 1024
 
 /* A class to enable client code to display a file open or file save as requester in a platform */

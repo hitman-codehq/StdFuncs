@@ -2,6 +2,8 @@
 #ifndef STDAPPLICATION_H
 #define STDAPPLICATION_H
 
+/** @file */
+
 /* Forward declarations to reduce the # of includes required */
 
 class CWindow;

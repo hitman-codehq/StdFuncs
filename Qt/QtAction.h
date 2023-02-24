@@ -2,6 +2,8 @@
 #ifndef QTACTION_H
 #define QTACTION_H
 
+/** @file */
+
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
 #include "QtWindow.h"

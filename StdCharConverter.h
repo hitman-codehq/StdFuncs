@@ -2,6 +2,8 @@
 #ifndef STDCHARCONVERTER_H
 #define STDCHARCONVERTER_H
 
+/** @file */
+
 class QTextCodec;
 
 /**

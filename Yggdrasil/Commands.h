@@ -2,7 +2,9 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include "StdSocket.h"
+/** @file */
+
+#include <StdSocket.h>
 
 #ifdef __amigaos__
 

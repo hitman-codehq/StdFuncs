@@ -2,6 +2,8 @@
 #ifndef STDRENDEZVOUS_H
 #define STDRENDEZVOUS_H
 
+/** @file */
+
 #ifdef QT_GUI_LIB
 
 #include "Qt/QtLocalSocket.h"

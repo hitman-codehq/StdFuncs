@@ -2,6 +2,8 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+/** @file */
+
 /* Forward declaration to avoid including workbench/startup.h */
 
 struct WBStartup;

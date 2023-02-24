@@ -2,6 +2,8 @@
 #ifndef STDPOOL_H
 #define STDPOOL_H
 
+/** @file */
+
 #include "StdList.h"
 
 /* Node used to keep a track of the backing buffers used by the pool. */
