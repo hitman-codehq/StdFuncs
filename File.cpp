@@ -1,7 +1,7 @@
 
 #include "StdFuncs.h"
-#include "BaUtils.h"
 #include "File.h"
+#include "FileUtils.h"
 #include <string.h>
 
 #ifdef __unix__
@@ -189,7 +189,8 @@ TInt RFile::Replace(const char *a_pccFileName, TUint a_uiFileMode)
 
 	/* Try to delete the file specified so that it can be recreated */
 
-	RetVal = BaflUtils::deleteFile(a_pccFileName);
+	RFileUtils FileUtils;
+	RetVal = FileUtils.deleteFile(a_pccFileName);
 
 	/* If the file was deleted successfully or if it didn't exist, continue on to create a new file */
 

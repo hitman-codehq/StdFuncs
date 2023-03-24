@@ -1,6 +1,6 @@
 
 #include "StdFuncs.h"
-#include "BaUtils.h"
+#include "FileUtils.h"
 #include <string.h>
 
 #if defined(__unix__)
@@ -51,7 +51,7 @@
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-TInt BaflUtils::deleteFile(const char *a_pccFileName)
+TInt RFileUtils::deleteFile(const char *a_pccFileName)
 {
 	TInt RetVal;
 
@@ -74,7 +74,7 @@ TInt BaflUtils::deleteFile(const char *a_pccFileName)
 /* Written: Monday 19-Apr-2010 6:26 am */
 
 // TODO: CAW - What does this return on Symbian OS?  KErrAlreadyExists?  Create target directories if required
-TInt BaflUtils::RenameFile(const char *a_pccOldFullName, const char *a_pccNewFullName)
+int RFileUtils::renameFile(const char *a_pccOldFullName, const char *a_pccNewFullName)
 {
 	TInt RetVal;
 

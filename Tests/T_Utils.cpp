@@ -1,10 +1,11 @@
 
 #include <StdFuncs.h>
-#include <BaUtils.h>
 #include <File.h>
+#include <FileUtils.h>
 #include <Test.h>
 #include <string.h>
 
+static RFileUtils g_oFileUtils;
 static RTest Test("T_Utils");
 
 int main()
@@ -131,7 +132,7 @@ int main()
 	/* and set its time and attributes to be the same as the source code */
 	/* for this test */
 
-	Result = BaflUtils::deleteFile("TimeFile.txt");
+	Result = g_oFileUtils.deleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Create("TimeFile.txt", EFileWrite);
@@ -186,20 +187,20 @@ int main()
 	/* Delete any old file hanging around from prior runs, then create a file and try */
 	/* to delete it while it is open for writing */
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Replace("File.txt", EFileWrite);
 	test(Result == KErrNone);
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrInUse));
 
 	File.close();
 
 	/* Ensure the objects aren't hanging around from last run */
 
-	Result = BaflUtils::deleteFile("InUseDirectory/File.txt");
+	Result = g_oFileUtils.deleteFile("InUseDirectory/File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound) || (Result == KErrPathNotFound));
 
 	Result = Utils::DeleteDirectory("InUseDirectory");
@@ -220,7 +221,7 @@ int main()
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::deleteFile("InUseDirectory/File.txt");
+	Result = g_oFileUtils.deleteFile("InUseDirectory/File.txt");
 	test(Result == KErrNone);
 
 	Result = Utils::DeleteDirectory("InUseDirectory");
@@ -230,10 +231,10 @@ int main()
 
 	Test.Next("Test unsuccessful deleting of a file and directory");
 
-	Result = BaflUtils::deleteFile("UnknownFile.txt");
+	Result = g_oFileUtils.deleteFile("UnknownFile.txt");
 	test(Result == KErrNotFound);
 
-	Result = BaflUtils::deleteFile("UnknownPath/UnknownFile.txt");
+	Result = g_oFileUtils.deleteFile("UnknownPath/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
 	Result = Utils::DeleteDirectory("UnknownDirectory");
@@ -244,13 +245,13 @@ int main()
 
 #ifdef __amigaos__
 
-	/* Test some special Amiga cases that were causing BaflUtils::deleteFile() to */
+	/* Test some special Amiga cases that were causing RFileUtils::deleteFile() to */
 	/* return incorrect return values sometimes */
 
-	Result = BaflUtils::deleteFile("RAM:UnknownFile.txt");
+	Result = g_oFileUtils.deleteFile("RAM:UnknownFile.txt");
 	test(Result == KErrNotFound);
 
-	Result = BaflUtils::deleteFile("RAM:UnknownDirectory/UnknownFile.txt");
+	Result = g_oFileUtils.deleteFile("RAM:UnknownDirectory/UnknownFile.txt");
 	test(Result == KErrPathNotFound);
 
 #endif /* __amigaos__ */
@@ -467,10 +468,10 @@ int main()
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::deleteFile("TimeFile.txt");
+	Result = g_oFileUtils.deleteFile("TimeFile.txt");
 	test(Result == KErrNone);
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Test.End();

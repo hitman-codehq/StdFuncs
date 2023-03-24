@@ -1,7 +1,7 @@
 
 #include <StdFuncs.h>
-#include <BaUtils.h>
 #include <File.h>
+#include <FileUtils.h>
 #include <StdSocket.h>
 #include "Commands.h"
 
@@ -49,7 +49,8 @@ int CHandler::readFile(const char *a_fileName)
 
 	/* The Framework doesn't truncate a file if it already exists, so delete any existing file before continuing */
 	/* to avoid creating non working executables */
-	BaflUtils::deleteFile(a_fileName);
+	RFileUtils FileUtils;
+	FileUtils.deleteFile(a_fileName);
 
 	/* Now create a new empty file into which to write */
 	int retVal = file.Create(a_fileName, EFileWrite);
