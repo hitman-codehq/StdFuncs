@@ -1,13 +1,14 @@
 
 #include <StdFuncs.h>
-#include <BaUtils.h>
 #include <Dir.h>
 #include <File.h>
+#include <FileUtils.h>
 #include <Test.h>
 #include <string.h>
 
-static RDir g_oDir;			/* RDir class is global to implicitly test re-use */
-static RTest Test("T_Dir");	/* Class to use for testing and reporting results */
+static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
+static RFileUtils g_oFileUtils;	/* Class for cleaning up the file system */
+static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
 
 static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSize = 0)
 {
@@ -132,7 +133,7 @@ int main()
 	/* and set its time and attributes to be the same as the source code */
 	/* for this test */
 
-	Result = BaflUtils::deleteFile("TimeFile.txt");
+	Result = g_oFileUtils.deleteFile("TimeFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Create("TimeFile.txt", EFileWrite);
@@ -204,7 +205,7 @@ int main()
 
 	/* Clean up after ourselves */
 
-	test(BaflUtils::deleteFile("TimeFile.txt") == KErrNone);
+	test(g_oFileUtils.deleteFile("TimeFile.txt") == KErrNone);
 	test(Utils::DeleteDirectory("EmptyDirectory") == KErrNone);
 
 	/* Test #13: Ensure that scanning PROGDIR: works */

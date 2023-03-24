@@ -1,11 +1,12 @@
 
 #include <StdFuncs.h>
-#include <BaUtils.h>
 #include <File.h>
+#include <FileUtils.h>
 #include <string.h>
 #include <Test.h>
 
 static const char *g_pccWriteText = "This is a test of file reading and writing\n";
+static RFileUtils g_oFileUtils;
 static RTest Test("T_File");
 
 /* Writes text to an already open file, closes and reopens the file and reads the text */
@@ -37,7 +38,7 @@ void TestExclusiveMode()
 	int Result;
 	RFile File, File2;
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	/* Test #4: Test that RFile::Create() and RFile::open() work as expected */
@@ -89,7 +90,7 @@ void TestExclusiveMode()
 	/* unlike other file opening behaviour, this behaviour is the same regardless of whether the */
 	/* file was created in exclusive or shared mode (see shared tests) */
 
-	test(BaflUtils::deleteFile("File.txt") == KErrNone);
+	test(g_oFileUtils.deleteFile("File.txt") == KErrNone);
 
 	Result = File.Create("File.txt", EFileWrite | EFileExclusive);
 	test(Result == KErrNone);
@@ -105,7 +106,7 @@ void TestSharedMode()
 	int Result;
 	RFile File, File2, File3;
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	/* Test #5: Test that RFile::Create() and RFile::open() work as expected */
@@ -163,7 +164,7 @@ void TestSharedMode()
 	/* unlike other file opening behaviour, this behaviour is the same regardless of whether the */
 	/* file was created in exclusive or shared mode (see exclusive tests) */
 
-	test(BaflUtils::deleteFile("File.txt") == KErrNone);
+	test(g_oFileUtils.deleteFile("File.txt") == KErrNone);
 
 	Result = File.Create("File.txt", EFileWrite);
 	test(Result == KErrNone);
@@ -190,7 +191,7 @@ int main()
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	/* Ensure that RFile::Replace() works both when the file does not exist and when it does */
@@ -203,21 +204,21 @@ int main()
 	test(Result == KErrNone);
 	File.close();
 
-	/* Test #3: Rename a file using BaflUtils::RenameFile() */
+	/* Test #3: Rename a file using RFileUtils::RenameFile() */
 
-	Test.Next("Renaming a file with BaflUtils::RenameFile()");
+	Test.Next("Renaming a file with RFileUtils::RenameFile()");
 
 	/* The test file may be hanging around from the last time the test was run */
 
-	Result = BaflUtils::deleteFile("NewFile.txt");
+	Result = g_oFileUtils.deleteFile("NewFile.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
-	Result = BaflUtils::RenameFile("File.txt", "NewFile.txt");
+	Result = g_oFileUtils.renameFile("File.txt", "NewFile.txt");
 	test(Result == KErrNone);
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::deleteFile("NewFile.txt");
+	Result = g_oFileUtils.deleteFile("NewFile.txt");
 	test(Result == KErrNone);
 
 	TestExclusiveMode();
@@ -241,7 +242,7 @@ int main()
 
 	Test.Next("Creating and writing to files using both supported APIs");
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test((Result == KErrNone) || (Result == KErrNotFound));
 
 	Result = File.Create("File.txt", EFileWrite);
@@ -305,7 +306,7 @@ int main()
 
 	/* Clean up after ourselves */
 
-	Result = BaflUtils::deleteFile("File.txt");
+	Result = g_oFileUtils.deleteFile("File.txt");
 	test(Result == KErrNone);
 
 	Test.End();

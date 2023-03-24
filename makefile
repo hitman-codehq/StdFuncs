@@ -36,7 +36,7 @@ endif
 LIBRARY = $(OBJ)/libStdFuncs.a
 
 ifdef PREFIX
-	OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+	OBJECTS = $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
 		$(OBJ)/StdApplication.o $(OBJ)/StdCharConverter.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
 		$(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
 		$(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o \
@@ -52,7 +52,7 @@ ifdef PREFIX
 		OBJECTS += $(OBJ)/OS4Support.o
 	endif
 else
-	OBJECTS = $(OBJ)/Args.o $(OBJ)/BaUtils.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
+	OBJECTS = $(OBJ)/Args.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
 		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o \
 		$(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif

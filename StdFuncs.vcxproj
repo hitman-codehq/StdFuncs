@@ -203,7 +203,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Args.cpp" />
-    <ClCompile Include="BaUtils.cpp" />
+    <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="Dir.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Lex.cpp" />
@@ -236,7 +236,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Args.h" />
-    <ClInclude Include="BaUtils.h" />
+    <ClInclude Include="FileUtils.h" />
     <ClInclude Include="Dir.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Lex.h" />
