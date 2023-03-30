@@ -66,6 +66,8 @@ int CStdGadgetTree::construct(const std::string &a_title)
 
 	(void) a_title;
 
+	m_poParentLayout->Attach(this);
+
 #endif /* ! QT_GUI_LIB */
 
 	/* Attach the gadget to the parent window, if it was created successfully */
