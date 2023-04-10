@@ -148,6 +148,37 @@ void RSocket::close()
 }
 
 /**
+ * Accepts an incoming connection.
+ * When a new connection is accepted, the connected socket will be put into use as the active socket,
+ * and data can then be read from, and written to, the remote host.
+ *
+ * @pre		The socket has been put in a listening state with listen()
+ *
+ * @date	Saturday 08-Apr-2023 8:22 am, Code HQ Tokyo Tsukuda
+ * @return	KErrNone if successful, otherwise KErrGeneral
+ */
+
+int RSocket::accept()
+{
+	int retVal = KErrGeneral;
+
+	socklen_t clientSize;
+	struct sockaddr_in client;
+
+	ASSERTM((m_serverSocket != INVALID_SOCKET), "RSocket::accept() => Socket is not in listening state")
+
+		clientSize = sizeof(client);
+	m_socket = ::accept(m_serverSocket, (struct sockaddr*) &client, &clientSize);
+
+	if (m_socket != INVALID_SOCKET)
+	{
+		retVal = KErrNone;
+	}
+
+	return retVal;
+}
+
+/**
  * Listens for incoming connections.
  * Binds the socket to a local address and the given port number and listens for incoming connections
  * on it.  When a new connection is accepted, the connected socket will be put into use as the active
@@ -164,9 +195,9 @@ int RSocket::listen(unsigned short a_port)
 {
 	int retVal = KErrGeneral;
 
-	socklen_t clientSize;
-	SOCKET socket;
-	struct sockaddr_in server, client;
+	struct sockaddr_in server;
+
+	ASSERTM((m_socket != INVALID_SOCKET), "RSocket::listen() => Socket is not open")
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(a_port);
@@ -176,16 +207,10 @@ int RSocket::listen(unsigned short a_port)
 	{
 		if (::listen(m_socket, 1) == 0)
 		{
-			clientSize = sizeof(client);
-			socket = accept(m_socket, (struct sockaddr *) &client, &clientSize);
+			retVal = KErrNone;
 
-			if (socket != INVALID_SOCKET)
-			{
-				retVal = KErrNone;
-
-				m_serverSocket = m_socket;
-				m_socket = socket;
-			}
+			m_serverSocket = m_socket;
+			m_socket = INVALID_SOCKET;
 		}
 	}
 
@@ -214,6 +239,8 @@ int RSocket::read(void *a_buffer, int a_size, bool a_readAll)
 	char *buffer = (char *) a_buffer;
 	int bytesToRead, retVal = 0, size;
 
+	ASSERTM((m_socket != INVALID_SOCKET), "RSocket::read() => Socket is not open")
+		
 	if (a_readAll)
 	{
 		/* Loop around, trying to read however many bytes are left to be read, starting with the total number */
@@ -269,6 +296,8 @@ int RSocket::write(const void *a_buffer, int a_size)
 {
 	const char *buffer = (const char *) a_buffer;
 	int bytesToWrite, retVal = 0, size;
+
+	ASSERTM((m_socket != INVALID_SOCKET), "RSocket::write() => Socket is not open")
 
 	/* Loop around, trying to write however many bytes are left to be written, starting with the total number */
 	/* of bytes and gradually reducing the size until all have been written */
