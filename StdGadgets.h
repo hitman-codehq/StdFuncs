@@ -110,6 +110,8 @@ public:
 		return(m_poParentWindow);
 	}
 
+	virtual void SetFocus() { };
+
 	virtual void SetVisible(bool a_bVisible);
 
 	bool Visible()
@@ -237,6 +239,8 @@ public:
 	}
 
 	/* From CStdGadget */
+
+	virtual void SetFocus();
 
 	virtual TInt X();
 
