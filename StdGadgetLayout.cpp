@@ -905,3 +905,24 @@ bool CStdGadgetLayout::SendUpdate(void *a_pvGadget, ULONG a_ulData)
 
 	return(RetVal);
 }
+
+/**
+ * Set the input focus to this gadget.
+ * Set the focus to this layout gadget, so that all keyboard input flows directly to the gadget.
+ *
+ * @date	Saturday 08-Apr-2023 1:38 pm, Excelsior Caffé Akihabara
+ */
+
+void CStdGadgetLayout::SetFocus()
+{
+
+#ifdef QT_GUI_LIB
+
+	if (m_poLayout)
+	{
+		m_poLayout->parentWidget()->setFocus();
+	}
+
+#endif /* QT_GUI_LIB */
+
+}
