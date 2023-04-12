@@ -41,11 +41,11 @@ public:
 
 private:
 
-	SOCKET	m_iServerSocket;	/**< The socket on which to listen for connections */
+	SOCKET	m_serverSocket;		/**< The socket on which to listen for connections */
 
 public:
 
-	SOCKET	m_iSocket;			/**< The socket with which data to transfer data */
+	SOCKET	m_socket;			/**< The socket with which data to transfer data */
 
 public:
 
@@ -56,17 +56,17 @@ public:
 		close();
 	}
 
-	int open(const char *a_pccAddress, unsigned short a_usPort);
+	int open(const char* a_host, unsigned short a_port);
 
 	void close();
 
-	int listen(unsigned short a_usPort);
+	int listen(unsigned short a_port);
 
-	int read(void *a_pvBuffer, int a_iSize, bool a_bReadAll = true);
+	int read(void* a_buffer, int a_size, bool a_readAll = true);
 
-	int write(const void *a_pcvBuffer, int a_iSize);
+	int write(const void* a_buffer, int a_size);
 
-	int write(const char *a_pccBuffer);
+	int write(const char* a_buffer);
 };
 
 #endif /* ! STDSOCKET_H */
