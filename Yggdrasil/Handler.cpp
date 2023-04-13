@@ -110,6 +110,7 @@ int CHandler::readFile(const char *a_fileName)
 
 	if (retVal == KErrNone)
 	{
+		int result;
 		uint32_t bytesRead = 0, bytesToRead, size;
 		unsigned char *buffer = new unsigned char[TRANSFER_SIZE];
 
@@ -123,7 +124,13 @@ int CHandler::readFile(const char *a_fileName)
 			bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : (fileSize - bytesRead);
 			size = m_socket->read(buffer, bytesToRead);
 
-			file.write(reinterpret_cast<unsigned char *>(buffer), size);
+			/* Write to write the received information to the target file.  If this fails, we have to continue with */
+			/* the transfer to prevent getting out of sync with the remote host.  Save the error for later reporting */
+			if ((result = file.write(reinterpret_cast<unsigned char *>(buffer), size)) < KErrNone)
+			{
+				retVal = result;
+			}
+
 			bytesRead += size;
 		}
 		while (bytesRead < fileSize);
@@ -133,16 +140,23 @@ int CHandler::readFile(const char *a_fileName)
 		TInt64 endTime = now.Int64();
 		TInt64 total = ((endTime - startTime) / 1000);
 
-		/* Cast the time results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
-		printf("%s: Wrote %d.%d Kilobytes to file \"%s\" in %d.%d seconds\n", g_commandNames[m_command.m_command], (bytesRead / 1024),
-			(bytesRead % 1024), a_fileName, static_cast<int>(total / 1000), static_cast<int>(total % 1000));
+		if (retVal == KErrNone)
+		{
+			/* Cast the time results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
+			printf("%s: Wrote %d.%d Kilobytes to file \"%s\" in %d.%d seconds\n", g_commandNames[m_command.m_command], (bytesRead / 1024),
+				(bytesRead % 1024), a_fileName, static_cast<int>(total / 1000), static_cast<int>(total % 1000));
+		}
+		else
+		{
+			Utils::Error("Unable to write to file \"%s\" (Error %d)", a_fileName, retVal);
+		}
 
 		delete [] buffer;
 		file.close();
 	}
 	else
 	{
-		Utils::Error("Unable to open file \"%s\" for writing", a_fileName);
+		Utils::Error("Unable to open file \"%s\" for writing (Error %d)", a_fileName, retVal);
 	}
 
 	return retVal;
@@ -271,12 +285,12 @@ int CHandler::sendFile(const char *a_fileName)
 		}
 		else
 		{
-			Utils::Error("Unable to open file \"%s\" for reading", a_fileName);
+			Utils::Error("Unable to open file \"%s\" for reading (Error %d)", a_fileName, retVal);
 		}
 	}
 	else
 	{
-		Utils::Error("Unable to query file \"%s\"", a_fileName);
+		Utils::Error("Unable to query file \"%s\" (Error %d)", a_fileName, retVal);
 	}
 
 	return retVal;
