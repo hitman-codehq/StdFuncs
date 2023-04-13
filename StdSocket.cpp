@@ -167,7 +167,7 @@ int RSocket::accept()
 
 	ASSERTM((m_serverSocket != INVALID_SOCKET), "RSocket::accept() => Socket is not in listening state")
 
-		clientSize = sizeof(client);
+	clientSize = sizeof(client);
 	m_socket = ::accept(m_serverSocket, (struct sockaddr*) &client, &clientSize);
 
 	if (m_socket != INVALID_SOCKET)

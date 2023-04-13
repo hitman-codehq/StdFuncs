@@ -262,6 +262,7 @@
     <ClInclude Include="StdList.h" />
     <ClInclude Include="StdPool.h" />
     <ClInclude Include="StdRendezvous.h" />
+    <ClInclude Include="StdSocket.h" />
     <ClInclude Include="StdStringList.h" />
     <ClInclude Include="StdTextFile.h" />
     <ClInclude Include="StdTime.h" />

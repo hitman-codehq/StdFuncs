@@ -72,7 +72,7 @@ int RFile::create(const char *a_fileName, TUint a_fileMode)
 		{
 			RetVal = KErrNone;
 
-			a_fileMode = EFileWrite;
+			m_fileMode = EFileWrite;
 
 			/* And change the shared lock to an exclusive lock, if exclusive mode has been requested */
 
