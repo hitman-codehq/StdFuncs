@@ -56,7 +56,7 @@ int RRemoteDir::open(const char *a_pattern)
 	{
 		socket.write(g_signature, SIGNATURE_SIZE);
 
-		CDir *handler = new CDir(&socket, ".");
+		CDir *handler = new CDir(&socket, a_pattern);
 		handler->sendRequest();
 
 		if (handler->getResponse()->m_result == KErrNone)
@@ -78,7 +78,7 @@ int RRemoteDir::open(const char *a_pattern)
 			{
 				name = reinterpret_cast<const char *>(payload);
 				payload += strlen(name) + 1;
-				STREAM_INT(size, payload);
+				READ_INT(size, payload);
 				payload += sizeof(size);
 
 				if ((Entry = m_entries.Append(name)) != NULL)
