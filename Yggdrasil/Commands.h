@@ -25,11 +25,17 @@
 /* The size of the buffer used for capturing stdout */
 #define STDOUT_BUFFER_SIZE 1024
 
-#define STREAM_INT(Dest, Source) \
+#define READ_INT(Dest, Source) \
 	Dest = (*Source << 24) | \
 	(*(Source + 1) << 16) | \
 	(*(Source + 2) << 8) | \
 	*(Source + 3)
+
+#define WRITE_INT(Dest, Value) \
+	*Dest = (Value >> 24) & 0xff; \
+	*(Dest + 1) = (Value >> 16) & 0xff; \
+	*(Dest + 2) = (Value >> 8) & 0xff; \
+	*(Dest + 3) = Value & 0xff
 
 /**
  * The commands supported by the program.
