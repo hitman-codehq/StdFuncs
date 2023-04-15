@@ -175,7 +175,7 @@ int main()
 
 	Test.Next("Basic non destructive test");
 
-	TLex Lex(g_accNonDestructiveList, strlen(g_accNonDestructiveList));
+	TLex Lex(g_accNonDestructiveList, (int) strlen(g_accNonDestructiveList));
 
 	for (Index = 0; Index < NON_DESTRUCTIVE_LIST_COUNT; ++Index)
 	{
@@ -189,19 +189,19 @@ int main()
 
 	Test.Next("Test including spaces and quotes");
 
-	TLex QuotesAndSpace(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
+	TLex QuotesAndSpace(g_accQuotesAndSpaceList, (int) strlen(g_accQuotesAndSpaceList));
 	QuotesAndSpace.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(QuotesAndSpace, g_apccQuotesAndSpaceListResults, QUOTES_AND_SPACE_COUNT);
 
-	TLex Quotes(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
+	TLex Quotes(g_accQuotesAndSpaceList, (int) strlen(g_accQuotesAndSpaceList));
 	Quotes.SetConfig(ETrue, EFalse, EFalse);
 	CheckListNonDestructive(Quotes, g_apccQuotesListResults, QUOTES_COUNT);
 
-	TLex Spaces(g_accQuotesAndSpaceList, strlen(g_accQuotesAndSpaceList));
+	TLex Spaces(g_accQuotesAndSpaceList, (int) strlen(g_accQuotesAndSpaceList));
 	Spaces.SetConfig(EFalse, ETrue, EFalse);
 	CheckListNonDestructive(Spaces, g_apccSpacesListResults, SPACES_COUNT);
 
-	TLex QuotesNoWhitespace(g_accQuotesListNoWhitespace, strlen(g_accQuotesListNoWhitespace));
+	TLex QuotesNoWhitespace(g_accQuotesListNoWhitespace, (int) strlen(g_accQuotesListNoWhitespace));
 	QuotesNoWhitespace.SetConfig(ETrue, EFalse, EFalse);
 	CheckListNonDestructive(QuotesNoWhitespace, g_apccQuotesListNoWhitespaceResults, QUOTES_LIST_NO_WHITESPACE_COUNT);
 
@@ -209,17 +209,17 @@ int main()
 
 	Test.Next("Test alternate white space separator");
 
-	TLex QuotesAndSpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
+	TLex QuotesAndSpacesSemiColon(g_accSemiColonList, (int) strlen(g_accSemiColonList));
 	QuotesAndSpacesSemiColon.SetConfig(ETrue, ETrue, EFalse);
 	QuotesAndSpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesAndSpacesSemiColon, g_apccQuotesAndSpacesSemiColonListResults, SEMICOLON_COUNT);
 
-	TLex QuotesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
+	TLex QuotesSemiColon(g_accSemiColonList, (int) strlen(g_accSemiColonList));
 	QuotesSemiColon.SetConfig(ETrue, EFalse, EFalse);
 	QuotesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(QuotesSemiColon, g_apccQuotesSemiColonListResults, QUOTES_SEMICOLON_COUNT);
 
-	TLex SpacesSemiColon(g_accSemiColonList, strlen(g_accSemiColonList));
+	TLex SpacesSemiColon(g_accSemiColonList, (int) strlen(g_accSemiColonList));
 	SpacesSemiColon.SetConfig(EFalse, ETrue, EFalse);
 	SpacesSemiColon.SetWhitespace(";");
 	CheckListNonDestructive(SpacesSemiColon, g_apccSpacesSemiColonListResults, SPACES_SEMICOLON_COUNT);
@@ -228,13 +228,13 @@ int main()
 
 	Test.Next("Ensure that CR/LF terminators are ignored");
 
-	TLex CRLFAtEnd(g_accCRLFAtEndList, strlen(g_accCRLFAtEndList));
+	TLex CRLFAtEnd(g_accCRLFAtEndList, (int) strlen(g_accCRLFAtEndList));
 	CheckListNonDestructive(CRLFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
-	TLex CRAtEnd(g_accCRAtEndList, strlen(g_accCRAtEndList));
+	TLex CRAtEnd(g_accCRAtEndList, (int) strlen(g_accCRAtEndList));
 	CheckListNonDestructive(CRAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
-	TLex LFAtEnd(g_accLFAtEndList, strlen(g_accLFAtEndList));
+	TLex LFAtEnd(g_accLFAtEndList, (int) strlen(g_accLFAtEndList));
 	CheckListNonDestructive(LFAtEnd, g_apccCRLFAtEndListResults, CRLF_AT_END_COUNT);
 
 	/* Test #7: Ensure that quotes without content are handled sanely */
@@ -244,20 +244,20 @@ int main()
 	/* Parsing a string with a single quote has caused problems in the past so ensure that it is */
 	/* handled precisely as expected */
 
-	TLex SingleQuote(g_accSingleQuote, strlen(g_accSingleQuote));
+	TLex SingleQuote(g_accSingleQuote, (int) strlen(g_accSingleQuote));
 	SingleQuote.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(SingleQuote, g_accSingleQuoteResults, SINGLE_QUOTE_COUNT);
 
-	TLex SingleQuoteSkip(g_accSingleQuote, strlen(g_accSingleQuote));
+	TLex SingleQuoteSkip(g_accSingleQuote, (int) strlen(g_accSingleQuote));
 	CheckListNonDestructive(SingleQuoteSkip, NULL, SINGLE_QUOTE_SKIP_COUNT);
 
 	/* Also check that double quotes by themselves are handled as expected */
 
-	TLex DoubleQuote(g_accDoubleQuote, strlen(g_accDoubleQuote));
+	TLex DoubleQuote(g_accDoubleQuote, (int) strlen(g_accDoubleQuote));
 	DoubleQuote.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(DoubleQuote, g_accDoubleQuoteResults, DOUBLE_QUOTE_COUNT);
 
-	TLex DoubleQuoteSkip(g_accDoubleQuote, strlen(g_accDoubleQuote));
+	TLex DoubleQuoteSkip(g_accDoubleQuote, (int) strlen(g_accDoubleQuote));
 	CheckListNonDestructive(DoubleQuoteSkip, NULL, DOUBLE_QUOTE_SKIP_COUNT);
 
 	/* Test #8: Parse strings with missing start or end quotes */
@@ -270,20 +270,20 @@ int main()
 
 	/* Test handling of start and end quotes with and without the KeepNonAlphaNum flag set */
 
-	TLex OnlyStartQuote(g_accOnlyStartQuote, strlen(g_accOnlyStartQuote));
+	TLex OnlyStartQuote(g_accOnlyStartQuote, (int) strlen(g_accOnlyStartQuote));
 	OnlyStartQuote.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(OnlyStartQuote, g_accOnlyStartQuoteResults, ONLY_START_QUOTE_COUNT);
 
-	TLex OnlyEndQuote(g_accOnlyEndQuote, strlen(g_accOnlyEndQuote));
+	TLex OnlyEndQuote(g_accOnlyEndQuote, (int) strlen(g_accOnlyEndQuote));
 	OnlyEndQuote.SetConfig(ETrue, ETrue, EFalse);
 	OnlyEndQuote.SetQuotes(QuoteChars);
 	CheckListNonDestructive(OnlyEndQuote, g_accOnlyEndQuoteResults, ONLY_END_QUOTE_COUNT);
 
-	TLex OnlyStartQuote_NA(g_accOnlyStartQuote, strlen(g_accOnlyStartQuote));
+	TLex OnlyStartQuote_NA(g_accOnlyStartQuote, (int) strlen(g_accOnlyStartQuote));
 	OnlyStartQuote_NA.SetConfig(ETrue, ETrue, ETrue);
 	CheckListNonDestructive(OnlyStartQuote_NA, g_accOnlyStartQuoteResults, ONLY_START_QUOTE_COUNT);
 
-	TLex OnlyEndQuote_NA(g_accOnlyEndQuote, strlen(g_accOnlyEndQuote));
+	TLex OnlyEndQuote_NA(g_accOnlyEndQuote, (int) strlen(g_accOnlyEndQuote));
 	OnlyEndQuote_NA.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuote_NA.SetQuotes(QuoteChars);
 	CheckListNonDestructive(OnlyEndQuote_NA, g_accOnlyEndQuoteResults, ONLY_END_QUOTE_COUNT);
@@ -291,20 +291,20 @@ int main()
 	/* Test handling of start and end quotes with and without the KeepNonAlphaNum flag set, */
 	/* when the string also contains non alpha numeric characters */
 
-	TLex OnlyStartQuoteNonAlphaNum(g_accOnlyStartQuoteNonAlphaNum, strlen(g_accOnlyStartQuoteNonAlphaNum));
+	TLex OnlyStartQuoteNonAlphaNum(g_accOnlyStartQuoteNonAlphaNum, (int) strlen(g_accOnlyStartQuoteNonAlphaNum));
 	OnlyStartQuoteNonAlphaNum.SetConfig(ETrue, ETrue, ETrue);
 	CheckListNonDestructive(OnlyStartQuoteNonAlphaNum, g_accOnlyStartQuoteNonAlphaNumResults, ONLY_START_QUOTE_COUNT);
 
-	TLex OnlyEndQuoteNonAlphaNum(g_accOnlyEndQuoteNonAlphaNum, strlen(g_accOnlyEndQuoteNonAlphaNum));
+	TLex OnlyEndQuoteNonAlphaNum(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
 	OnlyEndQuoteNonAlphaNum.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuoteNonAlphaNum.SetQuotes(QuoteChars);
 	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_COUNT);
 
-	TLex OnlyStartQuoteNonAlphaNum_NA(g_accOnlyStartQuoteNonAlphaNum, strlen(g_accOnlyStartQuoteNonAlphaNum));
+	TLex OnlyStartQuoteNonAlphaNum_NA(g_accOnlyStartQuoteNonAlphaNum, (int) strlen(g_accOnlyStartQuoteNonAlphaNum));
 	OnlyStartQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
 	CheckListNonDestructive(OnlyStartQuoteNonAlphaNum_NA, g_accOnlyStartQuoteNonAlphaNumResults, ONLY_START_QUOTE_COUNT);
 
-	TLex OnlyEndQuoteNonAlphaNum_NA(g_accOnlyEndQuoteNonAlphaNum, strlen(g_accOnlyEndQuoteNonAlphaNum));
+	TLex OnlyEndQuoteNonAlphaNum_NA(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
 	OnlyEndQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuoteNonAlphaNum_NA.SetQuotes(QuoteChars);
 	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum_NA, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_COUNT);

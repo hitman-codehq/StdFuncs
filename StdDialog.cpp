@@ -107,7 +107,7 @@ static INT_PTR CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 			/* Get a ptr to the CDialog derived class and allow it to handle the message.  If */
 			/* it returns > 0 then close the dialog and use this as the dialog's return code */
 
-			Dialog = (CDialog *) GetWindowLong(a_poWindow, GWLP_USERDATA);
+			Dialog = (CDialog *) (LONG_PTR) GetWindowLong(a_poWindow, GWLP_USERDATA);
 
 			/* Find out whether this command refers to a notification and the ID of the gadget to */
 			/* which it refers */

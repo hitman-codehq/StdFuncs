@@ -112,7 +112,7 @@ std::string CStdGadgetTree::getSelectedItem()
 	struct Node *node;
 
 	GetAttr(LISTBROWSER_SelectedNode, m_poGadget, (ULONG *) &node);
-	GetListBrowserNodeAttrs(node, LBNCA_Text, (ULONG *) &text, TAG_DONE);
+	GetListBrowserNodeAttrs(node, LBNCA_Text, (ULONG) &text, TAG_DONE);
 	std::string retVal(text);
 
 #elif defined(QT_GUI_LIB)

@@ -329,7 +329,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 					KeyboardLayout = GetKeyboardLayout(0);
 
-					if (LOBYTE((DWORD) KeyboardLayout) == LANG_ENGLISH)
+					if (LOBYTE((DWORD_PTR) KeyboardLayout) == LANG_ENGLISH)
 					{
 						if (a_oWParam == 123)
 						{
@@ -344,7 +344,10 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					{
 						if (a_oWParam == 123)
 						{
-							a_oWParam = (unsigned char) 'ü';
+							/* Use the 8859-15 encoding for 'ü', as this file is encoded as UTF-8 and using 'ü' */
+							/* in a string will generate an incorrect value */
+
+							a_oWParam = 0xfc;
 						}
 						else if (a_oWParam == 125)
 						{
@@ -514,7 +517,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 					/* by Windows multiple times in which keyboard mappings.  If there is a logic to this, I */
 					/* I don't get it */
 
-					if (LOBYTE((DWORD) KeyboardLayout) == LANG_ENGLISH)
+					if (LOBYTE((DWORD_PTR) KeyboardLayout) == LANG_ENGLISH)
 					{
 						if ((ShiftPressed()) && (a_oWParam == VK_OEM_MINUS))
 						{
@@ -559,7 +562,7 @@ LRESULT CALLBACK CWindow::WindowProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a
 
 						/* The final nightmare inconsistency is only valid in German keyboard layouts */
 
-						else if ((LOBYTE((DWORD) KeyboardLayout) == LANG_GERMAN) && (VirtualKey == '+'))
+						else if ((LOBYTE((DWORD_PTR) KeyboardLayout) == LANG_GERMAN) && (VirtualKey == '+'))
 						{
 							VirtualKey = '*';
 						}
@@ -1707,7 +1710,7 @@ void CWindow::close()
 
 	if (m_poWindowClass)
 	{
-		DEBUGCHECK((UnregisterClass((LPCTSTR) (DWORD) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::close() => Unable to unregister window class");
+		DEBUGCHECK((UnregisterClass((LPCTSTR) (DWORD_PTR) m_poWindowClass, GetModuleHandle(NULL)) != FALSE), "CWindow::close() => Unable to unregister window class");
 		m_poWindowClass = 0;
 	}
 
