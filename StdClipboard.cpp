@@ -12,8 +12,8 @@
 
 #include <proto/iffparse.h>
 
-#define  ID_FTXT		MAKE_ID('F','T','X','T')
-#define  ID_CHRS		MAKE_ID('C','H','R','S')
+#define  ID_FTXT MAKE_ID('F','T','X','T')
+#define  ID_CHRS MAKE_ID('C','H','R','S')
 
 #elif defined(QT_GUI_LIB)
 
@@ -311,6 +311,8 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 
 #ifdef __amigaos4__
 
+	(void) a_eEncoding;
+
 	ULONG Size;
 
 	/* Check to see if there is any plain text available on the clipboard and if so, get a ptr to it */
@@ -321,6 +323,8 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 	}
 
 #elif defined(__amigaos__)
+
+	(void) a_eEncoding;
 
 	char *GetData;
 	LONG Result, Size;

@@ -499,7 +499,7 @@ int RFile::write(const unsigned char *a_buffer, int a_length)
 	{
 		/* Now perform the write and ensure all of the bytes were written */
 
-		RetVal = Write(m_handle, a_buffer, a_length);
+		RetVal = Write(m_handle, (void *) a_buffer, a_length);
 
 		if (RetVal == -1)
 		{

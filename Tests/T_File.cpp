@@ -18,7 +18,7 @@ static void WriteToFile(RFile &a_roFile)
 	char Buffer[256];
 	int Length, Result;
 
-	Length = strlen(g_pccWriteText);
+	Length = (int) strlen(g_pccWriteText);
 	Result = a_roFile.write((const unsigned char *) g_pccWriteText, Length);
 	test(Result == Length);
 
@@ -281,7 +281,7 @@ int main()
 	Result = File.open("File.txt", EFileRead);
 	test(Result == KErrNone);
 
-	Result = File.write((const unsigned char *) g_pccWriteText, strlen(g_pccWriteText));
+	Result = File.write((const unsigned char *) g_pccWriteText, (int) strlen(g_pccWriteText));
 	test(Result == KErrGeneral);
 
 	File.close();
