@@ -115,7 +115,7 @@ int RRemoteFileUtils::deleteFile(const char *a_fileName)
 
 		if (handler->getResponse()->m_result != KErrNone)
 		{
-			Utils::info("deleteFile: Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFileUtils::deleteFile() => Received invalid response %d", handler->getResponse()->m_result);
 
 			retVal = handler->getResponse()->m_result;
 		}
@@ -125,7 +125,7 @@ int RRemoteFileUtils::deleteFile(const char *a_fileName)
 	}
 	else
 	{
-		Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::deleteFile() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 	}
 
 	return retVal;
@@ -172,7 +172,7 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 		}
 		else
 		{
-			Utils::Error("RemoteFileInfo: Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFileUtils::getFileInfo() => Received invalid response %d", handler->getResponse()->m_result);
 
 			retVal = handler->getResponse()->m_result;
 		}
@@ -182,7 +182,7 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 	}
 	else
 	{
-		Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::getFileInfo() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 	}
 
 	return retVal;
@@ -213,7 +213,7 @@ int RRemoteFileUtils::renameFile(const char *a_oldFullName, const char *a_newFul
 
 		if (handler->getResponse()->m_result != KErrNone)
 		{
-			Utils::info("renameFile: Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFileUtils::renameFile() => Received invalid response %d", handler->getResponse()->m_result);
 
 			retVal = handler->getResponse()->m_result;
 		}
@@ -223,7 +223,7 @@ int RRemoteFileUtils::renameFile(const char *a_oldFullName, const char *a_newFul
 	}
 	else
 	{
-		Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::renameFile() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 	}
 
 	return retVal;

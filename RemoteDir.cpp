@@ -91,7 +91,7 @@ int RRemoteDir::open(const char *a_pattern)
 		}
 		else
 		{
-			Utils::Error("RemoteDir: Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteDir::open() => Received invalid response %d", handler->getResponse()->m_result);
 
 			retVal = handler->getResponse()->m_result;
 		}
@@ -101,7 +101,7 @@ int RRemoteDir::open(const char *a_pattern)
 	}
 	else
 	{
-		Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteDir::open() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 	}
 
 	return retVal;
