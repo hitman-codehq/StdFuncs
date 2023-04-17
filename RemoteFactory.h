@@ -19,6 +19,7 @@
 
 class RRemoteFactory
 {
+	bool				m_useLocal;			/**< True to ignore m_serverName, if set */
 	RDir				m_dir;				/**< Class for local directory scanning */
 	RRemoteDir			m_remoteDir;		/**< Class for remote directory scanning */
 	RFile				m_file;				/**< Class for local file access */
@@ -30,9 +31,11 @@ class RRemoteFactory
 
 public:
 
+	RRemoteFactory() : m_useLocal(false) { }
+
 	RDirObject &getDirObject()
 	{
-		if (m_serverName.length() != 0)
+		if (isRemote())
 		{
 			m_remoteDir.setFactory(this);
 			return m_remoteDir;
@@ -45,7 +48,7 @@ public:
 
 	RFileObject &getFileObject()
 	{
-		if (m_serverName.length() != 0)
+		if (isRemote())
 		{
 			m_remoteFile.setFactory(this);
 			return m_remoteFile;
@@ -58,7 +61,7 @@ public:
 
 	RFileUtilsObject &getFileUtilsObject()
 	{
-		if (m_serverName.length() != 0)
+		if (isRemote())
 		{
 			m_remoteFileUtils.setFactory(this);
 			return m_remoteFileUtils;
@@ -71,7 +74,7 @@ public:
 
 	bool isRemote()
 	{
-		return m_serverName.length() != 0;
+		return m_serverName.length() != 0 && !m_useLocal;
 	}
 
 	std::string &getServer() { return m_serverName; }
@@ -82,6 +85,11 @@ public:
 	{
 		m_serverName = a_serverName;
 		m_serverPort = a_port;
+	}
+
+	void useLocal(bool a_useLocal)
+	{
+		m_useLocal = a_useLocal;
 	}
 };
 
