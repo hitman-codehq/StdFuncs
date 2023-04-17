@@ -151,7 +151,7 @@ int RRemoteFile::open(const char *a_fileName, TUint a_fileMode)
 		}
 		else
 		{
-			Utils::Error("RemoteFile: Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFile::open() => Received invalid response %d", handler->getResponse()->m_result);
 
 			retVal = handler->getResponse()->m_result;
 		}
@@ -161,7 +161,7 @@ int RRemoteFile::open(const char *a_fileName, TUint a_fileMode)
 	}
 	else
 	{
-		Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFile::open() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 	}
 
 	return retVal;
@@ -327,7 +327,7 @@ void RRemoteFile::close()
 		}
 		else
 		{
-			Utils::Error("Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+			Utils::info("RRemoteFile::close() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 		}
 	}
 
