@@ -402,6 +402,131 @@ TInt CStdGadgetLayout::GetSpacing()
 }
 
 /**
+ * Search for a gadget and send an update to it.
+ * This method will search the tree of layout gadgets, looking for the first one
+ * that contains the target gadget.  If found, an update will be sent to that gadget
+ * and the search will stop.  This means that at most only one gadget will receive
+ * an update.
+ *
+ * Note that the gadget passed in is *not* a CStdGadget derived object.  It is an
+ * identifier for the CStdGadget's underlying native gadget.  For Windows, this is
+ * the gadget's numeric ID and for Amiga OS this is a BOOPSI gadget.  That is because
+ * this method is only meant for use by The Framework to map system events onto
+ * framework events.
+ *
+ * @date	Sunday 15-Aug-2021 9:42 am, Code HQ @ Thomas's House
+ * @param	a_pvGadget		Identifier of the native gadget to which to send the update
+ * @param	a_ulData		Data to be sent with the update
+ * @return	true if the update was sent, else false
+ */
+
+bool CStdGadgetLayout::SendUpdate(void *a_pvGadget, ULONG a_ulData)
+{
+	bool RetVal;
+	CStdGadget *Gadget;
+	CStdGadgetLayout *LayoutGadget;
+
+	RetVal = false;
+	LayoutGadget = m_oLayoutGadgets.getHead();
+
+	/* Iterate through the layout's list of layouts and search for the target gadget */
+
+	while ((LayoutGadget != NULL) && !RetVal)
+	{
+		if ((Gadget = LayoutGadget->FindNativeGadget(a_pvGadget)) != NULL)
+		{
+			/* Got it!  Let the gadget know that it has been updated */
+
+			Gadget->Updated(a_ulData);
+			RetVal = true;
+		}
+
+		/* The gadget was not found, so try sending the update to the next layout gadget */
+
+		else
+		{
+			RetVal = LayoutGadget->SendUpdate(a_pvGadget, a_ulData);
+		}
+
+		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
+	}
+
+	return(RetVal);
+}
+
+#ifdef __amigaos__
+
+/**
+ * Reattaches a gadget to the layout.
+ * This is an internal Amiga OS only method that will reattach a BOOPSI gadget to the layout.  It basically
+ * works the same as CStdGadgetLayout::Attach() but it doesn't add the gadget to the m_oGadgets list.  It is
+ * useful for implementing overrides of the CStdGadget::SetVisible() method.
+ *
+ * @date	Sunday 04-Jul-2021 8:04 am, Code HQ Bergmannstrasse
+ * @param	a_poGadget		Pointer to the native gadget to attach to the layout
+ */
+
+void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
+{
+	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::ReAttach() => No gadget to be attached passed in");
+
+	/* Add the BOOPSI gadget to the layout */
+
+	// TODO: CAW (multi) - All of these need to be checked
+	if (m_poParentWindow)
+	{
+		if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+			LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+		{
+			rethinkLayout();
+		}
+	}
+}
+
+#endif /* __amigaos__ */
+
+/**
+ * Remove a gadget from the layout.
+ * This function will remove the gadget passed in from the layout.  This will take care of removing the gadget from
+ * the layout's internal list of gadgets, as well as removing it from the underlying OS specific layout system.
+ *
+ * @date	Thursday 15-Jul-2021 7:20 am, Code HQ Bergmannstrasse
+ * @param	a_poGadget		Pointer to the gadget to remove from the layout
+ */
+
+void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
+{
+	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::remove() => No gadget to be removed passed in");
+
+	/* Remove the layout gadget from this layout's private list of layout gadgets */
+
+	m_oLayoutGadgets.remove(a_poLayoutGadget);
+
+#ifdef __amigaos__
+
+	/* And remove the BOOPSI gadget from the layout */
+
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
+	{
+		if (m_bEnableRefresh)
+		{
+			rethinkLayout();
+		}
+	}
+
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+	/* And rethink the layout to reflect the change.  Qt will do this via a QEvent::LayoutRequest in */
+	/* its event filter so no need to do it for Qt */
+
+	rethinkLayout();
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
+}
+
+/**
  * Rethink the layout of the gadget tree.
  * Iterates through the gadgets owned by the layout, and through all of the layouts owned by the layout,
  * rethinking their size and position.
@@ -637,6 +762,28 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 	return(true);
 }
 
+
+/**
+ * Set the input focus to this gadget.
+ * Set the focus to this layout gadget, so that all keyboard input flows directly to the gadget.
+ *
+ * @date	Saturday 08-Apr-2023 1:38 pm, Excelsior Caffé Akihabara
+ */
+
+void CStdGadgetLayout::SetFocus()
+{
+
+#ifdef QT_GUI_LIB
+
+	if (m_poLayout)
+	{
+		m_poLayout->parentWidget()->setFocus();
+	}
+
+#endif /* QT_GUI_LIB */
+
+}
+
 /* Written: Thursday 31-May-2012 7:16 am, Code HQ Ehinger Tor */
 /* @return	The X position of the layout gadget */
 /* Amiga OS gadgets are positioned relative to the screen but the GUI framework depends */
@@ -779,150 +926,4 @@ TInt CStdGadgetLayout::MinHeight()
 	}
 
 	return(RetVal);
-}
-
-#ifdef __amigaos__
-
-/**
- * Reattaches a gadget to the layout.
- * This is an internal Amiga OS only method that will reattach a BOOPSI gadget to the layout.  It basically
- * works the same as CStdGadgetLayout::Attach() but it doesn't add the gadget to the m_oGadgets list.  It is
- * useful for implementing overrides of the CStdGadget::SetVisible() method.
- *
- * @date	Sunday 04-Jul-2021 8:04 am, Code HQ Bergmannstrasse
- * @param	a_poGadget		Pointer to the native gadget to attach to the layout
- */
-
-void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
-{
-	ASSERTM((a_poGadget != NULL), "CStdGadgetLayout::ReAttach() => No gadget to be attached passed in");
-
-	/* Add the BOOPSI gadget to the layout */
-
-	// TODO: CAW (multi) - All of these need to be checked
-	if (m_poParentWindow)
-	{
-		if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-			LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
-		{
-			rethinkLayout();
-		}
-	}
-}
-
-#endif /* __amigaos__ */
-
-/**
- * Remove a gadget from the layout.
- * This function will remove the gadget passed in from the layout.  This will take care of removing the gadget from
- * the layout's internal list of gadgets, as well as removing it from the underlying OS specific layout system.
- *
- * @date	Thursday 15-Jul-2021 7:20 am, Code HQ Bergmannstrasse
- * @param	a_poGadget		Pointer to the gadget to remove from the layout
- */
-
-void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
-{
-	ASSERTM((a_poLayoutGadget != NULL), "CStdGadgetLayout::remove() => No gadget to be removed passed in");
-
-	/* Remove the layout gadget from this layout's private list of layout gadgets */
-
-	m_oLayoutGadgets.remove(a_poLayoutGadget);
-
-#ifdef __amigaos__
-
-	/* And remove the BOOPSI gadget from the layout */
-
-	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
-	{
-		if (m_bEnableRefresh)
-		{
-			rethinkLayout();
-		}
-	}
-
-#elif defined(WIN32) && !defined(QT_GUI_LIB)
-
-	/* And rethink the layout to reflect the change.  Qt will do this via a QEvent::LayoutRequest in */
-	/* its event filter so no need to do it for Qt */
-
-	rethinkLayout();
-
-#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
-
-}
-
-/**
- * Search for a gadget and send an update to it.
- * This method will search the tree of layout gadgets, looking for the first one
- * that contains the target gadget.  If found, an update will be sent to that gadget
- * and the search will stop.  This means that at most only one gadget will receive
- * an update.
- *
- * Note that the gadget passed in is *not* a CStdGadget derived object.  It is an
- * identifier for the CStdGadget's underlying native gadget.  For Windows, this is
- * the gadget's numeric ID and for Amiga OS this is a BOOPSI gadget.  That is because
- * this method is only meant for use by The Framework to map system events onto
- * framework events.
- *
- * @date	Sunday 15-Aug-2021 9:42 am, Code HQ @ Thomas's House
- * @param	a_pvGadget		Identifier of the native gadget to which to send the update
- * @param	a_ulData		Data to be sent with the update
- * @return	true if the update was sent, else false
- */
-
-bool CStdGadgetLayout::SendUpdate(void *a_pvGadget, ULONG a_ulData)
-{
-	bool RetVal;
-	CStdGadget *Gadget;
-	CStdGadgetLayout *LayoutGadget;
-
-	RetVal = false;
-	LayoutGadget = m_oLayoutGadgets.getHead();
-
-	/* Iterate through the layout's list of layouts and search for the target gadget */
-
-	while ((LayoutGadget != NULL) && !RetVal)
-	{
-		if ((Gadget = LayoutGadget->FindNativeGadget(a_pvGadget)) != NULL)
-		{
-			/* Got it!  Let the gadget know that it has been updated */
-
-			Gadget->Updated(a_ulData);
-			RetVal = true;
-		}
-
-		/* The gadget was not found, so try sending the update to the next layout gadget */
-
-		else
-		{
-			RetVal = LayoutGadget->SendUpdate(a_pvGadget, a_ulData);
-		}
-
-		LayoutGadget = m_oLayoutGadgets.getSucc(LayoutGadget);
-	}
-
-	return(RetVal);
-}
-
-/**
- * Set the input focus to this gadget.
- * Set the focus to this layout gadget, so that all keyboard input flows directly to the gadget.
- *
- * @date	Saturday 08-Apr-2023 1:38 pm, Excelsior Caffé Akihabara
- */
-
-void CStdGadgetLayout::SetFocus()
-{
-
-#ifdef QT_GUI_LIB
-
-	if (m_poLayout)
-	{
-		m_poLayout->parentWidget()->setFocus();
-	}
-
-#endif /* QT_GUI_LIB */
-
 }

@@ -188,7 +188,7 @@ TBool TEntry::IsHidden() const
 #elif defined(__unix__)
 
 	/* UNIX does not have the concept of hidden files (we won't count files starting */
-	/* with . as hidden as this is not a function of the filesystem */
+	/* with . as hidden as this is not a function of the file system */
 
 	return(EFalse);
 
@@ -328,7 +328,7 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttr
 
 #ifdef WIN32
 
-	/* From a functional perspective, knowing that a file on Windows is compressed by the filesystem is of no use, */
+	/* From a functional perspective, knowing that a file on Windows is compressed by the file system is of no use, */
 	/* but it can confuse software that is trying to compare files for equality.  So throw this attribute away, if */
 	/* it is present */
 
