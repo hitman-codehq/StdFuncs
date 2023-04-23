@@ -344,13 +344,6 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	ASSERTM((a_iPosition >= 1), "CStdGadgetSlider::SetPosition() => a_iPosition is too small");
 	ASSERTM((a_iPosition <= m_iMaxRange), "CStdGadgetSlider::SetPosition() => a_iPosition is too large");
 
-	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
-
-	if (!m_poGadget)
-	{
-		return;
-	}
-
 	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
 	/* don't take care of this and gadgets will flicker if nothing has changed.  Setting the position when it */
 	/* has not changed can also cause some feedback loops where the client changes the position, is then */
@@ -362,6 +355,13 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 	}
 
 	m_iPosition = a_iPosition;
+
+	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
+
+	if (!m_poGadget)
+	{
+		return;
+	}
 
 #ifdef __amigaos__
 
@@ -412,13 +412,6 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 	ASSERTM((a_iPageSize <= a_iMaxRange), "CStdGadgetSlider::SetRange() => a_iPageSize is too large");
 	ASSERTM((a_iMaxRange > 0), "CStdGadgetSlider::SetRange() => a_iMaxRange is too small");
 
-	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
-
-	if (!m_poGadget)
-	{
-		return;
-	}
-
 	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
 	/* don't take care of this and gadgets will flicker if nothing has changed */
 
@@ -431,6 +424,13 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 	m_iMaxRange = a_iMaxRange;
 	m_iPageSize = a_iPageSize;
+
+	/* On Amiga OS it is safe to call this when the underlying native gadget has been destroyed */
+
+	if (!m_poGadget)
+	{
+		return;
+	}
 
 #ifdef __amigaos__
 
