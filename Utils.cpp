@@ -1621,7 +1621,7 @@ int Utils::GetShellHeight()
 			/* And determine the height of the console for the caller, converting the zero based line */
 			/* number of the bottom most line into a count of lines */
 
-			RetVal = (ScreenBufferInfo.srWindow.Bottom + 1);
+			RetVal = (ScreenBufferInfo.srWindow.Bottom - ScreenBufferInfo.srWindow.Top + 1);
 		}
 		else
 		{
