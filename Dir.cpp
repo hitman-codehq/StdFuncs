@@ -136,7 +136,7 @@ TEntry::TEntry(const TDateTime &a_roDateTime)
 /**
  * Clears a file's archive attribute.
  * Clears a file's archive attribute, thus indicating that the file has been archived and is no
- * longer changed on disk.  The next time the file is edited by a program, the archive attribute
+ * longer changed on disc.  The next time the file is edited by a program, the archive attribute
  * will again be set, indicating to backup software that the file needs to be backed up.
  * This function currently only performs an action on Windows.
  *

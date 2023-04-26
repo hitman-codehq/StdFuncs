@@ -45,7 +45,7 @@ public:
 
 	int write(const unsigned char *a_buffer, int a_length);
 
-	void close();
+	int close();
 
 	void setFactory(RRemoteFactory *a_remoteFactory) { m_remoteFactory = a_remoteFactory; }
 };

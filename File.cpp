@@ -546,9 +546,10 @@ int RFile::write(const unsigned char *a_buffer, int a_length)
  * Closes a file that has been created for reading & writing, or opened for reading.
  *
  * @date	Friday 02-Jan-2009 8:58 pm
+ * @return	KErrNone is always returned, as this method cannot fail
  */
 
-void RFile::close()
+int RFile::close()
 {
 
 #ifdef __amigaos__
@@ -577,4 +578,5 @@ void RFile::close()
 
 #endif /* ! __unix__ */
 
+	return KErrNone;
 }

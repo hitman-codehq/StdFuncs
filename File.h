@@ -40,7 +40,7 @@ public:
 
 	virtual int write(const unsigned char *a_buffer, int a_length) = 0;
 
-	virtual void close() = 0;
+	virtual int close() = 0;
 };
 
 /**
@@ -83,7 +83,7 @@ public:
 
 	int write(const unsigned char *a_buffer, int a_length);
 
-	void close();
+	int close();
 };
 
 #endif /* ! FILE_H */

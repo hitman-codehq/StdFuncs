@@ -301,13 +301,16 @@ int RRemoteFile::write(const unsigned char *a_buffer, int a_length)
  * be sent to the server for writing to the remote file.
  *
  * @date	Thursday 05-Jan-2023 6:51 am, MK290 holiday apartment, Naha, Okinawa
+ * @return	KErrNone if successful, otherwise one of the errors from RSocket::open()
  */
 
-void RRemoteFile::close()
+int RRemoteFile::close()
 {
+	int retVal = KErrNone;
+
 	if (m_dirty && m_fileBuffer.size() > 0)
 	{
-		int retVal = m_socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+		retVal = m_socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
 
 		if (retVal == KErrNone)
 		{
@@ -332,4 +335,6 @@ void RRemoteFile::close()
 	}
 
 	m_socket.close();
+
+	return retVal;
 }
