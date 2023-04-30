@@ -44,7 +44,7 @@ jobs:
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
         with:
-          name: Libraries
+          name: Windows-Libraries
           path: |
             x86/Debug/*.lib
             x64/Debug/*.lib

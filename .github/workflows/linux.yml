@@ -34,7 +34,7 @@ jobs:
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
         with:
-          name: Libraries
+          name: Linux-Libraries
           path: |
             Debug/*.a
             Release/*.a
