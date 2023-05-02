@@ -1,0 +1,32 @@
+name: MacOSQt
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+      - name: Build
+        run: |
+          qmake
+          make
+      - name: Build Debug
+        run: |
+          qmake
+          make debug
+      - name: Archive Libraries
+        uses: actions/upload-artifact@v3
+        with:
+          name: MacOS-Qt-Libraries
+          path: |
+            DebugQt/*.a
+            ReleaseQt/*.a

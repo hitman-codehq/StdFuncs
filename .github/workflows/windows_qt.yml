@@ -1,0 +1,33 @@
+name: WindowsQt
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+      - name: Build
+        run: |
+          qmake
+          nmake
+      - name: Build Debug
+        run: |
+          qmake
+          nmake debug
+      - name: Archive Libraries
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows-Qt-Libraries
+          path: |
+            DebugQt/*.lib
+            ReleaseQt/*.lib
