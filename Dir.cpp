@@ -1139,7 +1139,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 						}
 						else
 						{
-							Utils::info("RDir::read() => Unable to allocate buffer to resolve link size\n");
+							Utils::info("RDir::read() => Unable to allocate buffer to resolve link size");
 						}
 					}
 					else
@@ -1221,7 +1221,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 				{
 					RetVal = KErrGeneral;
 
-					Utils::info("RDir::read() => ExAll() failed, IoErr() = %ld\n", IoErr);
+					Utils::info("RDir::read() => ExAll() failed, IoErr() = %ld", IoErr);
 
 					break;
 				}
@@ -1320,7 +1320,7 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 							}
 							else
 							{
-								Utils::info("RDir::read() => Unable to allocate buffer to resolve link size\n");
+								Utils::info("RDir::read() => Unable to allocate buffer to resolve link size");
 							}
 						}
 						else

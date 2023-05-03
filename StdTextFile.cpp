@@ -60,7 +60,7 @@ TInt RTextFile::open(const char *a_pccFileName)
 	}
 	else
 	{
-		Utils::info("RTextFile::open() => Unable to read in file \"%s\"\n", a_pccFileName);
+		Utils::info("RTextFile::open() => Unable to read in file \"%s\"", a_pccFileName);
 	}
 
 	return(RetVal);
