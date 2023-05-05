@@ -637,7 +637,7 @@ Object *CDialog::GetNativeGadget(TInt a_iGadgetID)
 	{
 		if (m_poGadgetMappings[Index].m_iID == a_iGadgetID)
 		{
-			RetVal = m_poGadgetMappings[Index].m_poGadget;
+			RetVal = (Object *) m_poGadgetMappings[Index].m_poGadget;
 
 			break;
 		}

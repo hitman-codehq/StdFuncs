@@ -19,11 +19,12 @@ enum TStdEventType
 
 #ifdef __amigaos__
 
-/* Each instance of this structure represents an Amiga OS gadget mapping */
+/* Each instance of this structure represents an Amiga OS gadget mapping.  The BOOPSI */
+/* gadget pointers are stored as a ULONG to make it easier to pass them into taglists */
 
 struct SStdGadgetMapping
 {
-	Object	*m_poGadget;			/**< Ptr to BOOPSI gadget */
+	ULONG	m_poGadget;				/**< Ptr to BOOPSI gadget */
 	TInt	m_iID;					/**< Integer ID of the gadget */
 };
 

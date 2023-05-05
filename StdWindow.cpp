@@ -2445,7 +2445,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 #ifdef __amigaos4__
 
-	m_oIDCMPHook.h_Entry = (uint32 (*)()) IDCMPFunction;
+	m_oIDCMPHook.h_Entry = (uint32 (*)()) (void *) IDCMPFunction;
 
 #else /* ! __amigaos4__ */
 
