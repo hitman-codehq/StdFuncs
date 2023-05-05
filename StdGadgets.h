@@ -152,7 +152,7 @@ private:
 
 #ifdef __amigaos__
 
-	Object					m_poLayout;				/**< Pointer to the underlying Amiga OS gadget */
+	Object					*m_poLayout;			/**< Pointer to the underlying Amiga OS gadget */
 
 #elif defined(QT_GUI_LIB)
 
@@ -200,7 +200,7 @@ public:
 
 #ifdef __amigaos__
 
-	Object GetLayout()
+	Object *GetLayout()
 	{
 		return(m_poLayout);
 	}
