@@ -1,0 +1,34 @@
+name: Amiga OS3
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        uses: hitman-codehq/Amiga-Build-OS3@v1
+        env:
+          PREFIX: m68k-amigaos-
+        with:
+          command: 'make'
+      - name: Build Debug
+        uses: hitman-codehq/Amiga-Build-OS3@v1
+        env:
+          PREFIX: m68k-amigaos-
+        with:
+          command: 'make DEBUG=1'
+      - name: Archive Libraries
+        uses: actions/upload-artifact@v3
+        with:
+          name: Amiga-Libraries-OS3
+          path: |
+            Debug/*.a
+            Release/*.a

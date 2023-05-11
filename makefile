@@ -21,10 +21,8 @@ else
 	CFLAGS += -O2
 endif
 
-UNAME = $(shell uname)
-
 ifdef PREFIX
-	ifeq ($(UNAME), CYGWIN_NT-10.0)
+	ifeq ($(PREFIX), ppc-amigaos-)
 		CFLAGS += -athread=native
 		LFLAGS += -athread=native
 		OBJ := $(OBJ)_OS4
@@ -44,7 +42,7 @@ ifdef PREFIX
 		$(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o \
 		$(OBJ)/Utils.o
 
-	ifneq ($(UNAME), CYGWIN_NT-10.0)
+	ifneq ($(PREFIX), ppc-amigaos-)
 		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
 			$(OBJ)/AutoGadTools.o $(OBJ)/AutoGfx.o $(OBJ)/AutoIcon.o $(OBJ)/AutoIFFParse.o $(OBJ)/AutoIntuition.o $(OBJ)/AutoKeymap.o \
 			$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o \
