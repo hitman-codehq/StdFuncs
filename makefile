@@ -1,6 +1,5 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-exceptions -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
-CFLAGS_EX = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
+CFLAGS = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
 IFLAGS = -I. -D__USE_INLINE__
 
 ifdef PREFIX
@@ -27,7 +26,7 @@ ifdef PREFIX
 		LFLAGS += -athread=native
 		OBJ := $(OBJ)_OS4
 	else
-		IFLAGS += -mcrt=nix20
+		IFLAGS += -mcrt=clib2
 		AUTO_LIBRARY = $(OBJ)/libauto.a
 	endif
 endif
@@ -92,10 +91,6 @@ $(OBJ)/%.o: Auto/%.c
 $(OBJ)/%.o: Yggdrasil/%.cpp
 	@echo Compiling $<...
 	$(CC) $(CFLAGS) $(IFLAGS) -o $(OBJ)/$*.o $<
-
-$(OBJ)/StdSocket.o: StdSocket.cpp
-	@echo Compiling $<...
-	$(CC) $(CFLAGS_EX) $(IFLAGS) -o $(OBJ)/StdSocket.o $<
 
 clean:
 	@rm -fr $(OBJ)
