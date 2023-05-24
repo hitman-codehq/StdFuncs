@@ -240,7 +240,7 @@ int RSocket::read(void *a_buffer, int a_size, bool a_readAll)
 	int bytesToRead, retVal = 0, size;
 
 	ASSERTM((m_socket != INVALID_SOCKET), "RSocket::read() => Socket is not open")
-		
+
 	if (a_readAll)
 	{
 		/* Loop around, trying to read however many bytes are left to be read, starting with the total number */
