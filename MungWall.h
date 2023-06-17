@@ -43,7 +43,9 @@
 
 #ifdef __cplusplus
 
-#define MungeSize 100
+/* This must be a multiple of 8, to avoid alignment problems on some 64 bit CPUs */
+
+#define MungeSize 96
 
 class MungWall
 {
