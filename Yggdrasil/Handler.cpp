@@ -71,7 +71,7 @@ int CHandler::getFileInformation(const char *a_fileName, SFileInfo *&a_fileInfo)
 		a_fileInfo->m_isLink = entry.iIsLink;
 
 		a_fileInfo->m_size = entry.iSize;
-		SWAP(&a_fileInfo->m_size);
+		SWAP64(&a_fileInfo->m_size);
 	}
 
 	return retVal;
@@ -92,13 +92,13 @@ int CHandler::getFileInformation(const char *a_fileName, SFileInfo *&a_fileInfo)
 
 int CHandler::readFile(const char *a_fileName)
 {
-	uint32_t fileSize;
+	TInt64 fileSize;
 	RFile file;
 
 	m_socket->read(&fileSize, sizeof(fileSize));
-	SWAP(&fileSize);
+	SWAP64(&fileSize);
 
-	printf("%s: Transferring file \"%s\" of size %u\n", g_commandNames[m_command.m_command], a_fileName, fileSize);
+	printf("%s: Transferring file \"%s\"\n", g_commandNames[m_command.m_command], a_fileName);
 
 	/* The Framework doesn't truncate a file if it already exists, so delete any existing file before continuing */
 	/* to avoid creating non working executables */
@@ -111,7 +111,8 @@ int CHandler::readFile(const char *a_fileName)
 	if (retVal == KErrNone)
 	{
 		int result;
-		uint32_t bytesRead = 0, bytesToRead, size;
+		uint32_t bytesToRead, size;
+		TInt64 bytesRead = 0;
 		unsigned char *buffer = new unsigned char[TRANSFER_SIZE];
 
 		/* Determine the start time so that it can be used to calculate the amount of time the transfer took */
@@ -121,7 +122,7 @@ int CHandler::readFile(const char *a_fileName)
 
 		do
 		{
-			bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : (fileSize - bytesRead);
+			bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : static_cast<uint32_t>(fileSize - bytesRead);
 			size = m_socket->read(buffer, bytesToRead);
 
 			/* Write to write the received information to the target file.  If this fails, we have to continue with */
@@ -143,8 +144,9 @@ int CHandler::readFile(const char *a_fileName)
 		if (retVal == KErrNone)
 		{
 			/* Cast the time results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
-			printf("%s: Wrote %d.%d Kilobytes to file \"%s\" in %d.%d seconds\n", g_commandNames[m_command.m_command], (bytesRead / 1024),
-				(bytesRead % 1024), a_fileName, static_cast<int>(total / 1000), static_cast<int>(total % 1000));
+			printf("%s: Wrote %d.%d Kilobytes to file \"%s\" in %d.%d seconds\n", g_commandNames[m_command.m_command],
+				static_cast<int>(bytesRead / 1024), static_cast<int>(bytesRead % 1024),
+				a_fileName, static_cast<int>(total / 1000), static_cast<int>(total % 1000));
 		}
 		else
 		{
@@ -248,8 +250,8 @@ int CHandler::sendFile(const char *a_fileName)
 
 	if ((retVal = Utils::GetFileInfo(a_fileName, &entry)) == KErrNone)
 	{
-		int fileSize = entry.iSize;
-		SWAP(&fileSize);
+		TInt64 fileSize = entry.iSize;
+		SWAP64(&fileSize);
 
 		m_socket->write(&fileSize, sizeof(fileSize));
 
@@ -277,9 +279,10 @@ int CHandler::sendFile(const char *a_fileName)
 			TInt64 endTime = now.Int64();
 			TInt64 total = ((endTime - startTime) / 1000);
 
-			/* Cast the time results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
-			printf("%s: Transferred %u.%u Kilobytes in %d.%d seconds\n", g_commandNames[m_command.m_command], (entry.iSize / 1024),
-				(entry.iSize % 1024), static_cast<int>(total / 1000), static_cast<int>(total % 1000));
+			/* Cast 64 bit results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
+			printf("%s: Transferred %d.%d Kilobytes in %d.%d seconds\n", g_commandNames[m_command.m_command], 
+				static_cast<int>(entry.iSize / 1024), static_cast<int>(entry.iSize % 1024),
+				static_cast<int>(total / 1000), static_cast<int>(total % 1000));
 
 			delete [] buffer;
 		}

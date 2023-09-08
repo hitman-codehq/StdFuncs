@@ -164,7 +164,7 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 		{
 			SFileInfo *fileInfo = reinterpret_cast<SFileInfo *>(handler->getResponsePayload());
 			SWAP64(&fileInfo->m_microseconds);
-			SWAP(&fileInfo->m_size);
+			SWAP64(&fileInfo->m_size);
 
 			TDateTime dateTime(fileInfo->m_microseconds);
 

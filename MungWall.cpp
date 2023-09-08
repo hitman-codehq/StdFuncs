@@ -345,6 +345,14 @@ void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 	void *pvRetVal = NULL;
 	struct Arena *paBlock;
 
+	/* Account for the wraparound that will happen on 32 bit systems, if someone tries to allocate a */
+	/* very large amount of memory, such as 0xffffffff bytes */
+
+	if (stMungedSize < stSize)
+	{
+		return(NULL);
+	}
+
 	if (bEnableProfiling)
 	{
 		++ulNumProfiledNews;

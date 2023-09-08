@@ -98,7 +98,7 @@ struct SFileInfo
 	TInt64			m_microseconds;	/**< Timestamp of the file, in microseconds since 01.01.01 */
 	unsigned int	m_isDir;		/**< True if the file system object is a directory */
 	unsigned int	m_isLink;		/**< True if the file system object is a link */
-	unsigned int	m_size;			/**< File size in bytes */
+	TInt64			m_size;			/**< File size in bytes */
 	char			m_fileName[1];	/**< The file's name, without a path component */
 };
 

@@ -318,11 +318,11 @@ void TEntry::Reset()
 
 /* Written: Saturday 03-Nov-2007 6:42 pm */
 
-void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_roDateTime)
+void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TInt64 a_iSize, TUint a_uiAttributes, const TDateTime &a_roDateTime)
 {
 	iIsDir = a_bIsDir;
 	iIsLink = a_bIsLink;
-	iSize = a_uiSize;
+	iSize = a_iSize;
 	iAttributes = a_uiAttributes;
 	iModified = a_roDateTime;
 
@@ -401,11 +401,11 @@ TInt TEntryArray::CompareEntries(const TEntry *a_poFirst, const TEntry *a_poSeco
 	}
 	else if (SortInfo->m_eSortOrder == EDirSortSizeAscending)
 	{
-		RetVal = (a_poFirst->iSize - a_poSecond->iSize);
+		RetVal = static_cast<TInt>(a_poFirst->iSize - a_poSecond->iSize);
 	}
 	else if (SortInfo->m_eSortOrder == EDirSortSizeDescending)
 	{
-		RetVal = (a_poSecond->iSize - a_poFirst->iSize);
+		RetVal = static_cast<TInt>(a_poSecond->iSize - a_poFirst->iSize);
 	}
 	else if (SortInfo->m_eSortOrder == EDirSortDateAscending)
 	{

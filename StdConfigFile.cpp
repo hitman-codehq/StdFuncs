@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include <limits.h>
 #include <string.h>
 #include "File.h"
 #include "Lex.h"
@@ -252,10 +253,14 @@ CKey *CSection::FindNextKey(CKey *a_poKey, const char *a_pccName)
  * Opens a configuration file, reads its contents into memory and parses it in preparation
  * for querying by the section, group and key querying functions.
  *
+ * This convenience method is not meant for reading enormous files, and will fail for files
+ * of size larger than INT_MAX bytes.
+ *
  * @date	Wednesday 22-Apr-1998 9:33 pm
  * @param	a_pccFileName	Name of configuration file to open
  * @return	KErrNone if successful
  * @return	KErrNoMemory if there was not enough memory to read the file
+ * @return	KErrNotSupported if the file was too large to be read
  * @return	KErrEof if the file could be opened but not completely read
  * @return	Any error from Utils::GetFileInfo()
  * @return	Any error from RFile::open()
@@ -271,7 +276,12 @@ TInt RConfigFile::open(const char *a_pccFileName)
 
 	if ((RetVal = Utils::GetFileInfo(a_pccFileName, &Entry)) == KErrNone)
 	{
-		m_iBufferSize = Entry.iSize;
+		if (Entry.iSize > INT_MAX)
+		{
+			return(KErrNotSupported);
+		}
+
+		m_iBufferSize = static_cast<int>(Entry.iSize);
 
 		if ((m_pcBuffer = new char[m_iBufferSize]) != NULL)
 		{
