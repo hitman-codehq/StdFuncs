@@ -5,6 +5,7 @@
 
 #ifdef __amigaos__
 
+#include <limits.h>
 #include <clib/debug_protos.h>
 #include <dos/dostags.h>
 #include <proto/intuition.h>
@@ -1191,10 +1192,13 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 							TDateTime DateTime(ClockData.year, (TMonth) (ClockData.month - 1), ClockData.mday, ClockData.hour,
 								ClockData.min, ClockData.sec, 0);
 
-							/* And populate the new TEntry instance with information about the file or directory */
+							/* And populate the new TEntry instance with information about the file or directory. */
+							/* We cast fib_Size to a TUint as fib_Size is a signed 32 bit integer, but it contains a */
+							/* valid unsigned 32 bit size of the file, up to 0xffffffff bytes.  On 64 bit filesystems */
+							/* files larger than 4GB will have their size set to this */
 
 							a_poEntry->Set((FileInfoBlock->fib_DirEntryType > 0), TYPE_IS_LINK(FileInfoBlock->fib_DirEntryType),
-								FileInfoBlock->fib_Size, FileInfoBlock->fib_Protection, DateTime);
+								(TUint) FileInfoBlock->fib_Size, FileInfoBlock->fib_Protection, DateTime);
 							a_poEntry->iPlatformDate = FileInfoBlock->fib_Date;
 
 							/* If the name of the directory is the special case of an Amiga OS volume then return just */
@@ -1334,7 +1338,7 @@ TInt Utils::GetFileInfo(const char *a_pccFileName, TEntry *a_poEntry, TBool a_bR
 						/* Fill in the file's properties in the TEntry structure */
 
 						a_poEntry->Set((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT),
-							FileInformation.nFileSizeLow, FileInformation.dwFileAttributes, DateTime);
+							(TInt64) FileInformation.nFileSizeHigh << 32 | FileInformation.nFileSizeLow, FileInformation.dwFileAttributes, DateTime);
 						a_poEntry->iPlatformDate = FileInformation.ftLastWriteTime;
 
 						/* Try to find the file so that we can obtain its "real" name, which may vary by case */
@@ -1868,11 +1872,15 @@ void Utils::info(const char *a_pccMessage, ...)
  * the user to delete [] this memory.  If the function fails to load the file, a_ppucBuffer will
  * be set to NULL.
  *
+ * This convenience method is not meant for reading enormous files, and will fail for files of
+ * size larger than INT_MAX bytes.
+ *
  * @param	a_pccFileName	Pointer to the name of the file to be opened
  * @param	a_ppucBuffer	Pointer to a variable into which to place the pointer to the allocated
  *							buffer
  * @return	The size of the file in bytes, not including the NULL terminator, if successful
  * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotSupported if the file was too large to be read
  * @return	Otherwise any of the errors returned by Utils::GetFileInfo(), RFile::open() or
  *			RFile::read()
  */
@@ -1883,6 +1891,8 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 	TInt RetVal;
 	TEntry Entry;
 
+	ASSERTM((a_ppucBuffer != NULL), "Utils::LoadFile() => Buffer passed in must not be NULL");
+
 	/* Assume failure */
 
 	*a_ppucBuffer = NULL;
@@ -1891,9 +1901,14 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 	if ((RetVal = Utils::GetFileInfo(a_pccFileName, &Entry)) == KErrNone)
 	{
+		if (Entry.iSize > INT_MAX)
+		{
+			return(KErrNotSupported);
+		}
+
 		/* Allocate a buffer of the appropriate size */
 
-		if ((Buffer = new unsigned char[Entry.iSize + 1]) != NULL)
+		if ((Buffer = new unsigned char[static_cast<size_t>(Entry.iSize + 1)]) != NULL)
 		{
 			RFile File;
 
@@ -1901,7 +1916,7 @@ TInt Utils::LoadFile(const char *a_pccFileName, unsigned char **a_ppucBuffer)
 
 			if ((RetVal = File.open(a_pccFileName, EFileRead)) == KErrNone)
 			{
-				if ((RetVal = File.read(Buffer, Entry.iSize)) == (TInt) Entry.iSize)
+				if ((RetVal = File.read(Buffer, (TInt) Entry.iSize)) == (TInt) Entry.iSize)
 				{
 					/* NULL terminate the buffer and save its pointer for the calling client */
 

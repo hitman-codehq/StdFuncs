@@ -39,7 +39,7 @@ public:
 												 filled out by Utils::GetFileInfo(), not by methods in RDir */
 	TBool				iIsDir;				/**< ETrue if entry is a directory */
 	TBool				iIsLink;			/**< ETrue if entry is a link */
-	TUint				iSize;				/**< File size in bytes */
+	TInt64				iSize;				/**< File size in bytes */
 	TUint				iAttributes;		/**< Protection attributes, in Amiga/UNIX/Windows format */
 	TTime				iModified;			/**< Time and date of the file */
 
@@ -81,7 +81,7 @@ public:
 
 	void Reset();
 
-	void Set(TBool a_bIsDir, TBool a_bIsLink, TUint a_uiSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
+	void Set(TBool a_bIsDir, TBool a_bIsLink, TInt64 a_iSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
 };
 
 /* An instance of this class represents a number of TEntry classes and is filled */
