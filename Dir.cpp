@@ -576,7 +576,7 @@ TInt RDir::AppendDirectoryEntry(WIN32_FIND_DATA *a_poFindData)
 				/* And populate the TEntry structure with the rest of the information */
 
 				Entry->Set((a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), (a_poFindData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT),
-					a_poFindData->nFileSizeLow, a_poFindData->dwFileAttributes, DateTime);
+					(TInt64) a_poFindData->nFileSizeHigh << 32 | a_poFindData->nFileSizeLow, a_poFindData->dwFileAttributes, DateTime);
 				Entry->iPlatformDate = a_poFindData->ftLastWriteTime;
 			}
 			else
@@ -1439,6 +1439,11 @@ TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
 						break;
 					}
 				}
+
+				/* Reset errno before calling readdir() again, in case it was set by another function call while */
+				/* scanning the directory */
+
+				errno = 0;
 			}
 
 			/* Free the temporary buffer.  This is done outside the loop so that the originally allocated */

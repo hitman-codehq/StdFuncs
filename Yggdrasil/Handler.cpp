@@ -280,7 +280,7 @@ int CHandler::sendFile(const char *a_fileName)
 			TInt64 total = ((endTime - startTime) / 1000);
 
 			/* Cast 64 bit results to integers when printing as Amiga OS doesn't support 64 bit format specifiers */
-			printf("%s: Transferred %d.%d Kilobytes in %d.%d seconds\n", g_commandNames[m_command.m_command], 
+			printf("%s: Transferred %d.%d Kilobytes in %d.%d seconds\n", g_commandNames[m_command.m_command],
 				static_cast<int>(entry.iSize / 1024), static_cast<int>(entry.iSize % 1024),
 				static_cast<int>(total / 1000), static_cast<int>(total % 1000));
 
