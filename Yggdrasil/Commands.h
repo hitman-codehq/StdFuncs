@@ -31,11 +31,31 @@
 	(*(Source + 2) << 8) | \
 	*(Source + 3)
 
+#define READ_INT_64(Dest, Source) \
+	Dest = ((TInt64) *Source << 56) | \
+	((TInt64) *(Source + 1) << 48) | \
+	((TInt64) *(Source + 2) << 40) | \
+	((TInt64) *(Source + 3) << 32) | \
+	((TInt64) *(Source + 4) << 24) | \
+	((TInt64) *(Source + 5) << 16) | \
+	((TInt64) *(Source + 6) << 8) | \
+	(TInt64) *(Source + 7)
+
 #define WRITE_INT(Dest, Value) \
 	*Dest = (Value >> 24) & 0xff; \
 	*(Dest + 1) = (Value >> 16) & 0xff; \
 	*(Dest + 2) = (Value >> 8) & 0xff; \
 	*(Dest + 3) = Value & 0xff
+
+#define WRITE_INT_64(Dest, Value) \
+	*Dest = (Value >> 56) & 0xff; \
+	*(Dest + 1) = (Value >> 48) & 0xff; \
+	*(Dest + 2) = (Value >> 40) & 0xff; \
+	*(Dest + 3) = (Value >> 32) & 0xff; \
+	*(Dest + 4) = (Value >> 24) & 0xff; \
+	*(Dest + 5) = (Value >> 16) & 0xff; \
+	*(Dest + 6) = (Value >> 8) & 0xff; \
+	*(Dest + 7) = Value & 0xff
 
 /**
  * The commands supported by the program.
