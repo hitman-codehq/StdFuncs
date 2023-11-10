@@ -26,7 +26,7 @@ void CGet::execute()
  * @date	Sunday 19-Feb-2023 9:15 am, Code HQ Tokyo Tsukuda
  */
 
-void CGet::sendRequest()
+TResult CGet::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(strlen(m_fileName) + 1);
 
@@ -34,6 +34,8 @@ void CGet::sendRequest()
 	sendCommand();
 	m_socket->write(m_fileName, payloadSize);
 	readResponse();
+
+	return TResult{};
 }
 
 /**
@@ -55,7 +57,7 @@ void CSend::execute()
  * @date	Saturday 25-Feb-2023 7:57 am, Code HQ Tokyo Tsukuda
  */
 
-void CSend::sendRequest()
+TResult CSend::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(sizeof(SFileInfo) + strlen(m_fileName) + 1);
 
@@ -74,6 +76,8 @@ void CSend::sendRequest()
 	m_socket->write(fileInfo, payloadSize);
 
 	delete [] reinterpret_cast<unsigned char *>(fileInfo);
+
+	return TResult{};
 }
 
 /**

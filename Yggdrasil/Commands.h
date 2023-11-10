@@ -93,20 +93,6 @@ public:
 };
 
 /**
- * Structure containing the response of a command execution.
- * A structure used for returning results from the execution of a command.  The structure uses fixed sized integers,
- * for compatibility across different CPU architectures.  It is the responsibility of the code using this structure
- * to perform byte order swapping as appropriate, and to send or receive the payload.  Only the size of the payload
- * is sent with this structure.
- */
-
-struct SResponse
-{
-	int32_t		m_result;	/**< The result of attempting to execute the command */
-	uint32_t	m_size;		/**< Size in bytes of payload after structure */
-};
-
-/**
  * Structure containing information about file being transferred.
  * Contains information such as a file's name and its timestamp, to be transferred as the header of any file
  * that is tranferred between hosts.  Instances of this structure are dynamically allocated, with their size
@@ -123,6 +109,52 @@ struct SFileInfo
 };
 
 /**
+ * Class containing the response of a command execution.
+ * A class used for returning results from the execution of a command.  The class uses fixed sized integers, for
+ * for compatibility across different CPU architectures.  It is the responsibility of the code using this class
+ * to perform byte order swapping as appropriate, and to send or receive the payload.  Only the size of the payload
+ * is sent with this class.
+ */
+
+struct TResponse
+{
+	int32_t		m_result;			/**< The result of attempting to execute the command */
+	int32_t		m_subResult;		/**< The secondary result, valid only if m_result == KErrNone.  Its
+										 value and meaning is specific to the command that returns it */
+	uint32_t	m_size;				/**< Size in bytes of payload after structure */
+
+	TResponse()
+	{
+		m_result = m_subResult = KErrNone;
+		m_size = 0;
+	}
+
+	TResponse(int32_t a_result, int32_t a_subResult) : m_result(a_result), m_subResult(a_subResult), m_size(0) { }
+};
+
+/**
+ * Class for returning more than one return value from a method or function.
+ * Instead of returning an int containing one of the StdFuncs KErr values, code can return an instance of this
+ * structure with the return value in m_result, and a secondary return value in m_subResult.
+ */
+
+class TResult
+{
+public:
+
+	int32_t		m_result;			/**< The result of attempting to execute the command */
+	int32_t		m_subResult;		/**< The secondary result, valid only if m_result == KErrNone.  Its
+										 value and meaning is specific to the method that returns it */
+
+	TResult()
+	{
+		m_result = m_subResult = KErrNone;
+	}
+
+	TResult(int32_t a_result, int32_t a_subResult) : m_result(a_result), m_subResult(a_subResult) { }
+};
+
+/**
  * The base class for all command handlers.
  * All command handlers derive from, and implement, this interface, allowing them to be used without
  * concern for their concrete type or implementation.
@@ -134,7 +166,7 @@ protected:
 
 	RSocket			*m_socket;			/**< Socket on which to process the command */
 	SCommand		m_command;			/**< Command to be sent to the remote server */
-	SResponse		m_response;			/**< Response from the remote server */
+	TResponse		m_response;			/**< Response from the remote server */
 	unsigned char	*m_payload;			/**< Buffer containing packet's payload, if any (server) */
 	unsigned char	*m_responsePayload;	/**< Buffer containing response's payload, if any (client) */
 
@@ -148,7 +180,7 @@ protected:
 
 	void readResponse();
 
-	void sendCommand();
+	TResult sendCommand();
 
 	int sendFile(const char *a_fileName);
 
@@ -175,9 +207,9 @@ public:
 	virtual void execute() = 0;
 
 	/** Method for executing the handler on the client */
-	virtual void sendRequest() = 0;
+	virtual TResult sendRequest() = 0;
 
-	const SResponse *getResponse() { return &m_response; }
+	const TResponse *getResponse() { return &m_response; }
 
 	unsigned char *getResponsePayload() { return m_responsePayload; }
 };
@@ -201,7 +233,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -223,7 +255,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -255,11 +287,15 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 
-	int createChildProcess(char *a_commandName);
+#ifdef WIN32
 
-	int launchCommand(char *a_commandName);
+	int createChildProcess(char *a_commandName, HANDLE &a_childProcess);
+
+#endif /* WIN32 */
+
+	TResult launchCommand(char *a_commandName);
 };
 
 /**
@@ -282,7 +318,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -305,7 +341,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -329,7 +365,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -352,7 +388,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -370,7 +406,7 @@ public:
 	/** Empty implementation of unused server side method */
 	void execute() override { }
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 /**
@@ -390,7 +426,7 @@ public:
 
 	void execute() override;
 
-	void sendRequest() override;
+	TResult sendRequest() override;
 };
 
 extern const char *g_commandNames[];
