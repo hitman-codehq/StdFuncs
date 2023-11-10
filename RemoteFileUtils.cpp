@@ -23,7 +23,7 @@ void CDelete::execute()
  * @date	Saturday 11-Mar-2023 5:53 am, Code HQ Tokyo Tsukuda
  */
 
-void CDelete::sendRequest()
+TResult CDelete::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(strlen(m_fileName) + 1);
 
@@ -31,6 +31,8 @@ void CDelete::sendRequest()
 	sendCommand();
 	m_socket->write(m_fileName, payloadSize);
 	readResponse();
+
+	return TResult{};
 }
 
 /**
@@ -52,7 +54,7 @@ void CFileInfo::execute()
  * @date	Friday 24-Feb-2023 6:50 am, Code HQ Tokyo Tsukuda
  */
 
-void CFileInfo::sendRequest()
+TResult CFileInfo::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(strlen(m_fileName) + 1);
 
@@ -60,6 +62,8 @@ void CFileInfo::sendRequest()
 	sendCommand();
 	m_socket->write(m_fileName, payloadSize);
 	readResponse();
+
+	return TResult{};
 }
 
 /**
@@ -80,7 +84,7 @@ void CRename::execute()
  * @date	Saturday 11-Mar-2023 5:53 am, Code HQ Tokyo Tsukuda
  */
 
-void CRename::sendRequest()
+TResult CRename::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(strlen(m_oldName) + 1 + strlen(m_newName) + 1);
 
@@ -89,6 +93,8 @@ void CRename::sendRequest()
 	m_socket->write(m_oldName, static_cast<int>(strlen(m_oldName) + 1));
 	m_socket->write(m_newName, static_cast<int>(strlen(m_newName) + 1));
 	readResponse();
+
+	return TResult{};
 }
 
 /**

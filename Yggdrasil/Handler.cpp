@@ -219,7 +219,7 @@ void CHandler::readResponse()
  * @date	Sunday 29-Nov-2020 12:17 pm, Code HQ Bergmannstrasse
  */
 
-void CHandler::sendCommand()
+TResult CHandler::sendCommand()
 {
 	SCommand command = m_command;
 
@@ -227,6 +227,8 @@ void CHandler::sendCommand()
 	SWAP(&command.m_size);
 
 	m_socket->write(&command, sizeof(command));
+
+	return TResult{};
 }
 
 /**

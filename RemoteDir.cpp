@@ -25,7 +25,7 @@ void CDir::execute()
  * @date	Sunday 22-Jan-2023 11:07 am, Code HQ Tokyo Tsukuda
  */
 
-void CDir::sendRequest()
+TResult CDir::sendRequest()
 {
 	int32_t payloadSize = static_cast<int32_t>(strlen(m_directoryName) + 1);
 
@@ -33,6 +33,8 @@ void CDir::sendRequest()
 	sendCommand();
 	m_socket->write(m_directoryName, payloadSize);
 	readResponse();
+
+	return TResult{};
 }
 
 /**
