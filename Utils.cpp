@@ -175,23 +175,25 @@ TInt Utils::MapLastError()
 
 #ifdef __amigaos__
 
-	LONG Result;
+	int Error = IoErr();
 
-	Result = IoErr();
-
-	if (Result == ERROR_OBJECT_EXISTS)
+	if (Error == ERROR_OBJECT_EXISTS)
 	{
 		RetVal = KErrAlreadyExists;
 	}
-	else if (Result == ERROR_OBJECT_NOT_FOUND)
-	{
-		RetVal = KErrNotFound;
-	}
-	else if (Result == ERROR_DIR_NOT_FOUND)
+	else if (Error == ERROR_DIR_NOT_FOUND)
 	{
 		RetVal = KErrPathNotFound;
 	}
-	else if ((Result == ERROR_DIRECTORY_NOT_EMPTY) || (Result == ERROR_OBJECT_IN_USE))
+	else if (Error == ERROR_OBJECT_NOT_FOUND)
+	{
+		RetVal = KErrNotFound;
+	}
+	else if (Error == ERROR_OBJECT_WRONG_TYPE)
+	{
+		RetVal = KErrCorrupt;
+	}
+	else if ((Error == ERROR_DIRECTORY_NOT_EMPTY) || (Error == ERROR_OBJECT_IN_USE))
 	{
 		RetVal = KErrInUse;
 	}
@@ -202,15 +204,17 @@ TInt Utils::MapLastError()
 
 #elif defined(__unix__)
 
-	if (errno == EEXIST)
+	int Error = errno;
+
+	if (Error == EEXIST)
 	{
 		RetVal = KErrAlreadyExists;
 	}
-	else if (errno == ENOENT)
+	else if (Error == ENOENT)
 	{
 		RetVal = KErrNotFound;
 	}
-	else if ((errno == ENOTEMPTY) || (errno == EBUSY) || (errno == ETXTBSY))
+	else if ((Error == ENOTEMPTY) || (Error == EBUSY) || (Error == ETXTBSY))
 	{
 		RetVal = KErrInUse;
 	}
@@ -221,21 +225,23 @@ TInt Utils::MapLastError()
 
 #else /* ! __unix__ */
 
-	DWORD Error;
-
-	Error = GetLastError();
+	DWORD Error = GetLastError();
 
 	if (Error == ERROR_FILE_EXISTS)
 	{
 		RetVal = KErrAlreadyExists;
 	}
+	else if (Error == ERROR_PATH_NOT_FOUND)
+	{
+		RetVal = KErrPathNotFound;
+	}
 	else if ((Error == ERROR_FILE_NOT_FOUND) || (Error == ERROR_INVALID_NAME))
 	{
 		RetVal = KErrNotFound;
 	}
-	else if (Error == ERROR_PATH_NOT_FOUND)
+	else if (Error == ERROR_BAD_EXE_FORMAT)
 	{
-		RetVal = KErrPathNotFound;
+		RetVal = KErrCorrupt;
 	}
 	else if ((Error == ERROR_DIR_NOT_EMPTY) || (Error == ERROR_SHARING_VIOLATION))
 	{
@@ -281,6 +287,7 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 	/* See what the last error was */
 
 	RetVal = Utils::MapLastError();
+	printf("RetVal = %d\n", RetVal);
 
 #ifdef WIN32
 
