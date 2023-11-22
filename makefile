@@ -26,7 +26,7 @@ ifdef PREFIX
 		LFLAGS += -athread=native
 		OBJ := $(OBJ)_OS4
 	else
-		IFLAGS += -mcrt=clib2
+		CFLAGS += -mcrt=clib2
 		AUTO_LIBRARY = $(OBJ)/libauto.a
 	endif
 endif
