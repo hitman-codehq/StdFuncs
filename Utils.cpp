@@ -287,7 +287,6 @@ TInt Utils::MapLastFileError(const char *a_pccFileName)
 	/* See what the last error was */
 
 	RetVal = Utils::MapLastError();
-	printf("RetVal = %d\n", RetVal);
 
 #ifdef WIN32
 
