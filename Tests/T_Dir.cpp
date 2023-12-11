@@ -6,6 +6,16 @@
 #include <Test.h>
 #include <string.h>
 
+#ifdef _WIN32
+
+#define SOME_FILE_SIZE 239
+
+#else /* ! _WIN32 */
+
+#define SOME_FILE_SIZE 236
+
+#endif /* ! _WIN32 */
+
 static RDir g_oDir;				/* RDir class is global to implicitly test re-use */
 static RFileUtils g_oFileUtils;	/* Class for cleaning up the file system */
 static RTest Test("T_Dir");		/* Class to use for testing and reporting results */
@@ -81,8 +91,8 @@ int main()
 	/* Test #3: Test that open() with a directory path works */
 
 	Test.Next("Test that open() with a directory path works");
-	TestScan("SomeDir", 1, 174);
-	TestScan("SomeDir/", 1, 174);
+	TestScan("SomeDir", 1, SOME_FILE_SIZE);
+	TestScan("SomeDir/", 1, SOME_FILE_SIZE);
 
 	/* Test #4: Test that open() with wildcards works */
 
@@ -92,13 +102,13 @@ int main()
 
 	TestScan("#?");
 	TestScan("#?.sln", 1, 10393);
-	TestScan("SomeDir/#?.txt", 1, 174);
+	TestScan("SomeDir/#?.txt", 1, SOME_FILE_SIZE);
 
 #else /* ! __amigaos__ */
 
 	TestScan("*");
 	TestScan("*.sln", 1, 10393);
-	TestScan("SomeDir/*.txt", 1, 174);
+	TestScan("SomeDir/*.txt", 1, SOME_FILE_SIZE);
 
 #endif /* ! __amigaos__ */
 
@@ -106,7 +116,7 @@ int main()
 
 	Test.Next("Test that open() with a filename works");
 	TestScan("T_Dir.cpp");
-	TestScan("SomeDir/SomeFile.txt", 1, 174);
+	TestScan("SomeDir/SomeFile.txt", 1, SOME_FILE_SIZE);
 
 	/* Test #6: Test that open() with an invalid path works */
 
@@ -198,8 +208,8 @@ int main()
 
 	Test.Next("Test some paths that only work on Windows and UNIX");
 	TestScan(".");
-	TestScan("../Tests/SomeDir", 1, 174);
-	TestScan("../Tests/SomeDir/", 1, 174);
+	TestScan("../Tests/SomeDir", 1, SOME_FILE_SIZE);
+	TestScan("../Tests/SomeDir/", 1, SOME_FILE_SIZE);
 
 #endif /* ! __amigaos__ */
 
