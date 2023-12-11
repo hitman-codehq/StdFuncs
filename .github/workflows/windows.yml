@@ -22,25 +22,83 @@ jobs:
           msbuild /p:Configuration=Release /p:Platform=x86
           msbuild /p:Configuration=Release /p:Platform=x64
           cd Tests
-          Get-ChildItem -Path *.vcxproj | ForEach-Object {& msbuild /p:Configuration=Release /p:Platform=x86 $_.FullName}
-          Get-ChildItem -Path *.vcxproj | ForEach-Object {& msbuild /p:Configuration=Release /p:Platform=x64 $_.FullName}
+
+          $x86ExitCodes = Get-ChildItem -Path *.vcxproj | ForEach-Object {
+            & msbuild /p:Configuration=Release /p:Platform=x86 $_.FullName
+            $LASTEXITCODE
+          }
+
+          $x64ExitCodes = Get-ChildItem -Path *.vcxproj | ForEach-Object {
+            & msbuild /p:Configuration=Release /p:Platform=x64 $_.FullName
+            $LASTEXITCODE
+          }
+
+          if ($x86ExitCodes -contains 1 -or $x64ExitCodes -contains 1) {
+            Write-Host "Building Release build of tests failed."
+            exit 1
+          }
       - name: Build Debug
         run: |
           msbuild /p:Configuration=Debug /p:Platform=x86
           msbuild /p:Configuration=Debug /p:Platform=x64
           cd Tests
-          Get-ChildItem -Path *.vcxproj | ForEach-Object {& msbuild /p:Configuration=Debug /p:Platform=x86 $_.FullName}
-          Get-ChildItem -Path *.vcxproj | ForEach-Object {& msbuild /p:Configuration=Debug /p:Platform=x64 $_.FullName}
+
+          $x86ExitCodes = Get-ChildItem -Path *.vcxproj | ForEach-Object {
+            & msbuild /p:Configuration=Debug /p:Platform=x86 $_.FullName
+            $LASTEXITCODE
+          }
+
+          $x64ExitCodes = Get-ChildItem -Path *.vcxproj | ForEach-Object {
+            & msbuild /p:Configuration=Debug /p:Platform=x64 $_.FullName
+            $LASTEXITCODE
+          }
+
+          if ($x86ExitCodes -contains 1 -or $x64ExitCodes -contains 1) {
+            Write-Host "Building Debug build of tests failed."
+            exit 1
+          }
       - name: Test
         run: |
           cd Tests
-          Get-ChildItem -Path Win32\Release\*.exe | ForEach-Object {& $_.FullName}
-          Get-ChildItem -Path x64\Release\*.exe | ForEach-Object {& $_.FullName}
+
+          Get-ChildItem -Path Win32\Release\*.exe | ForEach-Object {
+            & $_.FullName
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Executing Release build of x86 tests failed."
+              exit 1
+            }
+          }
+
+          Get-ChildItem -Path x64\Release\*.exe | ForEach-Object {
+            & $_.FullName
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Executing Release build of x64 tests failed."
+              exit 1
+            }
+          }
       - name: Test Debug
         run: |
           cd Tests
-          Get-ChildItem -Path Win32\Debug\*.exe | ForEach-Object {& $_.FullName}
-          Get-ChildItem -Path x64\Debug\*.exe | ForEach-Object {& $_.FullName}
+
+          Get-ChildItem -Path Win32\Debug\*.exe | ForEach-Object {
+            & $_.FullName
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Executing Debug build of x86 tests failed."
+              exit 1
+            }
+          }
+
+          Get-ChildItem -Path x64\Debug\*.exe | ForEach-Object {
+            & $_.FullName
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Executing Debug build of x64 tests failed."
+              exit 1
+            }
+          }
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
         with:
