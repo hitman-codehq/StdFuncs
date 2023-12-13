@@ -144,20 +144,31 @@ int RRemoteFile::open(const char *a_fileName, TUint a_fileMode)
 
 	if (retVal == KErrNone)
 	{
-		m_socket.write(g_signature, SIGNATURE_SIZE);
+		CGet *handler = nullptr;
 
-		CGet *handler = new CGet(&m_socket, a_fileName);
-		handler->sendRequest();
-
-		if (handler->getResponse()->m_result == KErrNone)
+		try
 		{
-			readFromRemote();
+			m_socket.write(g_signature, SIGNATURE_SIZE);
+
+			handler = new CGet(&m_socket, a_fileName);
+			handler->sendRequest();
+
+			if (handler->getResponse()->m_result == KErrNone)
+			{
+				readFromRemote();
+			}
+			else
+			{
+				Utils::info("RRemoteFile::open() => Received invalid response %d", handler->getResponse()->m_result);
+
+				retVal = handler->getResponse()->m_result;
+			}
 		}
-		else
+		catch (RSocket::Error &a_exception)
 		{
-			Utils::info("RRemoteFile::open() => Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFile::open() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
 
-			retVal = handler->getResponse()->m_result;
+			retVal = KErrNotFound;
 		}
 
 		delete handler;
@@ -318,27 +329,39 @@ int RRemoteFile::close()
 
 		if (retVal == KErrNone)
 		{
-			m_socket.write(g_signature, SIGNATURE_SIZE);
+			CSend *handler = nullptr;
 
-			CSend *handler = new CSend(&m_socket, m_fileName.c_str());
-			handler->sendRequest();
+			try
+			{
+				m_socket.write(g_signature, SIGNATURE_SIZE);
 
-			int fileSize = static_cast<int>(m_fileBuffer.size());
-			SWAP(&fileSize);
+				handler = new CSend(&m_socket, m_fileName.c_str());
+				handler->sendRequest();
 
-			m_socket.write(&fileSize, sizeof(fileSize));
-			m_socket.write(m_fileBuffer.data(), static_cast<int>(m_fileBuffer.size()));
+				int fileSize = static_cast<int>(m_fileBuffer.size());
+				SWAP(&fileSize);
+
+				m_socket.write(&fileSize, sizeof(fileSize));
+				m_socket.write(m_fileBuffer.data(), static_cast<int>(m_fileBuffer.size()));
+
+				delete handler;
+				m_dirty = false;
+			}
+			catch (RSocket::Error &a_exception)
+			{
+				Utils::info("RRemoteFile::close() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
+
+				retVal = KErrNotFound;
+			}
 
 			delete handler;
-			m_dirty = false;
+			m_socket.close();
 		}
 		else
 		{
 			Utils::info("RRemoteFile::close() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 		}
 	}
-
-	m_socket.close();
 
 	return retVal;
 }

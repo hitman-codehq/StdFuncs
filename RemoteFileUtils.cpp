@@ -108,26 +108,36 @@ TResult CRename::sendRequest()
 
 int RRemoteFileUtils::deleteFile(const char *a_fileName)
 {
-	RSocket m_socket;
-
-	int retVal = m_socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	RSocket socket;
+	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
 
 	if (retVal == KErrNone)
 	{
-		m_socket.write(g_signature, SIGNATURE_SIZE);
+		CDelete *handler = nullptr;
 
-		CDelete *handler = new CDelete(&m_socket, a_fileName);
-		handler->sendRequest();
-
-		if (handler->getResponse()->m_result != KErrNone)
+		try
 		{
-			Utils::info("RRemoteFileUtils::deleteFile() => Received invalid response %d", handler->getResponse()->m_result);
+			socket.write(g_signature, SIGNATURE_SIZE);
 
-			retVal = handler->getResponse()->m_result;
+			handler = new CDelete(&socket, a_fileName);
+			handler->sendRequest();
+
+			if (handler->getResponse()->m_result != KErrNone)
+			{
+				Utils::info("RRemoteFileUtils::deleteFile() => Received invalid response %d", handler->getResponse()->m_result);
+
+				retVal = handler->getResponse()->m_result;
+			}
+		}
+		catch (RSocket::Error &a_exception)
+		{
+			Utils::info("RRemoteFileUtils::deleteFile() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
+
+			retVal = KErrNotFound;
 		}
 
 		delete handler;
-		m_socket.close();
+		socket.close();
 	}
 	else
 	{
@@ -161,26 +171,37 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 
 	if (retVal == KErrNone)
 	{
-		socket.write(g_signature, SIGNATURE_SIZE);
+		CFileInfo *handler = nullptr;
 
-		CFileInfo* handler = new CFileInfo(&socket, a_fileName);
-		handler->sendRequest();
-
-		if (handler->getResponse()->m_result == KErrNone)
+		try
 		{
-			SFileInfo *fileInfo = reinterpret_cast<SFileInfo *>(handler->getResponsePayload());
-			SWAP64(&fileInfo->m_microseconds);
-			SWAP64(&fileInfo->m_size);
+			socket.write(g_signature, SIGNATURE_SIZE);
 
-			TDateTime dateTime(fileInfo->m_microseconds);
+			handler = new CFileInfo(&socket, a_fileName);
+			handler->sendRequest();
 
-			a_entry->Set(fileInfo->m_isDir, fileInfo->m_isLink, fileInfo->m_size, 0, dateTime);
+			if (handler->getResponse()->m_result == KErrNone)
+			{
+				SFileInfo *fileInfo = reinterpret_cast<SFileInfo *>(handler->getResponsePayload());
+				SWAP64(&fileInfo->m_microseconds);
+				SWAP64(&fileInfo->m_size);
+
+				TDateTime dateTime(fileInfo->m_microseconds);
+
+				a_entry->Set(fileInfo->m_isDir, fileInfo->m_isLink, fileInfo->m_size, 0, dateTime);
+			}
+			else
+			{
+				Utils::info("RRemoteFileUtils::getFileInfo() => Received invalid response %d", handler->getResponse()->m_result);
+
+				retVal = handler->getResponse()->m_result;
+			}
 		}
-		else
+		catch (RSocket::Error &a_exception)
 		{
-			Utils::info("RRemoteFileUtils::getFileInfo() => Received invalid response %d", handler->getResponse()->m_result);
+			Utils::info("RRemoteFileUtils::getFileInfo() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
 
-			retVal = handler->getResponse()->m_result;
+			retVal = KErrNotFound;
 		}
 
 		delete handler;
@@ -207,21 +228,31 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 int RRemoteFileUtils::renameFile(const char *a_oldFullName, const char *a_newFullName)
 {
 	RSocket socket;
-
 	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
 
 	if (retVal == KErrNone)
 	{
-		socket.write(g_signature, SIGNATURE_SIZE);
+		CRename *handler = nullptr;
 
-		CRename *handler = new CRename(&socket, a_oldFullName, a_newFullName);
-		handler->sendRequest();
-
-		if (handler->getResponse()->m_result != KErrNone)
+		try
 		{
-			Utils::info("RRemoteFileUtils::renameFile() => Received invalid response %d", handler->getResponse()->m_result);
+			socket.write(g_signature, SIGNATURE_SIZE);
 
-			retVal = handler->getResponse()->m_result;
+			handler = new CRename(&socket, a_oldFullName, a_newFullName);
+			handler->sendRequest();
+
+			if (handler->getResponse()->m_result != KErrNone)
+			{
+				Utils::info("RRemoteFileUtils::renameFile() => Received invalid response %d", handler->getResponse()->m_result);
+
+				retVal = handler->getResponse()->m_result;
+			}
+		}
+		catch (RSocket::Error &a_exception)
+		{
+			Utils::info("RRemoteFileUtils::renameFile() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
+
+			retVal = KErrNotFound;
 		}
 
 		delete handler;

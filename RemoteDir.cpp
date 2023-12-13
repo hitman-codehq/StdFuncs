@@ -56,46 +56,55 @@ int RRemoteDir::open(const char *a_pattern)
 
 	if (retVal == KErrNone)
 	{
-		socket.write(g_signature, SIGNATURE_SIZE);
+		CDir *handler = nullptr;
 
-		CDir *handler = new CDir(&socket, a_pattern);
-		handler->sendRequest();
-
-		if (handler->getResponse()->m_result == KErrNone)
+		try
 		{
-			const char *name;
-			uint32_t size;
-			TEntry *Entry;
-			TTime Now;
+			socket.write(g_signature, SIGNATURE_SIZE);
 
-			const unsigned char *payload = handler->getResponsePayload();
-			const unsigned char *payloadEnd = payload + handler->getResponse()->m_size;
+			handler = new CDir(&socket, a_pattern);
+			handler->sendRequest();
 
-			Now.HomeTime();
-
-			/* Iterate through the file information in the payload and extract its contents.  Provided the payload */
-			/* is structured correctly, we could just check for it being ended by NULL terminator, but in the */
-			/* interest of safety, we'll also check that we haven't overrun the end */
-			while (payload < payloadEnd && *payload != '\0')
+			if (handler->getResponse()->m_result == KErrNone)
 			{
-				name = reinterpret_cast<const char *>(payload);
-				payload += strlen(name) + 1;
-				READ_INT(size, payload);
-				payload += sizeof(size);
+				const char *name;
+				uint32_t size;
+				TEntry *Entry;
+				TTime Now;
 
-				if ((Entry = m_entries.Append(name)) != NULL)
+				const unsigned char *payload = handler->getResponsePayload();
+				const unsigned char *payloadEnd = payload + handler->getResponse()->m_size;
+
+				Now.HomeTime();
+
+				/* Iterate through the file information in the payload and extract its contents.  Provided the payload */
+				/* is structured correctly, we could just check for it being ended by NULL terminator, but in the */
+				/* interest of safety, we'll also check that we haven't overrun the end */
+				while (payload < payloadEnd && *payload != '\0')
 				{
-					Entry->Set(EFalse, EFalse, size, 0, Now.DateTime());
-				}
+					name = reinterpret_cast<const char *>(payload);
+					payload += strlen(name) + 1;
+					READ_INT(size, payload);
+					payload += sizeof(size);
 
-				ASSERTM((payload < payloadEnd), "RRemoteDir::open => Payload contents do not match its size");
+					if ((Entry = m_entries.Append(name)) != NULL)
+					{
+						Entry->Set(EFalse, EFalse, size, 0, Now.DateTime());
+					}
+
+					ASSERTM((payload < payloadEnd), "RRemoteDir::open => Payload contents do not match its size");
+				}
+			}
+			else
+			{
+				Utils::info("RRemoteDir::open() => Received invalid response %d", handler->getResponse()->m_result);
+
+				retVal = handler->getResponse()->m_result;
 			}
 		}
-		else
+		catch (RSocket::Error &a_exception)
 		{
-			Utils::info("RRemoteDir::open() => Received invalid response %d", handler->getResponse()->m_result);
-
-			retVal = handler->getResponse()->m_result;
+			retVal = KErrNotFound;
 		}
 
 		delete handler;
