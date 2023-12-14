@@ -232,16 +232,17 @@ int RRemoteFile::read(unsigned char *a_buffer, int a_length)
 
 void RRemoteFile::readFromRemote()
 {
-	uint32_t bytesRead = 0, bytesToRead, fileSize, size;
+	uint32_t bytesRead = 0, bytesToRead, size;
+	TInt64 fileSize;
 
 	m_socket.read(&fileSize, sizeof(fileSize));
-	SWAP(&fileSize);
+	SWAP64(&fileSize);
 
 	m_fileBuffer.resize(fileSize);
 
 	do
 	{
-		bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : (fileSize - bytesRead);
+		bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : static_cast<uint32_t>(fileSize - bytesRead);
 		size = m_socket.read(m_fileBuffer.data() + bytesRead, bytesToRead);
 		bytesRead += size;
 	}
@@ -338,13 +339,12 @@ int RRemoteFile::close()
 				handler = new CSend(&m_socket, m_fileName.c_str());
 				handler->sendRequest();
 
-				int fileSize = static_cast<int>(m_fileBuffer.size());
-				SWAP(&fileSize);
+				TInt64 fileSize = static_cast<int>(m_fileBuffer.size());
+				SWAP64(&fileSize);
 
 				m_socket.write(&fileSize, sizeof(fileSize));
 				m_socket.write(m_fileBuffer.data(), static_cast<int>(m_fileBuffer.size()));
 
-				delete handler;
 				m_dirty = false;
 			}
 			catch (RSocket::Error &a_exception)

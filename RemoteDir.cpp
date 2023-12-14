@@ -68,7 +68,7 @@ int RRemoteDir::open(const char *a_pattern)
 			if (handler->getResponse()->m_result == KErrNone)
 			{
 				const char *name;
-				uint32_t size;
+				TInt64 size;
 				TEntry *Entry;
 				TTime Now;
 
@@ -84,7 +84,7 @@ int RRemoteDir::open(const char *a_pattern)
 				{
 					name = reinterpret_cast<const char *>(payload);
 					payload += strlen(name) + 1;
-					READ_INT(size, payload);
+					READ_INT_64(size, payload);
 					payload += sizeof(size);
 
 					if ((Entry = m_entries.Append(name)) != NULL)
@@ -104,6 +104,8 @@ int RRemoteDir::open(const char *a_pattern)
 		}
 		catch (RSocket::Error &a_exception)
 		{
+			Utils::info("RRemoteDir::open() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
+
 			retVal = KErrNotFound;
 		}
 
