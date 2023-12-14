@@ -238,7 +238,7 @@ void RRemoteFile::readFromRemote()
 	m_socket.read(&fileSize, sizeof(fileSize));
 	SWAP64(&fileSize);
 
-	m_fileBuffer.resize(fileSize);
+	m_fileBuffer.resize(static_cast<unsigned int>(fileSize));
 
 	do
 	{
@@ -362,6 +362,11 @@ int RRemoteFile::close()
 			Utils::info("RRemoteFile::close() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
 		}
 	}
+
+	/* Ensure that all members are set back to their defaults so that the class can be reused */
+	m_dirty = false;
+	m_fileOffset = 0;
+	m_fileBuffer.resize(0);
 
 	return retVal;
 }
