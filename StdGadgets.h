@@ -445,6 +445,8 @@ public:
 	std::string getSelectedItem();
 
 	void setContent(StdList<CTreeNode> &a_items);
+
+	void setTitle(const std::string &a_title);
 };
 
 /* Mixin class for the slider or proportional gadget to be able to notify its client */

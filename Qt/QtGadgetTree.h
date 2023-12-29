@@ -29,6 +29,11 @@ public:
 
 	void construct(const std::string &a_title);
 
+	void setTitle(const std::string &a_title)
+	{
+		setHeaderLabel(a_title.c_str());
+	}
+
 public slots:
 
 	void itemClicked();
