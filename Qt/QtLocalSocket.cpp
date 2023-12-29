@@ -73,6 +73,17 @@ void RLocalSocket::Connected()
 				}
 			}
 		}
+		else
+		{
+			/* A connection was made, but no data was sent with it.  In this case, we still want to notify the */
+			/* observer so that, for example, the client application listening on the socket can be brought */
+			/* to the front */
+
+			if (m_poObserver)
+			{
+				m_poObserver->MessageReceived(NULL, 0);
+			}
+		}
 
 		delete ClientSocket;
 	}
