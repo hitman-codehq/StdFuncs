@@ -40,9 +40,9 @@ CQtWindow::CQtWindow(CWindow *a_poWindow, QSize &a_roSize)
 	m_poWindow = a_poWindow;
 	m_oSize = a_roSize;
 
-	/* Allow the window to accept keyboard input by default */
+	/* Disable tabbing between widgets that are dynamically laid out */
 
-	setFocusPolicy(Qt::StrongFocus);
+	setFocusPolicy(Qt::NoFocus);
 }
 
 /**

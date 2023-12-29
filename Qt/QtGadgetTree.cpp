@@ -16,6 +16,7 @@ void CQtTreeWidget::construct(const std::string &a_title)
 	/* Set some sensible default settings, such as the number of columns to display */
 	setColumnCount(1);
 	setHeaderLabel(a_title.c_str());
+	setFocusPolicy(Qt::NoFocus);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
 	/* And connect the itemClicked() slot so that we are notified when an item is clicked */
