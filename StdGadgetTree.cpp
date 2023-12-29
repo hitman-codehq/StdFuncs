@@ -190,3 +190,31 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 #endif /* ! QT_GUI_LIB */
 
 }
+
+/**
+ * Sets the title of the gadget tree.
+ * Sets or updates the title currently displayed in the gadget tree.
+ *
+ * @date	Friday 29-Dec-2023 11:00 am, Code HQ @ Ashley's house
+ * @param	a_title			Title to be displayed at the top of the tree's column
+ */
+
+void CStdGadgetTree::setTitle(const std::string &a_title)
+{
+
+#ifdef __amigaos__
+
+	/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
+	/* before assigning it to the tree */
+	m_title = a_title;
+	g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+
+	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_ColumnInfo, (ULONG) g_columnInfo, TAG_DONE);
+
+#elif defined(QT_GUI_LIB)
+
+	m_tree.setTitle(a_title);
+
+#endif /* QT_GUI_LIB */
+
+}
