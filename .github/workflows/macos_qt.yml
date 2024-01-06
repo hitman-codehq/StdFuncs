@@ -15,6 +15,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
+        with:
+          version: "6.7.0"
+          modules: "qt5compat"
       - name: Build
         run: |
           qmake

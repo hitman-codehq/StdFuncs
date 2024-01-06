@@ -72,7 +72,7 @@ make
 Alternatively, it can be imported into Qt Creator.  When importing, go to the "Projects" page and in the general build
 settings, ensure that the "Shadow-Build" checkbox is _not_ checked, to ensure that it is built into the same DebugQt
 and ReleaseQt directories that are used from the command line build.  Otherwise, Qt creator will put it into a directory
-with a name like ../build-StdFuncs-Desktop_Qt_5_15_2_clang_64bit-Debug and other projects in the Code HQ GitHub repo
+with a name like ../build-StdFuncs-Desktop_Qt_6_5_1_clang_64bit-Debug and other projects in the Code HQ GitHub repo
 won't be able to find the libraries when linking.
 
 The QMake file _should_ work on all platforms that support Qt 5.
@@ -87,18 +87,18 @@ Note, however, that you need to let CMake know where to find the version of Qt t
 compiling on Mac OS:
 
 ```sh
-export Qt5_DIR=~/Qt/5.15.2/clang_64/lib/cmake
+export Qt6_DIR=~/Qt/5.15.2/clang_64/lib/cmake
 mkdir build
 cd build
 cmake -GNinja ..
 ninja
 ```
 
-Compiling without Qt and the Qt5_DIR environment variable is still possible, but only the non-GUI components will be
+Compiling without Qt and the Qt6_DIR environment variable is still possible, but only the non-GUI components will be
 compiled in this case.  This is useful when developing a project that does not have a GUI.
 
 Alternatively, use the CMake plugin in Visual Studio Code and let it do the work for you.  The same rules regarding
-the Qt5_DIR environment variable apply as for command line building.  Note that other projects in the Code HQ GitHub
+the Qt6_DIR environment variable apply as for command line building.  Note that other projects in the Code HQ GitHub
 repo assume that CMake has put the library into the StdFuncs/build directory.
 
 ## The Framework API

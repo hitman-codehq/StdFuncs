@@ -33,10 +33,10 @@ set(SourceFiles ${SourceFiles} "Test.cpp")
 set(SourceFiles ${SourceFiles} "Utils.cpp")
 set(SourceFiles ${SourceFiles} "Yggdrasil/Handler.cpp")
 
-find_package(Qt5 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Core Core5Compat Gui)
 
-if(${Qt5_FOUND} EQUAL 1)
-	message(STATUS "Configuring using Qt5 directory ${Qt5_DIR}")
+if(${Qt6_FOUND} EQUAL 1)
+	message(STATUS "Configuring using Qt6 directory ${Qt6_DIR}")
 
 	set(CMAKE_AUTOMOC ON)
 	set(CMAKE_AUTORCC ON)
@@ -66,9 +66,9 @@ if(${Qt5_FOUND} EQUAL 1)
 
 	add_library(StdFuncs ${SourceFiles})
 	add_compile_definitions(QT_GUI_LIB)
-	target_link_libraries(StdFuncs Qt5::Core)
+	target_link_libraries(StdFuncs Qt6::Core Qt6::Core5Compat Qt6::Gui)
 else()
-	message(STATUS "Qt5 not found, configuring basic build")
+	message(STATUS "Qt6 not found, configuring basic build")
 
 	add_library(StdFuncs ${SourceFiles})
 endif()
