@@ -478,7 +478,10 @@ void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
 		if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
 			LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 		{
-			rethinkLayout();
+			if (m_bEnableRefresh)
+			{
+				rethinkLayout();
+			}
 		}
 	}
 }
@@ -790,8 +793,10 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	if (m_poParentWindow)
 	{
+		ULONG WeightTag = (m_iGadgetType == EStdGadgetHorizontalLayout) ? CHILD_WeightedWidth: CHILD_WeightedHeight;
+
 		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
-			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedHeight, a_iWeight, TAG_DONE);
+			LAYOUT_ModifyChild, (ULONG) m_poGadget, WeightTag, a_iWeight, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)

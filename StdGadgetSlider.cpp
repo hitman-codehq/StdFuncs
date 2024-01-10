@@ -488,10 +488,6 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
  * This enables slider gadgets to be hidden and unhidden on Amiga OS, even though the underlying Reaction system
  * does not support this functionality.
  *
- * Consideration needs to be given to the gadget's position in the parent layout's list of gadgets.  It will be
- * added to the *end* of the list of gadgets, which is not necessarily the same relative position that the gadget
- * had before it was hidden.
- *
  * @date	Sunday 04-Jul-2021 8:03 am, Code HQ Bergmannstrasse
  * @param	a_bVisible		true to make gadget visible, else false to hide it
  */
@@ -516,7 +512,7 @@ void CStdGadgetSlider::SetVisible(bool a_bVisible)
 		}
 	}
 
-	/* Just pass the call through to the super method to hide the gadget */
+	/* Otherwise just pass the call through to the super method to hide the gadget */
 
 	else
 	{
