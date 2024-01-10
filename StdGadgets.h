@@ -442,6 +442,8 @@ protected:
 
 	int construct(const std::string &a_title);
 
+	bool createNative();
+
 public:
 
 	std::string getSelectedItem();
@@ -449,6 +451,13 @@ public:
 	void setContent(StdList<CTreeNode> &a_items);
 
 	void setTitle(const std::string &a_title);
+
+#ifdef __amigaos__
+
+	void SetVisible(bool a_bVisible) override;
+
+#endif /* __amigaos__ */
+
 };
 
 /* Mixin class for the slider or proportional gadget to be able to notify its client */
