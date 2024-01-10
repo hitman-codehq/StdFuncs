@@ -46,11 +46,8 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
 	/* before assigning it to the tree */
 	m_title = a_title;
-	g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
 
-	if ((m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
-		LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
-		TAG_DONE)) == nullptr)
+	if (!createNative())
 	{
 		retVal = KErrNoMemory;
 	}
@@ -78,22 +75,38 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	if (m_poGadget)
 	{
 		m_poParentLayout->Attach(this);
-
-#ifdef __amigaos__
-
-		SetGadgetAttrs((struct Gadget *) m_poParentLayout->GetGadget(), m_poParentWindow->m_poWindow, NULL,
-			LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedWidth, 25, TAG_DONE);
-
-#endif /* __amigaos__ */
-
 	}
 
 	return retVal;
 }
 
+#ifdef __amigaos__
+
+/**
+ * Creates the native underlying gadget.
+ * This is a convenience method, currently only for Amiga OS, used for creating the native BOOPSI list browser
+ * gadget.  This is useful as it must be created from more than one place on Amiga OS.
+ *
+ * @date	Saturday 03-Feb-2024 7:14 am, Code HQ Tokyo Tsukuda
+ * @return	true if the gadget was created successfully, else false
+ */
+
+bool CStdGadgetTree::createNative()
+{
+    g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+
+    m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
+        LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
+        TAG_DONE);
+
+	return (m_poGadget != nullptr);
+}
+
+#endif /* __amigaos__ */
+
 /**
  * Returns the currently selected item.
- * Determines the current item in the tree widget and returns its string contents.  This method assumes that
+ * Determines the current item in the tree gadget and returns its string contents.  This method assumes that
  * an item is currently selected, and no effort is made to account for the case when one is not.
  *
  * @pre		An item is currently selected
@@ -130,7 +143,7 @@ std::string CStdGadgetTree::getSelectedItem()
 }
 
 /**
- * Sets the contents of the tree widget.
+ * Sets the contents of the tree gadget.
  * This method accepts a list of CTreeNode items, with each instance containing a text string that will
  * be used to add a node to the tree.
  *
@@ -215,6 +228,52 @@ void CStdGadgetTree::setTitle(const std::string &a_title)
 
 	m_tree.setTitle(a_title);
 
-#endif /* QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
+
+	(void) a_title;
+
+#endif /* ! QT_GUI_LIB */
 
 }
+
+#ifdef __amigaos__
+
+/**
+ * Shows or hides the gadget.
+ * This Amiga OS reimplementation of CStdGadget::SetVisible() will pass the call through to the super method if the
+ * gadget is to be hidden, but will recreate the underlying BOOPSI gadget if the gadget is to be shown.  This enables
+ * list browser gadgets to be hidden and unhidden on Amiga OS, even though the underlying Reaction system does not
+ * support this functionality.
+ *
+ * @date	Friday 29-Dec-2023 4:34 pm, Code HQ @ Ashley's house
+ * @param	a_bVisible		true to make gadget visible, else false to hide it
+ */
+
+void CStdGadgetTree::SetVisible(bool a_bVisible)
+{
+	/* If the gadget is being made visible then we want to recreate it */
+	if (a_bVisible)
+	{
+		/* But only if it was previously hidden and thus does not already exist */
+		if (m_bHidden)
+		{
+			m_poParentLayout->m_bEnableRefresh = EFalse;
+
+			if (createNative())
+			{
+				/* Reattach it to the parent window */
+				m_poParentLayout->ReAttach(this);
+				m_bHidden = false;
+			}
+
+			m_poParentLayout->m_bEnableRefresh = ETrue;
+		}
+	}
+	/* Otherwise just pass the call through to the super method to hide the gadget */
+	else
+	{
+		CStdGadget::SetVisible(a_bVisible);
+	}
+}
+
+#endif /* __amigaos__ */
