@@ -152,11 +152,11 @@ private:
 
 #ifdef __amigaos__
 
-	Object					*m_poLayout;			/**< Pointer to the underlying Amiga OS gadget */
+	Object						*m_poLayout;		/**< Pointer to the underlying Amiga OS gadget */
 
 #elif defined(QT_GUI_LIB)
 
-	QBoxLayout				*m_poLayout;			/**< Pointer to the underlying Qt widget.
+	QBoxLayout					*m_poLayout;		/**< Pointer to the underlying Qt widget.
 														 Usually this is stored in m_poGadget but unfortunately
 														 QLayout derived objects do not derive from QWidget */
 
@@ -226,6 +226,8 @@ public:
 	void ReAttach(CStdGadget *a_poGadget);
 
 #endif /* __amigaos__ */
+
+	void remove(CStdGadget *a_poGagdet);
 
 	void remove(CStdGadgetLayout *a_poLayoutGadget);
 
