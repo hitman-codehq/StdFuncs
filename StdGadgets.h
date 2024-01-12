@@ -34,7 +34,8 @@ enum TStdGadgetType
 	EStdGadgetVerticalSlider,	/* Vertical scroller */
 	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
 	EStdGadgetStatusBar,		/* Status bar */
-	EStdGadgetTree				/* Tree gadget */
+	EStdGadgetTree,				/* Tree gadget */
+	EStdGadgetPane
 };
 
 /* The abstract base class used for all gadgets */
