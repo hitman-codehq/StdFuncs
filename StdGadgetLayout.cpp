@@ -34,6 +34,7 @@ CStdGadgetLayout *CStdGadgetLayout::m_poRethinker = NULL;
  * @param	a_poClient			The observer to call to indicate a resize operation.  May be NULL if no
  *								callbacks are required
  * @param	a_poParentWindow	Pointer to the window in which to create the gadget.  Must be NULL
+ * @param	a_iWeight			The weight of the layout, as a percentage of the parent's size
  * @return	A pointer to an initialised class instance if successful, else NULL
  */
 
@@ -137,6 +138,12 @@ TInt CStdGadgetLayout::Construct(bool a_bUseParentWindow)
 		RetVal = KErrNone;
 
 		m_poGadget = m_poLayout;
+
+		/*if (a_iWeight != 100)
+		{
+			SetGadgetAttrs(m_poParentLayout->m_poGadget, m_poParentWindow, NULL,
+				LAYOUT_ModifyChild, (ULONG) m_poGadget, CHILD_WeightedWidth, a_iWeight, TAG_DONE); // TODO: CAW - WeightedWidth
+		}*/
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -270,9 +277,14 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
 		}
-		else
+		else if (a_poGadget->GadgetType() == EStdGadgetTree)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignLeft);
+		}
+		else
+		{
+			// TODO: CAW - Need to think about how to achieve this
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
 		}
 
 		rethinkLayout();

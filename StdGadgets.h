@@ -44,7 +44,8 @@ enum TStdGadgetType
 	EStdGadgetVerticalSlider,	/* Vertical scroller */
 	EStdGadgetHorizontalSlider,	/* Horizontal scroller */
 	EStdGadgetStatusBar,		/* Status bar */
-	EStdGadgetTree				/* Tree gadget */
+	EStdGadgetTree,				/* Tree gadget */
+	EStdGadgetPane
 };
 
 /* The abstract base class used for all gadgets */
@@ -66,6 +67,7 @@ protected:
 
 #ifdef __amigaos__
 
+	// TODO: CAW - Object or Object *?
 	Object					*m_poGadget;		/**< Ptr to underlying BOOPSI gadget */
 
 #elif defined(QT_GUI_LIB)

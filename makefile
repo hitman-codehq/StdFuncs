@@ -45,7 +45,7 @@ ifdef PREFIX
 	ifneq ($(PREFIX), ppc-amigaos-)
 		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
 			$(OBJ)/AutoGadTools.o $(OBJ)/AutoGfx.o $(OBJ)/AutoIcon.o $(OBJ)/AutoIFFParse.o $(OBJ)/AutoIntuition.o $(OBJ)/AutoKeymap.o \
-			$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o \
+			$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o $(OBJ)/AutoTextEditor.o \
 			$(OBJ)/AutoUtility.o $(OBJ)/AutoWindow.o $(OBJ)/SafeOpenLibrary.o
 
 		OBJECTS += $(OBJ)/OS4Support.o
