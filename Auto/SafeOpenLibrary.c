@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MINIMUM_VERSION 40
+#define MINIMUM_VERSION 15
 
 /**
  * Opens the requested library and bails out if it fails.
