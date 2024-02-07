@@ -15,7 +15,7 @@ class CWindow;
  * user selecting an item, so that we can pass them onto the framework.
  */
 
-class CQtTreeWidget : public QTreeWidget
+class CQtGadgetTree : public QTreeWidget
 {
 	Q_OBJECT
 
@@ -25,7 +25,7 @@ private:
 
 public:
 
-	CQtTreeWidget(CStdGadgetTree *a_parentTree) : m_parentTree(a_parentTree) { }
+	CQtGadgetTree(CStdGadgetTree *a_parentTree) : m_parentTree(a_parentTree) { }
 
 	void construct(const std::string &a_title);
 

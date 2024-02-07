@@ -410,7 +410,7 @@ private:
 
 #elif defined(QT_GUI_LIB)
 
-	CQtTreeWidget	m_tree;					/**< Helper class for listening for signals */
+    CQtGadgetTree	m_tree;					/**< Helper class for listening for signals */
 
 #endif /* QT_GUI_LIB */
 
