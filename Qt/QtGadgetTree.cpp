@@ -11,7 +11,7 @@
  * @param	a_title			Title to be displayed at the top of the tree's column
  */
 
-void CQtTreeWidget::construct(const std::string &a_title)
+void CQtGadgetTree::construct(const std::string &a_title)
 {
 	/* Set some sensible default settings, such as the number of columns to display */
 	setColumnCount(1);
@@ -31,7 +31,7 @@ void CQtTreeWidget::construct(const std::string &a_title)
  * @date	Friday 13-Aug-2021 5:33 pm, Code HQ @ Thomas's House
  */
 
-void CQtTreeWidget::itemClicked()
+void CQtGadgetTree::itemClicked()
 {
 	m_parentTree->GetParentWindow()->HandleCommand(m_parentTree->GetGadgetID());
 }
