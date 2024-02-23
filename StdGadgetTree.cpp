@@ -30,11 +30,10 @@ static struct ColumnInfo g_columnInfo[] =
  * up upon failure.
  *
  * @date	Sunday 18-Jul-2021 12:32 pm, Am Theater Stralsund FeWo
- * @param	a_title			Title to be displayed at the top of the tree's column
  * @return	KErrNone if successful, else KErrNoMemory
  */
 
-int CStdGadgetTree::construct(const std::string &a_title)
+int CStdGadgetTree::construct()
 {
 	int retVal = KErrNone;
 
@@ -42,10 +41,6 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	ASSERTM((m_poParentWindow->m_poWindow != nullptr), "CStdGadgetTree::construct() => Parent native window is NULL");
 
 #ifdef __amigaos__
-
-	/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
-	/* before assigning it to the tree */
-	m_title = a_title;
 
 	if (!createNative())
 	{
@@ -56,15 +51,13 @@ int CStdGadgetTree::construct(const std::string &a_title)
 
 	/* Initialise the Qt specific helper object */
 	m_poGadget = &m_tree;
-	m_tree.construct(a_title);
+	m_tree.construct("");
 
 	// TODO: CAW - Why aren't these fetched automatically in CStdGadget?
 	m_iWidth = m_poGadget->width();
 	m_iHeight = m_poGadget->height();
 
 #else /* ! QT_GUI_LIB */
-
-	(void) a_title;
 
 	m_poParentLayout->Attach(this);
 
@@ -78,6 +71,34 @@ int CStdGadgetTree::construct(const std::string &a_title)
 	}
 
 	return retVal;
+}
+
+/**
+ * CStdGadgetTree Destructor.
+ * Frees all lists of items in the map of available lists.
+ *
+ * @date	Wednesday 13-Mar-2024 6:45 am, Code HQ Tokyo Tsukuda
+ */
+
+CStdGadgetTree::~CStdGadgetTree()
+{
+
+#ifdef __amigaos__
+
+	/* Iterate through the map of available lists and delete the nodes from each one */
+	for (auto &item : m_itemsMap)
+	{
+		List &list = item.second;
+		CTreeNode *node;
+
+		while ((node = reinterpret_cast<CTreeNode *>(RemHead(&list))) != NULL)
+		{
+			FreeListBrowserNode(reinterpret_cast<struct Node *>(node));
+		}
+	}
+
+#endif /* __amigaos__ */
+
 }
 
 #ifdef __amigaos__
@@ -143,21 +164,78 @@ std::string CStdGadgetTree::getSelectedItem()
 }
 
 /**
- * Sets the contents of the tree gadget.
- * This method accepts a list of CTreeNode items, with each instance containing a text string that will
- * be used to add a node to the tree.
+ * Sets the content of the tree gadget.
+ * This method accepts an integer identifier that represents a list of items that have been previously added to the
+ * tree.  It will remove the current set of items and replace them will the ones represented by the identifier.  This
+ * enables switching between multiple different sets of items.
+ *
+ * All content IDs have a value of >= 1.  If the special value of 0 is passed in, the contents of the tree gadget are
+ * set to empty.
+ *
+ * @date	Saturday 24-Feb-2024 6:25 am, Code HQ Tokyo Tsukuda
+ * @param	a_contentID		A content ID identifier, returned from setContent(StdList<CTreeNode> &)
+ */
+
+void CStdGadgetTree::setContent(int a_contentID)
+{
+	ASSERTM((a_contentID >= 0), "CStdGadgetTree::setContent() => Invalid content ID passed in");
+
+#ifdef __amigaos__
+
+	if (a_contentID == 0)
+	{
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
+	}
+	else
+	{
+		ULONG items = (ULONG) &m_itemsMap[a_contentID];
+
+		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, items, TAG_DONE);
+	}
+
+#elif defined(QT_GUI_LIB)
+
+	while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+
+	if (a_contentID != 0)
+	{
+		static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, m_itemsMap[a_contentID]);
+	}
+
+#else /* ! QT_GUI_LIB */
+
+	(void) a_contentID;
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
+/**
+ * Sets the content of the tree gadget.
+ * This method accepts a list of CTreeNode items, with each item containing a text string that will be used to
+ * add a node to the tree.
+ *
+ * The items passed in will be converted to a format suitable for the underlying native tree gadget, and the original
+ * list is no longer required and can be disposed of.  This method can be called multiple times and a new internal
+ * list will be created each time.  An integer identifier representing that list will be returned, which can be used
+ * to switch between lists using setContent(int).
  *
  * @date	Monday 13-Sep-2021 8:53 am, Code HQ Bergmannstrasse
  * @param	a_items			The list of items to be added to the tree
+ * @return	An identifier that represents the content that was just added
  */
 
-void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
+int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 {
 
 #ifdef __amigaos__
 
 	/* Any previously added item list must be detached from the list browser gadget before being updated */
 	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
+
+	struct List &fileList = m_itemsMap[m_nextContentID];
+
+	NewList(&fileList);
 
 	/* Iterate through the list passed in and, for each item on the list, create a list browser node to represent */
 	/* it, and add it to the list browser's list of nodes */
@@ -170,14 +248,14 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 		if ((node = AllocListBrowserNode(1, LBNCA_CopyText, TRUE, LBNCA_Text, (ULONG) treeNode->m_text.c_str(),
 			TAG_DONE)) != nullptr)
 		{
-			AddTail(&m_fileList, node);
+			AddTail(&fileList, node);
 		}
 
 		treeNode = a_items.getSucc(treeNode);
 	}
 
 	/* Re-add the updated list of items to the list browser gadget */
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) &m_fileList, TAG_DONE);
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) &fileList, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
@@ -196,12 +274,15 @@ void CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 	/* Add the new list of items to the tree widget */
 	static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
 
+	m_itemsMap.emplace(m_nextContentID, items);
+
 #else /* ! QT_GUI_LIB */
 
 	(void) a_items;
 
 #endif /* ! QT_GUI_LIB */
 
+	return m_nextContentID++;
 }
 
 /**
@@ -217,12 +298,17 @@ void CStdGadgetTree::setTitle(const std::string &a_title)
 
 #ifdef __amigaos__
 
-	/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
-	/* before assigning it to the tree */
-	m_title = a_title;
-	g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+	/* Only set the title if it is actually different */
+	if (m_title != a_title)
+	{
+		/* For Amiga OS the title string is not copied by the native gadget, so we copy it into our own persistent memory */
+		/* before assigning it to the tree */
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_ColumnInfo, (ULONG) g_columnInfo, TAG_DONE);
+		m_title = a_title;
+		g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+
+		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_ColumnInfo, (ULONG) g_columnInfo, TAG_DONE);
+	}
 
 #elif defined(QT_GUI_LIB)
 
