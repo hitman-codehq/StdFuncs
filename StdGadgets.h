@@ -4,6 +4,8 @@
 
 /** @file */
 
+#include <map>
+
 #ifdef __amigaos__
 
 #include <intuition/classes.h>
@@ -24,6 +26,14 @@ class MStdGadgetSliderObserver;
 class QBoxLayout;
 class QLabel;
 class QWidget;
+
+#ifdef __amigaos__
+
+/* A typedef to make usage of the map of item lists easier */
+
+typedef std::map<int, List> ItemsMap;
+
+#endif /* __amigaos__ */
 
 /* Types of gadgets that can be created */
 
@@ -402,14 +412,18 @@ class CStdGadgetTree : public CStdGadget
 {
 private:
 
+	int		m_nextContentID;				/**< The next content ID that will be assigned to a new list */
+
 #ifdef __amigaos__
 
-	std::string		m_title;				/**< Persistent memory for the title string passed in */
-	List			m_fileList;				/**< List of items in the tree */
+	std::string		m_title;			/**< Persistent memory for the title string passed in */
+	struct List		m_fileList;			/**< Initial empty list of items in the tree */
+	ItemsMap		m_itemsMap;			/**< Map of the lists of items that can be displayed by the tree */
 
 #elif defined(QT_GUI_LIB)
 
-    CQtGadgetTree	m_tree;					/**< Helper class for listening for signals */
+	CQtGadgetTree							m_tree;		/**< Helper class for listening for signals */
+	std::map<int, QList<QTreeWidgetItem *>>	m_itemsMap;	/**< Map of the lists of items that can be displayed by the tree */
 
 #endif /* QT_GUI_LIB */
 
@@ -426,10 +440,13 @@ protected:
 #endif /* ! QT_GUI_LIB */
 
 	{
-		m_iGadgetType = EStdGadgetTree;
+		m_iGadgetID = a_gadgetID;
 		m_poParentLayout = a_parentLayout;
 		m_poParentWindow = a_parentLayout->GetParentWindow();
-		m_iGadgetID = a_gadgetID;
+		m_iGadgetType = EStdGadgetTree;
+
+		/* A content ID with a value of 0 has the special meaning of "remove content", so valid content IDs start at 1 */
+		m_nextContentID = 1;
 
 #ifdef __amigaos__
 
@@ -439,15 +456,19 @@ protected:
 
 	}
 
-	int construct(const std::string &a_title);
+	~CStdGadgetTree();
+
+	int construct();
 
 	bool createNative();
+
+	int setContent(StdList<CTreeNode> &a_items);
 
 public:
 
 	std::string getSelectedItem();
 
-	void setContent(StdList<CTreeNode> &a_items);
+	void setContent(int a_contentID);
 
 	void setTitle(const std::string &a_title);
 
