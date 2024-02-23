@@ -27,7 +27,7 @@ class StdList
 
 	typedef TInt (*CompareFunction)(const T *a_poFirst, const T *a_poSecond, void *a_pvUserData);
 
-private:
+public:
 
 	StdListNode<T>			m_oHead;		/**< Dummy node representing head of the list */
 	StdListNode<T>			m_oTail;		/**< Dummy node representing tail of the list */
@@ -39,6 +39,50 @@ public:
 	{
 		Reset();
 	};
+
+	/* Written: Tuesday 29-Feb-2024 7:30 am, Code HQ Tokyo Tsukuda */
+
+	StdList(StdList &&a_oOther)
+	{
+		*this = std::move(a_oOther);
+	};
+
+	/**
+	 * Move assignment operator.
+	 * The move assignment operator implements move semantics for the StdList class when using the = operator.  It
+	 * allows interoperation with the STL container classes.
+	 *
+	 * @date	Tuesday 29-Feb-2024 7:31 am, Code HQ Tokyo Tsukuda
+	 * @param	a_oOther		An instance of the list to be moved into this instance
+	 * @return	A reference to this list instance
+	 */
+
+	StdList &operator=(StdList &&a_oOther)
+	{
+		m_oHead = a_oOther.m_oHead;
+		m_oTail = a_oOther.m_oTail;
+		m_iCount = a_oOther.m_iCount;
+
+		if (m_oHead.m_poNext == &a_oOther.m_oTail)
+		{
+			m_oHead.m_poNext = &m_oTail;
+			m_oTail.m_poPrev = &m_oHead;
+		}
+		else
+		{
+			m_oHead.m_poNext = a_oOther.m_oHead.m_poNext;
+			m_oTail.m_poPrev = a_oOther.m_oTail.m_poPrev;
+			a_oOther.m_oHead.m_poNext = &a_oOther.m_oTail;
+			a_oOther.m_oTail.m_poPrev = &a_oOther.m_oHead;
+
+			m_oHead.m_poNext->m_poPrev = &m_oHead;
+			m_oTail.m_poPrev->m_poNext = &m_oTail;
+
+			a_oOther.m_iCount = 0;
+		}
+
+		return(*this);
+	}
 
 	void addHead(T *a_poNode)
 	{
