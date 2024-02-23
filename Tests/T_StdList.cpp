@@ -2,6 +2,7 @@
 #include <StdFuncs.h>
 #include <StdList.h>
 #include <Test.h>
+#include <string.h>
 
 static RTest Test("T_StdList");	/* Class to use for testing and reporting results */
 
@@ -151,7 +152,7 @@ static void TestIndex()
 	CNode *Node;
 	StdList<CNode> List;
 
-	/* Test #6: Test array style indexing functionality */
+	/* Test #5: Test array style indexing functionality */
 
 	Test.Next("Test array style indexing functionality");
 
@@ -223,6 +224,112 @@ static void TestMove()
 	FreeList(List);
 }
 
+StdList<CNode> GetList()
+{
+	CNode *Node;
+	StdList<CNode> RetVal;
+
+	Node = new CNode("Move it!");
+	test(Node != NULL);
+	RetVal.addTail(Node);
+
+	return RetVal;
+}
+
+/* Written: Thursday 29-Feb-2024 7:04 am, Code HQ Tokyo Tsukuda */
+
+void TestMoveSemantics()
+{
+	CNode *Node;
+	StdList<CNode> List1, Source1, Source2, Source3, Source4, Source5;
+
+	Test.Next("Test C++ move constructor semantics are respected");
+
+	List1 = std::move(Source1);
+	test(Source1.m_oHead.m_poNext == &Source1.m_oTail);
+	test(Source1.m_oTail.m_poPrev == &Source1.m_oHead);
+	test(Source1.Count() == 0);
+	test(List1.m_oHead.m_poNext == &List1.m_oTail);
+	test(List1.m_oTail.m_poPrev == &List1.m_oHead);
+	test(List1.Count() == 0);
+
+	Node = new CNode("Move it!");
+	test(Node != NULL);
+	Source1.addTail(Node);
+
+	List1 = std::move(Source1);
+	test(Source1.m_oHead.m_poNext == &Source1.m_oTail);
+	test(Source1.m_oTail.m_poPrev == &Source1.m_oHead);
+	test(Source1.Count() == 0);
+	test(List1.m_oHead.m_poNext == &Node->m_oStdListNode);
+	test(List1.m_oTail.m_poPrev == &Node->m_oStdListNode);
+	test(Node->m_oStdListNode.m_poPrev == &List1.m_oHead);
+	test(Node->m_oStdListNode.m_poNext == &List1.m_oTail);
+	test(List1.Count() == 1);
+
+	Test.Next("Test C++ move assignment operator semantics are respected");
+
+	StdList<CNode> List2 = std::move(Source2);
+	test(Source2.m_oHead.m_poNext == &Source2.m_oTail);
+	test(Source2.m_oTail.m_poPrev == &Source2.m_oHead);
+	test(Source2.Count() == 0);
+	test(List2.m_oHead.m_poNext == &List2.m_oTail);
+	test(List2.m_oTail.m_poPrev == &List2.m_oHead);
+	test(List2.Count() == 0);
+
+	Source3.addTail(Node);
+
+	StdList<CNode> List3(std::move(Source3));
+	test(Source3.m_oHead.m_poNext == &Source3.m_oTail);
+	test(Source3.m_oTail.m_poPrev == &Source3.m_oHead);
+	test(Source3.Count() == 0);
+	test(List3.m_oHead.m_poNext == &Node->m_oStdListNode);
+	test(List3.m_oTail.m_poPrev == &Node->m_oStdListNode);
+	test(Node->m_oStdListNode.m_poPrev == &List3.m_oHead);
+	test(Node->m_oStdListNode.m_poNext == &List3.m_oTail);
+	test(List3.Count() == 1);
+
+	Test.Next("Test StdList.remHead() functions when move semantics are used");
+
+	Source4.addTail(Node);
+
+	StdList<CNode> List4(std::move(Source4));
+
+	FreeList(List4);
+	test(List4.m_oHead.m_poNext == &List4.m_oTail);
+	test(List4.m_oTail.m_poPrev == &List4.m_oHead);
+	test(List4.Count() == 0);
+
+	Test.Next("Test StdList.getHead() functions when move semantics are used");
+
+	Node = new CNode("Move it!");
+	test(Node != NULL);
+	Source5.addTail(Node);
+
+	StdList<CNode> List5(std::move(Source5));
+
+	while ((Node = List5.getHead()) != NULL)
+	{
+		List5.remove(Node);
+		delete Node;
+	}
+
+	test(List5.m_oHead.m_poNext == &List5.m_oTail);
+	test(List5.m_oTail.m_poPrev == &List5.m_oHead);
+	test(List5.Count() == 0);
+
+	Test.Next("Test returning a list instance by value when move semantics are used");
+
+	StdList<CNode> List6 = GetList();
+	test(List6.m_oHead.m_poNext != &List6.m_oTail);
+	test(List6.m_oTail.m_poPrev != &List6.m_oHead);
+	test(List6.m_oHead.m_poNext->m_poPrev == &List6.m_oHead);
+	test(List6.m_oTail.m_poPrev->m_poNext == &List6.m_oTail);
+	test(List6.Count() == 1);
+
+	FreeList(List6);
+}
+
 /* Written: Friday 27-Jun-2014 7:12 am, Code HQ Ehinger Tor */
 
 static void TestSort()
@@ -258,6 +365,7 @@ int main()
 	TestMove();
 	TestSort();
 	TestIndex();
+	TestMoveSemantics();
 
 	Test.End();
 

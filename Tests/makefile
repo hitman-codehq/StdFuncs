@@ -39,7 +39,8 @@ ifdef PREFIX
 	endif
 endif
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDLIST) $(T_STDTEXTFILE) \
+	$(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
 
 ifdef PREFIX
 
@@ -60,6 +61,8 @@ T_LEX = $(OBJ)/T_Lex
 T_OS4SUPPORT = $(OBJ)/T_OS4Support
 
 T_POOL = $(OBJ)/T_Pool
+
+T_STDLIST = $(OBJ)/T_StdList
 
 T_STDTEXTFILE = $(OBJ)/T_StdTextFile
 
@@ -84,6 +87,8 @@ T_LEX_OBJECTS = $(OBJ)/T_Lex.o
 T_OS4SUPPORT_OBJECTS = $(OBJ)/T_OS4Support.o
 
 T_POOL_OBJECTS = $(OBJ)/T_Pool.o
+
+T_STDLIST_OBJECTS = $(OBJ)/T_StdList.o
 
 T_STDTEXTFILE_OBJECTS = $(OBJ)/T_StdTextFile.o
 
@@ -133,6 +138,11 @@ $(T_OS4SUPPORT): $(T_OS4SUPPORT_OBJECTS) ../$(OBJ)/libStdFuncs.a
 $(T_POOL): $(T_POOL_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_POOL_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
+
+$(T_STDLIST): $(T_STDLIST_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_STDLIST_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_STDTEXTFILE): $(T_STDTEXTFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
