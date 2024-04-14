@@ -6,13 +6,6 @@
 
 #if defined(__amigaos__) && !defined(__amigaos4__)
 
-APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags);
-ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size);
-ULONG DateStampToSeconds(const struct DateStamp *a_dateStamp);
-void FreeSysObject(ULONG a_type, APTR a_object);
-void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
-	struct TagItem *a_taglist);
-
 /* New entries in dos/dos.h */
 
 #define EXDB_NO_READ		3
@@ -43,26 +36,15 @@ enum enAllocSysObjectTypes
 	ASOT_SEMAPHORE	= 8
 };
 
-inline APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...)
-{
-	va_list args;
-
-	va_start(args, a_tag);
-	APTR retVal = AllocSysObject(a_type, (struct TagItem *) &a_tag);
-	va_end(args);
-
-	return retVal;
-}
-
-inline void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
-	Tag a_tag, ...)
-{
-	va_list args;
-
-	va_start(args, a_tag);
-	RefreshSetGadgetAttrsA(a_gadget, a_window, a_requester, (struct TagItem *) &a_tag);
-	va_end(args);
-}
+APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags);
+APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...);
+ULONG CopyStringBSTRToC(BSTR a_bstring, STRPTR a_dest, ULONG a_size);
+ULONG DateStampToSeconds(const struct DateStamp *a_dateStamp);
+void FreeSysObject(ULONG a_type, APTR a_object);
+void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	struct TagItem *a_taglist);
+void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	Tag a_tag, ...);
 
 #endif /* defined(__amigaos__) && !defined(__amigaos4__) */
 

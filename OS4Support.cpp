@@ -69,6 +69,22 @@ APTR AllocSysObject(ULONG a_type, const struct TagItem *a_tags)
 }
 
 /**
+ * Convenience wrapper around AllocSysObject.
+ * This wrapper simply takes the pointer to the list of tags passed in on the stack and calls AllocSysObject
+ * using them.
+ *
+ * @date	Monday 15-Apr-2024 6:02 am, Code HQ Tokyo Tsukuda
+ * @param	a_type			The type of object to be allocated, such as ASOT_PORT
+ * @param	a_tag			The first tag of the stack-based list of tags to use
+ * @return	The return value from AllocSysObject
+ */
+
+APTR AllocSysObjectTags(ULONG a_type, Tag a_tag, ...)
+{
+	return AllocSysObject(a_type, (struct TagItem *) &a_tag);
+}
+
+/**
  * Converts a BCPL string to a C string.
  * Safely copies a BSTR into a user supplied buffer, NULL terminating it at the appropriate length, and checking
  * that the string is able to fit into the target buffer.
@@ -176,4 +192,23 @@ void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, st
 	{
 		RefreshGList(a_gadget, a_window, a_requester, 1);
 	}
+}
+
+/**
+ * Convenience wrapper around RefreshSetGadgetAttrs.
+ * This wrapper simply takes the pointer to the list of tags passed in on the stack and calls RefreshSetGadgetAttrs
+ * using them.
+ *
+ * @date	Monday 15-Apr-2024 6:10 am, Code HQ Tokyo Tsukuda
+ * @param	a_gadget		Pointer to the BOOPSI gadget object
+ * @param	a_window		Pointer to the window in which the gadget resides, or NULL
+ * @param	a_requester		Pointer to the requester in which the gadget resides, or NULL
+ * @param	a_tag			The first tag of the stack-based list of tags to use
+ * @return	The return value from RefreshSetGadgetAttrs
+ */
+
+void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, struct Requester *a_requester,
+	Tag a_tag, ...)
+{
+	RefreshSetGadgetAttrsA(a_gadget, a_window, a_requester, (struct TagItem *) &a_tag);
 }
