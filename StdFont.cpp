@@ -787,7 +787,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 	/* Determine how many characters will be in the converted text.  If this is larger than the number of */
 	/* characters in the currently allocated temporary buffer then reallocate it */
 
-	if ((WideLength = MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, NULL, 0)) > m_iWideBufferLength)
+	if ((WideLength = MultiByteToWideChar(CodePage, 0, a_pccText, a_iSize, NULL, 0)) > m_iWideBufferLength)
 	{
 		if ((m_pwcWideBuffer = (WCHAR *) Utils::GetTempBuffer((char *) m_pwcWideBuffer, (WideLength * sizeof(WCHAR)), 0)) != NULL)
 		{
@@ -800,7 +800,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 
 	if (m_pwcWideBuffer)
 	{
-		if ((WideLength = MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
+		if ((WideLength = MultiByteToWideChar(CodePage, 0, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
 		{
 			TextOutW(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
 		}
