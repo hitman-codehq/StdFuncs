@@ -1861,6 +1861,10 @@ void CWindow::DrawNow(TInt a_iTop, TInt a_iBottom)
 
 			m_oDirtyRegions.push_back(Region);
 		}
+
+		/* And actually perform the redraw */
+
+		InternalRedraw();
 	}
 
 #elif defined(QT_GUI_LIB)
