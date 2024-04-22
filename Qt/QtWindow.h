@@ -64,7 +64,7 @@ protected:
 
 public:
 
-	CQtWindow(CWindow *a_poWindow, QSize &a_roSize);
+	CQtWindow(CWindow *a_poWindow, QPoint &a_roPosition, QSize &a_roSize);
 
 	CWindow *Window()
 	{
