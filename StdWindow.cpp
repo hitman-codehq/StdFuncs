@@ -2633,6 +2633,12 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 					m_poWindow->showMaximized();
 
+					/* Showing the window doesn't necessarily give it focus, even if keyboard input to the window is */
+					/* working, meaning that the window won't get focus-related events. Explicitly setting the focus */
+					/* to the window shouldn't be necessary, but seems to be required to enable these events to be sent */
+
+					m_poWindow->setFocus();
+
 					/* Save the outer width and height of the window */
 
 					Size = m_poWindow->size();
