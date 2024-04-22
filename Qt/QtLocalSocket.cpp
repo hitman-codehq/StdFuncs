@@ -284,6 +284,9 @@ TInt RLocalSocket::write(const unsigned char *a_pcucData, TInt a_iDataSize)
 	{
 		RetVal = KErrNone;
 
+		/* Although calling waitForBytesWritten() shouldn't be necessary, it is required for Windows */
+
+		m_oLocalSocket.waitForBytesWritten();
 		m_oLocalSocket.flush();
 	}
 	else
