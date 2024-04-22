@@ -32,13 +32,17 @@ static const SKeyMapping g_aoKeyMap[] =
  *
  * @date	Friday 27-Sep-2019 3:02 pm, HERE Invalidenstrasse
  * @param	a_poWindow		Pointer to the parent Framework window
+ * @param	a_roPosition	The position at which to create the new window
  * @param	a_roSize		The size of the new window to be created
  */
 
-CQtWindow::CQtWindow(CWindow *a_poWindow, QSize &a_roSize)
+CQtWindow::CQtWindow(CWindow *a_poWindow, QPoint &a_roPosition, QSize &a_roSize)
 {
 	m_poWindow = a_poWindow;
 	m_oSize = a_roSize;
+
+	move(a_roPosition);
+	resize(a_roSize);
 }
 
 /**

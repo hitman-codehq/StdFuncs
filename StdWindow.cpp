@@ -2585,13 +2585,62 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	RetVal = KErrNoMemory;
 
+	const QList<QScreen *> Screens = m_poApplication->Application()->screens();
+	QPoint MousePosition = QCursor::pos();
+	QScreen *TargetScreen = NULL;
+
+	/* Iterate through the list of screens and determine which one the mouse pointer is on */
+	for (QScreen *Screen : Screens)
+	{
+		QRect ScreenRect = Screen->availableGeometry();
+
+		if (ScreenRect.contains(MousePosition))
+		{
+			TargetScreen = Screen;
+			break;
+		}
+	}
+
+	QSize WindowSize = Screens[0]->availableGeometry().size();
+	QPoint WindowPosition;
+
+	/* If we are opening on the main screen, the window will be opened at the same size as the desktop and */
+	/* will be opened maximised. Otherwise, if we are opening on a second screen, take into account that the */
+	/* screen may be larger than the main screen and open the window non maximised, with the same size as the */
+	/* main screen, with the top left of the window at the location of the mouse pointer */
+	if (TargetScreen != Screens[0])
+	{
+		QRect ScreenRect = TargetScreen->availableGeometry();
+
+		/* If the target screen is smaller than the window, resize the window to be the same size */
+		if (WindowSize.width() > ScreenRect.width() || WindowSize.height() > ScreenRect.height())
+		{
+			WindowPosition = QPoint(ScreenRect.x(), ScreenRect.y());
+			WindowSize = (QSize(ScreenRect.width(), ScreenRect.height()));
+		}
+		else
+		{
+			/* If the target screen and window are exactly the same size, we don't need to set the */
+			/* window's size, but we still need to move it to the right place for it to appear on */
+			/* the target screen */
+			if (WindowSize.width() == ScreenRect.width() || WindowSize.height() == ScreenRect.height())
+			{
+				WindowPosition = QPoint(ScreenRect.x(), ScreenRect.y());
+			}
+			else
+			{
+				int MouseX = (MousePosition.x() - ScreenRect.x());
+				int MouseY = (MousePosition.y() - ScreenRect.y());
+
+				WindowPosition = QPoint(ScreenRect.x() + MouseX, ScreenRect.y() + MouseY);
+			}
+		}
+	}
+
 	/* Allocate a window based on the QMainWindow class, passing in the preferred size */
 	/* to use for the window when in non maximised state */
 
-	QList<QScreen *> Screens = m_poApplication->Application()->screens();
-	QSize DesktopSize = Screens[0]->availableGeometry().size();
-
-	if ((m_poWindow = new CQtWindow(this, DesktopSize)) != NULL)
+	if ((m_poWindow = new CQtWindow(this, WindowPosition, WindowSize)) != NULL)
 	{
 		/* Install an event filter so that we receive notifications about events such as window resizing */
 
@@ -2604,12 +2653,6 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			/* Assign the widget as the main window's central widget */
 
 			m_poWindow->setCentralWidget(m_poCentralWidget);
-
-			/* Calculate the inner width and height of the window, for l8r use */
-
-			QSize Size = m_poCentralWidget->size();
-			m_iInnerWidth = Size.width();
-			m_iInnerHeight = Size.height();
 
 			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
 			{
@@ -2624,14 +2667,19 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 				{
 					RetVal = KErrNone;
 
-					/* Set the position of the window to the top left of the screen so that */
-					/* it does not appear at a random position when set to non maximised */
+					/* Display the window maximised only if it is being opened with a size equal to that of the */
+					/* target window. This allows use of super-large secondary screens without the window being */
+					/* opened with a huge size, such as when running a laptop as the primary screen and a super-large */
+					/* widescreen monitor as the secondary screen */
 
-					m_poWindow->move(QPoint(0, 0));
-
-					/* Display the window maximised */
-
-					m_poWindow->showMaximized();
+					if (m_poWindow->size() == TargetScreen->availableSize())
+					{
+						m_poWindow->showMaximized();
+					}
+					else
+					{
+						m_poWindow->show();
+					}
 
 					/* Showing the window doesn't necessarily give it focus, even if keyboard input to the window is */
 					/* working, meaning that the window won't get focus-related events. Explicitly setting the focus */
@@ -2641,9 +2689,14 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 					/* Save the outer width and height of the window */
 
-					Size = m_poWindow->size();
-					m_iWidth = Size.width();
-					m_iHeight = Size.height();
+					m_iWidth = m_poWindow->width();
+					m_iHeight = m_poWindow->height();
+
+					/* And save the inner width and height of the window */
+
+					QSize Size = m_poCentralWidget->size();
+					m_iInnerWidth = Size.width();
+					m_iInnerHeight = Size.height();
 
 					/* And indicate that the window is active, as Qt 5 performs a draw operation */
 					/* before calling QMainWindow::focusInEvent(), resulting in the cursor not being */
