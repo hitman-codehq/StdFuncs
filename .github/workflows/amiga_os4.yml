@@ -18,13 +18,13 @@ jobs:
         env:
           PREFIX: ppc-amigaos-
         with:
-          command: 'make'
+          command: "make"
       - name: Build Debug
         uses: hitman-codehq/Amiga-Build-OS4@v1
         env:
           PREFIX: ppc-amigaos-
         with:
-          command: 'make DEBUG=1'
+          command: "make DEBUG=1"
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
         with:

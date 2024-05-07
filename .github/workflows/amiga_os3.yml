@@ -18,13 +18,13 @@ jobs:
         env:
           PREFIX: m68k-amigaos-
         with:
-          command: 'make'
+          command: "make"
       - name: Build Debug
         uses: hitman-codehq/Amiga-Build-OS3@v1
         env:
           PREFIX: m68k-amigaos-
         with:
-          command: 'make DEBUG=1'
+          command: "make DEBUG=1"
       - name: Archive Libraries
         uses: actions/upload-artifact@v3
         with:
