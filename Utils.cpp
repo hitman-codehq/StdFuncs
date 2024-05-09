@@ -1,5 +1,6 @@
 
 #include "StdFuncs.h"
+#include "Lex.h"
 #include "OS4Support.h"
 #include "StdWindow.h"
 
@@ -3078,6 +3079,63 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 #endif /* ! __unix__ */
 
 	return(RetVal);
+}
+
+/**
+ * Split a host into its hostname and port components.
+ * This function parses a string in the format hostname:port and extracts the two components into a string
+ * and an unsigned short variable respectively. The port is optional and if not present, a default value will
+ * be used. It is considered an error for the hostname to not be present.
+ *
+ * @date	Friday 10-May-2024 6:03 am, Code HQ Tokyo Tsukuda
+ * @param	a_pccHost		The host to parse
+ * @param	a_roServer		The string into which to place the extracted hostname
+ * @param	a_rusPort		The unsigned short into which to place the extracted port
+ * @param	a_usDefaultPort	The port to be used if no port is specified
+ * @return	KErrNone if successful
+ * @return	KErrNotFound if the hostname was not present
+ */
+
+int Utils::splitHost(const char *a_pccHost, std::string &a_roServer, unsigned short &a_rusPort, unsigned short a_usDefaultPort)
+{
+	int serverLength, portLength, port, retVal;
+	TLex lex(a_pccHost, static_cast<int>(strlen(a_pccHost)));
+
+	retVal = KErrNone;
+
+	/* Extract the server name and port number from the host passed in and, if a port was specified, */
+	/* convert it and check its validity */
+	lex.SetWhitespace(":");
+
+	const char *serverString = lex.NextToken(&serverLength);
+	const char *portString = lex.NextToken(&portLength);
+
+	if (serverString != nullptr)
+	{
+		a_roServer = std::string(serverString, serverLength);
+
+		/* The port string is optional so only parse if it is there, and use the default value if it is missing */
+		/* or invalid */
+		a_rusPort = a_usDefaultPort;
+
+		if (portString)
+		{
+			if (Utils::StringToInt(portString, &port) == KErrNone)
+			{
+				a_rusPort = static_cast<unsigned short>(port);
+			}
+			else
+			{
+				Utils::info("Utils::splitURL() => Specified port \"%s\" is invalid, using default port %d", portString, a_rusPort);
+			}
+		}
+	}
+	else
+	{
+		retVal = KErrNotFound;
+	}
+
+	return retVal;
 }
 
 /**
