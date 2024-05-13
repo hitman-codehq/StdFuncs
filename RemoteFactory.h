@@ -7,6 +7,7 @@
 #include "RemoteDir.h"
 #include "RemoteFile.h"
 #include "RemoteFileUtils.h"
+#include "Yggdrasil/Commands.h"
 
 /**
  * A class for management of file system related objects.
@@ -26,6 +27,7 @@ class RRemoteFactory
 	RRemoteFile			m_remoteFile;		/**< Class for remote file access */
 	RFileUtils			m_fileUtils;		/**< Class for local file system manipulation */
 	RRemoteFileUtils	m_remoteFileUtils;	/**< Class for remote file system manipulation */
+	RSocket				m_socket;			/**< Socket for communicating with remote RADRunner */
 	std::string			m_serverName;		/**< The host name of the instance of RADRunner to use */
 	unsigned short		m_serverPort;		/**< The port on which RADRunner is listening */
 
@@ -33,44 +35,17 @@ public:
 
 	RRemoteFactory() : m_useLocal(false) { }
 
-	RDirObject &getDirObject()
-	{
-		if (isRemote())
-		{
-			m_remoteDir.setFactory(this);
-			return m_remoteDir;
-		}
-		else
-		{
-			return m_dir;
-		}
-	}
+	int openRemote();
 
-	RFileObject &getFileObject()
-	{
-		if (isRemote())
-		{
-			m_remoteFile.setFactory(this);
-			return m_remoteFile;
-		}
-		else
-		{
-			return m_file;
-		}
-	}
+	void close();
 
-	RFileUtilsObject &getFileUtilsObject()
-	{
-		if (isRemote())
-		{
-			m_remoteFileUtils.setFactory(this);
-			return m_remoteFileUtils;
-		}
-		else
-		{
-			return m_fileUtils;
-		}
-	}
+	int checkConnection();
+
+	RDirObject &getDirObject();
+
+	RFileObject &getFileObject();
+
+	RFileUtilsObject &getFileUtilsObject();
 
 	bool isRemote()
 	{
@@ -87,6 +62,9 @@ public:
 		m_serverPort = a_port;
 	}
 
+	/**< Set this to true when the RRemoteFactory instance is configured to be used for remote
+	 * access, but there is a need to temporarily access the local file system
+	 */
 	void useLocal(bool a_useLocal)
 	{
 		m_useLocal = a_useLocal;

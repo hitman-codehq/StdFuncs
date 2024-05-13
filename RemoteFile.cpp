@@ -140,17 +140,15 @@ int RRemoteFile::open(const char *a_fileName, TUint a_fileMode)
 {
 	(void) a_fileMode;
 
-	int retVal = m_socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	int retVal = KErrNone;
 
-	if (retVal == KErrNone)
+	if (m_socket->isOpen())
 	{
 		CGet *handler = nullptr;
 
 		try
 		{
-			m_socket.write(g_signature, SIGNATURE_SIZE);
-
-			handler = new CGet(&m_socket, a_fileName);
+			handler = new CGet(m_socket, a_fileName);
 			handler->sendRequest();
 
 			if (handler->getResponse()->m_result == KErrNone)
@@ -172,11 +170,13 @@ int RRemoteFile::open(const char *a_fileName, TUint a_fileMode)
 		}
 
 		delete handler;
-		m_socket.close();
 	}
 	else
 	{
-		Utils::info("RRemoteFile::open() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFile::open() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+			m_remoteFactory->getPort());
+
+		retVal = KErrNotOpen;
 	}
 
 	return retVal;
@@ -235,7 +235,7 @@ void RRemoteFile::readFromRemote()
 	uint32_t bytesRead = 0, bytesToRead, size;
 	TInt64 fileSize;
 
-	m_socket.read(&fileSize, sizeof(fileSize));
+	m_socket->read(&fileSize, sizeof(fileSize));
 	SWAP64(&fileSize);
 
 	m_fileBuffer.resize(static_cast<unsigned int>(fileSize));
@@ -243,7 +243,7 @@ void RRemoteFile::readFromRemote()
 	do
 	{
 		bytesToRead = ((fileSize - bytesRead) >= TRANSFER_SIZE) ? TRANSFER_SIZE : static_cast<uint32_t>(fileSize - bytesRead);
-		size = m_socket.read(m_fileBuffer.data() + bytesRead, bytesToRead);
+		size = m_socket->read(m_fileBuffer.data() + bytesRead, bytesToRead);
 		bytesRead += size;
 	}
 	while (bytesRead < fileSize);
@@ -326,24 +326,20 @@ int RRemoteFile::close()
 
 	if (m_dirty && m_fileBuffer.size() > 0)
 	{
-		retVal = m_socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
-
-		if (retVal == KErrNone)
+		if (m_socket->isOpen())
 		{
 			CSend *handler = nullptr;
 
 			try
 			{
-				m_socket.write(g_signature, SIGNATURE_SIZE);
-
-				handler = new CSend(&m_socket, m_fileName.c_str());
+				handler = new CSend(m_socket, m_fileName.c_str());
 				handler->sendRequest();
 
 				TInt64 fileSize = static_cast<int>(m_fileBuffer.size());
 				SWAP64(&fileSize);
 
-				m_socket.write(&fileSize, sizeof(fileSize));
-				m_socket.write(m_fileBuffer.data(), static_cast<int>(m_fileBuffer.size()));
+				m_socket->write(&fileSize, sizeof(fileSize));
+				m_socket->write(m_fileBuffer.data(), static_cast<int>(m_fileBuffer.size()));
 
 				m_dirty = false;
 			}
@@ -355,11 +351,13 @@ int RRemoteFile::close()
 			}
 
 			delete handler;
-			m_socket.close();
 		}
 		else
 		{
-			Utils::info("RRemoteFile::close() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+			Utils::info("RRemoteFile::close() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+				m_remoteFactory->getPort());
+
+			retVal = KErrNotOpen;
 		}
 	}
 

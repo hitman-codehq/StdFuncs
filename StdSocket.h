@@ -62,6 +62,8 @@ public:
 
 	int accept();
 
+	bool isOpen();
+
 	int listen(unsigned short a_port);
 
 	int read(void* a_buffer, int a_size, bool a_readAll = true);

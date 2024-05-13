@@ -5,6 +5,7 @@
 /** @file */
 
 #include "FileUtils.h"
+#include "StdSocket.h"
 
 class RRemoteFactory;
 
@@ -16,10 +17,11 @@ class RRemoteFactory;
 class RRemoteFileUtils : public RFileUtilsObject
 {
 	RRemoteFactory	*m_remoteFactory;	/**< Pointer to the remote factory that owns this instance */
+	RSocket			*m_socket;			/**< Socket for communicating with remote RADRunner */
 
 public:
 
-	RRemoteFileUtils() : m_remoteFactory(nullptr) { }
+	RRemoteFileUtils() : m_remoteFactory(nullptr),m_socket(nullptr) { }
 
 	int deleteFile(const char *a_fileName);
 
@@ -27,7 +29,11 @@ public:
 
 	int renameFile(const char *a_oldFullName, const char *a_newFullName);
 
-	void setFactory(RRemoteFactory *a_remoteFactory) { m_remoteFactory = a_remoteFactory; }
+	void setFactory(RRemoteFactory *a_remoteFactory, RSocket *a_socket)
+	{
+		m_remoteFactory = a_remoteFactory;
+		m_socket = a_socket;
+	}
 };
 
 #endif /* ! REMOTEFILEUTILS_H */
