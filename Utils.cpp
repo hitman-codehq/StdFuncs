@@ -3300,21 +3300,23 @@ TInt Utils::StringToInt(const char *a_pccString, TInt *a_piResult)
  * and will use 12 hour time format.
  *
  * @date	Wednesday 18-Feb-2015 07:08 am, Code HQ Ehinger Tor
- * @param	a_pcDate		Pointer to string into which to place the date string
- * @param	a_pcTime		Pointer to a string into which to place the time string
+ * @param	a_roDate		Reference to a string into which to place the date string
+ * @param	a_roTime		Reference to a string into which to place the time string
  * @param	a_roDateTime	Reference to the TDateTime structure to be converted
  */
 
-void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime)
+void Utils::TimeToString(std::string &a_roDate, std::string &a_roTime, const TDateTime &a_roDateTime)
 {
+	char Date[100], Time[100]; // TODO: CAW
 	TInt DayOfWeek, Hour;
 
 	/* Write out the date and time in the same format as Amiga OS using the FORMAT_DOS format */
 
 	DayOfWeek = a_roDateTime.DayOfWeek();
 
-	sprintf(a_pcDate, "%s %02d-%s-%04d", g_apccDays[DayOfWeek], a_roDateTime.Day(), g_apccMonths[a_roDateTime.Month()],
+	snprintf(Date, sizeof(Date), "%s %02d-%s-%04d", g_apccDays[DayOfWeek], a_roDateTime.Day(), g_apccMonths[a_roDateTime.Month()],
 		a_roDateTime.Year());
+	a_roDate = Date;
 
 	/* Do some special processing to take into account that we are printing in 12 hour time format. */
 	/* 13:00 becomes 1:00 and 0 am/pm becomes 12 am/pm etc. */
@@ -3326,7 +3328,8 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDa
 		Hour = 12;
 	}
 
-	sprintf(a_pcTime, "%d:%02d %s", Hour, a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
+	snprintf(Time, sizeof(Time), "%d:%02d %s", Hour, a_roDateTime.Minute(), (a_roDateTime.Hour() < 12) ? "am" : "pm");
+	a_roTime = Time;
 }
 
 /**
@@ -3337,18 +3340,20 @@ void Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDa
  * will also use Amiga OS specific functions to create the string when run under Amiga OS.
  *
  * @date	Saturday 23-Jul-2009 06:58 am
- * @param	a_pcDate		Pointer to string into which to place the date string
- * @param	a_pcTime		Pointer to a string into which to place the time string
+ * @param	a_roDate		Reference to a string into which to place the date string
+ * @param	a_roTime		Reference to a string into which to place the time string
  * @param	a_roEntry		Reference to the TEntry structure to be converted
  * @return	ETrue if successful, else EFalse if date stamp passed in was invalid
  */
 
-TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry)
+TBool Utils::TimeToString(std::string &a_roDate, std::string &a_roTime, const TEntry &a_roEntry)
 {
+	char Date[100], Time[100]; // TODO: CAW
 	TBool RetVal;
 
 #ifdef __amigaos__
 
+	// TODO: CAW
 	struct DateTime DateTime = { { 0, 0, 0 }, FORMAT_DOS, DTF_SUBST, NULL, NULL, NULL };
 
 	/* Convert the entry passed in into date and time strings, taking care to respect */
@@ -3358,12 +3363,15 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 	DateTime.dat_Format = FORMAT_DOS;
 	DateTime.dat_Flags = DTF_SUBST;
 	DateTime.dat_StrDay = NULL;
-	DateTime.dat_StrTime = a_pcTime;
-	DateTime.dat_StrDate = a_pcDate;
+	DateTime.dat_StrTime = Time;
+	DateTime.dat_StrDate = Date;
 
 	/* Although unlikely, this can fail so we have to check it */
 
 	RetVal = (DateToStr(&DateTime) != 0);
+
+	a_roDate = Date;
+	a_roTime = Time;
 
 #else /* ! __amigaos__ */
 
@@ -3371,10 +3379,12 @@ TBool Utils::TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntr
 
 	/* Write out the date and time in the same format as Amiga OS using the FORMAT_DOS format */
 
-	sprintf(a_pcDate, "%02d-%s-%04d", a_roEntry.iModified.DateTime().Day(), g_apccMonths[a_roEntry.iModified.DateTime().Month()],
+	snprintf(Date, sizeof(Date), "%02d-%s-%04d", a_roEntry.iModified.DateTime().Day(), g_apccMonths[a_roEntry.iModified.DateTime().Month()],
 		a_roEntry.iModified.DateTime().Year());
+	a_roDate = Date;
 
-	sprintf(a_pcTime, "%02d:%02d", a_roEntry.iModified.DateTime().Hour(), a_roEntry.iModified.DateTime().Minute());
+	snprintf(Time, sizeof(Time), "%02d:%02d", a_roEntry.iModified.DateTime().Hour(), a_roEntry.iModified.DateTime().Minute());
+	a_roTime = Time;
 
 #endif /* __amigaos__ */
 

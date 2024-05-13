@@ -115,9 +115,9 @@ public:
 
 	static TInt StringToInt(const char *a_pccString, TInt *a_piResult);
 
-	static void TimeToString(char *a_pcDate, char *a_pcTime, const TDateTime &a_roDateTime);
+	static void TimeToString(std::string &a_roDate, std::string &a_roTime, const TDateTime &a_roDateTime);
 
-	static TBool TimeToString(char *a_pcDate, char *a_pcTime, const TEntry &a_roEntry);
+	static TBool TimeToString(std::string &a_roDate, std::string &a_roTime, const TEntry &a_roEntry);
 
 	static void TrimString(char *a_pcString);
 
