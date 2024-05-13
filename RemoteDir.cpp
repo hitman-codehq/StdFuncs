@@ -51,18 +51,15 @@ int RRemoteDir::open(const char *a_pattern)
 {
 	(void) a_pattern;
 
-	RSocket socket;
-	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	int retVal = KErrNone;
 
-	if (retVal == KErrNone)
+	if (m_socket->isOpen())
 	{
 		CDir *handler = nullptr;
 
 		try
 		{
-			socket.write(g_signature, SIGNATURE_SIZE);
-
-			handler = new CDir(&socket, a_pattern);
+			handler = new CDir(m_socket, a_pattern);
 			handler->sendRequest();
 
 			if (handler->getResponse()->m_result == KErrNone)
@@ -110,11 +107,13 @@ int RRemoteDir::open(const char *a_pattern)
 		}
 
 		delete handler;
-		socket.close();
 	}
 	else
 	{
-		Utils::info("RRemoteDir::open() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteDir::open() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+			m_remoteFactory->getPort());
+
+		retVal = KErrNotOpen;
 	}
 
 	return retVal;

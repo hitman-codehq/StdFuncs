@@ -44,6 +44,7 @@ if(${Qt6_FOUND} EQUAL 1)
 
 	set(SourceFiles ${SourceFiles} "StdApplication.cpp")
 	set(SourceFiles ${SourceFiles} "RemoteDir.cpp")
+	set(SourceFiles ${SourceFiles} "RemoteFactory.cpp")
 	set(SourceFiles ${SourceFiles} "RemoteFile.cpp")
 	set(SourceFiles ${SourceFiles} "RemoteFileUtils.cpp")
 	set(SourceFiles ${SourceFiles} "StdCharConverter.cpp")

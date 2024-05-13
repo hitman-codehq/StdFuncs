@@ -23,7 +23,7 @@ class RRemoteFile : public RFileObject
 	bool						m_dirty;			/**< True if a write has been performed */
 	int							m_fileOffset;		/**< The current read/write offset into the file */
 	RRemoteFactory				*m_remoteFactory;	/**< Pointer to the remote factory that owns this instance */
-	RSocket						m_socket;			/**< Socket for communicating with remote RADRunner */
+	RSocket						*m_socket;			/**< Socket for communicating with remote RADRunner */
 	std::string					m_fileName;			/**< The name of the file on the remote server */
 	std::vector<unsigned char>	m_fileBuffer;		/**< Buffer containing the contents of the file */
 
@@ -31,7 +31,7 @@ class RRemoteFile : public RFileObject
 
 public:
 
-	RRemoteFile() : m_dirty(false), m_fileOffset(0), m_remoteFactory(nullptr) { }
+	RRemoteFile() : m_dirty(false), m_fileOffset(0), m_remoteFactory(nullptr), m_socket(nullptr) { }
 
 	int create(const char *a_fileName, TUint a_fileMode);
 
@@ -47,7 +47,11 @@ public:
 
 	int close();
 
-	void setFactory(RRemoteFactory *a_remoteFactory) { m_remoteFactory = a_remoteFactory; }
+	void setFactory(RRemoteFactory *a_remoteFactory, RSocket *a_socket)
+	{
+		m_remoteFactory = a_remoteFactory;
+		m_socket = a_socket;
+	}
 };
 
 #endif /* ! REMOTEFILE_H */

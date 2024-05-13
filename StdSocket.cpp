@@ -95,6 +95,10 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 					{
 						retVal = KErrNone;
 					}
+					else
+					{
+						close();
+					}
 				}
 				else
 				{
@@ -176,6 +180,19 @@ int RSocket::accept()
 	}
 
 	return retVal;
+}
+
+/**
+ * Indicates whether the socket is open.
+ * Returns a boolean indicating whether the socket is open and connected to a remote server.
+ *
+ * @date	Tuesday 14-May-2024 6:41 am, Code HQ Tokyo Tsukuda
+ * @return	true if the socket is open, else false
+ */
+
+bool RSocket::isOpen()
+{
+	return m_socket != INVALID_SOCKET;
 }
 
 /**
