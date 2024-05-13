@@ -175,24 +175,27 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 
 	if ((ulNumStartOverWrites) || (ulNumEndOverWrites))
 	{
-		sprintf(acMessage, "*** MungWall alert: File %s, line %d:", paArena->pccSourceFile, paArena->iSourceLine);
+		int Length, Total = snprintf(acMessage, sizeof(acMessage), "*** MungWall alert: File %s, line %d:", paArena->pccSourceFile, paArena->iSourceLine);
 
 		if (ulNumStartOverWrites)
 		{
-			sprintf(&acMessage[strlen(acMessage)], ", %ld byte%s before allocation", ulNumStartOverWrites, ((ulNumStartOverWrites > 1) ? "s" : ""));
+			Length = snprintf(&acMessage[Total], sizeof(acMessage) - Total, ", %ld byte%s before allocation", ulNumStartOverWrites, ((ulNumStartOverWrites > 1) ? "s" : ""));
+			Total += Length > 0 ? Length : 0;
 		}
 
 		if (ulNumEndOverWrites)
 		{
 			if (ulNumStartOverWrites)
 			{
-				sprintf(&acMessage[strlen(acMessage)], " and");
+				Length = snprintf(&acMessage[Total], sizeof(acMessage) - Total, " and");
+				Total += Length > 0 ? Length : 0;
 			}
 
-			sprintf(&acMessage[strlen(acMessage)], " %ld byte%s after allocation", ulNumEndOverWrites, ((ulNumEndOverWrites > 1) ? "s" : ""));
+			Length = snprintf(&acMessage[Total], sizeof(acMessage) - Total, " %ld byte%s after allocation", ulNumEndOverWrites, ((ulNumEndOverWrites > 1) ? "s" : ""));
+			Total += Length > 0 ? Length : 0;
 		}
 
-		sprintf(&acMessage[strlen(acMessage)], " overwritten");
+		snprintf(&acMessage[Total], sizeof(acMessage) - Total, " overwritten");
 		Utils::info(acMessage);
 		printf("%s\n", acMessage);
 	}
