@@ -234,8 +234,8 @@ void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
 	/* the top of the menu bar so take that into account, so that we have X and Y positions that */
 	/* are relative to the client area */
 
-	X = a_poMouseEvent->x();
-	Y = (a_poMouseEvent->y() - m_poWindow->m_poWindow->menuBar()->height());
+	X = qRound(a_poMouseEvent->position().x());
+	Y = qRound(a_poMouseEvent->position().y()) - m_poWindow->m_poWindow->menuBar()->height();
 
 	/* And pass the event onto the client's CWindow::HandlePointerEvent() function.  Qt has a bug whereby */
 	/* if you click on the menu bar to drop down a menu and then you click on the window border above that */
