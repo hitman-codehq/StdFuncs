@@ -209,6 +209,7 @@
     <ClCompile Include="Lex.cpp" />
     <ClCompile Include="MungWall.cpp" />
     <ClCompile Include="RemoteDir.cpp" />
+    <ClCompile Include="RemoteFactory.cpp" />
     <ClCompile Include="RemoteFile.cpp" />
     <ClCompile Include="RemoteFileUtils.cpp" />
     <ClCompile Include="StdApplication.cpp" />

@@ -108,18 +108,15 @@ TResult CRename::sendRequest()
 
 int RRemoteFileUtils::deleteFile(const char *a_fileName)
 {
-	RSocket socket;
-	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	int retVal = KErrNone;
 
-	if (retVal == KErrNone)
+	if (m_socket->isOpen())
 	{
 		CDelete *handler = nullptr;
 
 		try
 		{
-			socket.write(g_signature, SIGNATURE_SIZE);
-
-			handler = new CDelete(&socket, a_fileName);
+			handler = new CDelete(m_socket, a_fileName);
 			handler->sendRequest();
 
 			if (handler->getResponse()->m_result != KErrNone)
@@ -137,11 +134,13 @@ int RRemoteFileUtils::deleteFile(const char *a_fileName)
 		}
 
 		delete handler;
-		socket.close();
 	}
 	else
 	{
-		Utils::info("RRemoteFileUtils::deleteFile() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::deleteFile() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+			m_remoteFactory->getPort());
+
+		retVal = KErrNotOpen;
 	}
 
 	return retVal;
@@ -163,21 +162,18 @@ int RRemoteFileUtils::deleteFile(const char *a_fileName)
 
 int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 {
-	ASSERTM((a_fileName!= nullptr), "RRemoteFileUtils::getFileInfo() => Pointer to filename passed in must not be NULL");
+	ASSERTM((a_fileName != nullptr), "RRemoteFileUtils::getFileInfo() => Pointer to filename passed in must not be NULL");
 	ASSERTM((a_entry != nullptr), "RRemoteFileUtils::getFileInfo() => TEntry structure passed in must not be NULL");
 
-	RSocket socket;
-	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	int retVal = KErrNone;
 
-	if (retVal == KErrNone)
+	if (m_socket->isOpen())
 	{
 		CFileInfo *handler = nullptr;
 
 		try
 		{
-			socket.write(g_signature, SIGNATURE_SIZE);
-
-			handler = new CFileInfo(&socket, a_fileName);
+			handler = new CFileInfo(m_socket, a_fileName);
 			handler->sendRequest();
 
 			if (handler->getResponse()->m_result == KErrNone)
@@ -199,17 +195,20 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 		}
 		catch (RSocket::Error &a_exception)
 		{
+			Utils::info("%s", a_exception.what());
 			Utils::info("RRemoteFileUtils::getFileInfo() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
 
 			retVal = KErrNotFound;
 		}
 
 		delete handler;
-		socket.close();
 	}
 	else
 	{
-		Utils::info("RRemoteFileUtils::getFileInfo() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::getFileInfo() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+			m_remoteFactory->getPort());
+
+		retVal = KErrNotOpen;
 	}
 
 	return retVal;
@@ -227,18 +226,15 @@ int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 
 int RRemoteFileUtils::renameFile(const char *a_oldFullName, const char *a_newFullName)
 {
-	RSocket socket;
-	int retVal = socket.open(m_remoteFactory->getServer().c_str(), m_remoteFactory->getPort());
+	int retVal = KErrNone;
 
-	if (retVal == KErrNone)
+	if (m_socket->isOpen())
 	{
 		CRename *handler = nullptr;
 
 		try
 		{
-			socket.write(g_signature, SIGNATURE_SIZE);
-
-			handler = new CRename(&socket, a_oldFullName, a_newFullName);
+			handler = new CRename(m_socket, a_oldFullName, a_newFullName);
 			handler->sendRequest();
 
 			if (handler->getResponse()->m_result != KErrNone)
@@ -256,11 +252,13 @@ int RRemoteFileUtils::renameFile(const char *a_oldFullName, const char *a_newFul
 		}
 
 		delete handler;
-		socket.close();
 	}
 	else
 	{
-		Utils::info("RRemoteFileUtils::renameFile() => Cannot connect to %s (%d)", m_remoteFactory->getServer().c_str(), retVal);
+		Utils::info("RRemoteFileUtils::renameFile() => Connection to server \"%s:%d\" is not open", m_remoteFactory->getServer().c_str(),
+			m_remoteFactory->getPort());
+
+		retVal = KErrNotOpen;
 	}
 
 	return retVal;
