@@ -1,3 +1,4 @@
+Bodge!
 
 #ifndef STDFUNCS_H
 #define STDFUNCS_H
