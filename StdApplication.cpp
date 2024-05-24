@@ -751,9 +751,9 @@ void RApplication::exit()
 
 	m_bDone = ETrue;
 
-#elif defined(__unix__)
+#elif defined(QT_GUI_LIB)
 
-	m_poApplication->quit();
+	m_poApplication->exit();
 
 #else /* ! __unix__ */
 
