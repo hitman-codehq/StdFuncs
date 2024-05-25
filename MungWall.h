@@ -117,9 +117,13 @@ void DebugFree(void *pvBlock, const char *pccSourceFile, int iSourceLine);
 
 #endif /* __cplusplus */
 
+#ifndef __APPLE__
+
 #define malloc(ulSize) DebugMalloc(ulSize, __FILE__, __LINE__)
 #define realloc(pvBlock, ulSize) DebugReAlloc(pvBlock, ulSize, __FILE__, __LINE__)
 #define free(pvBlock) DebugFree(pvBlock, __FILE__, __LINE__)
+
+#endif /* ! __APPLE__ */
 
 #ifndef MUNGWALL_NO_LINE_TRACKING
 
