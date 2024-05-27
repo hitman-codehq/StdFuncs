@@ -60,6 +60,7 @@ RSocket::RSocket()
  * @return	KErrNone if successful
  * @return	KErrGeneral if the socket could not be opened
  * @return	KErrHostNotFound if the host could not be resolved
+ * @return	KErrNotOpen if a connection to the remote server could not be made
  */
 
 int RSocket::open(const char *a_host, unsigned short a_port)
@@ -95,6 +96,10 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 					{
 						retVal = KErrNone;
 					}
+					else
+					{
+						retVal = KErrNotOpen;
+					}
 				}
 				else
 				{
@@ -113,6 +118,11 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 				}
 			}
 		}
+	}
+
+	if (retVal != KErrNone)
+	{
+		close();
 	}
 
 	return retVal;
