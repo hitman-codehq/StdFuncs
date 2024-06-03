@@ -204,25 +204,13 @@ std::pair<uint32_t, int> CStdCharConverter::to8859(uint32_t a_character)
 	buffer[4] = '\0';
 
 	QString unicode = m_textCodecUTF8->toUnicode(buffer);
+	QByteArray ascii = m_textCodec8859->fromUnicode(unicode);
 
 	/* The returned string will only contain data if the character was successfully converted.  If it was */
 	/* not, then just return a 0 character to indicate this */
-	if (unicode.length() > 0)
+	if (ascii.length() > 0)
 	{
-		/* The Unicode string contains the data as code points so convert it to 1 or 2 byte UTF-8 encoded characters. */
-		/* Because toLocal8Bit() will convert to whatever the current local locale is, and because the current local */
-		/* locale is UTF-8, we have to temporarily change it to 8859-15 and then back again afterwards */
-		QTextCodec::setCodecForLocale(m_textCodec8859);
-		QByteArray UTF8 = unicode.toLocal8Bit();
-		QTextCodec::setCodecForLocale(nullptr);
-
-		retVal = std::pair<uint32_t, int>(static_cast<unsigned char>(UTF8[0]), 1);
-
-		if (UTF8.size() > 1)
-		{
-			retVal.first |= static_cast<unsigned char>(UTF8[1]) << 8;
-			++retVal.second;
-		}
+		retVal.first = (unsigned char) ascii[0];
 	}
 
 #else /* ! QT_GUI_LIB */

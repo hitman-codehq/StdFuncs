@@ -123,7 +123,7 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 			Key = 0;
 
-			for (int Index = UTF8.size() -1; Index >= 0; --Index)
+			for (int Index = UTF8.size() - 1; Index >= 0; --Index)
 			{
 				Key <<= 8;
 				Key |= (unsigned char) UTF8.at(Index);
@@ -153,10 +153,10 @@ void CQtWindow::HandleKeyEvent(QKeyEvent *a_poKeyEvent, bool a_bKeyDown)
 
 				Key = a_poKeyEvent->key();
 
-				/* If the ctrl key is currently pressed then convert the keycode back to standard ASCII, */
-				/* but NOT if alt is also pressed or it will break German keymappings that use altgr! */
+				/* If the ctrl key or the Mac OS meta key is currently pressed then convert the keycode back to */
+				/* standard ASCII, but NOT if alt is also pressed or it will break German keymappings that use altgr! */
 
-				if ((CWindow::m_bCtrlPressed) && (!(CWindow::m_bAltPressed)))
+				if ((CWindow::m_bCtrlPressed && !CWindow::m_bAltPressed) || CWindow::m_bMetaPressed)
 				{
 					/* Convert the key to lower case */
 
