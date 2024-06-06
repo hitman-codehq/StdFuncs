@@ -466,6 +466,34 @@ int main()
 	Result = Utils::StringToInt("", &Value);
 	test(Result == KErrCorrupt);
 
+	/* Test #16: Utils::splitHost() tests */
+
+	Test.Next("Utils::splitHost() tests");
+
+	std::string Server;
+	int PathOffset;
+	unsigned short Port;
+
+	test(Utils::splitHost("www.example.com", Server, Port, 80) == KErrNone);
+	test(Server == "www.example.com");
+	test(Port == 80);
+
+	test(Utils::splitHost("www.example.com:8080", Server, Port, 80) == KErrNone);
+	test(Server == "www.example.com");
+	test(Port == 8080);
+
+	test(Utils::splitHost("", Server, Port, 80) == KErrNotFound);
+
+	PathOffset = Utils::splitHost("www.example.com/path", Server, Port, 80);
+	test(Server == "www.example.com");
+	test(Port == 80);
+	test(PathOffset == 16);
+
+	PathOffset = Utils::splitHost("www.example.com:8080/path", Server, Port, 80);
+	test(Server == "www.example.com");
+	test(Port == 8080);
+	test(PathOffset == 21);
+
 	/* Clean up after ourselves */
 
 	Result = g_oFileUtils.deleteFile("TimeFile.txt");
