@@ -109,7 +109,7 @@ public:
 
 	static TInt setProtection(const char *a_pccFileName, TUint a_uiAttributes);
 
-	static int splitHost(const char *a_pccHost, std::string &a_roServer, unsigned short &a_rusPort, unsigned short a_usDefaultPort = 80);
+	static int splitHost(const char *a_host, std::string &a_server, unsigned short &a_port, unsigned short a_defaultPort = 80);
 
 	static char *StripDags(char *a_pcLine, TInt *a_piLength);
 

@@ -3083,56 +3083,77 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 
 /**
  * Split a host into its hostname and port components.
- * This function parses a string in the format hostname:port and extracts the two components into a string
- * and an unsigned short variable respectively. The port is optional and if not present, a default value will
- * be used. It is considered an error for the hostname to not be present.
+ * This function parses a string in the format hostname:port/path and extracts the first two components into a string
+ * and an unsigned short variable respectively. The port is optional and if not present, a default value will be used.
+ * It is considered an error for the hostname to not be present.
+ *
+ * If a path follows the hostname and port, it will be discarded, but its offset will be returned to indicate its
+ * presence.
  *
  * @date	Friday 10-May-2024 6:03 am, Code HQ Tokyo Tsukuda
  * @param	a_pccHost		The host to parse
  * @param	a_roServer		The string into which to place the extracted hostname
  * @param	a_rusPort		The unsigned short into which to place the extracted port
  * @param	a_usDefaultPort	The port to be used if no port is specified
- * @return	KErrNone if successful
+ * @return	KErrNone or the positive path offset if successful
  * @return	KErrNotFound if the hostname was not present
  */
 
-int Utils::splitHost(const char *a_pccHost, std::string &a_roServer, unsigned short &a_rusPort, unsigned short a_usDefaultPort)
+int Utils::splitHost(const char *a_host, std::string &a_server, unsigned short &a_port, unsigned short a_defaultPort)
 {
-	int serverLength, portLength, port, retVal;
-	TLex lex(a_pccHost, static_cast<int>(strlen(a_pccHost)));
+	int hostLength, pathLength, serverLength, portLength, port, retVal;
+	TLex hostLex(a_host, static_cast<int>(strlen(a_host)));
 
-	retVal = KErrNone;
+	retVal = KErrNotFound;
 
-	/* Extract the server name and port number from the host passed in and, if a port was specified, */
-	/* convert it and check its validity */
-	lex.SetWhitespace(":");
+	/* Extract the server name and port number from the complete URL passed in */
+	hostLex.SetWhitespace("/");
 
-	const char *serverString = lex.NextToken(&serverLength);
-	const char *portString = lex.NextToken(&portLength);
+	const char *hostString = hostLex.NextToken(&hostLength);
 
-	if (serverString != nullptr)
+	if (hostString != nullptr)
 	{
-		a_roServer = std::string(serverString, serverLength);
+		std::string host(hostString, hostLength);
+		TLex lex(host.c_str(), hostLength);
 
-		/* The port string is optional so only parse if it is there, and use the default value if it is missing */
-		/* or invalid */
-		a_rusPort = a_usDefaultPort;
+		/* Extract the server name and port number from the host passed in and, if a port was specified, */
+		/* convert it and check its validity */
+		lex.SetWhitespace(":");
 
-		if (portString)
+		const char *serverString = lex.NextToken(&serverLength);
+		const char *portString = lex.NextToken(&portLength);
+
+		if (serverString != nullptr)
 		{
-			if (Utils::StringToInt(portString, &port) == KErrNone)
+			retVal = KErrNone;
+
+			a_server = std::string(serverString, serverLength);
+
+			/* The port string is optional so only parse if it is there, and use the default value if it is missing */
+			/* or invalid */
+			a_port = a_defaultPort;
+
+			if (portString)
 			{
-				a_rusPort = static_cast<unsigned short>(port);
-			}
-			else
-			{
-				Utils::info("Utils::splitURL() => Specified port \"%s\" is invalid, using default port %d", portString, a_rusPort);
+				if (Utils::StringToInt(portString, &port) == KErrNone)
+				{
+					a_port = static_cast<unsigned short>(port);
+				}
+				else
+				{
+					Utils::info("Utils::splitURL() => Specified port \"%s\" is invalid, using default port %d", portString, a_port);
+				}
 			}
 		}
-	}
-	else
-	{
-		retVal = KErrNotFound;
+
+		/* If a path follows the server name and port, it will be discarded, but return to the client the fact that */
+		/* it is there, by returning its offset in the URL */
+		const char *pathString = hostLex.NextToken(&pathLength);
+
+		if (pathString != nullptr)
+		{
+			retVal = static_cast<int>(pathString - a_host);
+		}
 	}
 
 	return retVal;
