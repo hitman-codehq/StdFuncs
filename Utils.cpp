@@ -3082,21 +3082,21 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 }
 
 /**
- * Split a host into its hostname and port components.
- * This function parses a string in the format hostname:port/path and extracts the first two components into a string
+ * Split a host into its server name and port components.
+ * This function parses a string in the format servername:port/path and extracts the first two components into a string
  * and an unsigned short variable respectively. The port is optional and if not present, a default value will be used.
- * It is considered an error for the hostname to not be present.
+ * It is considered an error for the server name to not be present.
  *
- * If a path follows the hostname and port, it will be discarded, but its offset will be returned to indicate its
+ * If a path follows the server name and port, it will be discarded, but its offset will be returned to indicate its
  * presence.
  *
  * @date	Friday 10-May-2024 6:03 am, Code HQ Tokyo Tsukuda
  * @param	a_pccHost		The host to parse
- * @param	a_roServer		The string into which to place the extracted hostname
+ * @param	a_roServer		The string into which to place the extracted server name
  * @param	a_rusPort		The unsigned short into which to place the extracted port
  * @param	a_usDefaultPort	The port to be used if no port is specified
  * @return	KErrNone or the positive path offset if successful
- * @return	KErrNotFound if the hostname was not present
+ * @return	KErrNotFound if the server name was not present
  */
 
 int Utils::splitHost(const char *a_host, std::string &a_server, unsigned short &a_port, unsigned short a_defaultPort)
