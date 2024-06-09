@@ -135,7 +135,12 @@ public:
 
 	virtual TInt open(const char *a_pattern) = 0;
 
-	virtual void close() = 0;
+	virtual void close()
+	{
+		/* Free the contents of the TEntry array in case the RDir class is reused */
+
+		m_entries.Purge();
+	}
 
 	virtual TInt read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder = EDirSortNone) = 0;
 };
