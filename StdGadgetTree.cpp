@@ -182,11 +182,9 @@ void CStdGadgetTree::setContent(int a_contentID)
 
 #ifdef __amigaos__
 
-	if (a_contentID == 0)
-	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
-	}
-	else
+	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
+
+	if (a_contentID != 0)
 	{
 		ULONG items = (ULONG) &m_itemsMap[a_contentID];
 
@@ -260,6 +258,8 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 #elif defined(QT_GUI_LIB)
 
 	QList<QTreeWidgetItem *> items;
+
+	while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
 
 	/* Iterate through the list passed in and, for each item on the list, create a widget item to represent it, */
 	/* and add it to the tree widget's list of nodes */
