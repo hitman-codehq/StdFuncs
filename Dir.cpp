@@ -955,9 +955,7 @@ TInt RDir::open(const char *a_pccPattern)
 
 void RDir::close()
 {
-	/* Free the contents of the TEntry array in case it the RDir class is reused */
-
-	m_entries.Purge();
+	RDirObject::close();
 
 #ifdef __amigaos__
 

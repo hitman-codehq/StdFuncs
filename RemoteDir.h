@@ -25,8 +25,6 @@ public:
 
 	int open(const char *a_pattern);
 
-	void close() { }
-
 	int read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder = EDirSortNone);
 
 	void setFactory(RRemoteFactory *a_remoteFactory) { m_remoteFactory = a_remoteFactory; }

@@ -163,7 +163,7 @@ int RRemoteFileUtils::deleteFile(const char *a_fileName)
 
 int RRemoteFileUtils::getFileInfo(const char *a_fileName, TEntry *a_entry)
 {
-	ASSERTM((a_entry != nullptr), "RRemoteFileUtils::getFileInfo() => Pointer to filename passed in must not be NULL");
+	ASSERTM((a_fileName!= nullptr), "RRemoteFileUtils::getFileInfo() => Pointer to filename passed in must not be NULL");
 	ASSERTM((a_entry != nullptr), "RRemoteFileUtils::getFileInfo() => TEntry structure passed in must not be NULL");
 
 	RSocket socket;
