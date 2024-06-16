@@ -10,6 +10,7 @@
 
 #include <errno.h>
 #include <fnmatch.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #endif /* __unix__ */
