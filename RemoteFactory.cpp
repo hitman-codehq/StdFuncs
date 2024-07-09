@@ -137,7 +137,6 @@ void RRemoteFactory::close()
 * @return	KErrNone if successful, otherwise one of the errors returned by RRemoteFactory::openRemote()
 */
 
-// TODO: CAW - Move this stuff into RSocket?
 int RRemoteFactory::checkConnection()
 {
 	int retVal = KErrNone;
@@ -182,12 +181,9 @@ int RRemoteFactory::checkConnection()
 				char buffer[1];
 				result = recv(m_socket.m_socket, buffer, 1, 0);
 
-				if (result != -1)
+				if (fcntl(m_socket.m_socket, F_SETFL, flags) == -1)
 				{
-					if (fcntl(m_socket.m_socket, F_SETFL, flags) == -1)
-					{
-						result = -1;
-					}
+					result = -1;
 				}
 			}
 		}
