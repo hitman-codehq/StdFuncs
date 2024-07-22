@@ -35,6 +35,11 @@ public:
 
 	RRemoteFactory() : m_useLocal(false) { }
 
+	~RRemoteFactory()
+	{
+		close();
+	}
+
 	int openRemote();
 
 	void close();
@@ -62,12 +67,26 @@ public:
 		m_serverPort = a_port;
 	}
 
-	/**< Set this to true when the RRemoteFactory instance is configured to be used for remote
-	 * access, but there is a need to temporarily access the local file system
+	/**
+	 * Sets a remote factory temporarily to local mode.
+	 * Set this to true when the RRemoteFactory instance is configured to be used for remote access,
+	 * but there is a need to temporarily access the local file system. This is only meant to be a
+	 * temporary change, and you should restore the old setting as quickly as possible.
+	 *
+	 * Note that this method is only useful for remote factories. It will have no effect for local ones.
+	 *
+	 * @date	Tuesday 23-Jul-2024 8:44 am, Code HQ Tokyo Tsukuda
+	 * @param	a_useLocal		true to treat the factory as a local factory, or false as a remote one
+	 * @return	The previous remote setting of the remote factory
 	 */
-	void useLocal(bool a_useLocal)
+
+	bool useLocal(bool a_useLocal)
 	{
+		bool oldSetting = m_useLocal;
+
 		m_useLocal = a_useLocal;
+
+		return oldSetting;
 	}
 };
 
