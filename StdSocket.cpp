@@ -75,49 +75,50 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 
 	WSAData wsaData;
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) == 0)
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		return KErrGeneral;
+	}
 
 #endif /* WIN32 */
 
+	if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) != INVALID_SOCKET)
 	{
-		if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) != INVALID_SOCKET)
+		if (a_host)
 		{
-			if (a_host)
+			if ((hostEnt = gethostbyname(a_host)) != nullptr)
 			{
-				if ((hostEnt = gethostbyname(a_host)) != nullptr)
+				inAddr = (struct in_addr *) hostEnt->h_addr_list[0];
+
+				sockAddr.sin_family = hostEnt->h_addrtype;
+				sockAddr.sin_port = htons(a_port);
+				sockAddr.sin_addr = *inAddr;
+
+				if (connect(m_socket, (struct sockaddr *) &sockAddr, sizeof(sockAddr)) >= 0)
 				{
-					inAddr = (struct in_addr *) hostEnt->h_addr_list[0];
-
-					sockAddr.sin_family = hostEnt->h_addrtype;
-					sockAddr.sin_port = htons(a_port);
-					sockAddr.sin_addr = *inAddr;
-
-					if (connect(m_socket, (struct sockaddr *) &sockAddr, sizeof(sockAddr)) >= 0)
-					{
-						retVal = KErrNone;
-					}
-					else
-					{
-						retVal = KErrNotOpen;
-
-						close();
-					}
+					retVal = KErrNone;
 				}
 				else
 				{
-					retVal = KErrHostNotFound;
+					retVal = KErrNotOpen;
+
+					close();
 				}
 			}
 			else
 			{
-				/* When running as a host, enable SO_LINGER to ensure that socket is cleanly closed and can thus be */
-				/* immediately reopened for the next client connection */
-				struct linger Linger = { 1, 0 };
+				retVal = KErrHostNotFound;
+			}
+		}
+		else
+		{
+			/* When running as a host, enable SO_LINGER to ensure that socket is cleanly closed and can thus be */
+			/* immediately reopened for the next client connection */
+			struct linger Linger = { 1, 0 };
 
-				if (setsockopt(m_socket, SOL_SOCKET, SO_LINGER, (const char *) &Linger, sizeof(Linger)) == 0)
-				{
-					retVal = KErrNone;
-				}
+			if (setsockopt(m_socket, SOL_SOCKET, SO_LINGER, (const char *) &Linger, sizeof(Linger)) == 0)
+			{
+				retVal = KErrNone;
 			}
 		}
 	}
