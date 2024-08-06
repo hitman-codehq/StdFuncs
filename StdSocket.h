@@ -41,6 +41,12 @@ public:
 
 private:
 
+#ifdef WIN32
+
+	static int	m_useCount;		/**< Number of times the socket has been opened */
+
+#endif /* WIN32 */
+		
 	SOCKET	m_serverSocket;		/**< The socket on which to listen for connections */
 
 public:

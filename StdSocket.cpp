@@ -19,6 +19,12 @@
 
 #endif /* ! defined(__unix__) || defined(__amigaos__) */
 
+#ifdef WIN32
+
+int RSocket::m_useCount;
+
+#endif /* WIN32 */
+
 /**
  * Typeinfo workaround.
  * This is a workaround for Amiga GCC 6.5.0b.  In order to catch an exception that is derived from the
@@ -75,7 +81,11 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 
 	WSAData wsaData;
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) == 0)
+	{
+		++m_useCount;
+	}
+	else
 	{
 		return KErrGeneral;
 	}
@@ -140,6 +150,13 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 
 void RSocket::close()
 {
+
+#ifdef WIN32
+
+	bool socketUsed = m_socket != INVALID_SOCKET || m_serverSocket != INVALID_SOCKET;
+
+#endif /* WIN32 */
+
 	if (m_socket != INVALID_SOCKET)
 	{
 		closesocket(m_socket);
@@ -154,9 +171,15 @@ void RSocket::close()
 
 #ifdef WIN32
 
-	WSACleanup();
+	if (socketUsed)
+	{
+		if (--m_useCount == 0)
+		{
+			DEBUGCHECK((WSACleanup() == 0), "RSocket::close() => Unable to shut down Winsock");
+		}
+	}
 
-#endif
+#endif /* WIN32 */
 
 }
 
