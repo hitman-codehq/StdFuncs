@@ -52,6 +52,11 @@ public:
 
 	RFileUtilsObject &getFileUtilsObject();
 
+	bool isOpen()
+	{
+		return m_socket.isOpen();
+	}
+
 	bool isRemote()
 	{
 		return m_serverName.length() != 0 && !m_useLocal;
