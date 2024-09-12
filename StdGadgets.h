@@ -412,6 +412,7 @@ class CStdGadgetTree : public CStdGadget
 {
 private:
 
+	int		m_contentID;					/**< The content ID of the file list currently in use */
 	int		m_nextContentID;				/**< The next content ID that will be assigned to a new list */
 
 #ifdef __amigaos__
@@ -465,6 +466,11 @@ protected:
 	int setContent(StdList<CTreeNode> &a_items);
 
 public:
+
+	int getContentID()
+	{
+		return m_contentID;
+	}
 
 	std::string getSelectedItem();
 

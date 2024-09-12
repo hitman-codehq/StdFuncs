@@ -180,6 +180,8 @@ void CStdGadgetTree::setContent(int a_contentID)
 {
 	ASSERTM((a_contentID >= 0), "CStdGadgetTree::setContent() => Invalid content ID passed in");
 
+	m_contentID = a_contentID;
+
 #ifdef __amigaos__
 
 	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
@@ -282,7 +284,9 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 
 #endif /* ! QT_GUI_LIB */
 
-	return m_nextContentID++;
+	m_contentID = m_nextContentID++;
+
+	return m_contentID;
 }
 
 /**
