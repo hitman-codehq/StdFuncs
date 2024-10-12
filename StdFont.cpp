@@ -1001,7 +1001,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 		XPixels = TextWidthInPixels(LineText);
 		XPosition = (m_iXOffset + XPixels);
 
-		if (XPosition > m_iClipWidth)
+		if (XPixels > m_iClipWidth)
 		{
 			break;
 		}
