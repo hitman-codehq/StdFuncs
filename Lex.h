@@ -28,8 +28,8 @@ private:
 
 	const char	*m_pccString;			/**< Ptr to string to be parsed by non destructive routine */
 	const char	*m_pccOriginalString;	/**< Cached copy of m_pccString */
-	const char	*m_pccQuotes;			/**< Quote characters for which to check */
 	const char	*m_pccWhitespace;		/**< Whitespace characters for which to check */
+	char		m_acQuotes[3];			/**< Quote characters for which to check */
 	char		*m_pcString;			/**< Ptr to string to be parsed by destructive routine */
 	TBool		m_bKeepQuotes;			/**< ETrue to keep the quote marks around strings */
 	TBool		m_bKeepWhitespace;		/**< ETrue to treat white space as a token */

@@ -80,9 +80,9 @@ static const char* g_accOnlyEndQuoteResults[] = { "One\"" };
 static const char g_accOnlyStartQuoteNonAlphaNum[] = "\"One!";
 static const char* g_accOnlyStartQuoteNonAlphaNumResults[] = { "\"One!" };
 
-#define ONLY_END_QUOTE_ALPHA_NUM_COUNT 1
+#define ONLY_END_QUOTE_ALPHA_NUM_COUNT 2
 static const char g_accOnlyEndQuoteNonAlphaNum[] = "One!\"";
-static const char* g_accOnlyEndQuoteNonAlphaNumResults[] = { "One!\"" };
+static const char* g_accOnlyEndQuoteNonAlphaNumResults[] = { "One", "!\""};
 
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
@@ -298,7 +298,7 @@ int main()
 	TLex OnlyEndQuoteNonAlphaNum(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
 	OnlyEndQuoteNonAlphaNum.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuoteNonAlphaNum.SetQuotes(QuoteChars);
-	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_COUNT);
+	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_ALPHA_NUM_COUNT);
 
 	TLex OnlyStartQuoteNonAlphaNum_NA(g_accOnlyStartQuoteNonAlphaNum, (int) strlen(g_accOnlyStartQuoteNonAlphaNum));
 	OnlyStartQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
@@ -307,7 +307,7 @@ int main()
 	TLex OnlyEndQuoteNonAlphaNum_NA(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
 	OnlyEndQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuoteNonAlphaNum_NA.SetQuotes(QuoteChars);
-	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum_NA, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_COUNT);
+	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum_NA, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_ALPHA_NUM_COUNT);
 
 	Test.End();
 
