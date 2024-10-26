@@ -560,6 +560,7 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 #ifdef __amigaos__
 
 	BPTR Lock;
+	LONG Error;
 
 	if ((Lock = CreateDir(a_pccDirectoryName)) != 0)
 	{
@@ -569,7 +570,11 @@ TInt Utils::CreateDirectory(const char *a_pccDirectoryName)
 	}
 	else
 	{
-		RetVal = (IoErr() == ERROR_OBJECT_EXISTS) ? KErrAlreadyExists : KErrNotFound;
+		Error = IoErr();
+
+		/* This is required for OS3 compatibility, as OS4 returns ERROR_OBJECT_EXISTS for directories that already */
+		/* exist, but OS3 returns ERROR_OBJECT_IN_USE */
+		RetVal = (Error == ERROR_OBJECT_EXISTS || Error == ERROR_OBJECT_IN_USE) ? KErrAlreadyExists : KErrNotFound;
 	}
 
 #elif defined(__unix__)
