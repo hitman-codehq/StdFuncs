@@ -16,13 +16,12 @@
  * @param	a_pcString Ptr to string to be parsed for tokens
  */
 
-TLex::TLex(char *a_pcString)
+TLex::TLex(char *a_pcString) : m_acQuotes{ '"', '\'', '\0' }
 {
 	/* Remember to set these in the other constructor as well */
 
 	m_pccString = m_pccOriginalString = NULL;
 	m_pcString = a_pcString;
-	m_pccQuotes = "\"'";
 	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = (TInt) strlen(a_pcString);
 	m_iQuotesLength = 2;
@@ -43,13 +42,12 @@ TLex::TLex(char *a_pcString)
  * @param	a_iLength	The length of the string passed in, excluding NULL terminator
  */
 
-TLex::TLex(const char *a_pccString, TInt a_iLength)
+TLex::TLex(const char *a_pccString, TInt a_iLength) : m_acQuotes { '"', '\'', '\0' }
 {
 	/* Remember to set these in the other constructor as well */
 
 	m_pccString = m_pccOriginalString = a_pccString;
 	m_pcString = NULL;
-	m_pccQuotes = "\"'";
 	m_pccWhitespace = " \t";
 	m_iLength = m_iOriginalLength = a_iLength;
 	m_iQuotesLength = 2;
@@ -74,7 +72,7 @@ TBool TLex::IsQuote(char a_cCharacter)
 
 	for (QuoteIndex = 0; QuoteIndex < m_iQuotesLength; ++QuoteIndex)
 	{
-		if (a_cCharacter == m_pccQuotes[QuoteIndex])
+		if (a_cCharacter == m_acQuotes[QuoteIndex])
 		{
 			break;
 		}
@@ -226,7 +224,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 	NextToken = RetVal = m_pccString;
 	Index = 0;
-	FoundQuotes = (m_iQuotesLength != 2);
+	FoundQuotes = false;
 	QuoteChar = '"';
 
 	/* Skip past any white space at the start of the string */
@@ -332,6 +330,14 @@ const char *TLex::NextToken(TInt *a_piLength)
 					++NextToken;
 					++Index;
 				}
+			}
+
+			/* And extract the end " or ' if we are configured to keep it and if it actually exists */
+
+			if ((Index < m_iLength) && m_bKeepQuotes && IsQuote(*NextToken))
+			{
+				++NextToken;
+				++Index;
 			}
 		}
 	}
@@ -450,6 +456,9 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace, TBool a_bKeep
  * Sets the list of characters that are treated as delimeters for quoted strings.  By
  * default, these are the " and ' characters.
  *
+ * @pre		a_pccQuotes must not be NULL
+ * @pre		A maximum of 2 quote characters is supported
+ *
  * @date	Friday 21-Mar-2014 7:14 am
  * @param	a_pccQuotes		Ptr to string containing the new quote characters.
  *							Contents must be valid for the duration of the class's use
@@ -458,8 +467,9 @@ void TLex::SetConfig(TBool a_bKeepQuotes, TBool a_bKeepWhitespace, TBool a_bKeep
 void TLex::SetQuotes(const char *a_pccQuotes)
 {
 	ASSERTM((a_pccQuotes != NULL), "TLex::SetQuotes() => Ptr to quote string can not be NULL");
+	ASSERTM((strlen(a_pccQuotes) < sizeof(m_acQuotes)), "TLex::SetQuotes() => Quote string cannot be longer than 2 characters");
 
-	m_pccQuotes = a_pccQuotes;
+	strcpy(m_acQuotes, a_pccQuotes);
 	m_iQuotesLength = (TInt) strlen(a_pccQuotes);
 }
 

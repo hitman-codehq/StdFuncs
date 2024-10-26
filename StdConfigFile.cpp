@@ -774,6 +774,10 @@ TInt RConfigFile::Parse()
 
 				Lex.SetWhitespace(" \t=");
 
+				/* Don't use any quotes, because the token itself might contain some that we want to use */
+
+				Lex.SetQuotes("");
+
 				/* Get the first token from the line */
 
 				if ((Token = Lex.NextToken(&TokenLength)) != NULL)
