@@ -39,6 +39,13 @@ private:
 	TInt		m_iQuotesLength;		/**< Number of characters of quotes to be checked */
 	TInt		m_iWhitespaceLength;	/**< Number of characters of white space to be checked */
 
+private:
+
+	inline bool IsAlNum(unsigned char a_character)
+	{
+		return (a_character == '_') ? true : isalnum(a_character);
+	}
+
 public:
 
 	TLex(const char *a_pccString, TInt a_iLength);
