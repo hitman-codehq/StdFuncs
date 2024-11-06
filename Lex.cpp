@@ -313,9 +313,9 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 		else
 		{
-			if (isalnum((unsigned char) *NextToken))
+			if (IsAlNum((unsigned char) *NextToken))
 			{
-				while ((Index < m_iLength) && isalnum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
+				while ((Index < m_iLength) && IsAlNum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
 					(!IsQuote(*NextToken)))
 				{
 					++NextToken;
@@ -324,7 +324,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 			}
 			else
 			{
-				while ((Index < m_iLength) && !isalnum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
+				while ((Index < m_iLength) && !IsAlNum((unsigned char) *NextToken) && !IsWhitespace(*NextToken) &&
 					!IsQuote(*NextToken))
 				{
 					++NextToken;
