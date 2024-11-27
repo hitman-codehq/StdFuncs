@@ -72,21 +72,37 @@ static const char *g_accDoubleQuoteResults[] = { "\"\"" };
 static const char g_accOnlyStartQuote[] = "\"One";
 static const char* g_accOnlyStartQuoteResults[] = { "\"One" };
 
-#define ONLY_END_QUOTE_COUNT 1
+#define ONLY_END_QUOTE_COUNT 2
 static const char g_accOnlyEndQuote[] = "One\"";
-static const char* g_accOnlyEndQuoteResults[] = { "One\"" };
+static const char* g_accOnlyEndQuoteResults[] = { "One", "\""};
 
 #define ONLY_START_QUOTE_ALPHA_NUM_COUNT 1
 static const char g_accOnlyStartQuoteNonAlphaNum[] = "\"One!";
-static const char* g_accOnlyStartQuoteNonAlphaNumResults[] = { "\"One!" };
+static const char *g_accOnlyStartQuoteNonAlphaNumResults[] = { "\"One!" };
 
 #define ONLY_END_QUOTE_ALPHA_NUM_COUNT 2
 static const char g_accOnlyEndQuoteNonAlphaNum[] = "One!\"";
-static const char* g_accOnlyEndQuoteNonAlphaNumResults[] = { "One", "!\""};
+static const char *g_accOnlyEndQuoteNonAlphaNumResults[] = { "One!", "\""};
+
+#define ONLY_END_QUOTE_ALPHA_NUM_NA_COUNT 3
+static const char g_accOnlyEndQuoteNonAlphaNum_NA[] = "One!\"";
+static const char *g_accOnlyEndQuoteNonAlphaNum_NAResults[] = { "One", "!", "\""};
+
+#define ESCAPED_QUOTE_COUNT 1
+static const char g_accEscapedQuote[] = { 0x27, 0x5c, 0x27, 0x27, 0x00 }; // '\''
+static const char *g_accEscapedQuoteResults[] = { "\x5c\x27\x00" }; // \'
+
+#define DOUBLE_ESCAPED_QUOTE_COUNT 1
+static const char g_accDoubleEscapedQuote[] = { 0x27, 0x5c, 0x27, 0x5c, 0x27, 0x27, 0x00 }; // '\''
+static const char *g_accDoubleEscapedQuoteResults[] = { "\x5c\x27\x5c\x27\x00" }; // \'
+
+#define ESCAPED_QUOTE_KEEP_COUNT 1
+static const char g_accEscapedQuoteKeep[] = { 0x22, 0x5c, 0x22, 0x22, 0x00 }; // "\""
+static const char *g_accEscapedQuoteKeepResults[] = {"\x22\x5c\x22\x22\x00"}; // "\""
 
 /* Written: Saturday 17-Nov-2012 7:22 pm, Code HQ Ehinger Tor */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
-/*			a_apccList		Array of ptrs to strings containing the exepcted results */
+/*			a_apccList		Array of ptrs to strings containing the expected results */
 /*			a_iListCount	Number of items in a_apccList */
 /* Iterates through an initialised TLex, extracts the tokens from it and ensures that */
 /* they match up with the expected results */
@@ -114,7 +130,7 @@ static void CheckList(TLex &a_roLex, const char *a_apccList[], TInt a_iListCount
 
 /* Written: Wednesday 28-Nov-2012 6:32 pm, Vis à Vis Hotel, Lindau */
 /* @param	a_roLex			Reference to the initialised TLex object to be tested */
-/*			a_apccList		Array of ptrs to strings containing the exepcted results */
+/*			a_apccList		Array of ptrs to strings containing the expected results */
 /*			a_iListCount	Number of items in a_apccList */
 /* Iterates through an initialised TLex, extracts the tokens from it and ensures that */
 /* they match up with the expected results.  This is the non destructive version of the */
@@ -292,11 +308,11 @@ int main()
 	/* when the string also contains non alpha numeric characters */
 
 	TLex OnlyStartQuoteNonAlphaNum(g_accOnlyStartQuoteNonAlphaNum, (int) strlen(g_accOnlyStartQuoteNonAlphaNum));
-	OnlyStartQuoteNonAlphaNum.SetConfig(ETrue, ETrue, ETrue);
+	OnlyStartQuoteNonAlphaNum.SetConfig(ETrue, ETrue, EFalse);
 	CheckListNonDestructive(OnlyStartQuoteNonAlphaNum, g_accOnlyStartQuoteNonAlphaNumResults, ONLY_START_QUOTE_COUNT);
 
 	TLex OnlyEndQuoteNonAlphaNum(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
-	OnlyEndQuoteNonAlphaNum.SetConfig(ETrue, ETrue, ETrue);
+	OnlyEndQuoteNonAlphaNum.SetConfig(ETrue, ETrue, EFalse);
 	OnlyEndQuoteNonAlphaNum.SetQuotes(QuoteChars);
 	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_ALPHA_NUM_COUNT);
 
@@ -304,10 +320,24 @@ int main()
 	OnlyStartQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
 	CheckListNonDestructive(OnlyStartQuoteNonAlphaNum_NA, g_accOnlyStartQuoteNonAlphaNumResults, ONLY_START_QUOTE_COUNT);
 
-	TLex OnlyEndQuoteNonAlphaNum_NA(g_accOnlyEndQuoteNonAlphaNum, (int) strlen(g_accOnlyEndQuoteNonAlphaNum));
+	TLex OnlyEndQuoteNonAlphaNum_NA(g_accOnlyEndQuoteNonAlphaNum_NA, (int) strlen(g_accOnlyEndQuoteNonAlphaNum_NA));
 	OnlyEndQuoteNonAlphaNum_NA.SetConfig(ETrue, ETrue, ETrue);
 	OnlyEndQuoteNonAlphaNum_NA.SetQuotes(QuoteChars);
-	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum_NA, g_accOnlyEndQuoteNonAlphaNumResults, ONLY_END_QUOTE_ALPHA_NUM_COUNT);
+	CheckListNonDestructive(OnlyEndQuoteNonAlphaNum_NA, g_accOnlyEndQuoteNonAlphaNum_NAResults, ONLY_END_QUOTE_ALPHA_NUM_NA_COUNT);
+
+	/* Test #9: Parse strings with escaped quotes */
+
+	Test.Next("Parse strings with escaped quotes");
+
+	TLex EscapedQuote(g_accEscapedQuote, (int) strlen(g_accEscapedQuote));
+	CheckListNonDestructive(EscapedQuote, g_accEscapedQuoteResults, ESCAPED_QUOTE_COUNT);
+
+	TLex DoubleEscapedQuote(g_accDoubleEscapedQuote, (int)strlen(g_accDoubleEscapedQuote));
+	CheckListNonDestructive(DoubleEscapedQuote, g_accDoubleEscapedQuoteResults, DOUBLE_ESCAPED_QUOTE_COUNT);
+
+	TLex EscapedQuoteKeep(g_accEscapedQuoteKeep, (int) strlen(g_accEscapedQuoteKeep));
+	EscapedQuoteKeep.SetConfig(ETrue, ETrue, ETrue);
+	CheckListNonDestructive(EscapedQuoteKeep, g_accEscapedQuoteKeepResults, ESCAPED_QUOTE_KEEP_COUNT);
 
 	Test.End();
 

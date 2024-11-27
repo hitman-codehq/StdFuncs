@@ -261,10 +261,26 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 			/* Extract the string itself as the token */
 
+			hell:
+
 			while ((Index < m_iLength) && (*NextToken != QuoteChar))
 			{
 				++NextToken;
 				++Index;
+			}
+
+			/* We have found what might be an end quote, but it might also be an embedded escaped quote, */
+			/* so check for this and if so, continue scanning */
+
+			if (*(NextToken - 1) == '\\')
+			{
+				++NextToken;
+				++Index;
+
+				/* The one and only goto in 35 years of C/C++ code. Thanks to my friend and mentor MWP for */
+				/* the name suggestion! */
+
+				goto hell;
 			}
 
 			/* Only extract the end " or ' if we are configured to keep it and if it actually exists */
@@ -300,7 +316,7 @@ const char *TLex::NextToken(TInt *a_piLength)
 
 		else if (!m_bKeepNonAlphaNum)
 		{
-			while ((Index < m_iLength) && (!(IsWhitespace(*NextToken))))
+			while ((Index < m_iLength) && !IsWhitespace(*NextToken) && !IsQuote(*NextToken))
 			{
 				++NextToken;
 				++Index;
@@ -330,14 +346,6 @@ const char *TLex::NextToken(TInt *a_piLength)
 					++NextToken;
 					++Index;
 				}
-			}
-
-			/* And extract the end " or ' if we are configured to keep it and if it actually exists */
-
-			if ((Index < m_iLength) && m_bKeepQuotes && IsQuote(*NextToken))
-			{
-				++NextToken;
-				++Index;
 			}
 		}
 	}
