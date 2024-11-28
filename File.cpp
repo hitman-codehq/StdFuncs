@@ -4,7 +4,11 @@
 #include "FileUtils.h"
 #include <string.h>
 
-#ifdef __unix__
+#ifdef __amigaos__
+
+#include "OS4Support.h"
+
+#elif defined(__unix__)
 
 #include <errno.h>
 #include <fcntl.h>

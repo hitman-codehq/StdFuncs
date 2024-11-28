@@ -90,9 +90,9 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 				for (Index = 1; Index < a_iArgC; ++Index)
 				{
-					if (strstr(a_pccArgV[Index], " ") > NULL) strcat(m_pcArgumentBuffer, "\"");
+					if (strstr(a_pccArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
 					strcat(m_pcArgumentBuffer, a_pccArgV[Index]);
-					if (strstr(a_pccArgV[Index], " ") > NULL) strcat(m_pcArgumentBuffer, "\"");
+					if (strstr(a_pccArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
 
 					/* If this is not the last argument, append a space to it */
 

@@ -50,9 +50,15 @@ void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, str
 
 #ifdef __amigaos4__
 
-/* Functions renamed in OS4 but still compatible with their OS3 equivalents */
+/* Functions pointlessly renamed in OS4 but still compatible with their OS3 equivalents */
 
 #define GetCurrentDirName(buffer, length) GetCliCurrentDirName(buffer, length)
+
+#ifndef Seek
+
+#define Seek(file, position, mode) ChangeFilePosition(file, position, mode)
+
+#endif /* ! Seek */
 
 #endif /* __amigaos4__ */
 
