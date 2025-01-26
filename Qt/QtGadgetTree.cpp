@@ -17,7 +17,7 @@ void CQtGadgetTree::construct(const std::string &a_title)
 	setColumnCount(1);
 	setHeaderLabel(a_title.c_str());
 	setFocusPolicy(Qt::NoFocus);
-	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
 	/* And connect the itemClicked() slot so that we are notified when an item is clicked */
 	connect(this, SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(itemClicked()));
