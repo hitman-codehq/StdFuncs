@@ -3190,6 +3190,35 @@ TBool CWindow::ShiftPressed()
 }
 
 /**
+ * Triggers an update of the window.
+ * This method is for use when clearing the background of the window is desired. Usually, it is not required to
+ * manually call this method, as The Framework will take care of such things as redrawing the window when needed.
+ * However, in certain circumstances, such as when the client has no draw() method, or when that method does not
+ * do anything, it may be necessary to call this method to clear the background of the window.
+ *
+ * @pre		The window has been created with open()
+ *
+ * @date	Wednesday 29-Jan-2025 5:59 am, Code HQ Tokyo Tsukuda
+ */
+
+void CWindow::Update()
+{
+
+#ifdef __amigaos__
+
+#elif defined(QT_GUI_LIB)
+
+	GetRootWindow()->m_poWindow->update();
+
+#else /* ! QT_GUI_LIB */
+
+	ASSERTM(RedrawWindow(m_poWindow, NULL, NULL, RDW_ERASE | RDW_INVALIDATE), "CWindow::Update() => Unable to update window");
+
+#endif /* ! QT_GUI_LIB */
+
+}
+
+/**
  * Modifies a menu item in a dropdown menu.
  * This function updates an already existing menu item in a dropdown menu.  The dropdown menu
  * in which to update the menu item is specified as an ordinal starting from zero, where zero

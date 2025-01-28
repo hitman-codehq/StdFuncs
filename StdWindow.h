@@ -270,6 +270,8 @@ public:
 
 	void ShowCursor(bool a_bShow);
 
+	void Update();
+
 	void UpdateMenuItem(const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iCommand);
 
 	/* Accessor functions */
