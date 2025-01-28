@@ -589,6 +589,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 #ifdef __amigaos__
 
+	int CursorWidth;
 	PLANEPTR PlanePtr;
 	ULONG OldDrawMode;
 	WORD AreaBuffer[(NUM_VERTICES * 5) / 2];
@@ -596,6 +597,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 	struct TmpRas TmpRas;
 
 	uint16_t DitherData[] = { 0x5555, 0xaaaa };
+	uint16_t SolidData[] = { 0x0000, 0x0000 };
 
 	/* Unit Test support: The Framework must be able to run without a real GUI */
 
@@ -606,9 +608,16 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 		X = (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + a_iX);
 		Y = (m_poWindow->m_poWindow->BorderTop + m_iYOffset + (a_iY * m_iHeight));
 
-		/* Now ensure that the cursor is within the bounds of the clipping area before drawing it */
+		/* Apply clipping, if the cursor is not within the bounds of the clipping area */
 
-		if ((X + m_iWidth) <= (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+		CursorWidth = m_iWidth;
+
+		if ((X + m_iWidth) > (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth))
+		{
+			CursorWidth = (X + m_iWidth) - (m_poWindow->m_poWindow->BorderLeft + m_iXOffset + m_iClipWidth);
+		}
+
+		if (CursorWidth > 0)
 		{
 			/* Move to the position at which to print, taking into account the left and top border sizes, */
 			/* the height of the current font and the baseline of the font, given that the Text() routine */
@@ -616,34 +625,43 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
 
 			Move(m_poWindow->m_poWindow->RPort, X, (Y + m_iBaseline));
 
-			/* If the window is active then draw the cursor over the text as normal */
+			/* If the window is active and the cursor is full width then draw the cursor over the text as normal */
 
-			if (m_poWindow->IsActive())
+			if (m_poWindow->IsActive() && (CursorWidth == m_iWidth))
 			{
 				Text(m_poWindow->m_poWindow->RPort, Buffer.data(), Buffer.size());
 			}
 			else
 			{
-				/* Otherwise draw the cursor in a greyed out state.  Start by allocating a raster */
-				/* that can be used for the dithered flood fill and initialise it */
+				/* Otherwise we will draw a custom cursor.  This code can draw either a solid cursor or a cursor */
+				/* in a greyed out state, and it can draw a partial cursor, if horizontal clipping is required. */
+				/* Start by allocating a raster that can be used for the flood fill and initialise it */
 
 				if ((PlanePtr = AllocRaster(16, 16)) != NULL)
 				{
 					InitArea(&AreaInfo, AreaBuffer, NUM_VERTICES);
 					InitTmpRas(&TmpRas, PlanePtr, ((16 * 16) / 8));
 
-					/* Set a dithered drawing mode and initialise the drawing information into the RastPort */
+					/* Set the drawing mode and initialise the drawing information into the RastPort */
 
-					SetAfPt(m_poWindow->m_poWindow->RPort, DitherData, 1);
+					SetAfPt(m_poWindow->m_poWindow->RPort, m_poWindow->IsActive() ? SolidData : DitherData, 1);
 					m_poWindow->m_poWindow->RPort->AreaInfo = &AreaInfo;
 					m_poWindow->m_poWindow->RPort->TmpRas = &TmpRas;
 
-					/* Draw a dithered cursor where the solid one would normally be */
+					/* The width returned from the layout gadget is 2 pixels wider than the actual width, so we */
+					/* take this into account here. This seems to work on most versions of Amiga OS */
+
+					if (CursorWidth != m_iWidth)
+					{
+						CursorWidth -= 2;
+					}
+
+					/* Draw the solid, dithered or partial cursor where the solid one would normally be */
 
 					AreaMove(m_poWindow->m_poWindow->RPort, X, Y);
 					AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
-					AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), Y);
-					AreaDraw(m_poWindow->m_poWindow->RPort, (X + m_iWidth - 1), (Y + m_iHeight - 1));
+					AreaDraw(m_poWindow->m_poWindow->RPort, (X + CursorWidth - 1), Y);
+					AreaDraw(m_poWindow->m_poWindow->RPort, (X + CursorWidth - 1), (Y + m_iHeight - 1));
 					AreaDraw(m_poWindow->m_poWindow->RPort, X, (Y + m_iHeight - 1));
 					AreaDraw(m_poWindow->m_poWindow->RPort, X, Y);
 					AreaEnd(m_poWindow->m_poWindow->RPort);
@@ -916,7 +934,7 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 			/* continuing to print outside the clipping rectangle would actually print text outside the clipping */
 			/* rectangle so we have to clip manually */
 
-			if (XPosition > m_iClipWidth)
+			if (XPixels > m_iClipWidth)
 			{
 				break;
 			}
