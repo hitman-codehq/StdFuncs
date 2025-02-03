@@ -32,7 +32,7 @@ jobs:
           cd Tests
           for file in Debug/T_*.debug; do $file; done
       - name: Archive Libraries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Linux-Libraries
           path: |
