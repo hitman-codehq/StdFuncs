@@ -28,7 +28,7 @@ jobs:
           qmake
           nmake debug
       - name: Archive Libraries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Windows-Qt-Libraries
           path: |
