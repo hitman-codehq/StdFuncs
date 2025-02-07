@@ -1,6 +1,7 @@
 
 #include "StdFuncs.h"
 #include "RemoteFactory.h"
+#include <memory>
 
 #if defined(__unix__) || defined(__amigaos__)
 
@@ -83,6 +84,40 @@ RFileUtilsObject &RRemoteFactory::getFileUtilsObject()
 }
 
 /**
+ * Sends the server's protocol version.
+ * This command is not required for the remote factory implementation, but must be present.
+ *
+ * @date	Saturday 08-Feb-2025 5:56 am, Code HQ Tokyo Tsukuda
+ */
+
+void CVersion::execute()
+{
+}
+
+/**
+ * Verifies the client's protocol version.
+ * Requests the remote server's protocol version, and throws an exception if it is not supported.
+ *
+ * @date	Saturday 08-Feb-2025 5:53 am, Code HQ Tokyo Tsukuda
+ */
+
+TResult CVersion::sendRequest()
+{
+	sendCommand();
+
+	uint32_t serverVersion, version = ((PROTOCOL_MAJOR << 16) | PROTOCOL_MINOR);
+	m_socket->read(&serverVersion, sizeof(serverVersion));
+	SWAP(&serverVersion);
+
+	if (serverVersion != version)
+	{
+		throw std::runtime_error("Incompatible server version detected, remote editing functionality not available");
+	}
+
+	return TResult{};
+}
+
+/**
  * Open a connection to a remote RADRunner instance.
  * This function can be called any time a connection to RADRunner needs to be made. It can be called either
  * by client code at startup, or The Framework will do it automatically if a file request is made and it is
@@ -102,11 +137,34 @@ int RRemoteFactory::openRemote()
 	{
 		try
 		{
+			/* Start by sending a signature, to identify us as a RADRunner client */
 			m_socket.write(g_signature, SIGNATURE_SIZE);
+
+			/* Handlers are stored in a shared_ptr so that they are freed if an exception */
+			/* occurs, but we allocate them with new (rather than std::make_shared()) as we */
+			/* need them to be zero initialised by MungWall */
+			std::shared_ptr<CHandler> handler(new CVersion(&m_socket));
+
+			/* Check whether the server's protocol version is supported.  The handler will display an error if it is not */
+			handler->sendRequest();
+			handler = nullptr;
 		}
 		catch (RSocket::Error &a_exception)
 		{
 			Utils::info("RRemoteFactory::openRemote() => Unable to perform I/O on socket (Error = %d)", a_exception.m_result);
+			retVal = KErrNotOpen;
+		}
+		catch (std::runtime_error &a_exception)
+		{
+			Utils::info("RRemoteFactory::openRemote() => %s", a_exception.what());
+			retVal = KErrInvalidVersion;
+		}
+
+		/* If an error occurred, close the socket to prevent the client from trying to use it. Otherwise, the protocol version */
+		/* check would be easily bypassed */
+		if (retVal != KErrNone)
+		{
+			m_socket.close();
 		}
 	}
 
