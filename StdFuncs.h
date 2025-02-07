@@ -110,6 +110,7 @@ typedef signed long long TInt64;
 #define KErrEof				-25
 #define KErrHostNotFound	-26
 #define KErrNotOpen			-27
+#define KErrInvalidVersion	-28
 
 /* Useful macros for the WinMain() and main() functions, enabling them to be used */
 /* without #ifdefs in portable code */

@@ -20,10 +20,13 @@
 
 /* The protocol version supported by the current build */
 #define PROTOCOL_MAJOR 0
-#define PROTOCOL_MINOR 1
+#define PROTOCOL_MINOR 2
 
 /* The size of the buffer used for capturing stdout */
 #define STDOUT_BUFFER_SIZE 1024
+
+/* The size of the stack used on Amiga OS if no size is explicitly specified */
+#define DEFAULT_STACK_SIZE 20480
 
 #define READ_INT(Dest, Source) \
 	Dest = (*Source << 24) | \
@@ -93,7 +96,20 @@ public:
 };
 
 /**
- * Structure containing information about file being transferred.
+ * Structure containing information about the application being executed.
+ * Contains the file's name and the stack size requested by the client, if any. If this is 0, the default size for
+ * the target system will be used. This is only used by the Amiga OS versions of the library, as stack handling is
+ * automatic on other platforms.
+ */
+
+struct SExecuteInfo
+{
+	int32_t			m_stackSize;		/**< The stack size to be used on the target machine */
+	char			m_fileName[1];		/**< The name of the file to be executed */
+};
+
+/**
+ * Structure containing information about the file being transferred.
  * Contains information such as a file's name and its timestamp, to be transferred as the header of any file
  * that is tranferred between hosts.  Instances of this structure are dynamically allocated, with their size
  * depending on the size of the file's name.
@@ -267,6 +283,7 @@ public:
 class CExecute : public CHandler
 {
 	const char	*m_fileName;	/**< The name of the file to be executed */
+	int			m_stackSize;	/**< The stack size to be used on the target machine */
 
 #ifdef WIN32
 
@@ -280,7 +297,8 @@ class CExecute : public CHandler
 public:
 
 	/** Constructor to be used when creating client instances */
-	CExecute(RSocket *a_socket, const char *a_fileName) : CHandler(a_socket, EExecute), m_fileName(a_fileName) { }
+	CExecute(RSocket *a_socket, const char *a_fileName, int a_stackSize) : CHandler(a_socket, EExecute),
+		m_fileName(a_fileName), m_stackSize(a_stackSize) { }
 
 	/** Constructor to be used when creating server instances */
 	CExecute(RSocket *a_socket, const SCommand &a_command) : CHandler(a_socket, a_command) { }
@@ -295,7 +313,7 @@ public:
 
 #endif /* WIN32 */
 
-	TResult launchCommand(char *a_commandName);
+	TResult launchCommand(char *a_commandName, int a_stackSize);
 };
 
 /**
