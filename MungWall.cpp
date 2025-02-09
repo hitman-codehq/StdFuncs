@@ -5,22 +5,60 @@
 #include <string.h>
 #include "Utils.h"
 
+#ifdef __amigaos__
+
+#include <proto/dos.h>
+
+#endif /* __amigaos__ */
+
 #undef malloc
 #undef free
 #undef new
 
+#define LOW_STACK 1024
+
 #if defined(_DEBUG) && !defined(QT_GUI_LIB)
 
-class MungWall oMungWall;
+MungWall oMungWall;
 
 /* Error message strings that can be used in multiple places */
 
 static const char accAllocating[] = "*** MungWall info: Allocating %zu bytes in file %s, line %d";
 static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %zu bytes in %lu allocation(s) manually";
+static const char accLowStack[] = "MungWall alert: Only %d bytes of stack remaining";
+static const char accLowestStack[] = "MungWall alert: Lowest amount of stack remaining during execution was %d bytes";
+static const char accStackOverflow[] = "MungWall alert: Stack has overflowed by %d bytes";
 static const char accStillAllocatedLine[] = "*** MungWall alert: File %s, line %d: %zd bytes still allocated";
 static const char accStillAllocated[] = "*** MungWall alert: File %s: %zd bytes still allocated";
 static const char accInvalidBlockLine[] = "MungWall alert: File %s, line %d: Invalid block passed in";
 static const char accInvalidBlock[] = "*** MungWall alert: Invalid block passed in";
+
+/**
+ * MungWall constructor.
+ * The STL performs some allocations at startup, before we have had a chance to initialise MungWall and these will
+ * be reported as false positives at shutdown, so this constructor will reset the related fields and - on the Amiga OS
+ * version - will also set up stack checking information.
+ *
+ * @date	Tuesday 11-Feb-2025 6:44 am, Code HQ Tokyo Tsukuda
+ */
+
+MungWall::MungWall()
+{
+	bEnableOutput = TRUE;
+	ulNumNews = 0;
+	paFirstArena = NULL;
+
+#if defined(__amigaos__) && !defined(__amigaos4__)
+
+	struct Task *task = FindTask(NULL);
+	APTR currentSP;
+
+	asm volatile ("move.l %%sp,%0" : "=r" (currentSP));
+	iLowestStack = (int) task->tc_SPUpper - (int) task->tc_SPLower;
+
+#endif /* defined(__amigaos__) && !defined(__amigaos4__) */
+
+}
 
 /**********************************************************************/
 /* MungWall::~MungWall will check to see if there are any outstanding */
@@ -82,6 +120,18 @@ MungWall::~MungWall()
 	/* Ensure that the arena list is empty, just in case any further calls are made to MungWall */
 
 	paFirstArena = NULL;
+
+#if defined(__amigaos__) && !defined(__amigaos4__)
+
+	if (bEnableProfiling || iLowestStack < LOW_STACK)
+	{
+		Utils::info(accLowestStack, iLowestStack);
+		printf(accLowestStack, iLowestStack);
+		printf("\n");
+	}
+
+#endif /* defined(__amigaos__) && !defined(__amigaos4__) */
+
 }
 
 /***************************************************************************/
@@ -202,6 +252,51 @@ void MungWall::CheckOverWrites(struct Arena *paArena)
 }
 
 /**
+ * Check the current stack usage.
+ * This method ensures that the stack has not overflowed and that it has not dropped below the low stack threshold.
+ *
+ * @date	Sunday 09-Feb-2025 11:58 am, Pronto in Tokyo Conference Centre TODO
+ */
+
+void MungWall::CheckStack()
+{
+
+#if defined(__amigaos__) && !defined(__amigaos4__)
+
+	struct Task *task = FindTask(NULL);
+	APTR currentSP;
+	int overflowAmount, stackRemaining;
+
+	/* Calculate how much stack is currently remaining and, if it is less than the previous lowest value, update */
+	/* that value */
+	asm volatile ("move.l %%sp,%0" : "=r" (currentSP));
+	stackRemaining = (int) currentSP - (int) task->tc_SPLower;
+
+	if (stackRemaining < iLowestStack)
+	{
+		iLowestStack = stackRemaining;
+	}
+
+	/* If the stack is below the low stack threshold, or if it has overflowed, print a message */
+	if (currentSP < task->tc_SPLower)
+	{
+		overflowAmount = (int) task->tc_SPLower - (int) currentSP;
+		Utils::info(accStackOverflow, overflowAmount);
+		printf(accStackOverflow, overflowAmount);
+		printf("\n");
+	}
+	else if (stackRemaining < LOW_STACK)
+	{
+		Utils::info(accLowStack, stackRemaining);
+		printf(accLowStack, stackRemaining);
+		printf("\n");
+	}
+
+#endif /* defined(__amigaos__) && !defined(__amigaos4__) */
+
+}
+
+/**
  * Enables or disables reporting.
  * This method can be called to disable reporting of memory leaks in
  * situations where such reporting is not desired.  For instance, when
@@ -274,6 +369,7 @@ void MungWall::Free(void *pvBlock, const char *pccSourceFile, int iSourceLine, B
 		if (CheckBlockValidity(pvBlock))
 		{
 			CheckOverWrites(paArena);
+			CheckStack();
 			--ulNumNews;
 
 			if (paArena == paFirstArena)

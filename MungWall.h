@@ -60,17 +60,19 @@ class MungWall
 
 	BOOL bEnableOutput;
 	BOOL bEnableProfiling;
+	int iLowestStack;
 	ULONG ulNumProfiledNews;
 	ULONG ulNumNews;
 	struct Arena *paFirstArena;
 	BOOL CheckBlockValidity(void *);
 	ULONG CheckOverWrite(UBYTE *);
 	void CheckOverWrites(struct Arena *);
+	void CheckStack();
 	void MungeMem(uint32_t *, size_t);
 
 public:
 
-	MungWall() { bEnableOutput = TRUE; bEnableProfiling = FALSE; ulNumNews = 0; paFirstArena = NULL; }
+	MungWall();
 	~MungWall();
 
 	ULONG NumProfiledNews()

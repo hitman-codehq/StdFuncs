@@ -52,9 +52,9 @@ ifdef PREFIX
 	endif
 else
 	OBJECTS = $(OBJ)/Args.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-		$(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o \
-		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o \
-		$(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
+		$(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o \
+		$(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o \
+		$(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 OBJECTS += $(OBJ)/Handler.o
