@@ -1,6 +1,6 @@
 
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#ifndef REMOTE_COMMANDS_H
+#define REMOTE_COMMANDS_H
 
 /** @file */
 
@@ -452,4 +452,4 @@ extern const char *g_commandNames[];
 #define SIGNATURE_SIZE 4
 extern const char g_signature[];
 
-#endif /* ! COMMANDS_H */
+#endif /* ! REMOTE_COMMANDS_H */
