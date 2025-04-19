@@ -47,7 +47,7 @@ public:
 
 	static TInt DeleteDirectory(const char *a_pccDirectoryName);
 
-	static TInt Detach();
+	static TInt Detach(char *a_ppcArgV[]);
 
 	static char *DuplicateString(const char *a_pccString, TInt a_iLength);
 

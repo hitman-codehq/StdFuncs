@@ -30,19 +30,19 @@ private:
 
 private:
 
-	const char **ExtractArguments(char *a_pcBuffer, TInt *a_piArgC);
+	char **ExtractArguments(char *a_pcBuffer, TInt *a_piArgC);
 
 	TInt ExtractOption(const char *a_pccTemplate, TInt *a_piOffset, char **a_ppcOption, char *a_pcType);
 
 	void FindMagicOption(const char *a_pccTemplate, TInt a_iNumOptions);
 
-	TInt readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
+	TInt readArgs(const char *a_pccTemplate, TInt a_iNumOptions, TInt a_iArgC, char *a_ppcArgV[]);
 
 public:
 
 	RArgs();
 
-	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC);
+	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, TInt a_iArgC, char *a_ppcArgV[]);
 
 	TInt open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments);
 

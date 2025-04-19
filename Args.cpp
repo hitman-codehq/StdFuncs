@@ -30,7 +30,7 @@ RArgs::RArgs()
 
 /* Written: Sunday 04-Nov-2007 11:51 am */
 
-TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
+TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, TInt a_iArgC, char *a_ppcArgV[])
 {
 	TInt RetVal;
 
@@ -53,7 +53,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		int Index, Size;
 		LONG Error;
 
-		(void) a_pccArgV;
+		(void) a_ppcArgV;
 		(void) a_iArgC;
 
 		/* Assume failure */
@@ -79,7 +79,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 			for (Index = 1; Index < a_iArgC; ++Index)
 			{
-				Size += (strlen(a_pccArgV[Index]) + 3);
+				Size += (strlen(a_ppcArgV[Index]) + 3);
 			}
 
 			/* Allocate the buffer and copy the arguments into it */
@@ -90,9 +90,9 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 				for (Index = 1; Index < a_iArgC; ++Index)
 				{
-					if (strstr(a_pccArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
-					strcat(m_pcArgumentBuffer, a_pccArgV[Index]);
-					if (strstr(a_pccArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
+					if (strstr(a_ppcArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
+					strcat(m_pcArgumentBuffer, a_ppcArgV[Index]);
+					if (strstr(a_ppcArgV[Index], " ") != NULL) strcat(m_pcArgumentBuffer, "\"");
 
 					/* If this is not the last argument, append a space to it */
 
@@ -143,13 +143,13 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 #else /* ! __amigaos__ */
 
-		const char **ArgV;
+		char **ArgV;
 		TInt ArgC;
 
 		/* If the user has requested to display the template then do so and request input and parse that instead */
 		/* of what was passed in on the command line */
 
-		if ((a_iArgC == 2) && (*a_pccArgV[1] == '?'))
+		if ((a_iArgC == 2) && (*a_ppcArgV[1] == '?'))
 		{
 			/* The user has requested that the argument template be displayed so check that there is a console */
 			/* available and, if so, display it and try to read some arguments from stdin */
@@ -174,8 +174,8 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 						/* Command line has been input so put the executable's name in the first argument slot and parse */
 						/* it for arguments */
 
-						ArgV[0] = a_pccArgV[0];
-						RetVal = readArgs(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+						ArgV[0] = a_ppcArgV[0];
+						RetVal = readArgs(a_pccTemplate, a_iNumOptions, ArgC, ArgV);
 						delete [] ArgV;
 					}
 					else
@@ -200,7 +200,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 		}
 		else
 		{
-			RetVal = readArgs(a_pccTemplate, a_iNumOptions, a_pccArgV, a_iArgC);
+			RetVal = readArgs(a_pccTemplate, a_iNumOptions, a_iArgC, a_ppcArgV);
 		}
 
 #endif /* ! __amigaos__ */
@@ -231,7 +231,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pc
 
 TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArguments)
 {
-	const char **ArgV;
+	char **ArgV;
 	TInt ArgC, RetVal;
 
 	/* Extract the arguments from the string into an ArgV style pointer array.  This */
@@ -246,7 +246,7 @@ TInt RArgs::open(const char *a_pccTemplate, TInt a_iNumOptions, char *a_pcArgume
 		/* And pass that array into the standard RArgs::open() to extract the arguments */
 
 		//ArgV[0] = "Test"; // TODO: CAW - How to obtain this?  When we fix this, it will break BUBYFU and maybe others
-		RetVal = open(a_pccTemplate, a_iNumOptions, ArgV, ArgC);
+		RetVal = open(a_pccTemplate, a_iNumOptions, ArgC, ArgV);
 		delete [] ArgV;
 	}
 	else
@@ -588,10 +588,10 @@ TInt RArgs::CountMultiArguments()
 /* list of ptrs.  This list will include an empty (points to NULL) entry in position 0 */
 /* to simulate the name of the executable being in this entry */
 
-const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
+char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 {
 	char *Arg;
-	const char **RetVal;
+	char **RetVal;
 	TInt Index, NumArgs;
 
 	/* Find out how many arguments are present in the string passed in and add */
@@ -602,7 +602,7 @@ const char **RArgs::ExtractArguments(char *a_pcBuffer, TInt *a_piArgC)
 	/* Allocate an array of ptrs to strings, that can be used as an ArgV style array to hold ptrs */
 	/* to the tokens entered above */
 
-	if ((RetVal = new const char *[NumArgs]) != NULL)
+	if ((RetVal = new char *[NumArgs]) != NULL)
 	{
 		TLex Lex(a_pcBuffer);
 
@@ -806,7 +806,7 @@ const char *RArgs::ProjectFileName()
 
 /* Written: Saturday 02-05-2010 8:52 am */
 
-TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *a_pccArgV[], TInt a_iArgC)
+TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, TInt a_iArgC, char *a_ppcArgV[])
 {
 	char **ArgV, *OptionName, **Arguments, **NewMagicArgs, **Ptr, Type;
 	TInt Arg, Index, NumArgs, Offset, RetVal;
@@ -821,7 +821,7 @@ TInt RArgs::readArgs(const char *a_pccTemplate, TInt a_iNumOptions, const char *
 
 	if ((ArgV = new char *[a_iArgC]) != NULL)
 	{
-		memcpy(ArgV, a_pccArgV, (sizeof(char *) * a_iArgC));
+		memcpy(ArgV, a_ppcArgV, (sizeof(char *) * a_iArgC));
 		Offset = 0;
 
 		/* Iterate through the template and extract all S options */
