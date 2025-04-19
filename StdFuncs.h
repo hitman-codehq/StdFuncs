@@ -122,8 +122,8 @@ typedef signed long long TInt64;
 
 #else /* ! WIN32 */
 
-#define TFMain() TInt main(TInt a_iArgC, const char *a_ppcArgV[])
-#define TFArgs a_ppcArgV, a_iArgC
+#define TFMain() TInt main(TInt a_iArgC, char *a_ppcArgV[])
+#define TFArgs a_iArgC, a_ppcArgV
 
 #endif /* ! WIN32 */
 

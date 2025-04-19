@@ -6,7 +6,7 @@
 
 /* Fake command line to test a full set of arguments */
 
-static const char *g_pccArgV[] =
+static char *g_pccArgV[] =
 {
 	"T_Args", "Source Dir", "Dest Dir", "copy", "delete", "deletedirs", "nocase", "noerrors", "noprotect"
 };
@@ -15,7 +15,7 @@ static const char *g_pccArgV[] =
 
 /* Fake command line for testing keyword handling */
 
-static const char* g_pccKeywordArgV[] =
+static char* g_pccKeywordArgV[] =
 {
 	"T_Args", "localhost", "source", "Some Dir"
 };
@@ -24,7 +24,7 @@ static const char* g_pccKeywordArgV[] =
 
 /* Fake command line to test a missing argument */
 
-const char *g_pccMissingArgV[] =
+static char *g_pccMissingArgV[] =
 {
 	"T_Args", "SourceDir"
 };
@@ -53,7 +53,7 @@ static const char g_accKeywordTemplate3[] = "REMOTE/A,SOURCE/K,DEST/A";
 
 /* Fake command line for testing multiple source filenames */
 
-static const char *g_pccMultiArgV[] =
+static char *g_pccMultiArgV[] =
 {
 	"T_Args", "First Dir", "Second Dir", "Third Dir"
 };
@@ -62,7 +62,7 @@ static const char *g_pccMultiArgV[] =
 
 /* Fake command line for testing 10 or more multiple source options */
 
-static const char *g_pccMagicMultiArgV[] =
+static char *g_pccMagicMultiArgV[] =
 {
 	"T_Args", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"
 };
@@ -136,7 +136,7 @@ int main()
 	/* Test #3: Parse simple command line arguments */
 
 	Test.Next("Parse simple command line arguments");
-	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, g_pccArgV, ARGV_COUNT);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, ARGV_COUNT, g_pccArgV);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_NUM_ARGS);
 
@@ -215,7 +215,7 @@ int main()
 	/* Test #7: Parse keyword command line argument */
 
 	Test.Next("Parse keyword command line argument");
-	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, KEYWORD_ARGV_COUNT, g_pccKeywordArgV);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_KEYWORD_NUM_ARGS);
 
@@ -235,7 +235,7 @@ int main()
 	/* Test #8: Parse missing keyword command line argument */
 
 	Test.Next("Parse missing keyword command line argument");
-	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, g_pccKeywordArgV, (KEYWORD_ARGV_COUNT - 1));
+	Result = Args.open(g_accKeywordTemplate, ARGS_KEYWORD_NUM_ARGS, (KEYWORD_ARGV_COUNT - 1), g_pccKeywordArgV);
 	test(Result == KErrNotFound);
 
 	Args.close();
@@ -243,7 +243,7 @@ int main()
 	/* Test #9: Parse missing keyword command line argument 2 */
 
 	Test.Next("Parse missing keyword command line argument 2");
-	Result = Args.open(g_accKeywordTemplate2, ARGS_KEYWORD2_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+	Result = Args.open(g_accKeywordTemplate2, ARGS_KEYWORD2_NUM_ARGS, KEYWORD_ARGV_COUNT, g_pccKeywordArgV);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_KEYWORD2_NUM_ARGS);
 
@@ -262,7 +262,7 @@ int main()
 	/* Test #10: Parse missing keyword command line argument 3 */
 
 	Test.Next("Parse missing keyword command line argument 3");
-	Result = Args.open(g_accKeywordTemplate3, ARGS_KEYWORD3_NUM_ARGS, g_pccKeywordArgV, KEYWORD_ARGV_COUNT);
+	Result = Args.open(g_accKeywordTemplate3, ARGS_KEYWORD3_NUM_ARGS, KEYWORD_ARGV_COUNT, g_pccKeywordArgV);
 
 	/* The DEST/A argument is not optional and the open() should fail */
 
@@ -274,14 +274,14 @@ int main()
 
 	Test.Next("Not passing in a parameter for an /A option");
 
-	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, g_pccMissingArgV, MISSING_ARGV_COUNT);
+	Result = Args.open(g_accTemplate, ARGS_NUM_ARGS, MISSING_ARGV_COUNT, g_pccMissingArgV);
 	test(Result == KErrNotFound);
 
 	/* Test #12: Command line parameters with multiple sources and one destination */
 
 	Test.Next("Command line parameters with multiple sources and one destination");
 
-	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, MULTI_ARGV_COUNT, g_pccMultiArgV);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
 
@@ -302,7 +302,7 @@ int main()
 
 	Test.Next("Command line parameters with one source and multiple destinations");
 
-	Result = Args.open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, g_pccMultiArgV, MULTI_ARGV_COUNT);
+	Result = Args.open(g_accMultiDestTemplate, ARGS_MULTI_NUM_ARGS, MULTI_ARGV_COUNT, g_pccMultiArgV);
 	test(Result == KErrNone);
 	test(Args.Count() == ARGS_MULTI_NUM_ARGS);
 
@@ -323,7 +323,7 @@ int main()
 
 	Test.Next("Ensure that passing in 10 or more multiple source options works");
 
-	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, g_pccMagicMultiArgV, MULTI_MAGIC_ARGV_COUNT);
+	Result = Args.open(g_accMultiSourceTemplate, ARGS_MULTI_NUM_ARGS, MULTI_MAGIC_ARGV_COUNT, g_pccMagicMultiArgV);
 	test(Result == KErrNone);
 
 	/* Ensure that the string arguments have been read as expected */

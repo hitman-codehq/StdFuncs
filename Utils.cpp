@@ -26,6 +26,7 @@
 #include <syslog.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <spawn.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
@@ -648,12 +649,14 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
  * CLI and will simply return without doing anything.
  *
  * @date	Monday 27-Aug-2012 06:56 am
+ * @param	Parameter		Description
+ * @param	a_ppcArgV		Pointer to an array of command line arguments
  * @return	Does not return if successful
  * @return	KErrNone if process is already detached from the CLI
  * @return	KErrGeneral if unable to detach the process
  */
 
-TInt Utils::Detach()
+TInt Utils::Detach(char *a_ppcArgV[])
 {
 	TInt RetVal;
 
@@ -662,6 +665,8 @@ TInt Utils::Detach()
 	RetVal = KErrNone;
 
 #ifdef __amigaos__
+
+	(void) a_ppcArgV;
 
 	char *Command, *CommandNameBuffer;
 	const char *CommandName;
@@ -752,7 +757,39 @@ TInt Utils::Detach()
 		delete [] CommandNameBuffer;
 	}
 
-#endif /* __amigaos__ */
+#elif defined(__unix__)
+
+	extern char **environ;
+
+	pid_t pid;
+
+	/* This method will be called multiple times, but we only want to spawn a new process the first time it is */
+	/* called. If the APP_CHILD environment variable is not set then we are the first instance of the process and */
+	/* want to spawn a new, detached process. If the variable is set then we are the new detached process */
+	/* can must return without doing anything */
+
+	if (!getenv("APP_CHILD"))
+	{
+		setenv("APP_CHILD", "1", 1);
+
+		int status = posix_spawnp(&pid, a_ppcArgV[0], NULL, NULL, a_ppcArgV, environ);
+
+		if (status == 0)
+		{
+			printf("Calling exit()\n");
+			exit(0);
+		}
+		else
+		{
+			RetVal = KErrGeneral;
+		}
+	}
+
+#else /* ! __unix__ */
+
+	(void) a_ppcArgV;
+
+#endif /* ! __unix__ */
 
 	return(RetVal);
 }
