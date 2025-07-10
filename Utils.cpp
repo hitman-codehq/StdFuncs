@@ -649,7 +649,6 @@ TInt Utils::DeleteDirectory(const char *a_pccDirectoryName)
  * CLI and will simply return without doing anything.
  *
  * @date	Monday 27-Aug-2012 06:56 am
- * @param	Parameter		Description
  * @param	a_ppcArgV		Pointer to an array of command line arguments
  * @return	Does not return if successful
  * @return	KErrNone if process is already detached from the CLI
@@ -776,7 +775,6 @@ TInt Utils::Detach(char *a_ppcArgV[])
 
 		if (status == 0)
 		{
-			printf("Calling exit()\n");
 			exit(0);
 		}
 		else
