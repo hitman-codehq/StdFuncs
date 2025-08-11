@@ -1,15 +1,18 @@
 
 #include "StdFuncs.h"
 #include "StdApplication.h"
+#include "StdFileWatcher.h"
 #include "StdRendezvous.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos__
 
+#include "Amiga/AmiFileWatcher.h"
 #include "Amiga/AmiMenus.h"
 #include "StdReaction.h"
 #include <proto/gadtools.h>
 #include <proto/keymap.h>
+#include <algorithm>
 #include <ctype.h>
 
 /* Array of key mappings for mapping Amiga keys onto standard keys.  Amiga OS differentiates between left alt and */
@@ -59,7 +62,7 @@ RApplication::RApplication()
 #ifdef __amigaos__
 
 	m_bDone = EFalse;
-	m_ulMainSeconds = m_ulMainMicros = 0;
+	m_ulMainSeconds = m_ulMainMicros = m_ulWatcherSignals = m_ulWindowSignals = 0;
 	m_iLastX = m_iLastY = 0;
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
@@ -146,6 +149,7 @@ TInt RApplication::Main()
 	struct InputEvent *InputEvent, ShortcutEvent;
 	struct MenuItem *MenuItem;
 	struct Message *Message;
+	struct NotifyMessage *NotifyMessage;
 	CWindow *Window;
 	TStdMouseEvent MouseEvent;
 
@@ -153,7 +157,21 @@ TInt RApplication::Main()
 
 	do
 	{
-		Signal = Wait(m_ulWindowSignals | g_oRendezvous.GetSignal());
+		Signal = Wait(m_ulWatcherSignals | m_ulWindowSignals | g_oRendezvous.GetSignal());
+
+		/* Check to see if a message was received by any of the file watchers */
+
+		for (auto Watcher : m_oWatchers)
+		{
+			if (Signal & Watcher->getSignal())
+			{
+				while ((NotifyMessage = (struct NotifyMessage *) GetMsg(Watcher->getMessagePort())))
+				{
+					Watcher->changed();
+					ReplyMsg((struct Message *) NotifyMessage);
+				}
+			}
+		}
 
 		/* Check to see if a message was received by the rendezvous port */
 
@@ -580,6 +598,10 @@ TInt RApplication::Main()
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
+		/* Give the Windows asynchronous system a chance to call completion routines */
+
+		SleepEx(0, TRUE);
+
 		/* If a modeless dialog is currently active then try to handle any keyboard messages */
 		/* bound for it using the world's stupidest API.  All messages have to be passed to */
 		/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
@@ -629,13 +651,39 @@ void RApplication::close()
 
 }
 
+/**
+ * Add a file system watcher to the application.
+ * In order to be able to handle file system change events, the main application class needs access to the
+ * RAmiFileWatcher instance that has requested the watch from the underlying operating system. This method
+ * can be called to add instances of the watcher class to a list for later processing.
+ *
+ * @date	Wednesday 27-Aug-2025 5:59 am, Code HQ Tokyo Tsukuda
+ * @param	a_poWatcher	Pointer to the watcher to be added
+ */
+
+void RApplication::AddWatcher(RAmiFileWatcher *a_poWatcher)
+{
+	ASSERTM((a_poWatcher != NULL), "RApplication::AddWatcher() => Watcher pointer must be passed in");
+
+	m_oWatchers.push_back(a_poWatcher);
+
+#ifdef __amigaos__
+
+	/* And add the new watcher's signal bit to the list of signals that the application waits on */
+
+	m_ulWatcherSignals |= a_poWatcher->getSignal();
+
+#endif /* __amigaos__ */
+
+}
+
 /* Written: Monday 08-Feb-2010 7:25 am */
 
 void RApplication::AddWindow(CWindow *a_poWindow)
 {
 	CWindow *Window;
 
-	ASSERTM((a_poWindow != NULL), "RApplication::AddWindow() => Window ptr must be passed in");
+	ASSERTM((a_poWindow != NULL), "RApplication::AddWindow() => Window pointer must be passed in");
 
 	/* If the window list is empty then make this window the first in the list */
 
@@ -662,7 +710,7 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 
 #ifdef __amigaos__
 
-	/* And add the new window's signal bit to the list of signals that the application will wait on */
+	/* And add the new window's signal bit to the list of signals that the application waits on */
 
 	m_ulWindowSignals |= a_poWindow->GetSignal();
 
@@ -671,6 +719,35 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	/* Schedule a redraw to ensure the newly added window is refreshed */
 
 	a_poWindow->DrawNow();
+}
+
+/**
+ * Remove a file system watcher from the application.
+ * Removes an instance of the RAmiFileWatcher class from the list of instances monitored by the RApplication class.
+ *
+ * @date	Wednesday 27-Aug-2025 5:59 am, Code HQ Tokyo Tsukuda
+ * @param	a_poWatcher	Pointer to the watcher to be removed
+ */
+
+void RApplication::RemoveWatcher(RAmiFileWatcher *a_poWatcher)
+{
+	ASSERTM((a_poWatcher != NULL), "RApplication::RemoveWatcher() => Watcher pointer must be passed in");
+
+	auto it = std::find(m_oWatchers.begin(), m_oWatchers.end(), a_poWatcher);
+
+	if (it != m_oWatchers.end())
+	{
+		m_oWatchers.erase(it);
+	}
+
+#ifdef __amigaos__
+
+	/* And remove the old watcher's signal bit from the list of signals that the application waits on */
+
+	m_ulWatcherSignals &= ~a_poWatcher->getSignal();
+
+#endif /* __amigaos__ */
+
 }
 
 /* Written: Saturday 25-Sep-2010 3:18 pm */
