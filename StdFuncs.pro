@@ -28,16 +28,16 @@ DEFINES -= UNICODE
 
 SOURCES += Args.cpp Dir.cpp File.cpp FileUtils.cpp Lex.cpp MungWall.cpp \
     RemoteDir.cpp RemoteFactory.cpp RemoteFile.cpp RemoteFileUtils.cpp Yggdrasil/Handler.cpp \
-	StdApplication.cpp StdCharConverter.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileRequester.cpp \
-	StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp StdGadgetTree.cpp \
-	StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp StdTextFile.cpp StdTime.cpp \
-	StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
+	StdApplication.cpp StdCharConverter.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdFileWatcher.cpp \
+	StdFileRequester.cpp StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp \
+	StdGadgetTree.cpp StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp StdTextFile.cpp \
+	StdTime.cpp StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
 
-SOURCES += Qt/QtAction.cpp Qt/QtGadgetSlider.cpp Qt/QtGadgetTree.cpp Qt/QtLocalSocket.cpp Qt/QtWindow.cpp
+SOURCES += Qt/QtAction.cpp Qt/QtFileWatcher.cpp Qt/QtGadgetSlider.cpp Qt/QtGadgetTree.cpp Qt/QtLocalSocket.cpp Qt/QtWindow.cpp
 
 HEADERS += Args.h Dir.h File.h FileUtils.h Lex.h MungWall.h RemoteDir.cpp RemoteFactory.cpp RemoteFile.cpp RemoteFileUtils.cpp \
-	StdApplication.h StdCharConverter.h StdClipboard.h StdConfigFile.h StdDialog.h StdFileRequester.h StdFont.h StdFuncs.h \
-	StdGadgets.h StdImage.h StdList.h StdPool.h StdReaction.h StdRendezvous.h StdSocket.h StdStringList.h StdTextFile.h StdTime.h \
-	StdWildcard.h StdWindow.h Test.h Utils.h
+	StdApplication.h StdCharConverter.h StdClipboard.h StdConfigFile.h StdDialog.h StdFileWatcher.h StdFileRequester.h \
+	StdFont.h StdFuncs.h StdGadgets.h StdImage.h StdList.h StdPool.h StdReaction.h StdRendezvous.h StdSocket.h \
+	StdStringList.h StdTextFile.h StdTime.h StdWildcard.h StdWindow.h Test.h Utils.h
 
-HEADERS += Qt/QtAction.h Qt/QtGadgetSlider.h Qt/QtGadgetTree.h Qt/QtLocalSocket.h Qt/QtWindow.h
+HEADERS += Qt/QtAction.h Qt/QtFileWatcher.h Qt/QtGadgetSlider.h Qt/QtGadgetTree.h Qt/QtLocalSocket.h Qt/QtWindow.h
