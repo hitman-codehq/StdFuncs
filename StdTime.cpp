@@ -311,6 +311,22 @@ TBool TTime::operator==(const TTime &a_roTime) const
 }
 
 /**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 06-Sep-2025 6:17 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+TBool TTime::operator!=(const TTime &a_roTime) const
+{
+	return(iTime != a_roTime.Int64());
+}
+
+/**
  * Tests whether the given date and time is greater than that passed in.
  * This function will compare the passed in date and time with that of the current instance of this
  * class and will return whether the passed in date and time is greater.

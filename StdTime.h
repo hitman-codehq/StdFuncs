@@ -91,6 +91,8 @@ public:
 
 	TBool operator==(const TTime &a_roTime) const;
 
+	TBool operator!=(const TTime &a_roTime) const;
+
 	TBool operator>(const TTime &a_roTime) const;
 };
 

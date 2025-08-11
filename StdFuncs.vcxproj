@@ -219,6 +219,7 @@
     <ClCompile Include="StdCRC.cpp" />
     <ClCompile Include="StdDialog.cpp" />
     <ClCompile Include="StdFileRequester.cpp" />
+    <ClCompile Include="StdFileWatcher.cpp" />
     <ClCompile Include="StdFont.cpp" />
     <ClCompile Include="StdGadgetLayout.cpp" />
     <ClCompile Include="StdGadgets.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="StdCRC.h" />
     <ClInclude Include="StdDialog.h" />
     <ClInclude Include="StdFileRequester.h" />
+    <ClInclude Include="StdFileWatcher.h" />
     <ClInclude Include="StdFont.h" />
     <ClInclude Include="StdFuncs.h" />
     <ClInclude Include="StdGadgets.h" />

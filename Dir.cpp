@@ -344,6 +344,20 @@ void TEntry::Set(TBool a_bIsDir, TBool a_bIsLink, TInt64 a_iSize, TUint a_uiAttr
 
 }
 
+/**
+ * Copy attributes of a TEntry instance into this one.
+ * Copies all metadata concerning the TEntry instance, except the name string, into this instance.
+ *
+ * @date	Monday 11-Aug-2025 6:31 pm, Code HQ Tokyo Tsukuda
+ * @param	a_entry			Reference to new TEntry to assign to this TEntry
+ */
+
+void TEntry::Set(const TEntry &a_oEntry)
+{
+	Set(a_oEntry.iIsDir, a_oEntry.iIsLink, a_oEntry.iSize, a_oEntry.iAttributes, a_oEntry.iModified.DateTime());
+	iPlatformDate = a_oEntry.iPlatformDate;
+}
+
 /* Written: Saturday 03-Nov-2007 5:58 pm */
 
 TEntryArray::~TEntryArray()
@@ -477,9 +491,14 @@ void TEntryArray::Purge()
 
 /* Written: Saturday 11-Jul-2008 11:42 pm */
 
-void TEntryArray::remove(const TEntry *a_poEntry)
+void TEntryArray::remove(const TEntry *a_poEntry, TBool a_bDelete)
 {
 	iEntries.remove((TEntry *) a_poEntry);
+
+	if (a_bDelete)
+	{
+		delete a_poEntry;
+	}
 }
 
 /**

@@ -82,6 +82,8 @@ public:
 	void Reset();
 
 	void Set(TBool a_bIsDir, TBool a_bIsLink, TInt64 a_iSize, TUint a_uiAttributes, const TDateTime &a_oDateTime);
+
+	void Set(const TEntry &a_oEntry);
 };
 
 /* An instance of this class represents a number of TEntry classes and is filled */
@@ -114,7 +116,7 @@ public:
 
 	void Purge();
 
-	void remove(const TEntry *a_poEntry);
+	void remove(const TEntry *a_poEntry, TBool a_bDelete = EFalse);
 
 	void Sort(enum TDirSortOrder a_eSortOrder);
 };
