@@ -4,19 +4,24 @@
 
 /** @file */
 
+#include <vector>
+
 /* Forward declarations to reduce the # of includes required */
 
 class CWindow;
 class QApplication;
+class RAmiFileWatcher;
 
 class RApplication
 {
 private:
 
+	std::vector<RAmiFileWatcher *>	m_oWatchers; /**< List of file watchers used by the application */
 	CWindow			*m_poWindows;				/**< Ptr to window used by the application */
 
 #ifdef __amigaos__
 
+	ULONG			m_ulWatcherSignals;			/**< Signals representing all currently active watchers */
 	ULONG			m_ulWindowSignals;			/**< Signals representing all currently open windows */
 	TBool			m_bDone;					/**< Set to ETrue when it's time to exit the main loop */
 	TBool			m_bUseAltGr;				/**< ETrue if we are using a keyboard with an alt+gr key */
@@ -47,7 +52,11 @@ public:
 
 	void close();
 
+	void AddWatcher(RAmiFileWatcher *a_poWatcher);
+
 	void AddWindow(CWindow *a_poWindow);
+
+	void RemoveWatcher(RAmiFileWatcher *a_poWatcher);
 
 	void RemoveWindow(CWindow *a_poWindow);
 

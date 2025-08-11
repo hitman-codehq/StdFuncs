@@ -303,11 +303,32 @@ TTime &TTime::operator=(const TDateTime &a_roDateTime)
 	return(*this);
 }
 
-/* Written: Monday 13-Jul-2009 6:28 am */
+/**
+ * Determine whether two TTime instances are equal.
+ * Determines on a microsecond level whether two instances of the TTime class are equal.
+ *
+ * @date	 Monday 13-Jul-2009 6:28 am
+ * @param	a_roTime		Date and time to compare with this instance
+ * @return	True if the two instances are equal
+ */
 
 TBool TTime::operator==(const TTime &a_roTime) const
 {
 	return(iTime == a_roTime.Int64());
+}
+
+/**
+ * Determine whether two TTime instances are not equal.
+ * Determines on a microsecond level whether two instances of the TTime class are not equal.
+ *
+ * @date	Saturday 06-Sep-2025 6:17 am, Code HQ Tokyo Tsukuda
+ * @param	a_roTime		Date and time to compare with this instance
+ * @return	True if the two instances are not equal
+ */
+
+TBool TTime::operator!=(const TTime &a_roTime) const
+{
+	return(iTime != a_roTime.Int64());
 }
 
 /**
