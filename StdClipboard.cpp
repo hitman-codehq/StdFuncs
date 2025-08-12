@@ -217,7 +217,7 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 
 /* Written: Saturday 10-Jul-2010 12:43 pm */
 
-void RClipboard::AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength)
+void RClipboard::AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength) // TODO: CAW - a_stLength
 {
 	ASSERTM((m_pcSetData != NULL), "RClipboard::AppendData() => SetDataStart() must be called first");
 
