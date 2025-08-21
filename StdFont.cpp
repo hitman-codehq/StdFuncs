@@ -737,7 +737,7 @@ void RFont::DrawCursor(TUint a_uiCharacter, TInt a_iX, TInt a_iY)
  *
  * @date	Sunday 09-May-2010 6:57 pm
  * @param	a_pccText		Pointer to string to be drawn to the screen
- * @param	a_iSize			Size of the string pointed to by a_pccText
+ * @param	a_iSize			Size of the string pointed to by a_pccText, in bytes
  * @param	a_iX			X position in the window at which to draw, specified as a pixel offset
  * @param	a_iY			Y position in the window at which to draw, specified as a character offset
  * @param	a_eEncoding		Text encoding in which the string is encoded
@@ -1231,28 +1231,32 @@ int RFont::PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength)
 
 #if defined(QT_GUI_LIB) && defined(__APPLE__)
 
-	int Offset, Width;
+	int CharSize, Index, Offset, Width;
 	QFontMetrics Metrics(*m_poFont);
 
 	/* Iterate through the characters in the string, determine the width of each one and add */
 	/* it to the pixel count.  When the pixel count reaches the X offset passed in then we */
 	/* have found the character under the given pixel */
 
-	RetVal = 0;
+	Offset = RetVal = 0;
 
-	for (Offset = 0; Offset < a_iLength; ++Offset)
+	for (Index = 0; Index < a_iLength; ++Index)
 	{
+		CharSize = CStdCharConverter::charSize((unsigned char *) (a_pccText + Offset));
+
 		QByteArray Text(a_pccText, Offset);
-		QByteArray Character((a_pccText + Offset), 1);
+		QByteArray Character((a_pccText + Offset), CharSize);
 
 		Width = Metrics.horizontalAdvance(Text);
 
 		if ((Width < a_iPixelX) && ((Width + Metrics.horizontalAdvance(Character)) >= a_iPixelX))
 		{
-			RetVal = Offset;
+			RetVal = Index;
 
 			break;
 		}
+
+		Offset += CharSize;
 	}
 
 #else /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
