@@ -97,7 +97,7 @@ static INT_PTR CALLBACK DialogProc(HWND a_poWindow, UINT a_uiMessage, WPARAM a_o
 			/* is nothing to do with the above activation handling but is to do with crazy */
 			/* Windows message routing and is easier done separately */
 
-			Dialog->Application()->SetCurrentDialog((a_oWParam) ? a_poWindow : NULL);
+			Dialog->GetApplication()->SetCurrentDialog((a_oWParam) ? a_poWindow : NULL);
 
 			break;
 		}

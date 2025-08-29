@@ -181,7 +181,7 @@ int RLocalSocket::OpenSocket(const char *a_pccName, RApplication *a_poApplicatio
 		{
 			/* Create an instance of a local server that can be used for listening for new connections */
 
-			if ((m_poLocalServer = new QLocalServer(a_poApplication->Application())) != NULL)
+			if ((m_poLocalServer = new QLocalServer(a_poApplication->GetApplication())) != NULL)
 			{
 				/* If the connection failed then it is likely that the program using the local socket did */
 				/* not shut down cleanly, so delete the local socket now so that a later attempt to */

@@ -2585,7 +2585,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	RetVal = KErrNoMemory;
 
-	const QList<QScreen *> Screens = m_poApplication->Application()->screens();
+	const QList<QScreen *> Screens = m_poApplication->GetApplication()->screens();
 	QPoint MousePosition = QCursor::pos();
 	QScreen *TargetScreen = NULL;
 

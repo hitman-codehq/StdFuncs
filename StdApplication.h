@@ -58,7 +58,7 @@ public:
 
 #ifdef QT_GUI_LIB
 
-	QApplication *Application()
+	QApplication *GetApplication()
 	{
 		return(m_poApplication);
 	}
