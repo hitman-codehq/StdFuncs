@@ -217,7 +217,7 @@ public:
 
 	TInt AddMenuItem(TStdMenuItemType a_eMenuItemType, const char *a_pccLabel, const char *a_pccHotKey, TInt a_iOrdinal, TInt a_iSubOrdinal, TInt a_iCommand);
 
-	RApplication *Application()
+	RApplication *GetApplication()
 	{
 		return(m_poApplication);
 	}
