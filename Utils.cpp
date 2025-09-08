@@ -3,6 +3,7 @@
 #include "Lex.h"
 #include "OS4Support.h"
 #include "StdWindow.h"
+#include <signal.h>
 
 #ifdef __amigaos__
 
@@ -99,7 +100,8 @@ static const char g_accYesNoCancel[] = "Yes|No|Cancel";
 
 /* ETrue if running a GUI based program */
 
-TBool g_bUsingGUI;
+TBool g_bUsingGUI;			/**< ETrue if running a GUI based program */
+volatile bool g_break;		/**< Set to true if when ctrl+c is hit by the user */
 
 /* Pointer to root window on which all other windows open.  This was defined in CWindow as a static, */
 /* but this caused the GUI framework to be linked in even for command line only programs.  Thus */
@@ -3119,6 +3121,53 @@ TInt Utils::setProtection(const char *a_pccFileName, TUint a_uiAttributes)
 #endif /* ! __unix__ */
 
 	return(RetVal);
+}
+
+/**
+ * Callback for when a signal is received.
+ * This function is called by the C runtime library if a signal is received. It only handles the
+ * ctrl+c (SIGINT) signal, and sets the global variable g_break to true.
+ *
+ * @date	Sunday 07-Sep-2025 10:20 am, Tully's Yaesu Shopping Mall, Tokyo
+ * @param	a_signal		The signal that triggered the callback
+ */
+
+static void SignalHandler(int /*a_signal*/)
+{
+	/* Signal that ctrl+c has been pressed so that we break out of the scanning routine */
+
+	g_break = true;
+}
+
+/**
+ * Enable signal capturing of ctrl+c (SIGINT) signals.
+ * Client code can call this method to enable the capturing of signals, if the handling of ctrl+c is desired.
+ * If ctrl+c is pressed, the global variable g_break will be set to true. Client software can check on this in
+ * order to be notified if the user wishes to shut down the program.
+ *
+ * @date	Sunday 07-Sep-2025 10:17 am, Tully's Yaesu Shopping Mall, Tokyo
+ */
+
+void Utils::setSignal()
+{
+
+#ifdef __unix__
+
+	struct sigaction signalAction;
+
+	memset(&signalAction, 0, sizeof(signalAction));
+	signalAction.sa_handler = SignalHandler;
+
+	// Capture the signals with sigaction() rather than signal(), which enables us to disable SA_RESTART,
+	// enabling ctrl+c to work when the system is waiting on so-called "slow" calls such as select()
+	sigaction(SIGINT, &signalAction, nullptr);
+
+#else /* ! __unix__ */
+
+	signal(SIGINT, SignalHandler);
+
+#endif /* ! __unix__ */
+
 }
 
 /**
