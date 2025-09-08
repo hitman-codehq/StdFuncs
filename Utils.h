@@ -29,7 +29,8 @@ class CWindow;
 
 /* Export some globals for use elsewhere */
 
-extern TBool g_bUsingGUI;	/**< ETrue if running a GUI based program */
+extern TBool g_bUsingGUI;		/**< ETrue if running a GUI based program */
+extern volatile bool g_break;	/**< Set to true if when ctrl+c is hit by the user */
 
 class Utils
 {
@@ -108,6 +109,8 @@ public:
 	static TInt setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
 
 	static TInt setProtection(const char *a_pccFileName, TUint a_uiAttributes);
+
+	static void setSignal();
 
 	static int splitHost(const char *a_host, std::string &a_server, unsigned short &a_port, unsigned short a_defaultPort = 80);
 
