@@ -267,13 +267,14 @@ void RSocket::close()
  * @pre		The socket has been put in a listening state with listen()
  *
  * @date	Saturday 08-Apr-2023 8:22 am, Code HQ Tokyo Tsukuda
- * @return	KErrNone if successful, otherwise KErrGeneral
+ * @return	KErrNone if successful
+ * @return	KErrBreak if interrupted by ctrl+c signal
+ * @return 	KErrGeneral if any other error occurred
  */
 
 int RSocket::accept()
 {
-	int retVal = KErrGeneral;
-
+	int retVal;
 	socklen_t clientSize;
 	struct sockaddr_in client;
 
@@ -285,6 +286,10 @@ int RSocket::accept()
 	if (m_socket != INVALID_SOCKET)
 	{
 		retVal = KErrNone;
+	}
+	else
+	{
+		retVal = (errno == EINTR) ? KErrBreak : KErrGeneral;
 	}
 
 	return retVal;
