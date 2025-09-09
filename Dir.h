@@ -142,7 +142,12 @@ public:
 		m_entries.Purge();
 	}
 
-	virtual TInt read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder = EDirSortNone) = 0;
+	TEntryArray *getEntries()
+	{
+		return &m_entries;
+	}
+
+	virtual TInt read(enum TDirSortOrder a_sortOrder = EDirSortNone) = 0;
 };
 
 /**
@@ -204,7 +209,7 @@ public:
 
 	void close();
 
-	TInt read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder = EDirSortNone);
+	TInt read(enum TDirSortOrder a_eSortOrder = EDirSortNone);
 };
 
 #endif /* ! DIR_H */

@@ -23,6 +23,7 @@ static RTest Test("T_Dir");		/* Class to use for testing and reporting results *
 static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSize = 0)
 {
 	int Count, Index, FileIndex, Result;
+	TEntryArray *Entries;
 
 	/* Test opening using the path passed in */
 
@@ -31,10 +32,10 @@ static void TestScan(const char *a_pccPath, int a_iCount = 0, unsigned int a_iSi
 
 	/* Test that this can be read */
 
-	TEntryArray *Entries;
-	Result = g_oDir.read(Entries);
+	Result = g_oDir.read();
 	test(Result == KErrNone);
 
+	Entries = g_oDir.getEntries();
 	Count = Entries->Count();
 	FileIndex = 0;
 	Test.printf("Path \"%s\" count = %d\n", a_pccPath, Count);
@@ -162,10 +163,10 @@ int main()
 	Result = g_oDir.open("TimeFile.txt");
 	test(Result == KErrNone);
 
-	TEntryArray *Entries;
-	Result = g_oDir.read(Entries);
+	Result = g_oDir.read();
 	test(Result == KErrNone);
 
+	TEntryArray *Entries = g_oDir.getEntries();
 	test((*Entries)[0].iModified == Entry.iModified);
 	test((*Entries)[0].iAttributes == Entry.iAttributes);
 
@@ -179,7 +180,8 @@ int main()
 	test((Result == KErrNone) || (Result == KErrAlreadyExists));
 
 	test(g_oDir.open("EmptyDirectory") == KErrNone);
-	test(g_oDir.read(Entries) == KErrNone);
+	test(g_oDir.read() == KErrNone);
+	Entries = g_oDir.getEntries();
 	test(Entries->Count() == 0);
 
 	g_oDir.close();
@@ -188,7 +190,7 @@ int main()
 
 	Test.Next("Ensure calling RDir::read() on an unopened RDir fails gracefully");
 
-	test(g_oDir.read(Entries) == KErrGeneral);
+	test(g_oDir.read() == KErrGeneral);
 
 	/* The framework usually works identically on all platforms, but as there are */
 	/* subtle differences between different platforms when it comes to paths, this */
@@ -226,7 +228,8 @@ int main()
 	/* entry.  If not then it must failed as at least the test executable should be there */
 
 	test(g_oDir.open("PROGDIR:") == KErrNone);
-	test(g_oDir.read(Entries) == KErrNone);
+	test(g_oDir.read() == KErrNone);
+	Entries = g_oDir.getEntries();
 	test(Entries->Count() > 0);
 
 	/* Scan through the entries and find the test executable, which by definition *must* be present */

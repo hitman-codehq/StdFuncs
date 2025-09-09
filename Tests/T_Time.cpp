@@ -47,10 +47,11 @@ int main()
 	Test.Next("Check file datestamp obtained from RDir");
 
 	RDir dir;
-	TEntryArray* dirEntries;
+	TEntryArray *dirEntries;
 
 	test(dir.open("T_Time.cpp") == KErrNone);
-	test(dir.read(dirEntries, EDirSortNone) == KErrNone);
+	test(dir.read(EDirSortNone) == KErrNone);
+	dirEntries = dir.getEntries();
 	test(dirEntries->Count() == 1);
 
 	TDateTime dirDateStamp = dirEntries->getHead()->iModified.DateTime();

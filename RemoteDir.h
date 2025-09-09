@@ -26,7 +26,7 @@ public:
 
 	int open(const char *a_pattern);
 
-	int read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder = EDirSortNone);
+	int read(enum TDirSortOrder a_sortOrder = EDirSortNone);
 
 	void setFactory(RRemoteFactory *a_remoteFactory, RSocket *a_socket)
 	{

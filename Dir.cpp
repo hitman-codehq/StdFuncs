@@ -1022,13 +1022,10 @@ void RDir::close()
 
 /**
  * Scans a directory for file and directory entries.
- * Scans a directory that has been prepared with RDir::open() and populates a list
- * with all of the entries found.  This list is then returned to the calling client
- * code.
+ * Scans a directory that has been prepared with RRemoteDir::open() and populates an internal list with all of
+ * the entries found.  This list can be then be accessed using getEntries().
  *
  * @date	Saturday 03-Nov-2007 5:38 pm
- * @param	a_rpoEntries	Reference to a ptr into which to place a ptr to the
- *							array of entries read by this function
  * @param	a_eSortOrder	Enumeration specifying the order in which to sort the files.
  *							EDirSortNone is used by default
  * @return	KErrNone if successful
@@ -1036,14 +1033,13 @@ void RDir::close()
  * @return	KErrGeneral if some other unspecified error occurred
  */
 
-TInt RDir::read(TEntryArray *&a_rpoEntries, enum TDirSortOrder a_eSortOrder)
+TInt RDir::read(enum TDirSortOrder a_eSortOrder)
 {
 	TInt RetVal;
 
 	/* Assume success */
 
 	RetVal = KErrNone;
-	a_rpoEntries = &m_entries;
 
 #ifdef __amigaos4__
 

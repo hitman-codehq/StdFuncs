@@ -121,22 +121,18 @@ int RRemoteDir::open(const char *a_pattern)
 
 /**
  * Scans a remote directory for file and directory entries.
- * Scans a directory that has been prepared with RRemoteDir::open() and populates a list with all of
- * the entries found.  This list is then returned to the calling client code.
+ * Scans a directory that has been prepared with RRemoteDir::open() and populates an internal list with all of
+ * the entries found.  This list can be then be accessed using getEntries().
  *
  * @date	Sunday 22-Jan-2023 10:42 am, Code HQ Tokyo Tsukuda
  * @param	a_entries		Reference to a ptr into which to place a ptr to the array of entries read
  *							by this function
- * @param	a_sortOrder		Enumeration specifying the order in which to sort the files.  EDirSortNone
- * 							is used by default
  * @return	KErrNone is always returned, as this method cannot fail
  */
 
-int RRemoteDir::read(TEntryArray *&a_entries, enum TDirSortOrder a_sortOrder)
+int RRemoteDir::read(enum TDirSortOrder a_sortOrder)
 {
 	(void) a_sortOrder;
-
-	a_entries = &m_entries;
 
 	return KErrNone;
 }
