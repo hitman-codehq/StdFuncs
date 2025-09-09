@@ -337,11 +337,11 @@ public:
 	 * is, the node that is "less" will be sorted such that it is before the node that is "more".
 	 *
 	 * @date	Friday 27-Jun-2014 7:12 am, Code HQ Ehinger Tor
-	 * @param	a_poCompare		Pointer to a user defined function that will compare two nodes
 	 * @param	a_pvUserData	Pointer to user specific data to be passed to comparison function
+	 * @param	a_poCompare		Pointer to a user defined function that will compare two nodes
 	 */
 
-	void Sort(CompareFunction a_poCompare, void *a_pvUserData)
+	void Sort(void *a_pvUserData, CompareFunction a_poCompare)
 	{
 		TInt Index, InSize, NumMerges, PSize, QSize;
 		StdList<T> List;
