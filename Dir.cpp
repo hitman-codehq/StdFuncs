@@ -500,7 +500,7 @@ void TEntryArray::Sort(enum TDirSortOrder a_eSortOrder)
 
 	SortInfo.m_eSortOrder = a_eSortOrder;
 
-	iEntries.Sort(CompareEntries, &SortInfo);
+	iEntries.Sort(&SortInfo, CompareEntries);
 }
 
 /* Written: Saturday 03-Nov-2007 5:24 pm */

@@ -342,14 +342,14 @@ static void TestSort()
 
 	/* First ensure that an empty list can be handled */
 
-	List.Sort(CompareNodes, NULL);
+	List.Sort(NULL, CompareNodes);
 
 	/* Create a list containing NUM_NODES unsorted strings, sort it and ensure that it is sorted as expected */
 
 	CreateList(List, g_apccUnsortedStrings);
 	CheckList(List, g_apccUnsortedStrings, NUM_NODES);
 
-	List.Sort(CompareNodes, NULL);
+	List.Sort(NULL, CompareNodes);
 
 	CheckList(List, g_apccSortedStrings, NUM_NODES);
 
