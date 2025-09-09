@@ -4,10 +4,10 @@
 
 #if defined(__unix__) || defined(__amigaos__)
 
+#include <fcntl.h>
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/socket.h>
 
 #define closesocket(socket) ::close(socket)
 #define INVALID_SOCKET -1
@@ -17,13 +17,9 @@
 
 #include <ws2tcpip.h>
 
-#endif /* ! defined(__unix__) || defined(__amigaos__) */
-
-#ifdef WIN32
-
 int RSocket::m_useCount;
 
-#endif /* WIN32 */
+#endif /* ! defined(__unix__) || defined(__amigaos__) */
 
 /**
  * Typeinfo workaround.
@@ -51,6 +47,86 @@ RSocket::Error::~Error() noexcept
 RSocket::RSocket()
 {
 	m_serverSocket = m_socket = INVALID_SOCKET;
+}
+
+/**
+ * Connect to a remote host, with timeout.
+ * This method attempts to connect() to a remote host, but with a timeout.  If the connection cannot be made within
+ * the specified timeout period, the operation will fail and an error indicating this will be returned.
+ *
+ * @date	Tuesday 09-Sep-2025 9:39 am, WbT Cafeteria
+ * @param	a_address		The address of the host to which to connect
+ * @param	a_addressLength	The length of the address structure
+ * @param	timeout			The timeout in seconds
+ * @return	KErrNone if successful
+ * @return	KErrTimeOut if the connection timed out
+ * @return	KErrGeneral if some other unexpected error occurred
+ */
+
+int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout)
+{
+	int retVal = KErrGeneral;
+
+	/* Set to non-blocking so that we can use select() to wait for the connection, rather than waiting for connect() */
+	if (setBlocking(false) == KErrNone)
+	{
+		/* Try to connect and ensure that the connection either succeeded immediately or would block */
+		if (::connect(m_socket, a_address, a_addressLength) == 0)
+		{
+			retVal = KErrNone;
+		}
+		else
+		{
+
+#if defined(__unix__) || defined(__amigaos__)
+
+			if (errno == EINPROGRESS)
+
+#else /* ! defined(__unix__) || defined(__amigaos__) */
+
+			int lastError = WSAGetLastError();
+
+			if (lastError == WSAEWOULDBLOCK || lastError == WSAEINPROGRESS)
+
+#endif /* ! defined(__unix__) || defined(__amigaos__) */
+
+			{
+				fd_set descriptors;
+				struct timeval timeVal;
+
+				/* Wait for the connection to succeed, or for the attempt to timeout */
+				FD_ZERO(&descriptors);
+				FD_SET(m_socket, &descriptors);
+				timeVal.tv_sec = timeout;
+				timeVal.tv_usec = 0;
+
+				int result = select(static_cast<int>(m_socket + 1), nullptr, &descriptors, nullptr, &timeVal);
+
+				if (result > 0)
+				{
+					int error = 0;
+					socklen_t error_len = sizeof(error);
+
+					/* Select could have returned due to an error on the socket, so check for that */
+					result = getsockopt(m_socket, SOL_SOCKET, SO_ERROR, (char *) &error, &error_len);
+
+					if (result == 0 && error == 0)
+					{
+						retVal = KErrNone;
+					}
+				}
+				else if (result == 0)
+				{
+					retVal = KErrTimeOut;
+				}
+			}
+		}
+
+		/* And put the socket back to its original blocking mode */
+		setBlocking(true);
+	}
+
+	return retVal;
 }
 
 /**
@@ -104,7 +180,7 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 				sockAddr.sin_port = htons(a_port);
 				sockAddr.sin_addr = *inAddr;
 
-				if (connect(m_socket, (struct sockaddr *) &sockAddr, sizeof(sockAddr)) >= 0)
+				if (RSocket::connect((struct sockaddr *) &sockAddr, sizeof(sockAddr), 5) == KErrNone)
 				{
 					retVal = KErrNone;
 				}
@@ -323,6 +399,46 @@ int RSocket::read(void *a_buffer, int a_size, bool a_readAll)
 	{
 		throw Error("Socket closed by remote host", retVal);
 	}
+
+	return retVal;
+}
+
+/**
+ * Set the socket to blocking or non-blocking mode.
+ * Sets the socket to the requested mode.
+ *
+ * @date	Thursday 11-Sep-2025 6:14 am, Code HQ Tokyo Tsukuda
+ * @param	a_blocking		True for blocking mode, else false for non-blocking
+ * @return	KErrNone if successful
+ * @return	KErrGeneral if an error occurred
+ */
+
+int RSocket::setBlocking(bool a_blocking)
+{
+	int retVal = KErrGeneral;
+
+#if defined(__unix__) || defined(__amigaos__)
+
+	int flags = fcntl(m_socket, F_GETFL, 0);
+
+	if (flags != -1)
+	{
+		if (fcntl(m_socket, F_SETFL, a_blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK)) != -1)
+		{
+			retVal = KErrNone;
+		}
+	}
+
+#else /* ! defined(__unix__) || defined(__amigaos__) */
+
+	u_long mode = a_blocking ? 0 : 1;
+
+	if (ioctlsocket(m_socket, FIONBIO, &mode) == 0)
+	{
+		retVal = KErrNone;
+	}
+
+#endif /* ! defined(__unix__) || defined(__amigaos__) */
 
 	return retVal;
 }

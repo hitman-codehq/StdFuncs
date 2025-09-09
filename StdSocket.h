@@ -6,15 +6,17 @@
 
 #include <stdexcept>
 
-#ifdef WIN32
+#if defined(__unix__) || defined(__amigaos__)
 
-#include <winsock2.h>
-
-#else /* ! WIN32 */
+#include <sys/socket.h>
 
 typedef int SOCKET;
 
-#endif /* ! WIN32 */
+#else /* ! defined(__unix__) || defined(__amigaos__) */
+
+#include <ws2tcpip.h>
+
+#endif /* ! defined(__unix__) || defined(__amigaos__) */
 
 /**
  * A class providing synchronous socket communications.
@@ -52,6 +54,12 @@ private:
 public:
 
 	SOCKET	m_socket;			/**< The socket with which data to transfer data */
+
+private:
+
+	int connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout);
+
+	int setBlocking(bool a_blocking);
 
 public:
 
