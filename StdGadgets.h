@@ -463,7 +463,7 @@ protected:
 
 	bool createNative();
 
-	int setContent(StdList<CTreeNode> &a_items);
+	int setContent(StdList<CTreeNode> &a_items, int a_contentID = 0);
 
 public:
 

@@ -88,13 +88,7 @@ CStdGadgetTree::~CStdGadgetTree()
 	/* Iterate through the map of available lists and delete the nodes from each one */
 	for (auto &item : m_itemsMap)
 	{
-		List &list = item.second;
-		CTreeNode *node;
-
-		while ((node = reinterpret_cast<CTreeNode *>(RemHead(&list))) != NULL)
-		{
-			FreeListBrowserNode(reinterpret_cast<struct Node *>(node));
-		}
+		FreeListBrowserList(&item.second);
 	}
 
 #endif /* __amigaos__ */
@@ -215,27 +209,50 @@ void CStdGadgetTree::setContent(int a_contentID)
  * This method accepts a list of CTreeNode items, with each item containing a text string that will be used to
  * add a node to the tree.
  *
- * The items passed in will be converted to a format suitable for the underlying native tree gadget, and the original
- * list is no longer required and can be disposed of.  This method can be called multiple times and a new internal
- * list will be created each time.  An integer identifier representing that list will be returned, which can be used
- * to switch between lists using setContent(int).
+ * The items passed in will be converted to a format suitable for the underlying native tree gadget, and the list that
+ * is passed in is no longer required and can be disposed of.  This method can be called multiple times, with the
+ * option of either creating a new internal list, or updating an existing one. The latter use case is useful when a
+ * client is holding a content ID and wishes to reuse it.
  *
  * @date	Monday 13-Sep-2021 8:53 am, Code HQ Bergmannstrasse
  * @param	a_items			The list of items to be added to the tree
+ * @param	a_contentID		An optional content ID identifier, previously returned from this method
  * @return	An identifier that represents the content that was just added
  */
 
-int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
+int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 {
+	/* If no content ID is passed in, create a new list with a new unique content ID. Otherwise, we want to */
+	/* update an existing list */
+	if (a_contentID == 0)
+	{
+		m_contentID = m_nextContentID++;
+	}
+	else
+	{
+		m_contentID = a_contentID;
+	}
 
 #ifdef __amigaos__
+
+	struct List *fileList;
 
 	/* Any previously added item list must be detached from the list browser gadget before being updated */
 	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) NULL, TAG_DONE);
 
-	struct List &fileList = m_itemsMap[m_nextContentID];
-
-	NewList(&fileList);
+	/* If the content ID does not already exist in the map, create a new list for it. In this case, accessing the */
+	/* items map will return a new exec List, but it must be initialised by calling NewList(). If it already exists, */
+	/* it is valid but we want to clear its contents with FreeListBrowserList() */
+	if (m_itemsMap.find(m_contentID) == m_itemsMap.end())
+	{
+		fileList = &m_itemsMap[m_contentID];
+		NewList(fileList);
+	}
+	else
+	{
+		fileList = &m_itemsMap[m_contentID];
+		FreeListBrowserList(fileList);
+	}
 
 	/* Iterate through the list passed in and, for each item on the list, create a list browser node to represent */
 	/* it, and add it to the list browser's list of nodes */
@@ -248,14 +265,14 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 		if ((node = AllocListBrowserNode(1, LBNCA_CopyText, TRUE, LBNCA_Text, (ULONG) treeNode->m_text.c_str(),
 			TAG_DONE)) != nullptr)
 		{
-			AddTail(&fileList, node);
+			AddTail(fileList, node);
 		}
 
 		treeNode = a_items.getSucc(treeNode);
 	}
 
 	/* Re-add the updated list of items to the list browser gadget */
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) &fileList, TAG_DONE);
+	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
@@ -276,15 +293,18 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items)
 	/* Add the new list of items to the tree widget */
 	static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
 
-	m_itemsMap.emplace(m_nextContentID, items);
+	/* Mixing the STL and Qt list is a pain. We have to do it like this to ensure that the data in items is actually */
+	/* copies or moved into the target list item, rather than a shared pointer being used */
+	if (!m_itemsMap.emplace(m_contentID, items).second)
+	{
+		m_itemsMap[m_contentID] = std::move(items);
+	}
 
 #else /* ! QT_GUI_LIB */
 
 	(void) a_items;
 
 #endif /* ! QT_GUI_LIB */
-
-	m_contentID = m_nextContentID++;
 
 	return m_contentID;
 }
