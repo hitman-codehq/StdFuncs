@@ -169,7 +169,11 @@ bool RStdFileWatcher::startWatching(const std::string &a_directoryName, Callback
 
 	retVal = m_watcher.startWatching(m_directoryName);
 
-#elif !defined(__unix__)
+#elif defined(__unix__)
+
+	retVal = false;
+
+#else /* ! __unix__ */
 
 	m_changeHandle = CreateFile(m_directoryName.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 		nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
