@@ -883,14 +883,11 @@ TInt CStdGadgetLayout::Y()
 }
 
 /**
- * Short description.
- * Long multi line description.
- *
- * @pre		Some precondition here
+ * Get the width of the gadget.
+ * Gets the widget of the gadget, in pixels.
  *
  * @date	Friday 13-Aug-2021 4:28 pm, Code HQ @ Thomas's House
- * @param	Parameter		Description
- * @return	Return value
+ * @return	The widget of the gadget
  */
 
 // TODO: CAW (multi) - Merge this into CStdGadget or update function header
@@ -913,14 +910,11 @@ TInt CStdGadgetLayout::Width()
 }
 
 /**
- * Short description.
- * Long multi line description.
- *
- * @pre		Some precondition here
+ * Get the height of the gadget.
+ * Gets the height of the gadget, in pixels.
  *
  * @date	Friday 13-Aug-2021 3:46 pm, Code HQ @ Thomas's House
- * @param	Parameter		Description
- * @return	Return value
+ * @return	The widget of the gadget
  */
 
 // TODO: CAW (multi) - Merge this into CStdGadget or update function header

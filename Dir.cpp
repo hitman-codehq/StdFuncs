@@ -291,8 +291,6 @@ TBool TEntry::IsDeleteable() const
  * the iAttributes member to something reasonable for each platform.
  *
  * @date	Monday 25-Jan-2021 6:18 am, Code HQ Bergmannstrasse
- * @param	Parameter		Description
- * @return	Return value
  */
 
 void TEntry::Reset()

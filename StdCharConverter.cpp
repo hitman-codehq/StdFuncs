@@ -72,9 +72,9 @@ int CStdCharConverter::construct()
  * Note that the routine assumes that the character passed in is in little endian format, hence the
  * use of a memory pointer rather than an integral variable, to avoid problems on big endian systems.
  *
- * @date		Thursday 01-Feb-2018 9:41 am, Starbucks Friedrichstrasse
+ * @date	Thursday 01-Feb-2018 9:41 am, Starbucks Friedrichstrasse
  * @param	a_pcucBuffer	Pointer to the character to be checked
- * @return	Return value	The size of the next character in bytes
+ * @return	The size of the next character in bytes
  */
 
 int CStdCharConverter::charSize(const unsigned char *a_buffer)

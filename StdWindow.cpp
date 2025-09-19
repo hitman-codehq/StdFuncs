@@ -2868,8 +2868,8 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
  *
  * @date	Thursday 13-Jun-2013 7:41 am, Code HQ Ehinger Tor
  * @param	a_iCommand	Command ID of the accelerator to be removed
- * @param	KErrNone if successful
- * @param	KErrNotFound if the specified accelerator was not found
+ * @return	KErrNone if successful
+ * @return	KErrNotFound if the specified accelerator was not found
  */
 
 TInt CWindow::RemoveAccelerator(TInt a_iCommand)
