@@ -463,9 +463,11 @@ protected:
 
 	bool createNative();
 
-	int setContent(StdList<CTreeNode> &a_items, int a_contentID = 0);
+	int setContent(StdList<CTreeNode> &a_items, int a_contentID);
 
 public:
+
+	void activateContent(int a_contentID);
 
 	int getContentID()
 	{
@@ -473,8 +475,6 @@ public:
 	}
 
 	std::string getSelectedItem();
-
-	void setContent(int a_contentID);
 
 	void setTitle(const std::string &a_title);
 
