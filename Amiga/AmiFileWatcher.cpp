@@ -19,56 +19,63 @@ void RAmiFileWatcher::changed()
 	RDir newDir;
 	TEntry *newEntry;
 
-	/* Scan the requested directory and build a list of files that it contains */
-	if ((result = newDir.open(reinterpret_cast<const char *>(m_request->nr_Name))) == KErrNone)
+	if (!m_fileName.empty())
 	{
-		if ((result = newDir.read(EDirSortNameAscending)) == KErrNone)
+		this->m_parentWatcher.changed(m_directoryName, m_fileName, EChangeModified);
+	}
+	else
+	{
+		/* Scan the requested directory and build a list of files that it contains */
+		if ((result = newDir.open(reinterpret_cast<const char *>(m_request->nr_Name))) == KErrNone)
 		{
-			/* Detect files that were deleted. If the file is in the old list but not in the new list, it has been deleted */
-			const TEntry *oldFile = m_files.getEntries()->getHead();
-
-			while (oldFile != nullptr)
+			if ((result = newDir.read(EDirSortNameAscending)) == KErrNone)
 			{
-				const TEntry *newFile = findEntry(*newDir.getEntries(), oldFile->iName);
+				/* Detect files that were deleted. If the file is in the old list but not in the new list, it has been deleted */
+				const TEntry *oldFile = m_files.getEntries()->getHead();
 
-				if (!newFile)
+				while (oldFile != nullptr)
 				{
-					m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), oldFile->iName, EChangeDeleted);
+					const TEntry *newFile = findEntry(*newDir.getEntries(), oldFile->iName);
 
-					/* Because we are modifying the files list while we are iterating through it, we have to carefully */
-					/* remove the current node while moving to the next one */
-					const TEntry *next = m_files.getEntries()->getSucc(oldFile);
-					m_files.getEntries()->remove(oldFile, ETrue);
-					oldFile = next;
-				}
-				else
-				{
-					oldFile = m_files.getEntries()->getSucc(oldFile);
-				}
-			}
-
-			/* Detect files that were added. If the file is in the new list but not in the old list, it is new */
-			for (const TEntry *newFile = newDir.getEntries()->getHead(); newFile; newFile = newDir.getEntries()->getSucc(newFile))
-			{
-				const TEntry *oldFile = findEntry(*m_files.getEntries(), newFile->iName);
-
-				if (!oldFile)
-				{
-					m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), newFile->iName, EChangeAdded);
-
-					if ((newEntry = m_files.getEntries()->Append(newFile->iName)) != nullptr)
+					if (!newFile)
 					{
-						newEntry->Set(*newFile);
+						m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), oldFile->iName, EChangeDeleted);
+
+						/* Because we are modifying the files list while we are iterating through it, we have to carefully */
+						/* remove the current node while moving to the next one */
+						const TEntry *next = m_files.getEntries()->getSucc(oldFile);
+						m_files.getEntries()->remove(oldFile, ETrue);
+						oldFile = next;
+					}
+					else
+					{
+						oldFile = m_files.getEntries()->getSucc(oldFile);
 					}
 				}
-				/* It's in both lists, so check its timestamp and attributes to see if it has been modified */
-				else if (oldFile->iModified != newFile->iModified || oldFile->iAttributes != newFile->iAttributes)
-				{
-					m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), oldFile->iName, EChangeModified);
-				}
-			}
 
-			newDir.close();
+				/* Detect files that were added. If the file is in the new list but not in the old list, it is new */
+				for (const TEntry *newFile = newDir.getEntries()->getHead(); newFile; newFile = newDir.getEntries()->getSucc(newFile))
+				{
+					const TEntry *oldFile = findEntry(*m_files.getEntries(), newFile->iName);
+
+					if (!oldFile)
+					{
+						m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), newFile->iName, EChangeAdded);
+
+						if ((newEntry = m_files.getEntries()->Append(newFile->iName)) != nullptr)
+						{
+							newEntry->Set(*newFile);
+						}
+					}
+					/* It's in both lists, so check its timestamp and attributes to see if it has been modified */
+					else if (oldFile->iModified != newFile->iModified || oldFile->iAttributes != newFile->iAttributes)
+					{
+						m_parentWatcher.changed(reinterpret_cast<const char *>(m_request->nr_Name), oldFile->iName, EChangeModified);
+					}
+				}
+
+				newDir.close();
+			}
 		}
 	}
 }
@@ -105,10 +112,40 @@ const TEntry *RAmiFileWatcher::findEntry(const TEntryArray &a_entries, const cha
 
 void RAmiFileWatcher::pauseWatching()
 {
-	if (m_request != nullptr)
+	if (m_fileName.empty())
 	{
-		EndNotify(m_request);
+		if (m_request != nullptr)
+		{
+			EndNotify(m_request);
+		}
 	}
+}
+
+/**
+ * Read the list of files in the watched directory.
+ * This function will fill or update the cached list of files in the watched directory. It can be called either
+ * when starting to watch a directory, or when resuming watching after a pause.
+ *
+ * @date	Friday 03-Oct-2025 6:22 am, Code HQ Tokyo Tsukuda
+ * @return	true if the directory was scanned successfully, else false
+ */
+
+bool RAmiFileWatcher::readFileList()
+{
+	bool retVal = false;
+
+	/* Purge the old list of files in the watched directory */
+	m_files.close();
+
+	if (m_files.open(reinterpret_cast<const char *>(m_request->nr_Name)) == KErrNone)
+	{
+		if (m_files.read(EDirSortNameAscending) == KErrNone)
+		{
+			retVal = true;
+		}
+	}
+
+	return retVal;
 }
 
 /**
@@ -120,9 +157,16 @@ void RAmiFileWatcher::pauseWatching()
 
 void RAmiFileWatcher::resumeWatching()
 {
-	if (m_request != nullptr)
+	/* Only read the list of files if we are watching a directory, rather than an individual file */
+	if (m_fileName.empty())
 	{
-		DEBUGCHECK(StartNotify(m_request), "RAmiFileWatcher::resumeWatching() => Could not restart file watching");
+		/* Refresh the contents of the cached file list, in case something changed while we were paused */
+		readFileList();
+
+		if (m_request != nullptr)
+		{
+			DEBUGCHECK(StartNotify(m_request), "RAmiFileWatcher::resumeWatching() => Could not restart file watching");
+		}
 	}
 }
 
@@ -131,17 +175,36 @@ void RAmiFileWatcher::resumeWatching()
  * Watches the given directory for changes, and adds the watcher to the list of watchers known by the RApplication
  * class, so that it can be notified when a change occurs. It also saves a list of files in the directory, which
  * can be used to determine what files have been changed when a directory change message is received from DOS.
- *
- * This is an internal class used by RStdFileWatcher. The name of the class passed in must remain persistent during
- * the use of this class, and must not be deleted.
+ * Alternatively, will set up single file watch if the optional a_fileName parameter is passed in.
  *
  * @date	Monday 01-Sep-2025 6:00 am, Code HQ Tokyo Tsukuda
- * @param	a_directoryName	The name of the directory to be watched. The string must be in persistent memory
+ * @param	a_directoryName	The name of the directory to be watched
+ * @param	a_fileName		Optional name of a specific file to watch
  * @return	True if the watcher was started successfully, otherwise false
  */
 
-bool RAmiFileWatcher::startWatching(const std::string &a_directoryName)
+bool RAmiFileWatcher::startWatching(const std::string &a_directoryName, const std::string *a_fileName)
 {
+	bool retVal = false;
+	m_directoryName = a_directoryName;
+
+	if (a_fileName != nullptr && !a_fileName->empty())
+	{
+		m_fileName = a_directoryName;
+
+		if (m_fileName.length() > 0)
+		{
+			char lastChar = m_fileName[m_fileName.length() - 1];
+
+			if  (lastChar != '/' && lastChar != ':')
+			{
+				m_fileName += '/';
+			}
+
+			m_fileName += *a_fileName;
+		}
+	}
+
 	/* Create a message port */
 	if ((m_port = CreatePort(nullptr, 0)) != nullptr)
 	{
@@ -152,33 +215,41 @@ bool RAmiFileWatcher::startWatching(const std::string &a_directoryName)
 
 		if (m_request != nullptr)
 		{
-			m_request->nr_Name = a_directoryName.c_str();
-			m_request->nr_FullName = a_directoryName.c_str();
+			const char *objectToWatch = m_fileName.empty() ? m_directoryName.c_str() : m_fileName.c_str();
+
+			m_request->nr_Name = objectToWatch;
 			m_request->nr_Flags = NRF_SEND_MESSAGE;
 			m_request->nr_stuff.nr_Msg.nr_Port = m_port;
 
 			if (StartNotify(m_request))
 			{
-				/* The signal only indicates that something has changed, not what has changed. So we need to make a */
-				/* snapshot of the contents of the directory under observation for later reference when we receive a */
-				/* signal */
-				if (m_files.open(reinterpret_cast<const char *>(m_request->nr_Name)) == KErrNone)
+				if (m_fileName.empty())
 				{
-					if (m_files.read(EDirSortNameAscending) == KErrNone)
+					/* The signal only indicates that something has changed, not what has changed. So we need to make a */
+					/* snapshot of the contents of the directory under observation for later reference when we receive a */
+					/* signal */
+					if (readFileList())
 					{
+						retVal = true;
 						CWindow::GetRootWindow()->GetApplication()->AddWatcher(this);
-
-						return true;
 					}
+				}
+				else
+				{
+					retVal = true;
+					CWindow::GetRootWindow()->GetApplication()->AddWatcher(this);
 				}
 			}
 		}
 	}
 
-	/* Something failed, so cleanup whatever resources were allocated */
-	stopWatching();
+	if (!retVal)
+	{
+		/* Something failed, so cleanup whatever resources were allocated */
+		stopWatching();
+	}
 
-	return false;
+	return retVal;
 }
 
 /**
@@ -193,10 +264,7 @@ void RAmiFileWatcher::stopWatching()
 {
 	CWindow::GetRootWindow()->GetApplication()->RemoveWatcher(this);
 
-	/* Purge the list of files in the watched directory so it can be reused for a different directory later */
-	m_files.close();
-
-	/* And free DOS's resources */
+	/* Free DOS's resources */
 	if (m_request != nullptr)
 	{
 		EndNotify(m_request);
@@ -211,4 +279,10 @@ void RAmiFileWatcher::stopWatching()
 	}
 
 	m_signal = 0;
+
+	/* Purge the list of files in the watched directory so it can be reused for a different directory later */
+	m_files.close();
+
+	m_directoryName.clear();
+	m_fileName.clear();
 }

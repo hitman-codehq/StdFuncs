@@ -28,10 +28,11 @@ private:
 	QMap<QString, QDateTime>	m_files;			/**< List of files in the directory being watched */
 	QMetaObject::Connection		m_connection;		/**< Connection set up by call to QObject::connect() */
 	QString						m_directoryName;	/**< Name of the directory being watched */
+	QString						m_fileName;			/**< Name of the file being watched, if any */
 
 private:
 
-	void changed(const QString &a_directoryName);
+	void changed();
 
 public:
 
@@ -41,7 +42,7 @@ public:
 
 	void resumeWatching();
 
-	bool startWatching(const std::string &a_directoryName);
+	bool startWatching(const std::string &a_directoryName, const std::string *a_fileName);
 
 	void stopWatching();
 };

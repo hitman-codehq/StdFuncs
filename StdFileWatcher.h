@@ -56,7 +56,6 @@ class RStdFileWatcher
 
 	TState				m_state;			/**< Current state of the file watcher */
 	Callback			m_callback;			/**< Client callback to invoke when a change is detected */
-	std::string			m_directoryName;	/**< Name of the directory being watched */
 
 #ifdef __amigaos__
 
@@ -71,6 +70,8 @@ class RStdFileWatcher
 	BYTE				m_buffer[8192];		/**< Buffer for file change notification information */
 	HANDLE				m_changeHandle = INVALID_HANDLE_VALUE;	/**< Handle to the directory being watched */
 	OVERLAPPED			m_overlapped;		/**< OVERLAPPED structure passed to ReadDirectoryChangesW() */
+	std::string			m_directoryName;	/**< Name of the directory being watched */
+	std::string			m_fileName;			/**< Name of the file being watched */
 
 #endif /* defined(WIN32) */
 
@@ -107,7 +108,7 @@ public:
 
 	void resumeWatching();
 
-	bool startWatching(const std::string &a_directoryName, Callback a_callback);
+	bool startWatching(const std::string &a_directoryName, const std::string *a_fileName, Callback a_callback);
 
 	void stopWatching();
 

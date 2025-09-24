@@ -86,12 +86,14 @@ void CALLBACK RStdFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_byte
  * If file watching is underway, it will be paused until unpauseWatching() is called. Calling this method when
  * watching is not underway has no effect.
  *
+ * Note that this only has an effect when directories are being watched. Calling pauseWatching() on a file will
+ * have no effect.
+ *
  * @date	Friday 29-Aug-2025 5:50 am, Code HQ Tokyo Tsukuda
  */
 
 void RStdFileWatcher::pauseWatching()
 {
-
 	if (m_state == EStateWatching)
 	{
 
@@ -113,12 +115,14 @@ void RStdFileWatcher::pauseWatching()
  * Unpause file watching.
  * If file watching is paused, it will be restarted. Calling this method when watching is not paused has no effect.
  *
+ * Note that this only has an effect when directories are being watched. Calling pauseWatching() on a file will
+ * have no effect.
+ *
  * @date	Friday 29-Aug-2025 5:55 am, Code HQ Tokyo Tsukuda
  */
 
 void RStdFileWatcher::resumeWatching()
 {
-
 	if (m_state == EStatePaused)
 	{
 
@@ -150,24 +154,39 @@ void RStdFileWatcher::resumeWatching()
  * in will be called if a change is detected in the given directory. If a file watch is already underway, it will be
  * stopped and a new one started.
  *
+ * An optional filename can be passed in, in which case only changes to that specific file will be reported. If no
+ * filename is passed in, all changes to files in the directory will be reported. For monitoring a single file in a
+ * directory (such as a preferences file), this is more efficient than monitoring the entire directory.
+ *
  * @date	Monday 11-Aug-2025 1:25 pm, Sarutahiko Coffee Marunouchi
  * @param	a_directoryName	The name of the directory to watch
+ * @param	a_fileName		Optional name of a specific file to watch
  * @param	a_callback		The callback to invoke on file changes
  * @return	True if the watcher was started successfully, otherwise false
  */
 
-bool RStdFileWatcher::startWatching(const std::string &a_directoryName, Callback a_callback)
+bool RStdFileWatcher::startWatching(const std::string &a_directoryName, const std::string *a_fileName, Callback a_callback)
 {
 	bool retVal;
 
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
 	m_directoryName = a_directoryName;
+
+	if (a_fileName != nullptr)
+	{
+		m_fileName = *a_fileName;
+	}
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
 	m_callback = a_callback;
 
 	stopWatching();
 
 #if defined(__amigaos__) || defined(QT_GUI_LIB)
 
-	retVal = m_watcher.startWatching(m_directoryName);
+	retVal = m_watcher.startWatching(a_directoryName, a_fileName);
 
 #elif defined(__unix__)
 
@@ -225,6 +244,9 @@ void RStdFileWatcher::stopWatching()
 			CloseHandle(m_changeHandle);
 			m_changeHandle = INVALID_HANDLE_VALUE;
 		}
+
+		m_directoryName.clear();
+		m_fileName.clear();
 
 #endif /* ! __unix__ */
 
