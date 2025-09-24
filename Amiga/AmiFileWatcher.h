@@ -22,12 +22,16 @@ class RAmiFileWatcher
 	MsgPort				*m_port;			/**< The message port used to receive for file change events */
 	NotifyRequest		*m_request;			/**< The request used to listen for file change events */
 	RDir				m_files;			/**< List of files in the directory being watched */
+	std::string			m_directoryName;	/**< Name of the directory being watched */
+	std::string			m_fileName;			/**< Name of the file being watched, if any */
 
 private:
 
 	void changed();
 
 	const TEntry *findEntry(const TEntryArray &a_entries, const char *a_name);
+
+	bool readFileList();
 
 public:
 
@@ -52,7 +56,7 @@ public:
 
 	void resumeWatching();
 
-	bool startWatching(const std::string &a_directoryName);
+	bool startWatching(const std::string &a_directoryName, const std::string *a_fileName);
 
 	void stopWatching();
 
