@@ -377,7 +377,7 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 	}
 	else
 	{
-		m_oGetData = QApplication::clipboard()->text().toLocal8Bit();
+		m_oGetData = QApplication::clipboard()->text().toUtf8();
 	}
 
 	/* Now return a ptr to the start of the clipboard data */
