@@ -431,28 +431,27 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 /*
  * Obtains the text belonging to a string gadget.
- * Queries the gadget specified by the a_iGadgetID identifier for its text contents
- * and length.  Optionally, this function can obtain just the length.  This function gets the
- * text into a reusable scratch buffer (m_pcTextBuffer) that is shared among all gadgets so
- * the text is only valid until the next call to this function.  Note that the length of the
- * text returned does NOT include the NULL terminator.
+ * Queries the gadget specified by the a_iGadgetID identifier for its text contents and size. Optionally,
+ * this function can obtain just the size. This function gets the text into a reusable scratch buffer
+ * (m_pcTextBuffer) that is shared among all gadgets, so the text is only valid until the next call to this
+ * function. Note that the size of the text returned does NOT include the NULL terminator.
  *
  * @date	Saturday 21-Aug-2010 1:08 pm
  * @param	a_iGadgetID	ID of the gadget for which to obtain the text
- * @param	a_bGetText	ETrue to actually get the text, else EFalse to just get the length
- * @return	Length of the text if successful.  This does not include the NULL terminator
+ * @param	a_bGetText	ETrue to actually get the text, else EFalse to just get the size
+ * @return	Size of the text if successful. This does not include the NULL terminator
  * @return	KErrNotFound if the gadget with the specified ID was not found
  * @return	KErrNoMemory if not enough memory was available
  */
 
 TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
-	TInt Length, RetVal;
+	TInt Length, Size, RetVal;
 
 	/* Assume failure */
 
 	RetVal = KErrNotFound;
-	Length = 1;
+	Size = 1;
 
 #ifdef __amigaos__
 
@@ -466,7 +465,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 	if ((m_poEditHookData) && (m_poEditHookData->Gadget->GadgetID == a_iGadgetID))
 	{
 		RetVal = KErrNone;
-		Length = (m_poEditHookData->NumChars + 1);
+		Size = (m_poEditHookData->NumChars + 1);
 		Text = (const char *) m_poEditHookData->WorkBuffer;
 	}
 	else
@@ -478,7 +477,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			if (GetAttr(STRINGA_TextVal, Gadget, (ULONG *) &Text) > 0)
 			{
 				RetVal = KErrNone;
-				Length = (strlen(Text) + 1);
+				Size = (strlen(Text) + 1);
 			}
 			else
 			{
@@ -494,7 +493,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 #elif defined(QT_GUI_LIB)
 
 	QLineEdit *LineEdit;
-	QString Text;
+	QByteArray Text;
 	QWidget *Widget;
 
 	/* Find a pointer to the Qt widget and if found then get its text and save its length */
@@ -504,23 +503,37 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 		RetVal = KErrNone;
 
 		LineEdit = (QLineEdit *) Widget;
-		Text = LineEdit->text();
-		Length = (Text.length() + 1);
+		Text = LineEdit->text().toUtf8();
+		Size = (Text.size() + 1);
 	}
 
 #else /* ! QT_GUI_LIB */
 
+	wchar_t *WideTextBuffer;
 	HWND Gadget;
+
+	Length = 0;
+	WideTextBuffer = NULL;
 
 	/* Get a ptr to the Windows control to query */
 
 	if ((Gadget = GetDlgItem(m_poWindow, a_iGadgetID)) != NULL)
 	{
-		RetVal = KErrNone;
-
 		/* Determine the length of the text held in the gadget and add space for a NULL terminator */
 
 		Length = (GetWindowTextLength(Gadget) + 1);
+
+		/* Get the text in UTF-16, so we can determine its size in bytes when converted to UTF-8 later */
+
+		WideTextBuffer = new wchar_t[Length];
+
+		if (GetWindowTextW(Gadget, WideTextBuffer, Length) == Length - 1)
+		{
+			if ((Size = WideCharToMultiByte(CP_UTF8, 0, WideTextBuffer, Length, NULL, 0, NULL, NULL)) > 0)
+			{
+				RetVal = KErrNone;
+			}
+		}
 	}
 	else
 	{
@@ -541,7 +554,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			/* If the currently allocated buffer is too small then delete it */
 
-			if (m_iTextBufferSize < Length)
+			if (m_iTextBufferSize < Size)
 			{
 				delete [] m_pcTextBuffer;
 				m_pcTextBuffer = NULL;
@@ -552,36 +565,37 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 			if (!(m_pcTextBuffer))
 			{
-				m_pcTextBuffer = new char[Length];
+				m_pcTextBuffer = new char[Size];
 			}
 
 			/* If the buffer was allocated successfully the get the contents of the text gadget into it */
 
 			if (m_pcTextBuffer)
 			{
-				m_iTextBufferSize = Length;
+				m_iTextBufferSize = Size;
 
 #ifdef __amigaos__
 
 				/* For Amiga OS we already have a ptr to the text so just make a copy of it */
 
 				strcpy(m_pcTextBuffer, Text);
-				RetVal = Length;
+				RetVal = Size;
 
 #elif defined(QT_GUI_LIB)
 
 				/* For Qt we already have the text in a QString so just make a copy of it */
 
-				memcpy(m_pcTextBuffer, qPrintable(Text), Length);
-				RetVal = Length;
+				memcpy(m_pcTextBuffer, Text.constData(), Size);
+				RetVal = Size;
 
 #else /* ! QT_GUI_LIB */
 
 				/* For Windows we still have to obtain the text itself */
 
-				if ((Length = GetWindowText(Gadget, m_pcTextBuffer, Length)) >= 0)
+				if (WideCharToMultiByte(CP_UTF8, 0, WideTextBuffer, Length, m_pcTextBuffer, m_iTextBufferSize, NULL, NULL) == Size)
 				{
-					RetVal = (Length + 1);
+					m_pcTextBuffer[Size] = '\0';
+					RetVal = Size;
 				}
 				else
 				{
@@ -597,9 +611,15 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 		else
 		{
-			RetVal = Length;
+			RetVal = Size;
 		}
 	}
+
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	delete [] WideTextBuffer;
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	/* If the text was successfully obtained, remove the length of the NULL terminator as this */
 	/* function returns only the length of the text itself */
@@ -927,10 +947,21 @@ void CDialog::SetGadgetText(TInt a_iGadgetID, const char *a_pccText)
 
 #else /* ! QT_GUI_LIB */
 
-	DEBUGCHECK((SetDlgItemText(m_poWindow, a_iGadgetID, a_pccText) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
+	/* Convert UTF - 8 to wide char before assigning to the control */
+
+	int Length = MultiByteToWideChar(CP_UTF8, 0, a_pccText, -1, NULL, 0);
+
+	if (Length > 0)
+	{
+		wchar_t *WideTextBuffer = new wchar_t[Length];
+
+		MultiByteToWideChar(CP_UTF8, 0, a_pccText, -1, WideTextBuffer, Length);
+		DEBUGCHECK((SetDlgItemTextW(m_poWindow, a_iGadgetID, WideTextBuffer) != FALSE), "CDialog::SetGadgetText() => Unable to set gadget text");
+
+		delete[] WideTextBuffer;
+	}
 
 #endif /* ! QT_GUI_LIB */
-
 }
 
 /**

@@ -88,15 +88,15 @@ int CStdCharConverter::charSize(const unsigned char *a_buffer)
 	/* Apply some shortcut checks to determine the character's size, according to the rules */
 	/* for the bitwise layout of UTF-8 characters */
 
-	if ((character & 0xf1) == 0xf0)
+	if ((character & (unsigned char) 0xf1) == 0xf0)
 	{
 		retVal = 4;
 	}
-	else if ((character & 0xf0) == 0xe0)
+	else if ((character & (unsigned char) 0xf0) == 0xe0)
 	{
 		retVal = 3;
 	}
-	else if ((character & 0xe0) == 0xc0)
+	else if ((character & (unsigned char) 0xe0) == 0xc0)
 	{
 		retVal = 2;
 	}
