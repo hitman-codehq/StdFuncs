@@ -1,7 +1,7 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdFuncs", "..\StdFuncs.vcxproj", "{CC6C37F2-5803-4C25-9BF1-651E54E53DEE}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "T_Wildcard", "T_Wildcard.vcxproj", "{D5F53B33-DF99-4A25-A81F-E5390E49195A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "T_Time", "T_Time.vcxproj", "{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "T_CharConverter", "T_CharConverter.vcxproj", "{C13D3890-9876-4C90-965E-A89547E75999}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +143,14 @@ Global
 		{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}.Release|x64.Build.0 = Release|x64
 		{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}.Release|x86.ActiveCfg = Release|Win32
 		{06E1A57B-D14F-4E16-A2C6-13BFF9E26ADA}.Release|x86.Build.0 = Release|Win32
+		{C13D3890-9876-4C90-965E-A89547E75999}.Debug|x64.ActiveCfg = Debug|x64
+		{C13D3890-9876-4C90-965E-A89547E75999}.Debug|x64.Build.0 = Debug|x64
+		{C13D3890-9876-4C90-965E-A89547E75999}.Debug|x86.ActiveCfg = Debug|Win32
+		{C13D3890-9876-4C90-965E-A89547E75999}.Debug|x86.Build.0 = Debug|Win32
+		{C13D3890-9876-4C90-965E-A89547E75999}.Release|x64.ActiveCfg = Release|x64
+		{C13D3890-9876-4C90-965E-A89547E75999}.Release|x64.Build.0 = Release|x64
+		{C13D3890-9876-4C90-965E-A89547E75999}.Release|x86.ActiveCfg = Release|Win32
+		{C13D3890-9876-4C90-965E-A89547E75999}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
