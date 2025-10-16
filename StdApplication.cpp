@@ -163,7 +163,12 @@ TInt RApplication::Main()
 
 		if (Signal & SIGBREAKF_CTRL_C)
 		{
-			Window->HandleCommand(IDCANCEL);
+			/* Send the command to the first window in the list, considering this to be the main window */
+
+			if (m_poWindows != NULL)
+			{
+				m_poWindows->HandleCommand(IDCANCEL);
+			}
 		}
 
 		/* Check to see if a message was received by any of the file watchers */
