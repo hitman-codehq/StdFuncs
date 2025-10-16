@@ -157,7 +157,14 @@ TInt RApplication::Main()
 
 	do
 	{
-		Signal = Wait(m_ulWatcherSignals | m_ulWindowSignals | g_oRendezvous.GetSignal());
+		Signal = Wait(SIGBREAKF_CTRL_C | m_ulWatcherSignals | m_ulWindowSignals | g_oRendezvous.GetSignal());
+
+		/* If a break was received then shut down the application */
+
+		if (Signal & SIGBREAKF_CTRL_C)
+		{
+			Window->HandleCommand(IDCANCEL);
+		}
 
 		/* Check to see if a message was received by any of the file watchers */
 
