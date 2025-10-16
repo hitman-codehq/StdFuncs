@@ -446,7 +446,7 @@ TInt CDialog::GetGadgetInt(TInt a_iGadgetID)
 
 TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 {
-	TInt Length, Size, RetVal;
+	TInt Size, RetVal;
 
 	/* Assume failure */
 
@@ -509,6 +509,7 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 #else /* ! QT_GUI_LIB */
 
+	int Length;
 	wchar_t *WideTextBuffer;
 	HWND Gadget;
 
