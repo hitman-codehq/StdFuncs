@@ -190,6 +190,9 @@ bool RStdFileWatcher::startWatching(const std::string &a_directoryName, const st
 
 #elif defined(__unix__)
 
+	(void) a_directoryName;
+	(void) a_fileName;
+
 	retVal = false;
 
 #else /* ! __unix__ */
