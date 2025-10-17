@@ -22,18 +22,25 @@
 
 #endif /* QT_GUI_LIB */
 
-/* Written: Tuesday 06-Jul-2010 7:42 am */
+/**
+ * Open the clipboard for use.
+ * Prepares the clipboard for use by opening the underlying OS-specific clipboard implementation.
+ *
+ * @date	Tuesday 06-Jul-2010 7:42 am
+ * @param	a_window		Pointer to the window in which to use the clipboard
+ * @return	KErrNone if the clipboard was opened successfully, else KErrGeneral
+ */
 
-TInt RClipboard::open(CWindow *a_poWindow)
+TInt RClipboard::open(CWindow *a_window)
 {
 	TInt RetVal;
 
-	ASSERTM((a_poWindow != NULL), "RClipboard::open() => Window passed in is not open");
-	ASSERTM((a_poWindow->m_poWindow != NULL), "RClipboard::open() => Native window passed in is not open");
+	ASSERTM((a_window != NULL), "RClipboard::open() => Window passed in is not open");
+	ASSERTM((a_window->m_poWindow != NULL), "RClipboard::open() => Native window passed in is not open");
 
 #if defined(__amigaos__) || defined(QT_GUI_LIB)
 
-	(void) a_poWindow;
+	(void) a_window;
 
 #if defined(__amigaos__) && !defined(__amigaos4__)
 
@@ -57,7 +64,7 @@ TInt RClipboard::open(CWindow *a_poWindow)
 
 #else /* ! defined(__amigaos__) || defined(QT_GUI_LIB) */
 
-	RetVal = (OpenClipboard(a_poWindow->m_poWindow)) ? KErrNone : KErrGeneral;
+	RetVal = (OpenClipboard(a_window->m_poWindow)) ? KErrNone : KErrGeneral;
 
 	if (RetVal != KErrNone)
 	{
@@ -69,7 +76,12 @@ TInt RClipboard::open(CWindow *a_poWindow)
 	return(RetVal);
 }
 
-/* Written: Tuesday 06-Jul-2010 7:44 am */
+/**
+ * Close the clipboard after use.
+ * Closes the underlying OS-specific clipboard implementation.
+ *
+ * @date	Tuesday 06-Jul-2010 7:44 am
+ */
 
 void RClipboard::close()
 {
@@ -96,18 +108,32 @@ void RClipboard::close()
 
 }
 
-/* Written: Wednesday 07-Jul-2010 6:37 am */
+/**
+ * Get the next line of available text.
+ * Returns a pointer to the next line of text in the clipboard. The text will be returned in the format that was
+ * requested when GetDataStart() was called. The text returned is only valid until the next call to this method,
+ * or until close() is called.
+ *
+ * @pre		RClipboard::GetDataStart() has been called
+ *
+ * @date	Wednesday 07-Jul-2010 6:37 am
+ * @param	a_size			Pointer to variable into which to place the number of bytes returned
+ * @param	a_hasEOL		Pointer to variable into which to place ETrue if the text returned contains EOL markers
+ * @return	A pointer to the text
+ */
 
-const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
+const char *RClipboard::GetNextLine(TInt *a_size, TBool *a_hasEOL)
 {
 	const char *NextChar, *RetVal;
 
-	ASSERTM((m_pccGetData != NULL), "RClipboard::GetDataEnd() => GetDataStart() must be called first");
+	ASSERTM((m_pccGetData != NULL), "RClipboard::GetNextLine() => GetDataStart() must be called first");
+	ASSERTM((a_size != NULL), "RClipboard::GetNextLine() => Pointer to size must be passed in");
+	ASSERTM((a_hasEOL != NULL), "RClipboard::GetNextLine() => Pointer to EOL flag must be passed in");
 
 	/* Assume we are going to return the current line and that it has no EOL characters */
 
 	NextChar = RetVal = m_pccCurrentGetData;
-	*a_bHasEOL = EFalse;
+	*a_hasEOL = EFalse;
 
 	/* Find the end of the current line, being either NULL terminated or the EOL characters */
 
@@ -116,21 +142,21 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 		++NextChar;
 	}
 
-	/* Save the length for the calling code */
+	/* Save the size for the calling code */
 
-	*a_piLength = (TInt) (NextChar - m_pccCurrentGetData);
+	*a_size = (TInt) (NextChar - m_pccCurrentGetData);
 
 	/* Check for CR and LF characters and if present, note their presence and skip them */
 
 	if (*NextChar == 0x0d)
 	{
-		*a_bHasEOL = ETrue;
+		*a_hasEOL = ETrue;
 		++NextChar;
 	}
 
 	if (*NextChar == 0x0a)
 	{
-		*a_bHasEOL = ETrue;
+		*a_hasEOL = ETrue;
 		++NextChar;
 	}
 
@@ -149,9 +175,17 @@ const char *RClipboard::GetNextLine(TInt *a_piLength, TBool *a_bHasEOL)
 	return(RetVal);
 }
 
-/* Written: Thursday 08-Jul-2010 7:06 am */
+/**
+ * Start saving data to the clipboard.
+ * This method should be called to begin the process of copying data into the clipboard. It will allocate a
+ * buffer of the given size into which data can later on be copied.
+ *
+ * @date	Thursday 08-Jul-2010 7:06 am
+ * @param	a_maxSize		The size of the buffer, in bytes
+ * @return	KErrNone if successful, else KErrNoMemory
+ */
 
-int RClipboard::SetDataStart(size_t a_stMaxLength)
+int RClipboard::SetDataStart(size_t a_maxSize)
 {
 	int RetVal;
 
@@ -163,10 +197,10 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 
 	/* Allocate a temporary buffer into which the client can write its data */
 
-	if ((m_pcSetData = new char[a_stMaxLength + 1]) != NULL)
+	if ((m_pcSetData = new char[a_maxSize + 1]) != NULL)
 	{
 		RetVal = KErrNone;
-		m_stDataSize = a_stMaxLength;
+		m_stDataSize = a_maxSize;
 
 		/* Qt needs char * strings to be NULL terminated in order to convert them */
 		/* into a QString so we allocate an extra byte and terminate it here */
@@ -185,12 +219,12 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 		/* byte to NULL terminate the memory block to indicate the end, or Windows will to do */
 		/* funny things to the end of the data, like overwriting an LF with a NULL terminator */
 
-		if ((m_poHandle = GlobalAlloc(GMEM_MOVEABLE, (a_stMaxLength + 1))) != NULL)
+		if ((m_poHandle = GlobalAlloc(GMEM_MOVEABLE, (a_maxSize + 1))) != NULL)
 		{
 			if ((m_pcSetData = (char *) GlobalLock(m_poHandle)) != NULL)
 			{
 				RetVal = KErrNone;
-				m_pcSetData[a_stMaxLength] = '\0';
+				m_pcSetData[a_maxSize] = '\0';
 			}
 			else
 			{
@@ -215,16 +249,35 @@ int RClipboard::SetDataStart(size_t a_stMaxLength)
 	return(RetVal);
 }
 
-/* Written: Saturday 10-Jul-2010 12:43 pm */
+/**
+ * Append a block of data.
+ * Copies a block of data into the buffer that was previously allocated by SetDataStart(), at the offset given.
+ *
+ * @pre		SetDataStart() has been called
+ *
+ * @date	Saturday 10-Jul-2010 12:43 pm
+ * @param	a_data			Pointer to the block of data to be copied
+ * @param	a_offset		Offset in the allocated block to which to copy
+ * @param	a_size			Number of bytes to be copied
+ */
 
-void RClipboard::AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength)
+void RClipboard::AppendData(const char *a_data, TInt a_offset, size_t a_size)
 {
 	ASSERTM((m_pcSetData != NULL), "RClipboard::AppendData() => SetDataStart() must be called first");
 
-	memcpy((m_pcSetData + a_iOffset), a_pcData, a_stLength);
+	memcpy((m_pcSetData + a_offset), a_data, a_size);
 }
 
-/* Written: Saturday 10-Jul-2010 1:34 pm */
+/**
+ * Finish saving data to the clipboard.
+ * This method should be called when all data has been copied into the clipboard. It will copy the buffered data into
+ * the underlying OS-specific clipboard implementation and will free the buffer that held that data. After this method
+ * has returned, it is no longer possible to append any more data unless SetDataStart() is called again.
+ *
+ * @pre		SetDataStart() has been called
+ *
+ * @date	Saturday 10-Jul-2010 1:34 pm
+ */
 
 void RClipboard::SetDataEnd()
 {
@@ -299,34 +352,49 @@ void RClipboard::SetDataEnd()
 
 }
 
-/* Written: Tuesday 06-Jul-2010 7:47 am */
+/**
+ * Prepare the clipboard for reading.
+ * Calls the underlying OS-specific clipboard implementation to obtain whatever data is available, allocates a buffer
+ * for that data and copies the data into it. Client code can then call GetNextLine() to extract the data, one line at
+ * a time.
+ *
+ * Because this uses the OS-specific clipboard implementation, it is not necessary to first place any data into the
+ * clipboard (although this is a valid use case). Other applications may have placed data into the clipboard, in which
+ * case this data will be returned from this method.
+ *
+ * @date	Tuesday 06-Jul-2010 7:47 am
+ * @param	a_encoding		The text encoding in which to return the data
+ * @return	true if the data was obtained successfully, else false
+ */
 
-const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
+bool RClipboard::GetDataStart(TEncoding a_encoding)
 {
-	const char *RetVal;
+	bool RetVal;
 
 	/* Assume failure */
 
-	RetVal = NULL;
+	RetVal = false;
 
 #ifdef __amigaos4__
 
-	(void) a_eEncoding;
+	(void) a_encoding;
 
+	const char *Data;
 	ULONG Size;
 
 	/* Check to see if there is any plain text available on the clipboard and if so, get a ptr to it */
 
-	if (ReadClipVector((STRPTR *) &RetVal, &Size))
+	if (ReadClipVector((STRPTR *) &Data, &Size))
 	{
-		m_pccGetData = m_pccCurrentGetData = RetVal;
+		RetVal = true;
+		m_pccGetData = m_pccCurrentGetData = Data;
 	}
 
 #elif defined(__amigaos__)
 
-	(void) a_eEncoding;
+	(void) a_encoding;
 
-	char *GetData;
+	char *Data;
 	LONG Result, Size;
 	ContextNode *Chunk;
 
@@ -342,16 +410,20 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 				{
 					if ((Chunk->cn_Type == ID_FTXT) && (Chunk->cn_ID == ID_CHRS))
 					{
-						if ((GetData = AllocVec((Chunk->cn_Size + 1), 0)) != NULL)
+						/* The OS3 clipboard routines do not NULL terminate the received data, so allocate an */
+						/* extra byte to do this ourselves */
+
+						if ((Data = AllocVec((Chunk->cn_Size + 1), 0)) != NULL)
 						{
-							if ((Size = ReadChunkBytes(m_poHandle, GetData, Chunk->cn_Size)) == Chunk->cn_Size)
+							if ((Size = ReadChunkBytes(m_poHandle, Data, Chunk->cn_Size)) == Chunk->cn_Size)
 							{
-								GetData[Size] = '\0';
-								RetVal = m_pccGetData = m_pccCurrentGetData = GetData;
+								RetVal = true;
+								Data[Size] = '\0';
+								m_pccGetData = m_pccCurrentGetData = Data;
 							}
 							else
 							{
-								FreeVec(GetData);
+								FreeVec(Data);
 							}
 						}
 					}
@@ -371,7 +443,7 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 	/* so copy it into a temporary QByteArray.  Also, the data must be returned in a format appropriate for */
 	/* the currently used encoding */
 
-	if (a_eEncoding == EEncoding8859)
+	if (a_encoding == EEncoding8859)
 	{
 		m_oGetData = QApplication::clipboard()->text().toLatin1();
 	}
@@ -382,11 +454,12 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 
 	/* Now return a ptr to the start of the clipboard data */
 
-	RetVal = m_pccGetData = m_pccCurrentGetData = m_oGetData.constData();
+	RetVal = true;
+	m_pccGetData = m_pccCurrentGetData = m_oGetData.constData();
 
 #else /* ! QT_GUI_LIB */
 
-	(void) a_eEncoding;
+	(void) a_encoding;
 
 	HANDLE Handle;
 
@@ -398,9 +471,13 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 		{
 			/* Lock the handle into memory and return a ptr to it */
 
-			if ((RetVal = m_pccGetData = m_pccCurrentGetData = (const char *) GlobalLock(Handle)) == NULL)
+			if ((m_pccGetData = m_pccCurrentGetData = (const char *) GlobalLock(Handle)) != NULL)
 			{
-				Utils::info("RClipboard::GetDataStart() => Unable to lock keyboard data into memory");
+				RetVal = true;
+			}
+			else
+			{
+				Utils::info("RClipboard::GetDataStart() => Unable to lock clipboard data into memory");
 			}
 		}
 		else
@@ -418,7 +495,16 @@ const char *RClipboard::GetDataStart(TEncoding a_eEncoding)
 	return(RetVal);
 }
 
-/* Written: Tuesday 06-Jul-2010 7:49 am */
+/**
+ * End the clipboard reading process.
+ * Closes the underlying OS-specific clipboard implementation and frees any memory associated with the clipboard
+ * data that was read. After calling this method, it is no longer possible to access the clipboard data until
+ * GetDataStart() is called again.
+ *
+ * @pre		GetDataStart() has been called
+ *
+ * @date	Tuesday 06-Jul-2010 7:49 am
+ */
 
 void RClipboard::GetDataEnd()
 {
