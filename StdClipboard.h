@@ -15,8 +15,11 @@
 class CWindow;
 struct IFFHandle;
 
-/* An abstraction class that allows easy access to the native machine's clipboard */
-/* in able to read data from and write data to it */
+/**
+ * A class for reading and writing clipboard data.
+ * This class allows easy access to the underlying OS-specific clipboard implementation, in able to read data from
+ * and write data to it.
+ */
 
 class RClipboard
 {
@@ -28,12 +31,12 @@ private:
 
 #ifdef __amigaos__
 
-	size_t		m_stDataSize;			/**< Size of buffer to be written */
+	size_t		m_stDataSize;			/**< Size of buffer to be written, in bytes */
 	IFFHandle	*m_poHandle;			/**< Handle to data to be transferred */
 
 #elif defined(QT_GUI_LIB)
 
-	size_t		m_stDataSize;			/**< Size of buffer to be written */
+	size_t		m_stDataSize;			/**< Size of buffer to be written, in bytes */
 	QByteArray	m_oGetData;				/**< Data returned by QClipboard::text().
 											 The data is read and is pointed to by m_pccGetData.  This must
 											 remain persistent and hence must be stored here */
@@ -66,19 +69,19 @@ public:
 
 	}
 
-	TInt open(CWindow *a_poWindow);
+	TInt open(CWindow *a_window);
 
 	void close();
 
-	int SetDataStart(size_t a_stMaxLength);
+	int SetDataStart(size_t a_maxSize);
 
-	void AppendData(const char *a_pcData, TInt a_iOffset, size_t a_stLength);
+	void AppendData(const char *a_data, TInt a_offset, size_t a_size);
 
 	void SetDataEnd();
 
-	const char *GetDataStart(TEncoding a_eEncoding);
+	bool GetDataStart(TEncoding a_encoding);
 
-	const char *GetNextLine(TInt *a_piLength, TBool *a_bHasEOL);
+	const char *GetNextLine(TInt *a_size, TBool *a_hasEOL);
 
 	void GetDataEnd();
 };
