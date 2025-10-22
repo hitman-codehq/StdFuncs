@@ -9,7 +9,7 @@
 
 /* Forward declaration to reduce the # of includes required */
 
-class RStdFileWatcher;
+class RFileWatcher;
 
 /**
  * Qt helper class to listen for file change events.
@@ -23,7 +23,7 @@ class RQtFileWatcher : public QObject
 
 private:
 
-	RStdFileWatcher				&m_parentWatcher;	/**< Reference to framework watcher that uses this Qt watcher */
+	RFileWatcher				&m_parentWatcher;	/**< Reference to framework watcher that uses this Qt watcher */
 	QFileSystemWatcher			m_watcher;			/**< Qt native file watcher class */
 	QMap<QString, QDateTime>	m_files;			/**< List of files in the directory being watched */
 	QMetaObject::Connection		m_connection;		/**< Connection set up by call to QObject::connect() */
@@ -36,7 +36,7 @@ private:
 
 public:
 
-	RQtFileWatcher(RStdFileWatcher &a_parentWatcher) : m_parentWatcher(a_parentWatcher) { }
+	RQtFileWatcher(RFileWatcher &a_parentWatcher) : m_parentWatcher(a_parentWatcher) { }
 
 	void pauseWatching();
 

@@ -2,7 +2,7 @@
 #ifndef REMOTEFILEWATCHER_H
 #define REMOTEFILEWATCHER_H
 
-#include "StdFileWatcher.h"
+#include "FileWatcher.h"
 #include "StdSocket.h"
 
 /* Forward declaration to reduce the # of includes required */

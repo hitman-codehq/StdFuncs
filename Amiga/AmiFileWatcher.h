@@ -6,8 +6,8 @@
 
 /* Forward declarations to reduce the # of includes required */
 
-class RStdFileWatcher;
 class RApplication;
+class RFileWatcher;
 
 /**
  * Amiga helper class to listen for file change events.
@@ -18,7 +18,7 @@ class RApplication;
 class RAmiFileWatcher
 {
 	ULONG				m_signal;			/**< The signal used to wait for file change events */
-	RStdFileWatcher		&m_parentWatcher;	/**< Reference to framework watcher that uses this Amiga watcher */
+	RFileWatcher		&m_parentWatcher;	/**< Reference to framework watcher that uses this Amiga watcher */
 	MsgPort				*m_port;			/**< The message port used to receive for file change events */
 	NotifyRequest		*m_request;			/**< The request used to listen for file change events */
 	RDir				m_files;			/**< List of files in the directory being watched */
@@ -35,7 +35,7 @@ private:
 
 public:
 
-	RAmiFileWatcher(RStdFileWatcher &a_parentWatcher) : m_parentWatcher(a_parentWatcher)
+	RAmiFileWatcher(RFileWatcher &a_parentWatcher) : m_parentWatcher(a_parentWatcher)
 	{
 		m_signal = 0;
 		m_port = nullptr;

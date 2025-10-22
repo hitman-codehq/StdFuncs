@@ -1,7 +1,7 @@
 
 #include "StdFuncs.h"
+#include "FileWatcher.h"
 #include "StdApplication.h"
-#include "StdFileWatcher.h"
 #include "StdRendezvous.h"
 #include "StdWindow.h"
 

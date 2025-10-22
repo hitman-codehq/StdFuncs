@@ -1,6 +1,6 @@
 
-#ifndef STDFILEWATCHER_H
-#define STDFILEWATCHER_H
+#ifndef FILEWATCHER_H
+#define FILEWATCHER_H
 
 #ifdef __amigaos__
 
@@ -77,7 +77,7 @@ public:
  * the directory.
  */
 
-class RStdFileWatcher : public RFileWatcherObject
+class RFileWatcher : public RFileWatcherObject
 {
 
 #ifdef __amigaos__
@@ -114,7 +114,7 @@ public:
 
 #if defined __amigaos__ || defined(QT_GUI_LIB)
 
-	RStdFileWatcher() : m_watcher(*this)
+	RFileWatcher() : m_watcher(*this)
 	{
 		m_state = EStateStopped;
 		m_callback = nullptr;
@@ -122,7 +122,7 @@ public:
 
 #endif /* defined __amigaos__ || defined(QT_GUI_LIB) */
 
-	~RStdFileWatcher()
+	~RFileWatcher()
 	{
 		stopWatching();
 	}
@@ -142,4 +142,4 @@ public:
 	friend class RQtFileWatcher;
 };
 
-#endif /* ! STDFILEWATCHER_H */
+#endif /* ! FILEWATCHER_H */
