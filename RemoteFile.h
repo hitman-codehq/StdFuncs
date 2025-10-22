@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+/* Forward declaration to reduce the # of includes required */
 class CGet;
 class CSend;
 class RRemoteFactory;

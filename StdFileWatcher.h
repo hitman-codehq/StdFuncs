@@ -32,13 +32,15 @@ enum TChangeType
 };
 
 /**
- * A class for watching for changes in directories.
- * Using an instance of this class, client software can be notified if changes are made to files within a specified
- * directory. A client notification callback will be called if a file is added to, deleted from or changed inside
- * the directory.
+ * Interface for all file watcher classes.
+ * This pure virtual base class defines the interface that all file watcher classes will adhere to. Instances
+ * of these classes can either be used directly, or obtained from RRemoteFactory::getFileWatcherObject().
  */
-class RStdFileWatcher
+
+class RFileWatcherObject
 {
+protected:
+
 	/**
 	 * File watcher states.
 	 * This is mainly needed for Qt, which will output warnings if watching is stopped or paused when it is not
@@ -56,6 +58,27 @@ class RStdFileWatcher
 
 	TState				m_state;			/**< Current state of the file watcher */
 	Callback			m_callback;			/**< Client callback to invoke when a change is detected */
+
+public:
+
+	virtual void pauseWatching() = 0;
+
+	virtual void resumeWatching() = 0;
+
+	virtual bool startWatching(const std::string &a_directoryName, const std::string *a_fileName, Callback a_callback) = 0;
+
+	virtual void stopWatching() = 0;
+};
+
+/**
+ * A class for watching for changes in directories.
+ * Using an instance of this class, client software can be notified if changes are made to files within a specified
+ * directory. A client notification callback will be called if a file is added to, deleted from or changed inside
+ * the directory.
+ */
+
+class RStdFileWatcher : public RFileWatcherObject
+{
 
 #ifdef __amigaos__
 

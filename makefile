@@ -35,9 +35,9 @@ LIBRARY = $(OBJ)/libStdFuncs.a
 
 ifdef PREFIX
 	OBJECTS = $(OBJ)/AmiFileWatcher.o $(OBJ)/AmiMenus.o $(OBJ)/Args.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/Lex.o \
-		$(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/StdApplication.o \
-		$(OBJ)/StdCharConverter.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o $(OBJ)/StdFileRequester.o \
-		$(OBJ)/StdFileWatcher.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
+		$(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/RemoteFileWatcher.o \
+		$(OBJ)/StdApplication.o $(OBJ)/StdCharConverter.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdDialog.o \
+		$(OBJ)/StdFileRequester.o $(OBJ)/StdFileWatcher.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o $(OBJ)/StdGadgetSlider.o \
 		$(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o \
 		$(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Utils.o
 
@@ -51,9 +51,9 @@ ifdef PREFIX
 	endif
 else
 	OBJECTS = $(OBJ)/Args.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/Lex.o $(OBJ)/MungWall.o \
-		$(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o \
-		$(OBJ)/StdFileWatcher.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o \
-		$(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
+		$(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/RemoteFileWatcher.o $(OBJ)/StdConfigFile.o \
+		$(OBJ)/StdCRC.o $(OBJ)/StdFileWatcher.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o \
+		$(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 OBJECTS += $(OBJ)/Handler.o

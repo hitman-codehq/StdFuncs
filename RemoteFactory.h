@@ -7,6 +7,7 @@
 #include "RemoteDir.h"
 #include "RemoteFile.h"
 #include "RemoteFileUtils.h"
+#include "RemoteFileWatcher.h"
 #include "Yggdrasil/Commands.h"
 
 /**
@@ -27,6 +28,8 @@ class RRemoteFactory
 	RRemoteFile			m_remoteFile;		/**< Class for remote file access */
 	RFileUtils			m_fileUtils;		/**< Class for local file system manipulation */
 	RRemoteFileUtils	m_remoteFileUtils;	/**< Class for remote file system manipulation */
+	RStdFileWatcher		m_watcher;			/**< Class for local file watching */
+	RRemoteFileWatcher	m_remoteWatcher;	/**< Class for remote file watching */
 	RSocket				m_socket;			/**< Socket for communicating with remote RADRunner */
 	std::string			m_serverName;		/**< The host name of the instance of RADRunner to use */
 	unsigned short		m_serverPort;		/**< The port on which RADRunner is listening */
@@ -51,6 +54,8 @@ public:
 	RFileObject &getFileObject();
 
 	RFileUtilsObject &getFileUtilsObject();
+
+	RFileWatcherObject &getFileWatcherObject();
 
 	bool isOpen()
 	{
