@@ -84,6 +84,29 @@ RFileUtilsObject &RRemoteFactory::getFileUtilsObject()
 }
 
 /**
+ * Gets an object for file system watching.
+ * Returns an instance of a class derived from RFileWatcherObject which can be used to watch file system
+ * objects, either locally or remotely, depending on how the factory was configured.
+ *
+ * @date	Thursday 23-Oct-2025 5:45 am, Code HQ Tokyo Tsukuda
+ * @return	A reference to an RFileWatcherObject derived object
+ */
+
+RFileWatcherObject &RRemoteFactory::getFileWatcherObject()
+{
+	if (isRemote())
+	{
+		checkConnection();
+		m_remoteWatcher.setFactory(this, &m_socket);
+		return m_remoteWatcher;
+	}
+	else
+	{
+		return m_watcher;
+	}
+}
+
+/**
  * Sends the server's protocol version.
  * This command is not required for the remote factory implementation, but must be present.
  *

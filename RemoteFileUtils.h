@@ -7,6 +7,7 @@
 #include "FileUtils.h"
 #include "StdSocket.h"
 
+/* Forward declaration to reduce the # of includes required */
 class RRemoteFactory;
 
 /**

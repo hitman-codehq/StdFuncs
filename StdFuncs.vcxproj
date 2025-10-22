@@ -212,6 +212,7 @@
     <ClCompile Include="RemoteFactory.cpp" />
     <ClCompile Include="RemoteFile.cpp" />
     <ClCompile Include="RemoteFileUtils.cpp" />
+    <ClCompile Include="RemoteFileWatcher.cpp" />
     <ClCompile Include="StdApplication.cpp" />
     <ClCompile Include="StdCharConverter.cpp" />
     <ClCompile Include="StdClipboard.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="RemoteFactory.h" />
     <ClInclude Include="RemoteFile.h" />
     <ClInclude Include="RemoteFileUtils.h" />
+    <ClInclude Include="RemoteFileWatcher.h" />
     <ClInclude Include="StdApplication.h" />
     <ClInclude Include="StdCharConverter.h" />
     <ClInclude Include="StdClipboard.h" />

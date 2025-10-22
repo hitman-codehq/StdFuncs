@@ -7,6 +7,7 @@
 #include "Dir.h"
 #include "StdSocket.h"
 
+/* Forward declarations to reduce the # of includes required */
 class CDir;
 class RRemoteFactory;
 
