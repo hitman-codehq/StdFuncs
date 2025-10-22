@@ -1,6 +1,6 @@
 
 #include "../StdFuncs.h"
-#include "../StdFileWatcher.h"
+#include "../FileWatcher.h"
 #include "QtFileWatcher.h"
 #include <QDir>
 

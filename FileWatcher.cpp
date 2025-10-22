@@ -1,7 +1,7 @@
 
 #include <StdFuncs.h>
+#include "FileWatcher.h"
 #include "StdApplication.h"
-#include "StdFileWatcher.h"
 
 /**
  * Internal callback for file watcher changes.
@@ -14,9 +14,9 @@
  * @param	a_changeType	The type of change that occurred
  */
 
-void RStdFileWatcher::changed(const std::string &a_directoryName, const std::string &a_fileName, TChangeType a_changeType)
+void RFileWatcher::changed(const std::string &a_directoryName, const std::string &a_fileName, TChangeType a_changeType)
 {
-	ASSERTM((m_callback != nullptr), "RStdFileWatcher::changed() => File watcher callback must not be nullptr");
+	ASSERTM((m_callback != nullptr), "RFileWatcher::changed() => File watcher callback must not be nullptr");
 
 	if (m_state == EStateWatching)
 	{
@@ -37,7 +37,7 @@ void RStdFileWatcher::changed(const std::string &a_directoryName, const std::str
  * @param	a_overlapped		Pointer to the OVERLAPPED structure used for this asynchronous operation
  */
 
-void CALLBACK RStdFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_bytesTransfered, LPOVERLAPPED a_overlapped)
+void CALLBACK RFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_bytesTransfered, LPOVERLAPPED a_overlapped)
 {
 	/* The Windows file watching API does not handle the situation of the buffer being too small very well. If it is */
 	/* too small, notifications will be lost and there is no way to recover. So just check that some data was actually */
@@ -47,7 +47,7 @@ void CALLBACK RStdFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_byte
 		char fileName[MAX_PATH];
 		int length;
 		DWORD offset = 0;
-		RStdFileWatcher *self = reinterpret_cast<RStdFileWatcher *>(a_overlapped->hEvent);
+		RFileWatcher *self = reinterpret_cast<RFileWatcher *>(a_overlapped->hEvent);
 		FILE_NOTIFY_INFORMATION *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(self->m_buffer);
 
 		/* Iterate through the notifications that were received, check their type and call the generic watcher callback */
@@ -75,7 +75,7 @@ void CALLBACK RStdFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_byte
 		}
 		while (info->NextEntryOffset != 0);
 
-		DEBUGCHECK(self->watchDirectory(), "RStdFileWatcher::completionRoutine() => Could not restart file watching");
+		DEBUGCHECK(self->watchDirectory(), "RFileWatcher::completionRoutine() => Could not restart file watching");
 	}
 }
 
@@ -92,7 +92,7 @@ void CALLBACK RStdFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_byte
  * @date	Friday 29-Aug-2025 5:50 am, Code HQ Tokyo Tsukuda
  */
 
-void RStdFileWatcher::pauseWatching()
+void RFileWatcher::pauseWatching()
 {
 	if (m_state == EStateWatching)
 	{
@@ -103,7 +103,7 @@ void RStdFileWatcher::pauseWatching()
 
 #elif !defined(__unix__)
 
-		DEBUGCHECK(CancelIo(m_changeHandle), "RStdFileWatcher::pauseWatching() => Could not cancel watch notifications");
+		DEBUGCHECK(CancelIo(m_changeHandle), "RFileWatcher::pauseWatching() => Could not cancel watch notifications");
 
 #endif /* ! __unix__ */
 
@@ -121,7 +121,7 @@ void RStdFileWatcher::pauseWatching()
  * @date	Friday 29-Aug-2025 5:55 am, Code HQ Tokyo Tsukuda
  */
 
-void RStdFileWatcher::resumeWatching()
+void RFileWatcher::resumeWatching()
 {
 	if (m_state == EStatePaused)
 	{
@@ -135,11 +135,11 @@ void RStdFileWatcher::resumeWatching()
 		m_changeHandle = CreateFile(m_directoryName.c_str(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 				nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
 
-		ASSERTM((m_changeHandle != INVALID_HANDLE_VALUE), "RStdFileWatcher::resumeWatching() => Could not re-open directory for watching");
+		ASSERTM((m_changeHandle != INVALID_HANDLE_VALUE), "RFileWatcher::resumeWatching() => Could not re-open directory for watching");
 
 		if (m_changeHandle != INVALID_HANDLE_VALUE)
 		{
-			DEBUGCHECK(watchDirectory(), "RStdFileWatcher::resumeWatching() => Could not restart file watching");
+			DEBUGCHECK(watchDirectory(), "RFileWatcher::resumeWatching() => Could not restart file watching");
 		}
 
 #endif /* ! __unix__ */
@@ -165,7 +165,7 @@ void RStdFileWatcher::resumeWatching()
  * @return	True if the watcher was started successfully, otherwise false
  */
 
-bool RStdFileWatcher::startWatching(const std::string &a_directoryName, const std::string *a_fileName, Callback a_callback)
+bool RFileWatcher::startWatching(const std::string &a_directoryName, const std::string *a_fileName, Callback a_callback)
 {
 	bool retVal;
 
@@ -227,7 +227,7 @@ bool RStdFileWatcher::startWatching(const std::string &a_directoryName, const st
  * @date	Monday 25-Aug-2025 6:21 am, Code HQ Tokyo Tsukuda
  */
 
-void RStdFileWatcher::stopWatching()
+void RFileWatcher::stopWatching()
 {
 	if (m_state == EStateWatching)
 	{
@@ -270,7 +270,7 @@ void RStdFileWatcher::stopWatching()
  * @return	True if the watcher was started successfully, otherwise false
  */
 
-bool RStdFileWatcher::watchDirectory()
+bool RFileWatcher::watchDirectory()
 {
 	ZeroMemory(&m_overlapped, sizeof(m_overlapped));
 
