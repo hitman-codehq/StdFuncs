@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -219,6 +219,7 @@
     <ClCompile Include="StdConfigFile.cpp" />
     <ClCompile Include="StdCRC.cpp" />
     <ClCompile Include="StdDialog.cpp" />
+    <ClCompile Include="StdExecuter.cpp" />
     <ClCompile Include="StdFileRequester.cpp" />
     <ClCompile Include="FileWatcher.cpp" />
     <ClCompile Include="StdFont.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="StdConfigFile.h" />
     <ClInclude Include="StdCRC.h" />
     <ClInclude Include="StdDialog.h" />
+    <ClInclude Include="StdExecuter.h" />
     <ClInclude Include="StdFileRequester.h" />
     <ClInclude Include="FileWatcher.h" />
     <ClInclude Include="StdFont.h" />
