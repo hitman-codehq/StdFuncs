@@ -2,6 +2,7 @@
 #include "StdFuncs.h"
 #include "FileWatcher.h"
 #include "StdApplication.h"
+#include "StdExecuter.h"
 #include "StdRendezvous.h"
 #include "StdWindow.h"
 
@@ -157,7 +158,7 @@ TInt RApplication::Main()
 
 	do
 	{
-		Signal = Wait(SIGBREAKF_CTRL_C | m_ulWatcherSignals | m_ulWindowSignals | g_oRendezvous.GetSignal());
+		Signal = Wait(SIGBREAKF_CTRL_C | m_ulExecuterSignals | m_ulWatcherSignals | m_ulWindowSignals | g_oRendezvous.GetSignal());
 
 		/* If a break was received then shut down the application */
 
@@ -168,6 +169,16 @@ TInt RApplication::Main()
 			if (m_poWindows != NULL)
 			{
 				m_poWindows->HandleCommand(IDCANCEL);
+			}
+		}
+
+		/* Check to see if a message was received by any of the executers */
+
+		for (auto Executer : m_oExecuters)
+		{
+			if (Signal & Executer->getSignal())
+			{
+				Executer->readComplete();
 			}
 		}
 
@@ -664,6 +675,32 @@ void RApplication::close()
 }
 
 /**
+ * Add an executer to the application.
+ * In order to be able to handle launching external processes asynchronously, the main application class needs access
+ * to the RStdExecuter instance that has requested the launch from the underlying operating system. This method can be
+ * called to add instances of the executer class to a list for later processing.
+ *
+ * @date	Friday 31-Oct-2025 7:16 am, Code HQ Tokyo Tsukuda
+ * @param	a_poExecuter		Pointer to the executer to be added
+ */
+
+void RApplication::AddExecuter(RStdExecuter *a_poExecuter)
+{
+	ASSERTM((a_poExecuter != NULL), "RApplication::AddExecuter() => Executer pointer must be passed in");
+
+	m_oExecuters.push_back(a_poExecuter);
+
+#ifdef __amigaos__
+
+	/* And add the new executer's signal bit to the list of signals that the application waits on */
+
+	m_ulExecuterSignals |= a_poExecuter->getSignal();
+
+#endif /* __amigaos__ */
+
+}
+
+/**
  * Add a file system watcher to the application.
  * In order to be able to handle file system change events, the main application class needs access to the
  * RAmiFileWatcher instance that has requested the watch from the underlying operating system. This method
@@ -733,6 +770,34 @@ void RApplication::AddWindow(CWindow *a_poWindow)
 	a_poWindow->DrawNow();
 }
 
+/**
+ * Remove an executer from the application.
+ * Removes an instance of the RStdExecuter class from the list of instances monitored by the RApplication class.
+ *
+ * @date	Saturday 01-Nov-2025 6:48 am, Code HQ Tokyo Tsukuda
+ * @param	a_poExecuter	Pointer to the executer to be removed
+ */
+
+void RApplication::RemoveExecuter(RStdExecuter *a_poExecuter)
+{
+	ASSERTM((a_poExecuter != NULL), "RApplication::RemoveExecuter() => Executer pointer must be passed in");
+
+	auto it = std::find(m_oExecuters.begin(), m_oExecuters.end(), a_poExecuter);
+
+	if (it != m_oExecuters.end())
+	{
+		m_oExecuters.erase(it);
+	}
+
+#ifdef __amigaos__
+
+	/* And remove the old executer's signal bit from the list of signals that the application waits on */
+
+	m_ulExecuterSignals &= ~a_poExecuter->getSignal();
+
+#endif /* __amigaos__ */
+
+}
 /**
  * Remove a file system watcher from the application.
  * Removes an instance of the RAmiFileWatcher class from the list of instances monitored by the RApplication class.

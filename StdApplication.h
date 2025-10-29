@@ -10,17 +10,20 @@
 
 class CWindow;
 class QApplication;
+class RStdExecuter;
 class RAmiFileWatcher;
 
 class RApplication
 {
 private:
 
-	std::vector<RAmiFileWatcher *>	m_oWatchers; /**< List of file watchers used by the application */
-	CWindow			*m_poWindows;				/**< Ptr to window used by the application */
+	std::vector<RStdExecuter *>		m_oExecuters;	/**< List of executers used by the application */
+	std::vector<RAmiFileWatcher *>	m_oWatchers;	/**< List of file watchers used by the application */
+	CWindow			*m_poWindows;					/**< Pointer to window used by the application */
 
 #ifdef __amigaos__
 
+	ULONG			m_ulExecuterSignals;		/**< Signals representing all currently active executers */
 	ULONG			m_ulWatcherSignals;			/**< Signals representing all currently active watchers */
 	ULONG			m_ulWindowSignals;			/**< Signals representing all currently open windows */
 	TBool			m_bDone;					/**< Set to ETrue when it's time to exit the main loop */
@@ -52,9 +55,13 @@ public:
 
 	void close();
 
+	void AddExecuter(RStdExecuter *a_poExecuter);
+
 	void AddWatcher(RAmiFileWatcher *a_poWatcher);
 
 	void AddWindow(CWindow *a_poWindow);
+
+	void RemoveExecuter(RStdExecuter *a_poExecuter);
 
 	void RemoveWatcher(RAmiFileWatcher *a_poWatcher);
 

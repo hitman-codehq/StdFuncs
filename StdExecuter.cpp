@@ -1,0 +1,465 @@
+
+#include <StdFuncs.h>
+#include "StdApplication.h"
+#include "StdWindow.h"
+#include "StdExecuter.h"
+
+#ifdef __amigaos__
+
+#include <dos/dostags.h>
+
+#elif defined(__unix__)
+
+#include <unistd.h>
+
+#endif /* __unix__ */
+
+/* The size of the buffer used for capturing stdout */
+#define STDOUT_BUFFER_SIZE 1024
+
+/* The size of the stack used on Amiga OS if no size is explicitly specified */
+#define DEFAULT_STACK_SIZE 20480
+
+/**
+ * Amiga OS client exit callback function.
+ * This function is called in the context of a child process that has been launched by the
+ * CreateNewProcTags() function when that child process is terminated.
+ *
+ * @date	Friday 10-Nov-2023 6:00 am, Code HQ Tokyo Tsukuda
+ * @param	a_returnCode	The return code of the child process
+ * @param	a_exitData		Pointer to an integer into which to write the client's exit code
+ */
+
+#ifdef __amigaos4__
+
+void ExitFunction(int32_t a_returnCode, int32_t *a_exitData)
+{
+	*a_exitData = a_returnCode;
+}
+
+#elif defined(__amigaos__)
+
+void ExitFunction(int32_t a_returnCode __asm("d0"), int32_t *a_exitData __asm("d1"))
+{
+	CommandLineInterface *cli = Cli();
+
+	if (cli != nullptr)
+	{
+		*a_exitData = cli->cli_ReturnCode;
+	}
+	else
+	{
+		*a_exitData = a_returnCode;
+	}
+}
+
+#endif /* __amigaos__ */
+
+/**
+ * Frees any resources associated with the class.
+ * This method performs the same functions as the destructor, but allows the user to call it when manual
+ * deinitialisation of the class is required. After completion, the class instance can be reused by calling open()
+ * again.
+ *
+ * @date	Saturday 01-Nov-2025 7:00 am, Code HQ Tokyo Tsukuda
+ */
+
+void RStdExecuter::close()
+{
+
+#ifdef __amigaos__
+
+	/* Remove this executer from the list of active executers */
+	CWindow::GetRootWindow()->GetApplication()->RemoveExecuter(this);
+
+	delete [] m_buffer;
+	m_buffer = nullptr;
+
+	m_signal = 0;
+
+	if (m_stdInRead != 0)
+	{
+		Close(m_stdInRead);
+		m_stdInRead = 0;
+	}
+
+	if (m_stdOutWrite != 0)
+	{
+		Close(m_stdOutWrite);
+		m_stdOutWrite = 0;
+	}
+
+	if (m_stdOutRead != 0)
+	{
+		Close(m_stdOutRead);
+		m_stdOutRead = 0;
+	}
+
+	if (m_packet != nullptr)
+	{
+		FreeDosObject(DOS_STDPKT, m_packet);
+		m_packet = nullptr;
+	}
+
+	if (m_port != nullptr)
+	{
+		DeleteMsgPort(m_port);
+		m_port = nullptr;
+	}
+
+#endif /* ! __amigaos__ */
+
+}
+
+#ifdef __amigaos__
+
+/**
+ * Start an asynchronous read.
+ * Sends a message to the underlying DOS file system handler to request it to read whatever bytes are available, up to
+ * a maximum size. This is an asynchronous operation. Upon completeion, a signal will be handled in the RApplication
+ * class and the readComplete() callback will be called with the data read.
+ *
+ * @date	Saturday 01-Nov-2025 6:52 am, Code HQ Tokyo Tsukuda
+ */
+
+void RStdExecuter::read()
+{
+	struct FileHandle *fileHandle = (FileHandle *) BADDR(m_stdOutRead);
+	StandardPacket *stdPacket = (StandardPacket *) m_packet->dp_Link;
+
+#ifdef __amigaos4__
+
+	struct MsgPort *filePort = fileHandle->fh_MsgPort;
+
+#else /* ! __amigaos4__ */
+
+	struct MsgPort *filePort = fileHandle->fh_Type;
+
+#endif /* ! __amigaos4__ */
+
+	/* Send a read packet to he file system handler to read as much output from the child's stdout as possible. */
+	/* When the child exits, the pipe will be closed and Read() will fail */
+	m_packet->dp_Port = m_port;
+	m_packet->dp_Type = ACTION_READ;
+	m_packet->dp_Arg1 = (LONG) m_stdOutRead;
+	m_packet->dp_Arg2 = (LONG) m_buffer;
+	m_packet->dp_Arg3 = (STDOUT_BUFFER_SIZE - 1);
+	PutMsg(filePort, (struct Message *) stdPacket);
+}
+
+/**
+ * Process the block of data read from the file system handler.
+ * This method is called by the RApplication class when a message is received from the file system handler. It will
+ * call the client's callback method and pass it the block of data read, and will kick off another call to read(), to
+ * read the next block of data from the file system handler.
+ *
+ * If the all data has been read, it will close the pipe used for communication with the child process, and will remove
+ * this executer from the list of active executers. The class instance can then be reused by calling open() again.
+ *
+ * @date	Saturday 01-Nov-2025 6:36 am, Code HQ Tokyo Tsukuda
+ */
+
+void RStdExecuter::readComplete()
+{
+	struct Message *Message;
+
+	if ((Message = GetMsg(m_port)) != nullptr)
+	{
+		int bytesRead = m_packet->dp_Res1;
+
+		if (bytesRead > 0)
+		{
+			/* NULL terminate and print the child's output, and send it to the client for processing */
+			m_buffer[bytesRead] = '\0';
+			m_callback(m_buffer, bytesRead);
+
+			/* And read the next block of data */
+			read();
+		}
+		else
+		{
+			close();
+		}
+	}
+}
+
+#endif /* __amigaos__ */
+
+/**
+ * Launches a command and streams its output to the client.
+ * This function launches a command with dedicated stdin, stdout and stderr handles that allow the control and capture
+ * of all stdio of the child process that has been launched. It will capture all output from that child process and
+ * stream it back to the client that requested the launch.
+ *
+ * @date	Monday 15-Feb-2021 7:19 am, Code HQ Bergmannstrasse
+ * @param	a_commandName	The name of the command to be launched
+ * @param	a_stackSize		The stack size to be used on the target machine
+ * @param	a_callback		The callback to be called when data is available
+ * @return	KErrNone if the command was launched successfully
+ * @return	KErrNoMemory if not enough memory was available
+ * @return	KErrNotFound if the command executable could not be found
+ * @return	KErrGeneral if any other error occurred
+ */
+
+TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback)
+{
+
+#ifdef __amigaos__
+
+	ULONG stackSize = a_stackSize > 0 ? a_stackSize : DEFAULT_STACK_SIZE;
+	TResult retVal{ KErrNoMemory, 0 };
+
+	m_callback = a_callback;
+
+	/* Open the pipes with a buffer size of 1024 bytes. We really need less than this, but it seems to be a minimum */
+	/* and specifying smaller values is ignored */
+	m_stdInRead = Open("Console:", MODE_OLDFILE);
+	m_stdOutWrite = Open("PIPE:RADRunner/1024", MODE_NEWFILE);
+	m_stdOutRead = Open("PIPE:RADRunner/1024", MODE_OLDFILE);
+	m_port = CreateMsgPort();
+	m_packet = (DosPacket *) AllocDosObject(DOS_STDPKT, NULL);
+	m_buffer = new char[STDOUT_BUFFER_SIZE];
+
+	if ((m_stdInRead != 0) && (m_stdOutWrite != 0) && (m_stdOutRead != 0) &&
+		(m_port != nullptr && m_packet != nullptr && m_buffer != nullptr))
+	{
+		int result = SystemTags(a_commandName, SYS_Input, (ULONG) m_stdInRead, SYS_Output, (ULONG) m_stdOutWrite,
+			NP_ExitCode, (ULONG) ExitFunction, NP_ExitData, (ULONG) &m_exitCode, SYS_Asynch, TRUE, NP_StackSize, stackSize,
+			TAG_DONE);
+
+		if (result == 0)
+		{
+			/* The shell was launched successfully, but the command specified by the user may not exist. In this */
+			/* case, the shell will print an error and we will capture it in the same way as if the command was */
+			/* executed successfully */
+			retVal.m_result = KErrNone;
+
+			/* Add the executer to the list of active executers, so that the RApplication class can call it when */
+			/* data becomes available */
+			m_signal = 1 << m_port->mp_SigBit;
+			CWindow::GetRootWindow()->GetApplication()->AddExecuter(this);
+
+			/* The stdInRead and stdOutRead handles are closed by the asynchronous call to SystemTags() when */
+			/* the child process exits, but we need to close the stdOutWrite handle ourselves */
+			m_stdInRead = m_stdOutWrite = 0;
+
+			read();
+		}
+		else
+		{
+			retVal.m_result = KErrNotFound;
+		}
+	}
+
+	if (retVal.m_result != KErrNone)
+	{
+		close();
+	}
+
+#elif defined(__unix__)
+
+	(void) a_stackSize;
+
+	TResult retVal{ KErrGeneral, 0 };
+
+	/* On UNIX systems, there is no way to programmatically capture stderr, but we can redirect it to stdout as a */
+	/* part of command invocation */
+	std::string command = std::string(a_commandName) + " 2>&1";
+
+	FILE *pipe = popen(command.c_str(), "r");
+
+	if (pipe != nullptr)
+	{
+		char *buffer = new char[STDOUT_BUFFER_SIZE];
+		int exitCode;
+		size_t bytesRead;
+
+		retVal.m_result = KErrNone;
+
+		/* Loop around and read as much from the child's stdout as possible. When the child exits, the pipe will be */
+		/* closed and fread() will fail */
+		do
+		{
+			if ((bytesRead = fread(buffer, 1, (STDOUT_BUFFER_SIZE - 1), pipe)) > 0)
+			{
+				/* NULL terminate and print the child's output, and send it to the client for processing */
+				buffer[bytesRead] = '\0';
+				a_callback(buffer, bytesRead);
+			}
+		}
+		while (bytesRead > 0);
+
+		delete [] buffer;
+
+		exitCode = pclose(pipe);
+
+		/* If the client has exited with a non-zero exit code, convert it to one of The Framework's error codes. */
+		/* The error codes 126 and 127 are not in any header files, but are well-known shell error codes on Unix */
+		if (WIFEXITED(exitCode))
+		{
+			exitCode = (WEXITSTATUS(exitCode));
+
+			/* Exit code 126 means that the file is not in an executable format */
+			if (exitCode == 126)
+			{
+				retVal.m_result = KErrCorrupt;
+			}
+			/* Exit code 127 means that the file was not found */
+			else if (exitCode == 127)
+			{
+				retVal.m_result = KErrNotFound;
+			}
+			else
+			{
+				// TODO: CAW - This logic doesn't seem right, as m_subResult should only be set if the client was
+				//             successfully launched - check all of the logic through here
+				retVal.m_subResult = exitCode;
+			}
+		}
+	}
+
+#else /* ! __unix__ */
+
+	(void) a_stackSize;
+
+	TResult retVal{ KErrGeneral, 0 };
+	SECURITY_ATTRIBUTES securityAttributes;
+
+	/* Set the bInheritHandle flag so pipe handles are inherited by the child, so that it is able to read  to and */
+	/* write from them */
+	securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+	securityAttributes.bInheritHandle = TRUE;
+	securityAttributes.lpSecurityDescriptor = NULL;
+
+	/* Create pipes that can be used for stdin, stdout and stderr */
+	if (CreatePipe(&m_stdOutRead, &m_stdOutWrite, &securityAttributes, 0))
+	{
+		if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
+		{
+			if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
+			{
+				if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
+				{
+					HANDLE childProcess;
+
+					/* Create the child process. This will read from and write to the pipes we have created, */
+					/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
+					if ((retVal.m_result = createChildProcess(a_commandName, childProcess)) == KErrNone)
+					{
+						char *buffer = new char[STDOUT_BUFFER_SIZE];
+						BOOL success;
+						DWORD bytesRead, exitCode;
+
+						/* Loop around and read as much from the child's stdout as possible. When the child exits, */
+						/* the pipe will be closed and ReadFile() will fail */
+						do
+						{
+							success = ReadFile(m_stdOutRead, buffer, (STDOUT_BUFFER_SIZE - 1), &bytesRead, NULL);
+
+							if (success)
+							{
+								/* NULL terminate and print the child's output, and send it to the client for processing */
+								buffer[bytesRead] = '\0';
+								a_callback(buffer, bytesRead);
+							}
+						}
+						while (success && bytesRead > 0);
+
+						delete [] buffer;
+
+						if (GetExitCodeProcess(childProcess, &exitCode))
+						{
+							retVal.m_subResult = exitCode;
+						}
+
+						/* And finally, close the handle to the child process now that we have its return code */
+						CloseHandle(childProcess);
+					}
+				}
+
+				/* Ensure that stdin related streams are closed. The read stream may or may not already be closed, */
+				/* depending on the success of prior operations */
+				CloseHandle(m_stdInWrite);
+				m_stdInWrite = nullptr;
+
+				if (m_stdInRead != nullptr)
+				{
+					CloseHandle(m_stdInRead);
+					m_stdInRead = nullptr;
+				}
+			}
+		}
+
+		/* Ensure that stdout related streams are closed. The write stream may or may not already be closed, */
+		/* depending on the success of prior operations */
+		CloseHandle(m_stdOutRead);
+		m_stdOutRead = nullptr;
+
+		if (m_stdOutWrite != nullptr)
+		{
+			CloseHandle(m_stdOutWrite);
+			m_stdOutWrite = nullptr;
+		}
+	}
+
+#endif /* ! __unix__ */
+
+	return retVal;
+}
+
+#ifdef WIN32
+
+/**
+ * Launches a child process.
+ * Asynchronously launches a child process that uses the previously created pipes for stdin, stdout and stderr. When
+ * this method returns, the child process will be executing and may be controlled using the given stdio handles.
+ *
+ * @date	Monday 15-Feb-2021 7:19 am, Code HQ Bergmannstrasse
+ * @param	a_commandName	The name of the command to be launched
+ * @return	KErrNone if the command was launched successfully
+ * @return	KErrNotFound if the command executable could not be found
+ */
+
+int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childProcess)
+{
+	int retVal;
+	PROCESS_INFORMATION processInfo;
+	STARTUPINFO startupInfo;
+
+	ZeroMemory(&processInfo, sizeof(PROCESS_INFORMATION));
+	ZeroMemory(&startupInfo, sizeof(STARTUPINFO));
+
+	/* Pass the handles for the stdin, stdout and stderr pipes to the client process */
+	startupInfo.cb = sizeof(STARTUPINFO);
+	startupInfo.hStdError = m_stdOutWrite;
+	startupInfo.hStdOutput = m_stdOutWrite;
+	startupInfo.hStdInput = m_stdInRead;
+	startupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+	std::string commandName(a_commandName);
+
+	/* Create the requested child process */
+	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &startupInfo, &processInfo))
+	{
+		retVal = KErrNone;
+		a_childProcess = processInfo.hProcess;
+
+		/* Close the handle to the primary thread, which we don't need */
+		CloseHandle(processInfo.hThread);
+
+		/* Close handles to the stdin and stdout pipes no longer needed by the child process. If they are not */
+		/* explicitly closed, there is no way to recognise that the child process has ended. */
+		CloseHandle(m_stdOutWrite);
+		m_stdOutWrite = NULL;
+		CloseHandle(m_stdInRead);
+		m_stdInRead = NULL;
+	}
+	else
+	{
+		retVal = Utils::MapLastError();
+	}
+
+	return retVal;
+}
+
+#endif /* WIN32 */
