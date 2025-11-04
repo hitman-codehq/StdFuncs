@@ -149,28 +149,6 @@ struct TResponse
 };
 
 /**
- * Class for returning more than one return value from a method or function.
- * Instead of returning an int containing one of the StdFuncs KErr values, code can return an instance of this
- * structure with the return value in m_result, and a secondary return value in m_subResult.
- */
-
-class TResult
-{
-public:
-
-	int32_t		m_result;			/**< The result of attempting to execute the command */
-	int32_t		m_subResult;		/**< The secondary result, valid only if m_result == KErrNone.  Its
-										 value and meaning is specific to the method that returns it */
-
-	TResult()
-	{
-		m_result = m_subResult = KErrNone;
-	}
-
-	TResult(int32_t a_result, int32_t a_subResult) : m_result(a_result), m_subResult(a_subResult) { }
-};
-
-/**
  * The base class for all command handlers.
  * All command handlers derive from, and implement, this interface, allowing them to be used without
  * concern for their concrete type or implementation.
