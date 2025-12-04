@@ -533,6 +533,10 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 			if ((Size = WideCharToMultiByte(CP_UTF8, 0, WideTextBuffer, Length, NULL, 0, NULL, NULL)) > 0)
 			{
 				RetVal = KErrNone;
+
+				/* Add extra space for NULL terminator */
+
+				++Size;
 			}
 		}
 	}
