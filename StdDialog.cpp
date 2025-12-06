@@ -597,9 +597,9 @@ TInt CDialog::GetGadgetText(TInt a_iGadgetID, TBool a_bGetText)
 
 				/* For Windows we still have to obtain the text itself */
 
-				if (WideCharToMultiByte(CP_UTF8, 0, WideTextBuffer, Length, m_pcTextBuffer, m_iTextBufferSize, NULL, NULL) == Size)
+				if (WideCharToMultiByte(CP_UTF8, 0, WideTextBuffer, Length, m_pcTextBuffer, m_iTextBufferSize, NULL, NULL) == Size - 1)
 				{
-					m_pcTextBuffer[Size] = '\0';
+					m_pcTextBuffer[Size - 1] = '\0';
 					RetVal = Size;
 				}
 				else
