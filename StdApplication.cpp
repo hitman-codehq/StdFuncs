@@ -59,21 +59,26 @@ static TInt g_iArgC = 1;					/* Fake argc, which must be > 0 */
 
 RApplication::RApplication()
 {
+	m_poWindows = NULL;
+	m_pcoMenuItems = NULL;
 
 #ifdef __amigaos__
 
-	m_bDone = EFalse;
-	m_ulMainSeconds = m_ulMainMicros = m_ulWatcherSignals = m_ulWindowSignals = 0;
+	m_ulExecuterSignals = m_ulWatcherSignals = m_ulWindowSignals = 0;
+	m_bDone = m_bUseAltGr = EFalse;
 	m_iLastX = m_iLastY = 0;
+	m_ulMainSeconds = m_ulMainMicros = 0;
 
-#elif defined(WIN32) && !defined(QT_GUI_LIB)
+#elif defined(QT_GUI_LIB)
+
+	m_poApplication = NULL;
+
+#elif defined(WIN32)
 
 	m_poCurrentDialog = NULL;
 
-#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+#endif /* WIN32 */
 
-	m_poWindows = NULL;
-	m_pcoMenuItems = NULL;
 }
 
 /**
