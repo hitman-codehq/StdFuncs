@@ -217,7 +217,7 @@ bool RAmiFileWatcher::startWatching(const std::string &a_directoryName, const st
 		{
 			const char *objectToWatch = m_fileName.empty() ? m_directoryName.c_str() : m_fileName.c_str();
 
-			m_request->nr_Name = objectToWatch;
+			m_request->nr_Name = (char *) objectToWatch;
 			m_request->nr_Flags = NRF_SEND_MESSAGE;
 			m_request->nr_stuff.nr_Msg.nr_Port = m_port;
 

@@ -69,14 +69,7 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
 		/* we need to handle this and attach the layout to the parent window in the one step.  That we are */
 		/* creating the root layout gadget is indicated by the parent window being non NULL */
 
-		if ((Result = RetVal->Construct(a_poParentWindow != NULL)) != KErrNone)
-		{
-			Utils::info("CStdGadgetLayout::New() => Unable to initialise layout gadget (Error %d)", Result);
-
-			delete RetVal;
-			RetVal = NULL;
-		}
-		else
+		if ((Result = RetVal->Construct(a_poParentWindow != NULL)) == KErrNone)
 		{
 			/* A layout can be inside another layout or inside a window.  Depending on whether a parent layout */
 			/* gadget was passed in, attach the new layout to the appropariate parent */
@@ -89,6 +82,11 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
 			{
 				a_poParentWindow->Attach(RetVal);
 			}
+		}
+		else
+		{
+			delete RetVal;
+			RetVal = NULL;
 		}
 	}
 
