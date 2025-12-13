@@ -337,7 +337,7 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 
 /**
  * Sets the title of the gadget tree.
- * Sets or updates the title currently displayed in the gadget tree.
+ * Sets or updates the title currently displayed in the gadget tree. // TODO: CAW - Document that the title is copied
  *
  * @date	Friday 29-Dec-2023 11:00 am, Code HQ @ Ashley's house
  * @param	a_title			Title to be displayed at the top of the tree's column
