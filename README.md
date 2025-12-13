@@ -84,10 +84,10 @@ compatible with the one built with the Visual Studio project file.
 
 This is useful if you would like to use Visual Studio Code for development.  Simply build in the usual CMake manner.
 Note, however, that you need to let CMake know where to find the version of Qt that you are using.  For example, when
-compiling on Mac OS:
+compiling on Mac OS: TODO - Version and "macos" parts may change
 
 ```sh
-export Qt6_DIR=~/Qt/5.15.2/clang_64/lib/cmake
+export Qt6_DIR=~/Qt/6.9.3/macos/lib/cmake
 mkdir build
 cd build
 cmake -GNinja ..
