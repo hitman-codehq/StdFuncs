@@ -43,6 +43,8 @@ CQtWindow::CQtWindow(CWindow *a_poWindow, QPoint &a_roPosition, QSize &a_roSize)
 
 	move(a_roPosition);
 	resize(a_roSize);
+
+	setAttribute(Qt::WA_InputMethodEnabled, true);
 }
 
 /**
@@ -309,8 +311,10 @@ bool CQtWindow::eventFilter(QObject *a_poObject, QEvent *a_poEvent)
  * @param	a_poFocusEvent	Ptr to a class containing information about the event
  */
 
-void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
+void CQtWindow::focusInEvent(QFocusEvent *a_poFocusEvent)
 {
+	(void) a_poFocusEvent;
+
 	/* Window focus is changing so let the client know that the window is activating */
 
 	m_poWindow->m_bIsActive = ETrue;
@@ -326,8 +330,10 @@ void CQtWindow::focusInEvent(QFocusEvent * /*a_poFocusEvent*/)
  * @param	a_poFocusEvent	Ptr to a class containing information about the event
  */
 
-void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
+void CQtWindow::focusOutEvent(QFocusEvent *a_poFocusEvent)
 {
+	(void) a_poFocusEvent;
+
 	/* Window focus is changing so let the client know that the window is deactivating */
 
 	m_poWindow->m_bIsActive = EFalse;
@@ -337,6 +343,79 @@ void CQtWindow::focusOutEvent(QFocusEvent * /*a_poFocusEvent*/)
 	/* to the window no longer being active */
 
 	CWindow::m_bAltPressed = CWindow::m_bCtrlPressed = CWindow::m_bMetaPressed = CWindow::m_bShiftPressed = EFalse;
+}
+
+/**
+ * Qt helper function to receive IME input events.
+ * This function is called whenever an IME editor finishes pre-editing one or more keys to create a committed string.
+ * It will pass the UTF-8 value of the characters that were entered into the underlying framework window in the
+ * expected format.
+ *
+ * @date	Tuesday 23-Dec-2025 5:55 am, John & Sally's Broadhembury
+ * @param	a_poInputMethodEvent	Pointer to a structure containing information about the event
+ */
+
+void CQtWindow::inputMethodEvent(QInputMethodEvent *a_poInputMethodEvent)
+{
+	int Key;
+
+	const QString &String = a_poInputMethodEvent->commitString();
+
+	if (!String.isEmpty())
+	{
+		/* The underlying framework is designed to work with individual UTF-8 characters, but the IME editor will */
+		/* sometimes pass a word containing multiple characters (for instance, when entering Japanese hiragana). */
+		/* Process each character one at a time and send it to the client software */
+		for (int CharIndex = 0; CharIndex < String.length(); ++CharIndex)
+		{
+			QByteArray UTF8 = String.mid(CharIndex, 1).toUtf8();
+
+			if (UTF8.size() <= (int) sizeof(Key))
+			{
+				/* Extract the UTF-8 character to a little endian integer, that can be treated like a keypress by the */
+				/* client software */
+				Key = 0;
+
+				for (int Index = UTF8.size() - 1; Index >= 0; --Index)
+				{
+					Key <<= 8;
+					Key |= (unsigned char) UTF8.at(Index);
+				}
+
+				m_poWindow->OfferKeyEvent(Key, true);
+				m_poWindow->OfferKeyEvent(Key, false);
+			}
+		}
+
+		a_poInputMethodEvent->accept();
+	}
+}
+
+/**
+ * Qt helper function to configure IME input events.
+ * Returns IME-related information to the IME editor on request, such as whether the functionality is enabled, and
+ * where on the screen to pop up the IME editor window.
+ *
+ * @date	Thursday 09-Apr-2026 9:43 am, place
+ * @param	a_query			An enumeration specifiying the query being made
+ * @return	The result of the query, or the result from the default implementation
+ */
+
+QVariant CQtWindow::inputMethodQuery(Qt::InputMethodQuery a_query) const
+{
+	/* Indicate that we are able to accept IME input */
+	if (a_query == Qt::ImEnabled)
+	{
+			return true;
+	}
+	else if (a_query == Qt::ImCursorRectangle)
+	{
+		QPoint localPos = mapFromGlobal(QCursor::pos());
+
+		return QRect{localPos.x(), localPos.y(), -1, -1};
+	}
+
+	return QWidget::inputMethodQuery(a_query);
 }
 
 /**
@@ -472,8 +551,10 @@ void CQtWindow::mouseReleaseEvent(QMouseEvent *a_poMouseEvent)
  * @param	a_poResizeEvent	Ptr to a structure containing information about the event
  */
 
-void CQtWindow::resizeEvent(QResizeEvent * /*a_poResizeEvent*/)
+void CQtWindow::resizeEvent(QResizeEvent *a_poResizeEvent)
 {
+	(void) a_poResizeEvent;
+
 	/* The size passed in the QResizeEvent is the size of the window itself.  We need to */
 	/* use the size of the central widget as we want to exclude the height of the menu bar */
 
