@@ -34,33 +34,37 @@ protected:
 
 	/* From QMainWindow */
 
-	void closeEvent(QCloseEvent *a_poCloseEvent);
+	void closeEvent(QCloseEvent *a_poCloseEvent) override;
 
-	bool eventFilter(QObject *a_poObject, QEvent *a_poEvent);
+	bool eventFilter(QObject *a_poObject, QEvent *a_poEvent) override;
 
-	void focusInEvent(QFocusEvent *a_poFocusEvent);
+	void focusInEvent(QFocusEvent *a_poFocusEvent) override;
 
-	void focusOutEvent(QFocusEvent *a_poFocusEvent);
+	void focusOutEvent(QFocusEvent *a_poFocusEvent) override;
 
-	void keyPressEvent(QKeyEvent *a_poKeyEvent);
+	void inputMethodEvent(QInputMethodEvent *a_poInputMethodEvent) override;
 
-	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);
+	QVariant inputMethodQuery(Qt::InputMethodQuery a_query) const override;
 
-	void mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent);
+	void keyPressEvent(QKeyEvent *a_poKeyEvent) override;
 
-	void mouseMoveEvent(QMouseEvent *a_poMouseEvent);
+	void keyReleaseEvent(QKeyEvent *a_poKeyEvent) override;
 
-	void mousePressEvent(QMouseEvent *a_poMouseEvent);
+	void mouseDoubleClickEvent(QMouseEvent *a_poMouseEvent) override;
 
-	void mouseReleaseEvent(QMouseEvent *a_poMouseEvent);
+	void mouseMoveEvent(QMouseEvent *a_poMouseEvent) override;
 
-	void resizeEvent(QResizeEvent *a_poResizeEvent);
+	void mousePressEvent(QMouseEvent *a_poMouseEvent) override;
 
-	void wheelEvent(QWheelEvent *a_poWheelEvent);
+	void mouseReleaseEvent(QMouseEvent *a_poMouseEvent) override;
+
+	void resizeEvent(QResizeEvent *a_poResizeEvent) override;
+
+	void wheelEvent(QWheelEvent *a_poWheelEvent) override;
 
 	/* From QWidget.h */
 
-	QSize sizeHint() const;
+	QSize sizeHint() const override;
 
 public:
 
