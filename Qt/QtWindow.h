@@ -42,6 +42,8 @@ protected:
 
 	void focusOutEvent(QFocusEvent *a_poFocusEvent);
 
+	void inputMethodEvent(QInputMethodEvent *a_poInputMethodEvent);
+
 	void keyPressEvent(QKeyEvent *a_poKeyEvent);
 
 	void keyReleaseEvent(QKeyEvent *a_poKeyEvent);
