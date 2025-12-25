@@ -279,7 +279,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		}
 		else if (a_poGadget->GadgetType() == EStdGadgetTree)
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignLeft);
+			m_poLayout->addWidget(a_poGadget->m_poGadget);//, 0, Qt::AlignLeft);
 		}
 		else
 		{

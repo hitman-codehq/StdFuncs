@@ -59,7 +59,7 @@ int CStdGadgetTree::construct()
 
 #else /* ! QT_GUI_LIB */
 
-	m_poParentLayout->Attach(this);
+	m_poParentLayout->Attach(this); // TODO: CAW
 
 #endif /* ! QT_GUI_LIB */
 
