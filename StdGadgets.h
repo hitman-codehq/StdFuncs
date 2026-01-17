@@ -25,6 +25,7 @@ class MStdGadgetLayoutObserver;
 class MStdGadgetSliderObserver;
 class QBoxLayout;
 class QLabel;
+class QTabWidget;
 class QWidget;
 
 #ifdef __amigaos__
@@ -105,7 +106,14 @@ public:
 		return(m_poGadget);
 	}
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	QWidget *GetGadget()
+	{
+		return(m_poGadget);
+	}
+
+#endif /* QT_GUI_LIB */
 
 	TInt GetGadgetID()
 	{
@@ -408,6 +416,24 @@ public:
 	CTreeNode(const char *a_text) : m_text(a_text) { };
 };
 
+class CStdGadgetTabPane : public CStdGadget
+{
+	QTabWidget		*m_tabWidget;
+
+public:
+
+	static CStdGadgetTabPane *New(CStdGadgetLayout *a_parentLayout);
+
+	CStdGadgetTabPane(CStdGadgetLayout *a_parentLayout)
+	{
+		m_poParentLayout = a_parentLayout;
+	}
+
+	CStdGadgetTabPane *construct();
+
+	void addTab(CStdGadget *a_gadget, const char *a_title);
+};
+
 /* A class representing an expandable and collapsible tree gadget */
 
 class CStdGadgetTree : public CStdGadget
@@ -461,6 +487,7 @@ protected:
 
 	~CStdGadgetTree();
 
+	// TODO: CAW - Why is there no New() here?
 	int construct();
 
 	bool createNative();

@@ -322,7 +322,7 @@ void MungWall::EnableOutput(BOOL bEnable)
  * debug logs being printed, but it can be useful to temporarily enable it to
  * check what is being allocated in performance critical parts of the code.
  *
- * @date	Tuesday 27-Sep-2022 7:15 am, Code HQ Tsukuda
+ * @date	Tuesday 27-Sep-2022 7:15 am, Code HQ Tokyo Tsukuda
  * @param	bEnableOutput	TRUE to enable reporting, else FALSE
  */
 

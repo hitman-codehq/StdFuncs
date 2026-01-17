@@ -30,8 +30,8 @@ SOURCES += Args.cpp Dir.cpp File.cpp FileUtils.cpp FileWatcher.cpp Lex.cpp MungW
     RemoteDir.cpp RemoteFactory.cpp RemoteFile.cpp RemoteFileUtils.cpp RemoteFileWatcher.cpp Yggdrasil/Handler.cpp \
 	StdApplication.cpp StdCharConverter.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdExecuter.cpp \
 	StdFileRequester.cpp StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp \
-	StdGadgetTree.cpp StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp StdTextFile.cpp \
-	StdTime.cpp StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
+	StdGadgetTree.cpp StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp StdTabPane.cpp \
+	StdTextFile.cpp StdTime.cpp StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
 
 SOURCES += Qt/QtAction.cpp Qt/QtFileWatcher.cpp Qt/QtGadgetSlider.cpp Qt/QtGadgetTextPane.cpp Qt/QtGadgetTree.cpp \
 	Qt/QtLocalSocket.cpp Qt/QtWindow.cpp

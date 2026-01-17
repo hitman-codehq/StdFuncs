@@ -54,12 +54,12 @@ int CStdGadgetTree::construct()
 	m_tree.construct("");
 
 	// TODO: CAW - Why aren't these fetched automatically in CStdGadget?
-	m_iWidth = m_poGadget->width();
-	m_iHeight = m_poGadget->height();
+	m_iWidth = m_tree.width(); // m_poGadget->width();
+	m_iHeight = m_tree.height(); // m_poGadget->height();
 
 #else /* ! QT_GUI_LIB */
 
-	m_poParentLayout->Attach(this); // TODO: CAW
+	//m_poParentLayout->Attach(this); // TODO: CAW
 
 #endif /* ! QT_GUI_LIB */
 
@@ -67,7 +67,7 @@ int CStdGadgetTree::construct()
 
 	if (m_poGadget)
 	{
-		m_poParentLayout->Attach(this);
+		//m_poParentLayout->Attach(this);
 	}
 
 	return retVal;
@@ -127,11 +127,13 @@ void CStdGadgetTree::activateContent(int a_contentID)
 
 #elif defined(QT_GUI_LIB)
 
-	while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+	//while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+	while (m_tree.takeTopLevelItem(0)) { }
 
 	if (a_contentID != 0)
 	{
-		static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, m_itemsMap[a_contentID]);
+		//static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, m_itemsMap[a_contentID]);
+		m_tree.insertTopLevelItems(0, m_itemsMap[a_contentID]);
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -192,7 +194,8 @@ std::string CStdGadgetTree::getSelectedItem()
 
 #elif defined(QT_GUI_LIB)
 
-	QTreeWidgetItem *currentItem = static_cast<QTreeWidget *>(m_poGadget)->currentItem();
+	//QTreeWidgetItem *currentItem = static_cast<QTreeWidget *>(m_poGadget)->currentItem();
+	QTreeWidgetItem *currentItem = m_tree.currentItem();
 	std::string retVal(currentItem->text(0).toStdString());
 
 #else /* ! QT_GUI_LIB */
@@ -300,7 +303,8 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 
 	if (updateContent)
 	{
-		while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+		//while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+		while (m_tree.takeTopLevelItem(0)) { }
 	}
 
 	/* Iterate through the list passed in and, for each item on the list, create a widget item to represent it, */
@@ -316,7 +320,8 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 	/* Add the new list of items to the tree widget */
 	if (updateContent)
 	{
-		static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
+		//static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
+		m_tree.insertTopLevelItems(0, items);
 	}
 
 	/* Mixing the STL and Qt list is a pain. We have to do it like this to ensure that the data in items is actually */
