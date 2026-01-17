@@ -31,13 +31,14 @@ CStdGadgetLayout *CStdGadgetLayout::m_poRethinker = NULL;
  * @date	Monday 11-Jul-2011 5:44 am
  * @param	a_poParentLayout	Pointer to the layout to which to attach the gadget.  Must not be NULL
  * @param	a_bVertical			ETrue to create a vertical layout, else EFalse for a horizontal layout
+ * @param	a_bAttach			ETrue to attach to the parent layout, else EFalse
  * @param	a_poClient			The observer to call to indicate a resize operation.  May be NULL if no
  *								callbacks are required
- * @param	a_poParentWindow	Pointer to the window in which to create the gadget.  Must be NULL
+ * @param	a_poParentWindow	Pointer to the window in which to create the gadget.  May be NULL
  * @return	A pointer to an initialised class instance if successful, else NULL
  */
 
-CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, TBool a_bAttach,
 	MStdGadgetLayoutObserver *a_poClient, CWindow *a_poParentWindow)
 {
 	TInt Result;
@@ -76,7 +77,10 @@ CStdGadgetLayout *CStdGadgetLayout::New(CStdGadgetLayout *a_poParentLayout, TBoo
 
 			if (a_poParentLayout)
 			{
-				a_poParentLayout->Attach(RetVal);
+				if (a_bAttach)
+				{
+					a_poParentLayout->Attach(RetVal);
+				}
 			}
 			else
 			{
@@ -271,6 +275,10 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		else if (a_poGadget->GadgetType() == EStdGadgetTree)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget);
+		}
+		else
+		{
+			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
 		}
 
 		rethinkLayout();
@@ -594,7 +602,11 @@ void CStdGadgetLayout::rethinkLayout()
 	if (!m_poRethinker)
 	{
 		m_poRethinker = this;
-		RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+
+		if (!m_bUnowned)
+		{
+			RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+		}
 	}
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)

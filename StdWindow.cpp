@@ -2531,7 +2531,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 			m_iWidth = m_poWindow->Width;
 			m_iHeight = m_poWindow->Height;
 
-			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, ETrue, NULL, this)) != NULL)
 			{
 				/* And create the menus specific to this window */
 
@@ -2654,7 +2654,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 			m_poWindow->setCentralWidget(m_poCentralWidget);
 
-			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+			if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, ETrue, NULL, this)) != NULL)
 			{
 				/* Set the window's title to the one passed in */
 
@@ -2800,7 +2800,7 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 							m_iWidth = (Rect.right - Rect.left);
 							m_iHeight = (Rect.bottom - Rect.top);
 
-							if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, NULL, this)) != NULL)
+							if ((m_poRootLayout = CStdGadgetLayout::New(NULL, ETrue, ETrue, NULL, this)) != NULL)
 							{
 								RetVal = KErrNone;
 							}

@@ -227,6 +227,7 @@
     <ClCompile Include="StdGadgets.cpp" />
     <ClCompile Include="StdGadgetSlider.cpp" />
     <ClCompile Include="StdGadgetStatusBar.cpp" />
+    <ClCompile Include="StdGadgetTabPane.cpp" />
     <ClCompile Include="StdGadgetTree.cpp" />
     <ClCompile Include="StdImage.cpp" />
     <ClCompile Include="StdPool.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="StdFont.h" />
     <ClInclude Include="StdFuncs.h" />
     <ClInclude Include="StdGadgets.h" />
+    <ClInclude Include="StdGadgetTabPane.h" />
     <ClInclude Include="StdImage.h" />
     <ClInclude Include="StdList.h" />
     <ClInclude Include="StdPool.h" />

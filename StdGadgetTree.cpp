@@ -230,7 +230,8 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 
 #ifdef QT_GUI_LIB
 
-	bool updateContent = (a_contentID != 0 && a_contentID == m_contentID);
+	// TODO: CAW - Investigate this
+	bool updateContent = true; //(a_contentID != 0 && a_contentID == m_contentID);
 
 #endif /* QT_GUI_LIB */
 
