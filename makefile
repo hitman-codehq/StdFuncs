@@ -38,12 +38,12 @@ ifdef PREFIX
 		$(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o \
 		$(OBJ)/RemoteFileWatcher.o $(OBJ)/StdApplication.o $(OBJ)/StdCharConverter.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o \
 		$(OBJ)/StdCRC.o $(OBJ)/StdDialog.o $(OBJ)/StdExecuter.o $(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o \
-		$(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o \
-		$(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o \
-		$(OBJ)/Utils.o
+		$(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTabPane.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o \
+		$(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o \
+		$(OBJ)/Test.o $(OBJ)/Utils.o
 
 	ifneq ($(PREFIX), ppc-amigaos-)
-		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
+		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoClickTab.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
 			$(OBJ)/AutoGadTools.o $(OBJ)/AutoGfx.o $(OBJ)/AutoIcon.o $(OBJ)/AutoIFFParse.o $(OBJ)/AutoIntuition.o $(OBJ)/AutoKeymap.o \
 			$(OBJ)/AutoLabel.o $(OBJ)/AutoLayout.o $(OBJ)/AutoListBrowser.o $(OBJ)/AutoScroller.o $(OBJ)/AutoString.o $(OBJ)/AutoTextEditor.o \
 			$(OBJ)/AutoUtility.o $(OBJ)/AutoWindow.o $(OBJ)/SafeOpenLibrary.o

@@ -53,7 +53,9 @@ class CStdGadget
 {
 protected:
 
+	bool					m_bActive;			/**< true if the gadget is active */
 	bool					m_bHidden;			/**< true if the gadget is hidden */
+	bool					m_bUnowned;			/**< true if the gadget is not owned by a layout */
 	TInt					m_iGadgetID;		/**< Unique ID of the gadget */
 	TInt					m_iX;				/**< X and Y positions of the gadget, relative */
 	TInt					m_iY;				/**< to the top left hand corner of the client area */
@@ -88,6 +90,11 @@ private:
 
 protected:
 
+	virtual void Activated(bool a_bActivated)
+	{
+		m_bActive = a_bActivated;
+	}
+
 	virtual void SetSize(TInt a_iWidth, TInt a_iHeight);
 
 public:
@@ -103,7 +110,14 @@ public:
 		return(m_poGadget);
 	}
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	QWidget *GetGadget()
+	{
+		return(m_poGadget);
+	}
+
+#endif /* QT_GUI_LIB */
 
 	TInt GetGadgetID()
 	{
@@ -121,6 +135,11 @@ public:
 	}
 
 	virtual void SetFocus() { };
+
+	void SetUnowned()
+	{
+		m_bUnowned = true;
+	}
 
 	virtual void SetVisible(bool a_bVisible);
 
@@ -145,6 +164,8 @@ public:
 	/* manage the gadgets' positions etc. */
 
 	friend class CStdGadgetLayout;
+
+	friend class CStdGadgetTabPane;
 };
 
 /* A special gadget that can automatically layout other gadgets inside itself */
@@ -198,7 +219,7 @@ public:
 
 	StdListNode<CStdGadgetLayout>	m_oStdListNode;	/**< Standard list node */
 
-	static CStdGadgetLayout *New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical,
+	static CStdGadgetLayout *New(CStdGadgetLayout *a_poParentLayout, TBool a_bVertical, TBool a_bAttach = ETrue,
 		MStdGadgetLayoutObserver *a_poClient = nullptr, CWindow *a_poParentWindow = nullptr);
 
 	~CStdGadgetLayout();
@@ -459,6 +480,7 @@ protected:
 
 	~CStdGadgetTree();
 
+	// TODO: CAW - Why is there no New() here?
 	int construct();
 
 	bool createNative();
