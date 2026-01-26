@@ -6,7 +6,7 @@
 
 #ifdef __amigaos__
 
-#include <gadgets/scroller.h>
+#include "StdReaction.h"
 #include <intuition/icclass.h>
 
 #elif defined(QT_GUI_LIB)

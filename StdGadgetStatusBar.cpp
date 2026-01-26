@@ -7,7 +7,7 @@
 
 #ifdef __amigaos__
 
-#include <gadgets/layout.h>
+#include "StdReaction.h"
 
 #elif defined(QT_GUI_LIB)
 
