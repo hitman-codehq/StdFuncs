@@ -403,7 +403,7 @@ public:
 
 public:
 
-	CTreeNode(const char *a_text) : m_text(a_text) { };
+	CTreeNode(const std::string &a_text) : m_text(a_text) { };
 };
 
 /* A class representing an expandable and collapsible tree gadget */
