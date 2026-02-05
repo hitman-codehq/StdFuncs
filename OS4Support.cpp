@@ -1,7 +1,6 @@
 
 #include "StdFuncs.h"
 #include "OS4Support.h"
-#include <clib/alib_protos.h>
 
 /**
  * Allocates a system object.

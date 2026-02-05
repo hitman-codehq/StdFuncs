@@ -206,7 +206,7 @@ bool RAmiFileWatcher::startWatching(const std::string &a_directoryName, const st
 	}
 
 	/* Create a message port */
-	if ((m_port = CreatePort(nullptr, 0)) != nullptr)
+	if ((m_port = CreateMsgPort()) != nullptr)
 	{
 		m_signal = 1L << m_port->mp_SigBit;
 
@@ -274,7 +274,7 @@ void RAmiFileWatcher::stopWatching()
 
 	if (m_port != nullptr)
 	{
-		DeletePort(m_port);
+		DeleteMsgPort(m_port);
 		m_port = nullptr;
 	}
 
