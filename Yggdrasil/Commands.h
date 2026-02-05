@@ -265,10 +265,10 @@ class CExecute : public CHandler
 
 #ifdef WIN32
 
-	HANDLE m_stdInRead;			/**< Handle for reading from stdin (child) */
-	HANDLE m_stdInWrite;		/**< Handle for writing to stdin (parent) */
-	HANDLE m_stdOutRead;		/**< Handle for reading from stdout (parent) */
-	HANDLE m_stdOutWrite;		/**< Handle for writing to std out (child) */
+	HANDLE		m_stdInRead;	/**< Handle for reading from stdin (child) */
+	HANDLE		m_stdInWrite;	/**< Handle for writing to stdin (parent) */
+	HANDLE		m_stdOutRead;	/**< Handle for reading from stdout (parent) */
+	HANDLE		m_stdOutWrite;	/**< Handle for writing to std out (child) */
 
 #endif /* WIN32 */
 
