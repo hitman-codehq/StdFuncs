@@ -24,7 +24,15 @@ int main()
 
 	StringList = new CStdStringList;
 	test(StringList != NULL);
+
+	// This test is excluded on macOS as it is failing due to the memory clearing performed by MungWall
+	// interfering with the compiler. https://github.com/llvm/llvm-project/issues/58715
+
+#ifndef __APPLE__
+
 	test(StringList->Count() == 0);
+
+#endif /* __APPLE__ */
 
 	/* Test #2: Add some strings and check they are correct */
 
