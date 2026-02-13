@@ -5,6 +5,7 @@
 /** @file */
 
 #include <map>
+#include <vector>
 
 #ifdef __amigaos__
 
@@ -26,6 +27,7 @@ class MStdGadgetSliderObserver;
 class QBoxLayout;
 class QLabel;
 class QWidget;
+struct ColumnInfo;
 
 #ifdef __amigaos__
 
@@ -419,27 +421,24 @@ class CTreeNode
 {
 public:
 
-	StdListNode<CTreeNode>	m_oStdListNode;		/**< Standard list node */
-	std::string				m_text;				/**< Text to display in the tree gadget */
-
-public:
-
-	CTreeNode(const std::string &a_text) : m_text(a_text) { };
+	StdListNode<CTreeNode>		m_oStdListNode;		/**< Standard list node */
+	std::vector<std::string>	m_columnText;		/**< Text to display in the tree gadget */
+	uint32_t					m_userData;			/**< Optional user data */
 };
 
 /* A class representing an expandable and collapsible tree gadget */
 
 class CStdGadgetTree : public CStdGadget
 {
-private:
-
 	int		m_contentID;					/**< The content ID of the file list currently in use */
 	int		m_nextContentID;				/**< The next content ID that will be assigned to a new list */
+	int		m_numColumns;					/**< The number of columns in the tree */
 
 #ifdef __amigaos__
 
 	std::string		m_title;			/**< Persistent memory for the title string passed in */
-	struct List		m_fileList;			/**< Initial empty list of items in the tree */
+	ColumnInfo		*m_columnInfo;		/**< Information regarding the tree's column layout */
+	List			m_itemsList;		/**< Initial empty list of items in the tree */
 	ItemsMap		m_itemsMap;			/**< Map of the lists of items that can be displayed by the tree */
 
 #elif defined(QT_GUI_LIB)
@@ -472,7 +471,7 @@ protected:
 
 #ifdef __amigaos__
 
-		NewList(&m_fileList);
+		NewList(&m_itemsList);
 
 #endif /* __amigaos__ */
 
@@ -480,16 +479,15 @@ protected:
 
 	~CStdGadgetTree();
 
-	// TODO: CAW - Why is there no New() here?
-	int construct();
+	int construct(int a_numColumns);
 
 	bool createNative();
-
-	int setContent(StdList<CTreeNode> &a_items, int a_contentID);
 
 public:
 
 	void activateContent(int a_contentID);
+
+	int addItem(CTreeNode &a_item, int a_contentID);
 
 	int getContentID()
 	{
@@ -497,6 +495,10 @@ public:
 	}
 
 	std::string getSelectedItem();
+
+	int newContentID();
+
+	void setColumnWidth(int a_column, int a_width);
 
 	void setTitle(const std::string &a_title);
 
