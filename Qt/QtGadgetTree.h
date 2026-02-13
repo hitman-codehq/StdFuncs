@@ -27,12 +27,9 @@ public:
 
 	CQtGadgetTree(CStdGadgetTree *a_parentTree) : m_parentTree(a_parentTree) { }
 
-	void construct(const std::string &a_title);
+	void construct(int a_numColumns);
 
-	void setTitle(const std::string &a_title)
-	{
-		setHeaderLabel(a_title.c_str());
-	}
+	void setTitle(const std::string &a_title);
 
 public slots:
 
