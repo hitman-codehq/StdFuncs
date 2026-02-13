@@ -11,18 +11,9 @@
 
 #include "Qt/QtGadgetTree.h"
 #include "Qt/QtWindow.h"
+#include <QtWidgets/QHeaderView>
 
 #endif /* QT_GUI_LIB */
-
-#ifdef __amigaos__
-
-static struct ColumnInfo g_columnInfo[] =
-{
-	{ 100, "", CIF_SORTABLE } ,
-	{ -1, (STRPTR) ~0, (ULONG) -1 }
-};
-
-#endif /* __amigaos__ */
 
 /**
  * Second phase constructor.
@@ -33,12 +24,14 @@ static struct ColumnInfo g_columnInfo[] =
  * @return	KErrNone if successful, else KErrNoMemory
  */
 
-int CStdGadgetTree::construct()
+int CStdGadgetTree::construct(int a_numColumns)
 {
 	int retVal = KErrNone;
 
 	ASSERTM((m_poParentWindow != nullptr), "CStdGadgetTree::construct() => Parent window is NULL");
 	ASSERTM((m_poParentWindow->m_poWindow != nullptr), "CStdGadgetTree::construct() => Parent native window is NULL");
+
+	m_numColumns = a_numColumns;
 
 #ifdef __amigaos__
 
@@ -51,7 +44,8 @@ int CStdGadgetTree::construct()
 
 	/* Initialise the Qt specific helper object */
 	m_poGadget = &m_tree;
-	m_tree.construct("");
+	m_tree.construct("", m_numColumns); // TODO: CAW - Title?
+	//m_tree.setColumnCount(m_numColumns);
 
 	// TODO: CAW - Why aren't these fetched automatically in CStdGadget?
 	m_iWidth = m_poGadget->width();
@@ -84,6 +78,8 @@ CStdGadgetTree::~CStdGadgetTree()
 {
 
 #ifdef __amigaos__
+
+	delete [] m_columnInfo;
 
 	/* Iterate through the map of available lists and delete the nodes from each one */
 	for (auto &item : m_itemsMap)
@@ -122,6 +118,7 @@ void CStdGadgetTree::activateContent(int a_contentID)
 	{
 		ULONG items = (ULONG) &m_itemsMap[a_contentID];
 
+		Utils::info("CStdGadgetTree::activateContent() => Activating content ID %d", a_contentID);
 		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, items, TAG_DONE);
 	}
 
@@ -155,11 +152,34 @@ void CStdGadgetTree::activateContent(int a_contentID)
 
 bool CStdGadgetTree::createNative()
 {
-	g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+	m_columnInfo = new struct ColumnInfo[m_numColumns + 1];
 
-	m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
-		LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) &g_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
-		TAG_DONE);
+	if (m_columnInfo != nullptr)
+	{
+		// TODO: CAW - This needs to be dynamically allocated, and when adding a new node, we need to ensure that the number
+		//             of strings passed in matches this number
+		for (int index = 0; index < m_numColumns; ++index)
+		{
+			m_columnInfo[index].ci_Width = 100 / m_numColumns;
+			m_columnInfo[index].ci_Title = "";
+			m_columnInfo[index].ci_Flags = CIF_SORTABLE | CIF_WEIGHTED;
+		}
+
+		m_columnInfo[m_numColumns].ci_Width = -1;
+		m_columnInfo[m_numColumns].ci_Title = (STRPTR) ~0;
+		m_columnInfo[m_numColumns].ci_Flags = (ULONG) -1;
+
+		//g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+
+		m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
+			LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, LISTBROWSER_Labels, (ULONG) &m_fileList,
+			TAG_DONE);
+
+		if (m_poGadget == nullptr)
+		{
+			delete [] m_columnInfo;
+		}
+	}
 
 	return (m_poGadget != nullptr);
 }
@@ -205,6 +225,71 @@ std::string CStdGadgetTree::getSelectedItem()
 }
 
 /**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Thursday 12-Feb-2026 8:35 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+int CStdGadgetTree::newContentID()
+{
+	int retVal = m_nextContentID++;
+
+#ifdef __amigaos__
+
+	Utils::info("Creating new list for content ID %d", retVal);
+	struct List *fileList = &m_itemsMap[retVal];
+	NewList(fileList);
+
+#elif defined(QT_GUI_LIB)
+
+	QList<QTreeWidgetItem *> items;
+
+	/*if (!*/ m_itemsMap.emplace(retVal, items); //.second;
+
+#endif /* QT_GUI_LIB */
+
+	return retVal;
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Sunday 15-Feb-2026 6:33 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void CStdGadgetTree::setColumnWidth(int a_column, int a_width)
+{
+	ASSERTM((a_column < m_numColumns), "CStdGadgetTree::setWidth() => Column index is out of range");
+
+#ifdef __amigaos__
+
+	m_columnInfo[a_column].ci_Width = a_width;
+
+#elif defined(QT_GUI_LIB)
+
+	auto header = m_tree.header(); // TODO: CAW - Ensure this is used everywhere
+
+	header->setSectionResizeMode(a_column, QHeaderView::Stretch);
+	header->setSectionResizeMode(1, QHeaderView::Stretch);
+
+	header->resizeSection(a_column, a_width);
+	header->resizeSection(1, 1);
+
+#endif /* QT_GUI_LIB */
+
+}
+
+/**
  * Sets the content of the tree gadget.
  * This method accepts a list of CTreeNode items, with each item containing a text string that will be used to
  * add a node to the tree.
@@ -225,37 +310,41 @@ std::string CStdGadgetTree::getSelectedItem()
  * @return	An identifier that represents the content that was just added or updated
  */
 
-int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
+int CStdGadgetTree::setContent(CTreeNode &a_item, int a_contentID)
 {
-
-#ifdef QT_GUI_LIB
-
-	// TODO: CAW - Investigate this
-	bool updateContent = true; //(a_contentID != 0 && a_contentID == m_contentID);
-
-#endif /* QT_GUI_LIB */
-
 	/* If no content ID is passed in, create a new list with a new unique content ID. Otherwise, we want to */
 	/* update an existing list */
 	if (a_contentID == 0)
 	{
+		Utils::info("CStdGadgetTree::setContent() => Creating new content ID");
 		a_contentID = m_nextContentID++;
 	}
+
+#if defined(__amigaos__) || defined(QT_GUI_LIB)
+
+	int numColumns = static_cast<int>(a_item.m_columnText.size());
+
+	ASSERTM((numColumns == m_numColumns), "CStdGadgetTree::setContent() => Number of columns passed in does not match number in gadget tree");
+
+#endif /* defined(__amigaos__) || defined(QT_GUI_LIB) */
 
 #ifdef __amigaos__
 
 	struct List *currentList = nullptr, *fileList;
+	struct Node *node;
 
 	/* If the content ID does not already exist in the map, create a new list for it. In this case, accessing the */
 	/* items map will return a new exec List, but it must be initialised by calling NewList(). If it already exists, */
 	/* it is valid but we want to clear its contents with FreeListBrowserList() */
 	if (m_itemsMap.find(a_contentID) == m_itemsMap.end())
 	{
+		Utils::info("Creating new list for content ID %d", a_contentID);
 		fileList = &m_itemsMap[a_contentID];
 		NewList(fileList);
 	}
 	else
 	{
+		Utils::info("Using old list for content ID %d", a_contentID);
 		fileList = &m_itemsMap[a_contentID];
 	}
 
@@ -263,68 +352,74 @@ int CStdGadgetTree::setContent(StdList<CTreeNode> &a_items, int a_contentID)
 	/* it from the list browser before we update it */
 	GetAttr(LISTBROWSER_Labels, m_poGadget, (ULONG *) &currentList);
 
+	Utils::info("%p %p %p", fileList, currentList, &m_fileList);
 	if (fileList == currentList)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) nullptr, TAG_DONE);
+		Utils::info("*** removing list %p from list browser", fileList);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) ~0, TAG_DONE);
 	}
 
-	/* Clear the list before adding new entries to it. This must be done here, as exec lists must not be changed */
-	/* while they are attached to a list browser gadget. For new, already empty, lists, this is a no-op */
-	FreeListBrowserList(fileList);
-
-	/* Iterate through the list passed in and, for each item on the list, create a list browser node to represent */
-	/* it, and add it to the list browser's list of nodes */
-	CTreeNode *treeNode = a_items.getHead();
-
-	while (treeNode)
+	Utils::info("Allocating %d columns", numColumns);
+	if ((node = AllocListBrowserNode(numColumns, LBNA_UserData, (ULONG) a_item.m_userData, TAG_DONE)) != nullptr)
 	{
-		struct Node *node;
-
-		if ((node = AllocListBrowserNode(1, LBNCA_CopyText, TRUE, LBNCA_Text, (ULONG) treeNode->m_text.c_str(),
-			TAG_DONE)) != nullptr)
+		for (int index = 0; index < numColumns; ++index)
 		{
-			AddTail(fileList, node);
+			Utils::info("*** %d %s", index, a_item.m_columnText[index].c_str());
+			SetListBrowserNodeAttrs(node, LBNA_Column, index, LBNCA_CopyText, TRUE, LBNCA_Text,
+				(ULONG) a_item.m_columnText[index].c_str(), TAG_DONE);
 		}
 
-		treeNode = a_items.getSucc(treeNode);
+		AddTail(fileList, node);
 	}
 
 	/* If this list is the currently active list, re-add it to the list browser */
-	if (fileList == currentList)
+	if (fileList == currentList && m_bActive)
 	{
+		Utils::info("*** adding list %p to list browser", fileList);
 		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
 
-	QList<QTreeWidgetItem *> items;
+	QList<QTreeWidgetItem *> *items = &m_itemsMap[a_contentID]; // TODO: CAW - Bounds checking
 
-	if (updateContent)
+	//if (updateContent)
 	{
-		while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
+		//while (static_cast<QTreeWidget *>(m_poGadget)->takeTopLevelItem(0)) { }
 	}
 
 	/* Iterate through the list passed in and, for each item on the list, create a widget item to represent it, */
 	/* and add it to the tree widget's list of nodes */
-	CTreeNode *treeNode = a_items.getHead();
+	//CTreeNode *treeNode = a_items.getHead();
 
-	while (treeNode)
+	//while (treeNode)
+	//{
+	//for (int index = 0; index < numColumns; ++index)
 	{
-		items.append(new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr), QStringList(QString(treeNode->m_text.c_str()))));
-		treeNode = a_items.getSucc(treeNode);
+		QStringList strings;
+
+		for (int index = 0; index < numColumns; ++index)
+		{
+			Utils::info("*** %d %s", index, a_item.m_columnText[index].c_str());
+			strings.append(a_item.m_columnText[index].c_str());
+		}
+
+		items->append(new QTreeWidgetItem(strings));
 	}
+		//treeNode = a_items.getSucc(treeNode);
+	//}
 
 	/* Add the new list of items to the tree widget */
-	if (updateContent)
+	//if (updateContent)
 	{
-		static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, items);
+		static_cast<QTreeWidget *>(m_poGadget)->insertTopLevelItems(0, *items);
 	}
 
 	/* Mixing the STL and Qt list is a pain. We have to do it like this to ensure that the data in items is actually */
 	/* copies or moved into the target list item, rather than a shared pointer being used */
-	if (!m_itemsMap.emplace(a_contentID, items).second)
+	//if (!m_itemsMap.emplace(a_contentID, items).second)
 	{
-		m_itemsMap[a_contentID] = std::move(items);
+		//m_itemsMap[a_contentID] = std::move(items);
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -356,9 +451,10 @@ void CStdGadgetTree::setTitle(const std::string &a_title)
 		/* before assigning it to the tree */
 
 		m_title = a_title;
-		g_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
+		m_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
 
-		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_ColumnInfo, (ULONG) g_columnInfo, TAG_DONE);
+		// TODO: CAW - Huh?
+		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)

@@ -2,6 +2,7 @@
 #include "../StdFuncs.h"
 #include "../StdWindow.h"
 #include "QtGadgetTree.h"
+#include <QtWidgets/QHeaderView>
 
 /**
  * Second phase constructor.
@@ -11,11 +12,20 @@
  * @param	a_title			Title to be displayed at the top of the tree's column
  */
 
-void CQtGadgetTree::construct(const std::string &a_title)
+void CQtGadgetTree::construct(const std::string &a_title, int a_numColumns)
 {
 	/* Set some sensible default settings, such as the number of columns to display */
-	setColumnCount(1);
-	setHeaderLabel(a_title.c_str());
+	setColumnCount(a_numColumns);
+
+	if (!a_title.empty())
+	{
+		setHeaderLabel(a_title.c_str());
+	}
+	else
+	{
+		header()->hide();
+	}
+
 	setFocusPolicy(Qt::NoFocus);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 

@@ -27,7 +27,7 @@ public:
 
 	CQtGadgetTree(CStdGadgetTree *a_parentTree) : m_parentTree(a_parentTree) { }
 
-	void construct(const std::string &a_title);
+	void construct(const std::string &a_title, int a_numColumns);
 
 	void setTitle(const std::string &a_title)
 	{
