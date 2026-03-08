@@ -457,7 +457,7 @@ void CStdGadgetTree::removeItem(std::string &a_text, int a_contentID)
 
 #else /* ! QT_GUI_LIB */
 
-	(void) a_item;
+	(void) a_text;
 	(void) a_contentID;
 
 #endif /* ! QT_GUI_LIB */
