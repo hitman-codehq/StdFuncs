@@ -264,23 +264,33 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 
 bool CStdGadgetTree::createNative()
 {
-	m_columnInfo = new struct ColumnInfo[m_numColumns + 1];
+	/* We perform the creation in two steps, to take into account that the column info structure can be reused, */
+	/* even if the gadget itself has been destroyed by Reaction. Start by allocating the column info structure, */
+	/* if it is not yet allocated */
+	if (m_columnInfo == nullptr)
+	{
+		m_columnInfo = new struct ColumnInfo[m_numColumns + 1];
 
+		if (m_columnInfo != nullptr)
+		{
+			/* Initialise each column such that they take up an equal amount of space */
+			for (int index = 0; index < m_numColumns; ++index)
+			{
+				m_columnInfo[index].ci_Width = 100 / m_numColumns;
+				m_columnInfo[index].ci_Title = "";
+				m_columnInfo[index].ci_Flags = CIF_SORTABLE;
+			}
+
+			/* Terminate the column list */
+			m_columnInfo[m_numColumns].ci_Width = -1;
+			m_columnInfo[m_numColumns].ci_Title = (STRPTR) ~0;
+			m_columnInfo[m_numColumns].ci_Flags = (ULONG) -1;
+		}
+	}
+
+	/* If the column info structure was successfully allocated, create the gadget */
 	if (m_columnInfo != nullptr)
 	{
-		/* Initialise each column such that they take up an equal amount of space */
-		for (int index = 0; index < m_numColumns; ++index)
-		{
-			m_columnInfo[index].ci_Width = 100 / m_numColumns;
-			m_columnInfo[index].ci_Title = "";
-			m_columnInfo[index].ci_Flags = CIF_SORTABLE;
-		}
-
-		/* Terminate the column list */
-		m_columnInfo[m_numColumns].ci_Width = -1;
-		m_columnInfo[m_numColumns].ci_Title = (STRPTR) ~0;
-		m_columnInfo[m_numColumns].ci_Flags = (ULONG) -1;
-
 		/* And create the native list browser gadget */
 		m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
 			LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, LISTBROWSER_Labels, (ULONG) &m_itemsList,
@@ -289,6 +299,7 @@ bool CStdGadgetTree::createNative()
 		if (m_poGadget == nullptr)
 		{
 			delete [] m_columnInfo;
+			m_columnInfo = nullptr;
 		}
 	}
 
