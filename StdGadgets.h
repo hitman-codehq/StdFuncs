@@ -101,6 +101,15 @@ protected:
 
 public:
 
+#ifdef __amigaos__
+
+	virtual bool createNative()
+	{
+		return(true);
+	}
+
+#endif /* __amigaos__ */
+
 	virtual ~CStdGadget();
 
 	/* Getters and setters */
@@ -481,8 +490,6 @@ protected:
 
 	int construct(int a_numColumns);
 
-	bool createNative();
-
 public:
 
 	void activateContent(int a_contentID);
@@ -505,6 +512,10 @@ public:
 	void setTitle(const std::string &a_title);
 
 #ifdef __amigaos__
+
+	/* From CStdGadget */
+
+	bool createNative() override;
 
 	void SetVisible(bool a_bVisible) override;
 

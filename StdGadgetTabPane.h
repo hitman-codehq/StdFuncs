@@ -44,7 +44,18 @@ public:
 
 	void clicked();
 
-	void setActiveTab(int a_index);
+	void setActiveTab(int a_index, bool a_force = false);
+
+#ifdef __amigaos__
+
+	/* From CStdGadget */
+
+	bool createNative() override;
+
+	void SetVisible(bool a_bVisible) override;
+
+#endif /* __amigaos__ */
+
 };
 
 #endif // STDGADGETTABPANE_H
