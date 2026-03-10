@@ -126,10 +126,7 @@ void CStdGadgetTree::activateContent(int a_contentID)
 
 	QTreeWidgetItem *oldItem;
 
-	while ((oldItem = m_tree.takeTopLevelItem(0)) != nullptr)
-	{
-		delete oldItem;
-	}
+	while ((m_tree.takeTopLevelItem(0)) != nullptr) { }
 
 	if (a_contentID != 0)
 	{
