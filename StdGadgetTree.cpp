@@ -6,6 +6,7 @@
 #ifdef __amigaos__
 
 #include <string.h>
+#include "OS4Support.h"
 #include "StdReaction.h"
 
 #elif defined(QT_GUI_LIB)
@@ -119,7 +120,7 @@ void CStdGadgetTree::activateContent(int a_contentID)
 	{
 		ULONG items = (ULONG) &m_itemsMap[a_contentID];
 
-		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, items, TAG_DONE);
+		RefreshSetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentLayout->WindowOrNULL(), NULL, LISTBROWSER_Labels, items, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -223,7 +224,7 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 	/* If this list is the currently active list, re-add it to the list browser */
 	if (fileList == currentList && m_bActive)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -432,7 +433,7 @@ void CStdGadgetTree::removeItem(std::string &a_text, int a_contentID)
 	/* If this list is the currently active list, re-add it to the list browser */
 	if (fileList == currentList && m_bActive)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -522,8 +523,7 @@ void CStdGadgetTree::setTitle(const std::string &a_title)
 		m_title = a_title;
 		m_columnInfo[0].ci_Title = (STRPTR) m_title.c_str();
 
-		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LISTBROWSER_ColumnInfo,
-			(ULONG) m_columnInfo, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
