@@ -365,8 +365,7 @@ void CStdGadgetSlider::SetPosition(TInt a_iPosition)
 
 #ifdef __amigaos__
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
+	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, SCROLLER_Top, (ULONG) (a_iPosition - 1), TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 
@@ -434,8 +433,7 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
 
 #ifdef __amigaos__
 
-	SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow , NULL,
-		SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
+	SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, SCROLLER_Visible, a_iPageSize, SCROLLER_Total, a_iMaxRange, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 

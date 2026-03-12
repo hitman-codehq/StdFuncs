@@ -299,8 +299,7 @@ void CStdGadget::SetVisible(bool a_bVisible)
 
 	if (!a_bVisible && (m_poGadget != NULL))
 	{
-		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
-			LAYOUT_RemoveChild, (ULONG) m_poGadget, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, NULL, NULL, LAYOUT_RemoveChild, (ULONG) m_poGadget, TAG_DONE);
 
 		/* The native gadget is destroyed when it is removed, so indicate this by setting its pointer to NULL */
 

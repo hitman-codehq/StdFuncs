@@ -206,8 +206,11 @@ private:
 
 public:
 
-	static TBool				m_bEnableRefresh;	/**< ETrue to disable immediate refresh when adding new
-														 gadgets to the layout.  Affects Amiga OS only */
+	static TBool				m_bEnableRefresh;	/**< ETrue to disable immediate refresh when adding new gadgets to
+														 the layout. Affects Amiga OS only */
+	static TBool				m_bAttached;		/**< ETrue if the layout is attached to a window. Works together
+														 with m_bEnableRefresh to avoid flicker and double attachments
+														 when adding gadgets to the layout. */
 
 private:
 
@@ -280,6 +283,8 @@ public:
 	{
 		return(m_iWeight);
 	}
+
+	struct Window *WindowOrNULL();
 
 	/* From CStdGadget */
 

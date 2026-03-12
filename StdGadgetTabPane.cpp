@@ -164,7 +164,7 @@ void CStdGadgetTabPane::addTab(CStdGadget *a_gadget, const char *a_title)
 	node = AllocClickTabNode(TNA_Text, a_title, TNA_Number, 0, TAG_DONE);
 	AddTail(&m_nodeList, node);
 
-	SetGadgetAttrs((Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, CLICKTAB_Labels, (ULONG) &m_nodeList, TAG_DONE);
+	SetGadgetAttrs((Gadget *) m_poGadget, NULL, NULL, CLICKTAB_Labels, (ULONG) &m_nodeList, TAG_DONE);
 
 #elif defined(QT_GUI_LIB)
 

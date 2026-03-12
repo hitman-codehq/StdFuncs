@@ -1133,8 +1133,7 @@ void CWindow::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	if (LayoutObj)
 	{
-		if (SetGadgetAttrs((struct Gadget *) LayoutObj, m_poWindow, NULL,
-			LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
+		if (SetGadgetAttrs((struct Gadget *) LayoutObj, NULL, NULL, LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 		{
 			rethinkLayout();
 		}

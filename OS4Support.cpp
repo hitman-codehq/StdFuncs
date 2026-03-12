@@ -189,7 +189,10 @@ void RefreshSetGadgetAttrsA(struct Gadget *a_gadget, struct Window *a_window, st
 {
 	if (SetGadgetAttrsA(a_gadget, a_window, a_requester, a_taglist) != 0)
 	{
-		RefreshGList(a_gadget, a_window, a_requester, 1);
+		if (a_window != nullptr)
+		{
+			RefreshGList(a_gadget, a_window, a_requester, 1);
+		}
 	}
 }
 

@@ -22,6 +22,7 @@
 /* Amiga OS member variables pertaining to magic flicker avoidance */
 
 TBool CStdGadgetLayout::m_bEnableRefresh = ETrue;
+TBool CStdGadgetLayout::m_bAttached = EFalse;
 CStdGadgetLayout *CStdGadgetLayout::m_poRethinker = NULL;
 
 /**
@@ -247,8 +248,7 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 	/* Add the new BOOPSI gadget to the layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
-		LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL, LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
 		if (m_bEnableRefresh)
 		{
@@ -314,8 +314,7 @@ void CStdGadgetLayout::Attach(CStdGadgetLayout *a_poLayoutGadget)
 
 	ASSERTM((a_poLayoutGadget->m_poLayout != 0), "CStdGadgetLayout::Attach() => Layout's native implementation is NULL");
 
-	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL,
-		LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))
+	if (SetGadgetAttrs((struct Gadget *) m_poLayout, NULL, NULL, LAYOUT_AddChild, (ULONG) a_poLayoutGadget->m_poLayout, TAG_DONE))
 	{
 		if (m_bEnableRefresh)
 		{
@@ -481,8 +480,7 @@ void CStdGadgetLayout::ReAttach(CStdGadget *a_poGadget)
 	// TODO: CAW (multi) - All of these need to be checked
 	if (m_poParentWindow)
 	{
-		if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-			LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+		if (SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LAYOUT_AddChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 		{
 			if (m_bEnableRefresh)
 			{
@@ -516,8 +514,7 @@ void CStdGadgetLayout::remove(CStdGadget *a_poGadget)
 
 	/* And remove the BOOPSI gadget from the layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-					   LAYOUT_RemoveChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LAYOUT_RemoveChild, (ULONG) a_poGadget->m_poGadget, TAG_DONE))
 	{
 		if (m_bEnableRefresh)
 		{
@@ -558,8 +555,7 @@ void CStdGadgetLayout::remove(CStdGadgetLayout *a_poLayoutGadget)
 
 	/* And remove the BOOPSI gadget from the layout */
 
-	if (SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL,
-		LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
+	if (SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LAYOUT_RemoveChild, (ULONG) a_poLayoutGadget->m_poGadget, TAG_DONE))
 	{
 		if (m_bEnableRefresh)
 		{
@@ -606,6 +602,7 @@ void CStdGadgetLayout::rethinkLayout()
 		if (!m_bUnowned)
 		{
 			RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
+			m_bAttached = ETrue;
 		}
 	}
 
@@ -805,7 +802,7 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 	{
 		ULONG WeightTag = (m_iGadgetType == EStdGadgetHorizontalLayout) ? CHILD_WeightedWidth: CHILD_WeightedHeight;
 
-		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, m_poParentWindow->m_poWindow, NULL,
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, NULL, NULL,
 			LAYOUT_ModifyChild, (ULONG) m_poGadget, WeightTag, a_iWeight, TAG_DONE);
 	}
 
@@ -979,3 +976,22 @@ TInt CStdGadgetLayout::MinHeight()
 
 	return(RetVal);
 }
+
+/**
+ * Return a pointer to the layout's window.
+ * This function can be used when calling SetGadgetAttrs() to ensure that no window pointer is inadvertently used
+ * before the layout has been attached to a window. Before attachment to a window, calling this function will return
+ * NULL, even if it has a valid window pointer. After attachment, this will return a valid window pointer.
+ *
+ * @date	Friday 13-Mar-2026 6:00 am, Code HQ Tokyo Tsukuda
+ * @return	Pointer to the layout's window, or NULL
+ */
+
+#ifdef __amigaos__
+
+struct Window *CStdGadgetLayout::WindowOrNULL()
+{
+	return m_bAttached ? m_poParentWindow->m_poWindow : nullptr;
+}
+
+#endif /* __amigaos__ */

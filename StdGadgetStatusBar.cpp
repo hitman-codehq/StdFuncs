@@ -7,6 +7,7 @@
 
 #ifdef __amigaos__
 
+#include "OS4Support.h"
 #include "StdReaction.h"
 
 #elif defined(QT_GUI_LIB)
@@ -97,7 +98,7 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 				{
 					/* Add the string gadget to the horizontal layout group, with the desired weighting */
 
-					SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, LAYOUT_AddChild,
+					SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LAYOUT_AddChild,
 						(ULONG) m_poPartsGadgets[Index], CHILD_WeightedWidth, (ULONG) a_piPartsOffsets[Index], TAG_DONE);
 				}
 				else
@@ -497,7 +498,7 @@ void CStdGadgetStatusBar::SetText(TInt a_iPart, const char *a_pccText)
 
 		if (Length < MAX_CHARS)
 		{
-			SetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentWindow->m_poWindow,
+			RefreshSetGadgetAttrs((struct Gadget *) m_poPartsGadgets[a_iPart], m_poParentLayout->WindowOrNULL(),
 				NULL, STRINGA_TextVal, a_pccText, TAG_DONE);
 		}
 
