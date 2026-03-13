@@ -602,9 +602,12 @@ void CStdGadgetLayout::rethinkLayout()
 		if (!m_bUnowned)
 		{
 			RethinkLayout((struct Gadget *) m_poGadget, m_poParentWindow->m_poWindow, NULL, TRUE);
-			m_bAttached = ETrue;
 		}
 	}
+
+	/* The rethink is now complete, so indicate that it is safe to use the window pointer */
+
+	m_bAttached = ETrue;
 
 #elif defined(WIN32) && !defined(QT_GUI_LIB)
 

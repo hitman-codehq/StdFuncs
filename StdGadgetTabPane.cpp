@@ -170,7 +170,7 @@ void CStdGadgetTabPane::addTab(CStdGadget *a_gadget, const char *a_title)
 
 	m_tabWidget->addTab(a_gadget->GetGadget(), a_title);
 
-# else /* ! QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
 
 	(void) a_gadget;
 	(void) a_title;
