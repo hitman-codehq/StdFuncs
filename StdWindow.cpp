@@ -3068,7 +3068,7 @@ void CWindow::rethinkLayout()
 #endif /* ! defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	/* Now recursively iterate through the window's tree of layout gadgets and let them know they */
-	/* have been resized */
+	/* need to do a rethink */
 
 	if (m_poRootLayout)
 	{

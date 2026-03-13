@@ -125,8 +125,6 @@ void CStdGadgetTree::activateContent(int a_contentID)
 
 #elif defined(QT_GUI_LIB)
 
-	QTreeWidgetItem *oldItem;
-
 	while ((m_tree.takeTopLevelItem(0)) != nullptr) { }
 
 	if (a_contentID != 0)
@@ -498,7 +496,12 @@ void CStdGadgetTree::setColumnWidth(int a_column, int a_width)
 	a_width = a_width * m_tree.width() / 100;
 	m_tree.header()->resizeSection(a_column, a_width);
 
-#endif /* QT_GUI_LIB */
+# else /* ! QT_GUI_LIB */
+
+	(void) a_column;
+	(void) a_width;
+
+#endif /* ! QT_GUI_LIB */
 
 }
 
