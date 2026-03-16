@@ -152,7 +152,7 @@ public:
 		m_bUnowned = true;
 	}
 
-	virtual void SetVisible(bool a_bVisible);
+	virtual bool SetVisible(bool a_bVisible);
 
 	bool Visible()
 	{
@@ -188,6 +188,7 @@ private:
 	static CStdGadgetLayout		*m_poRethinker;		/**< Pointer to layout gadget currently rethinking, if any */
 
 	TInt						m_iWeight;			/**< Weight of the layout gadget */
+	TInt						m_iCrossWeight;		/**< Cross weight of the layout gadget */
 	MStdGadgetLayoutObserver	*m_poClient;		/**< Pointer to client to notify when gadget changes */
 	StdList<CStdGadget>			m_oGadgets;			/**< List of gadgets added to the layout */
 	StdList<CStdGadgetLayout>	m_oLayoutGadgets;	/**< List of layout gadgets added to the layout */
@@ -221,6 +222,16 @@ private:
 		m_poParentLayout = a_poParentLayout;
 		m_poParentWindow = a_poParentWindow;
 		m_poClient = a_poClient;
+
+#ifdef __amigaos__
+
+		/* Amiga OS layouts use weights of 100 by default, so let's reflect that in the layout gadget */
+
+		m_iWeight = 100;
+		m_iCrossWeight = 100;
+
+#endif /* __amigaos__ */
+
 	}
 
 	TInt Construct(bool a_bUseParentWindow);
@@ -278,6 +289,8 @@ public:
 	void rethinkLayout();
 
 	bool SetWeight(TInt a_iWeight);
+
+	bool SetCrossWeight(TInt a_iWeight);
 
 	TInt Weight()
 	{
@@ -373,7 +386,7 @@ public:
 
 #ifdef __amigaos__
 
-	void SetVisible(bool a_bVisible) override;
+	bool SetVisible(bool a_bVisible) override;
 
 #endif /* __amigaos__ */
 
@@ -522,7 +535,7 @@ public:
 
 	bool createNative() override;
 
-	void SetVisible(bool a_bVisible) override;
+	bool SetVisible(bool a_bVisible) override;
 
 #endif /* __amigaos__ */
 

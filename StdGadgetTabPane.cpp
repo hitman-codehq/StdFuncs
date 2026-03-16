@@ -258,10 +258,13 @@ void CStdGadgetTabPane::setActiveTab(int a_index, bool a_force)
  *
  * @date	Tuesday 10-Mar-2026 6:50 am, Code HQ Tokyo Tsukuda
  * @param	a_bVisible		true to make gadget visible, else false to hide it
+ * @return	True if the visibility of the gadget changed, else false
  */
 
-void CStdGadgetTabPane::SetVisible(bool a_bVisible)
+bool CStdGadgetTabPane::SetVisible(bool a_bVisible)
 {
+	bool retVal = false;
+
 	/* If the gadget is being made visible then we want to recreate it */
 	if (a_bVisible)
 	{
@@ -275,6 +278,8 @@ void CStdGadgetTabPane::SetVisible(bool a_bVisible)
 
 			if (createNative())
 			{
+				retVal = true;
+
 				/* Reattach it to the parent window */
 				m_poParentLayout->ReAttach(this);
 
@@ -291,8 +296,10 @@ void CStdGadgetTabPane::SetVisible(bool a_bVisible)
 	/* Otherwise just pass the call through to the super method to hide the gadget */
 	else
 	{
-		CStdGadget::SetVisible(a_bVisible);
+		retVal = CStdGadget::SetVisible(a_bVisible);
 	}
+
+	return retVal;
 }
 
 #endif /* __amigaos__ */
