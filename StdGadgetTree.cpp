@@ -552,10 +552,13 @@ void CStdGadgetTree::setTitle(const std::string &a_title)
  *
  * @date	Friday 29-Dec-2023 4:34 pm, Code HQ @ Ashley's house
  * @param	a_bVisible		true to make gadget visible, else false to hide it
+ * @return	True if the visibility of the gadget changed, else false
  */
 
-void CStdGadgetTree::SetVisible(bool a_bVisible)
+bool CStdGadgetTree::SetVisible(bool a_bVisible)
 {
+	bool retVal = false;
+
 	/* If the gadget is being made visible then we want to recreate it */
 	if (a_bVisible)
 	{
@@ -566,6 +569,8 @@ void CStdGadgetTree::SetVisible(bool a_bVisible)
 
 			if (createNative())
 			{
+				retVal = true;
+
 				/* Reattach it to the parent window */
 				m_poParentLayout->ReAttach(this);
 				m_bHidden = false;
@@ -577,8 +582,10 @@ void CStdGadgetTree::SetVisible(bool a_bVisible)
 	/* Otherwise just pass the call through to the super method to hide the gadget */
 	else
 	{
-		CStdGadget::SetVisible(a_bVisible);
+		retVal = CStdGadget::SetVisible(a_bVisible);
 	}
+
+	return retVal;
 }
 
 #endif /* __amigaos__ */

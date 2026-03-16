@@ -258,9 +258,10 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 
 #elif defined(QT_GUI_LIB)
 
-	/* Add the new Qt gadget to the layout.  Vertical sliders are added on the right of the layout, horizontal */
-	/* sliders and status bars are added at the bottom and any other gadgets are added to the left.  Some */
-	/* Framework gadgets do not have an underlying Qt widget so check that this exists before attaching it */
+	/* Add the new Qt gadget to the layout. Vertical sliders are added on the right of the layout, horizontal */
+	/* sliders and status bars are added at the bottom and any other gadgets are added to the left or top, depending */
+	/* on the type of the layout. Some Framework gadgets do not have an underlying Qt widget so check that this */
+	/* exists before attaching it */
 
 	if (a_poGadget->m_poGadget)
 	{
@@ -272,13 +273,9 @@ void CStdGadgetLayout::Attach(CStdGadget *a_poGadget)
 		{
 			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
 		}
-		else if (a_poGadget->GadgetType() == EStdGadgetTree)
-		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget);
-		}
 		else
 		{
-			m_poLayout->addWidget(a_poGadget->m_poGadget, 0, Qt::AlignBottom);
+			m_poLayout->addWidget(a_poGadget->m_poGadget);
 		}
 
 		rethinkLayout();
@@ -780,7 +777,19 @@ void CStdGadgetLayout::rethinkLayout()
 	}
 }
 
-/* Written: Wednesday 23-Nov-2011 6:26 am, Code HQ Soeflingen */
+/**
+ * Assign a weight to the layout gadget.
+ * Assigns a weight to the gadget, which defines how much space the gadget takes up on the screen. The weight is
+ * applied according to the layout type: a horizontal layout will apply the weight to the width of the gadget, and
+ * a vertical layout will apply the weight to the height of the gadget.
+ *
+ * In most GUI systems, the weight is an arbitrary value, but in The Framework it is specified as a percentage of the
+ * total space available. 100 means take up the entire space and 0 means don't take up any space.
+ *
+ * @date	Wednesday 23-Nov-2011 6:26 am, Code HQ Soeflingen
+ * @param	a_iWeight		The weight to assign to the layout
+ * @return	True if if the weight was changed, else false
+ */
 
 bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 {
@@ -789,7 +798,7 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 	if (a_iWeight == m_iWeight)
 	{
-		return false;
+		return(false);
 	}
 
 	/* Save the gadget's new weight */
@@ -798,8 +807,7 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 
 #ifdef __amigaos__
 
-	/* For Amiga OS we also need to notify the layout gadget itself so that it */
-	/* will resize itself */
+	/* For Amiga OS we also need to notify the layout gadget itself so that it will resize itself */
 
 	if (m_poParentWindow)
 	{
@@ -820,6 +828,56 @@ bool CStdGadgetLayout::SetWeight(TInt a_iWeight)
 	return(true);
 }
 
+/**
+ * Assign a cross weight to the layout gadget.
+ * Assigns a cross weight to the gadget, to define how much space the gadget takes up on the screen. The cross weight
+ * is the weight of the other dimension of the layout, meaning a horizontal layout will apply the weight to the height
+ * of the gadget, and a vertical layout will apply the weight to the width of the gadget.
+ *
+ * In most GUI systems, the weight is an arbitrary value, but in The Framework it is specified as a percentage of the
+ * total space available. 100 means take up the entire space and 0 means don't take up any space.
+ *
+ * @date	Monday 16-Mar-2026 7:19 am, Code HQ Tokyo Tsukuda
+ * @param	a_iWeight		The weight to assign to the layout
+ * @return	True if if the weight was changed, else false
+ */
+
+bool CStdGadgetLayout::SetCrossWeight(TInt a_iWeight)
+{
+	/* If nothing has changed then return without doing anything.  Some older operating systems (Amiga OS3 ) */
+	/* don't take care of this and gadgets will flicker if nothing has changed */
+
+	if (a_iWeight == m_iCrossWeight)
+	{
+		return(false);
+	}
+
+	/* Save the gadget's new weight */
+
+	m_iCrossWeight = a_iWeight;
+
+#ifdef __amigaos__
+
+	/* For Amiga OS we also need to notify the layout gadget itself so that it will resize itself */
+
+	if (m_poParentWindow)
+	{
+		ULONG WeightTag = (m_iGadgetType == EStdGadgetHorizontalLayout) ? CHILD_WeightedHeight: CHILD_WeightedWidth;
+
+		SetGadgetAttrs((struct Gadget *) m_poParentLayout->m_poGadget, NULL, NULL,
+			LAYOUT_ModifyChild, (ULONG) m_poGadget, WeightTag, a_iWeight, TAG_DONE);
+	}
+
+#elif defined(QT_GUI_LIB)
+
+	/* This is also the case for Qt.  For Windows, we will perform the layout ourselves later on */
+
+	m_poParentLayout->GetLayout()->setStretchFactor(GetLayout(), a_iWeight);
+
+#endif /* QT_GUI_LIB */
+
+	return(true);
+}
 
 /**
  * Set the input focus to this gadget.

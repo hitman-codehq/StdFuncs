@@ -52,7 +52,7 @@ public:
 
 	bool createNative() override;
 
-	void SetVisible(bool a_bVisible) override;
+	bool SetVisible(bool a_bVisible) override;
 
 #endif /* __amigaos__ */
 

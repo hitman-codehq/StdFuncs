@@ -488,10 +488,13 @@ void CStdGadgetSlider::SetRange(TInt a_iPageSize, TInt a_iMaxRange)
  *
  * @date	Sunday 04-Jul-2021 8:03 am, Code HQ Bergmannstrasse
  * @param	a_bVisible		true to make gadget visible, else false to hide it
+ * @return	True if the visibility of the gadget changed, else false
  */
 
-void CStdGadgetSlider::SetVisible(bool a_bVisible)
+bool CStdGadgetSlider::SetVisible(bool a_bVisible)
 {
+	bool retVal = false;
+
 	/* If the gadget is being made visible then we want to recreate it */
 
 	if (a_bVisible)
@@ -502,6 +505,8 @@ void CStdGadgetSlider::SetVisible(bool a_bVisible)
 		{
 			if (CreateNative())
 			{
+				retVal = true;
+
 				/* Reattach it to the parent window */
 
 				m_poParentLayout->ReAttach(this);
@@ -514,8 +519,10 @@ void CStdGadgetSlider::SetVisible(bool a_bVisible)
 
 	else
 	{
-		CStdGadget::SetVisible(a_bVisible);
+		retVal = CStdGadget::SetVisible(a_bVisible);
 	}
+
+	return(retVal);
 }
 
 #endif /* __amigaos__ */
