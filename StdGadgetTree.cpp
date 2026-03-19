@@ -129,7 +129,7 @@ void CStdGadgetTree::activateContent(int a_contentID)
 
 	if (a_contentID != 0)
 	{
-		m_tree.insertTopLevelItems(0, m_itemsMap[a_contentID]);
+		m_tree.addTopLevelItems( m_itemsMap[a_contentID]);
 	}
 
 #else /* ! QT_GUI_LIB */
@@ -222,7 +222,7 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 	/* If this list is the currently active list, re-add it to the list browser */
 	if (itemList == currentList && m_bActive)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) itemList, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, m_poParentLayout->WindowOrNULL(), NULL, LISTBROWSER_Labels, (ULONG) itemList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -237,8 +237,12 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 		strings.append(a_item.m_columnText[index].c_str());
 	}
 
-	items.append(new QTreeWidgetItem(strings));
-	m_tree.insertTopLevelItems(0, items);
+	QTreeWidgetItem *item = new QTreeWidgetItem(strings);
+
+	/* Store the user data passed in and add the item to the tree */
+	item->setData(0, Qt::UserRole, a_item.m_userData);
+	items.append(item);
+	m_tree.addTopLevelItems(items);
 
 #else /* ! QT_GUI_LIB */
 
@@ -290,9 +294,13 @@ bool CStdGadgetTree::createNative()
 	/* If the column info structure was successfully allocated, create the gadget */
 	if (m_columnInfo != nullptr)
 	{
+		/* This may be the first time this is called, or it may have been called before, in which case we need to */
+		/* use the already existing item list */
+		ULONG items = (ULONG) (m_contentID != 0) ? (ULONG) &m_itemsMap[m_contentID] : (ULONG) &m_itemsList;
+
 		/* And create the native list browser gadget */
 		m_poGadget = (Object *) NewObject(LISTBROWSER_GetClass(), NULL, GA_ID, (ULONG) m_iGadgetID, GA_RelVerify, TRUE,
-			LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, LISTBROWSER_Labels, (ULONG) &m_itemsList,
+			LISTBROWSER_ColumnTitles, TRUE, LISTBROWSER_ColumnInfo, (ULONG) m_columnInfo, LISTBROWSER_Labels, items,
 			TAG_DONE);
 
 		if (m_poGadget == nullptr)
@@ -309,18 +317,21 @@ bool CStdGadgetTree::createNative()
 
 /**
  * Returns the currently selected item.
- * Determines the current item in the tree gadget and returns its string contents.  This method assumes that
- * an item is currently selected, and no effort is made to account for the case when one is not.
+ * Determines the current item in the tree gadget and optionally returns its string contents and/or user data. This
+ * method assumes that an item is currently selected, and no effort is made to account for the case when one is not.
  *
  * @pre		An item is currently selected
  *
  * @date	Thursday 05-Aug-2021 12:42 pm, Code HQ @ Thomas's House
- * @return	The item's string contents
+ * @param	a_column		The number of the column for which to get the item
+ * @param	a_text			Optional pointer to a variable into which to place the node's text contents
+ * @param	a_userData		Optional pointer to a variable into which to place the node's user data
  */
 
-std::string CStdGadgetTree::getSelectedItem()
+void CStdGadgetTree::getSelectedItem(int a_column, std::string *a_text, uint32_t *a_userData)
 {
 	ASSERTM((m_poGadget != nullptr), "CStdGadgetTree::getSelectedItem() => Tree gadget has not been created");
+	ASSERTM((a_column < m_numColumns), "CStdGadgetTree::getSelectedItem() => Column number is out of range");
 
 #ifdef __amigaos__
 
@@ -328,21 +339,44 @@ std::string CStdGadgetTree::getSelectedItem()
 	struct Node *node;
 
 	GetAttr(LISTBROWSER_SelectedNode, m_poGadget, (ULONG *) &node);
-	GetListBrowserNodeAttrs(node, LBNCA_Text, (ULONG) &text, TAG_DONE);
-	std::string retVal(text);
+	ASSERTM((node != nullptr), "CStdGadgetTree::getSelectedItem() => No item is currently selected");
+
+	if (a_text != nullptr)
+	{
+		GetListBrowserNodeAttrs(node, LBNA_Column, a_column, LBNCA_Text, (ULONG) &text, TAG_DONE);
+		*a_text = std::string(text);
+	}
+
+	if (a_userData != nullptr)
+	{
+		GetListBrowserNodeAttrs(node, LBNA_UserData, (ULONG) a_userData, TAG_DONE);
+	}
 
 #elif defined(QT_GUI_LIB)
 
 	QTreeWidgetItem *currentItem = m_tree.currentItem();
-	std::string retVal(currentItem->text(0).toStdString());
+
+	if (a_text != nullptr)
+	{
+		*a_text = std::string(currentItem->text(a_column).toStdString());
+	}
+
+	if (a_userData != nullptr)
+	{
+		*a_userData = currentItem->data(0, Qt::UserRole).toInt();
+	}
 
 #else /* ! QT_GUI_LIB */
 
-	std::string retVal;
+	(void) a_text;
+
+	if (a_userData != nullptr)
+	{
+		*a_userData = 0;
+	}
 
 #endif /* ! QT_GUI_LIB */
 
-	return retVal;
 }
 
 /**
