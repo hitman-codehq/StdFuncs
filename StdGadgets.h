@@ -519,7 +519,7 @@ public:
 		return m_contentID;
 	}
 
-	std::string getSelectedItem();
+	void getSelectedItem(std::string *a_text = nullptr, uint32_t *a_userData = nullptr);
 
 	int newContentID();
 
