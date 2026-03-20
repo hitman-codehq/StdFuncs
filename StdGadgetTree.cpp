@@ -182,7 +182,7 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 
 #ifdef __amigaos__
 
-	struct List *currentList = nullptr, *fileList;
+	struct List *currentList = nullptr, *itemList;
 	struct Node *node;
 
 	/* If the content ID does not already exist in the map, create a new list for it. In this case, accessing the */
@@ -190,19 +190,19 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 	/* it is valid but we want to clear its contents with FreeListBrowserList() */
 	if (m_itemsMap.find(a_contentID) == m_itemsMap.end())
 	{
-		fileList = &m_itemsMap[a_contentID];
-		NewList(fileList);
+		itemList = &m_itemsMap[a_contentID];
+		NewList(itemList);
 	}
 	else
 	{
-		fileList = &m_itemsMap[a_contentID];
+		itemList = &m_itemsMap[a_contentID];
 	}
 
 	/* Get a pointer to the currently active list. If it is the one we are about to update, we need to remove */
 	/* it from the list browser before we update it */
 	GetAttr(LISTBROWSER_Labels, m_poGadget, (ULONG *) &currentList);
 
-	if (fileList == currentList)
+	if (itemList == currentList)
 	{
 		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) ~0, TAG_DONE);
 	}
@@ -216,13 +216,13 @@ int CStdGadgetTree::addItem(CTreeNode &a_item, int a_contentID)
 				(ULONG) a_item.m_columnText[index].c_str(), TAG_DONE);
 		}
 
-		AddTail(fileList, node);
+		AddTail(itemList, node);
 	}
 
 	/* If this list is the currently active list, re-add it to the list browser */
-	if (fileList == currentList && m_bActive)
+	if (itemList == currentList && m_bActive)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) itemList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)
@@ -360,8 +360,8 @@ int CStdGadgetTree::newContentID()
 
 #ifdef __amigaos__
 
-	struct List *fileList = &m_itemsMap[retVal];
-	NewList(fileList);
+	struct List *itemList = &m_itemsMap[retVal];
+	NewList(itemList);
 
 #elif defined(QT_GUI_LIB)
 
@@ -392,23 +392,23 @@ void CStdGadgetTree::removeItem(std::string &a_text, int a_contentID)
 #ifdef __amigaos__
 
 	const char *text;
-	struct List *currentList = nullptr, *fileList;
+	struct List *currentList = nullptr, *itemList;
 	struct Node *node;
 
 	// TODO: CAW - Should we protect accesses to the map?
 	//if (m_itemsMap.find(a_contentID) == m_itemsMap.end())
-	fileList = &m_itemsMap[a_contentID];
+	itemList = &m_itemsMap[a_contentID];
 
 	/* Get a pointer to the currently active list. If it is the one we are about to update, we need to remove */
 	/* it from the list browser before we update it */
 	GetAttr(LISTBROWSER_Labels, m_poGadget, (ULONG *) &currentList);
 
-	if (fileList == currentList)
+	if (itemList == currentList)
 	{
 		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) ~0, TAG_DONE);
 	}
 
-	node = fileList->lh_Head;
+	node = itemList->lh_Head;
 
 	/* Iterate through the list and try to find the item to remove */
 	while (node != nullptr)
@@ -429,9 +429,9 @@ void CStdGadgetTree::removeItem(std::string &a_text, int a_contentID)
 	}
 
 	/* If this list is the currently active list, re-add it to the list browser */
-	if (fileList == currentList && m_bActive)
+	if (itemList == currentList && m_bActive)
 	{
-		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) fileList, TAG_DONE);
+		SetGadgetAttrs((struct Gadget *) m_poGadget, NULL, NULL, LISTBROWSER_Labels, (ULONG) itemList, TAG_DONE);
 	}
 
 #elif defined(QT_GUI_LIB)

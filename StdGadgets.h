@@ -457,7 +457,7 @@ public:
 
 class CStdGadgetTree : public CStdGadget
 {
-	int		m_contentID;					/**< The content ID of the file list currently in use */
+	int		m_contentID;					/**< The content ID of the item list currently in use */
 	int		m_nextContentID;				/**< The next content ID that will be assigned to a new list */
 	int		m_numColumns;					/**< The number of columns in the tree */
 
