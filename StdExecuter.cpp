@@ -10,7 +10,7 @@
 
 #elif defined(__unix__)
 
-#include <unistd.h>
+//#include <unistd.h>
 
 #endif /* __unix__ */
 
@@ -183,7 +183,25 @@ void RStdExecuter::readComplete()
 	}
 }
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Friday 27-Mar-2026 7:01 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void RStdExecuter::readComplete(const char *a_buffer, int a_size)
+{
+	m_callback(a_buffer, a_size);
+}
+
+#endif /* QT_GUI_LIB */
 
 /**
  * Launches a command and streams its output to the client.
@@ -207,7 +225,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 #ifdef __amigaos__
 
 	ULONG stackSize = a_stackSize > 0 ? a_stackSize : DEFAULT_STACK_SIZE;
-	TResult retVal{ KErrNoMemory, 0 };
+	TResult retVal{ KErrNoMemory, 0 }; // TODO: CAW - This is not correct - we should also return KErrNotFound
 
 	m_callback = a_callback;
 
@@ -215,7 +233,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 	/* and specifying smaller values is ignored */
 	m_stdInRead = Open("Console:", MODE_OLDFILE);
 	m_stdOutWrite = Open("PIPE:RADRunner/1024", MODE_NEWFILE);
-	m_stdOutRead = Open("PIPE:RADRunner/1024", MODE_OLDFILE);
+	m_stdOutRead = Open("PIPE:RADRunner/1024", MODE_OLDFILE); // TODO: CAW - How is this used?
 	m_port = CreateMsgPort();
 	m_packet = (DosPacket *) AllocDosObject(DOS_STDPKT, NULL);
 	m_buffer = new char[STDOUT_BUFFER_SIZE];
@@ -256,69 +274,15 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 		close();
 	}
 
-#elif defined(__unix__)
+#elif defined(QT_GUI_LIB)
 
-	(void) a_stackSize;
+	TResult retVal{ KErrNone, 0 };
 
-	TResult retVal{ KErrGeneral, 0 };
+	m_callback = a_callback;
 
-	/* On UNIX systems, there is no way to programmatically capture stderr, but we can redirect it to stdout as a */
-	/* part of command invocation */
-	std::string command = std::string(a_commandName) + " 2>&1";
+	retVal.m_result = m_executer.launchCommand(a_commandName);
 
-	FILE *pipe = popen(command.c_str(), "r");
-
-	if (pipe != nullptr)
-	{
-		char *buffer = new char[STDOUT_BUFFER_SIZE];
-		int exitCode;
-		size_t bytesRead;
-
-		retVal.m_result = KErrNone;
-
-		/* Loop around and read as much from the child's stdout as possible. When the child exits, the pipe will be */
-		/* closed and fread() will fail */
-		do
-		{
-			if ((bytesRead = fread(buffer, 1, (STDOUT_BUFFER_SIZE - 1), pipe)) > 0)
-			{
-				/* NULL terminate and print the child's output, and send it to the client for processing */
-				buffer[bytesRead] = '\0';
-				a_callback(buffer, bytesRead);
-			}
-		}
-		while (bytesRead > 0);
-
-		delete [] buffer;
-
-		exitCode = pclose(pipe);
-
-		/* If the client has exited with a non-zero exit code, convert it to one of The Framework's error codes. */
-		/* The error codes 126 and 127 are not in any header files, but are well-known shell error codes on Unix */
-		if (WIFEXITED(exitCode))
-		{
-			exitCode = (WEXITSTATUS(exitCode));
-
-			/* Exit code 126 means that the file is not in an executable format */
-			if (exitCode == 126)
-			{
-				retVal.m_result = KErrCorrupt;
-			}
-			/* Exit code 127 means that the file was not found */
-			else if (exitCode == 127)
-			{
-				retVal.m_result = KErrNotFound;
-			}
-			else
-			{
-				// TODO: CAW - This logic doesn't seem right, as m_subResult should only be set if the client was
-				//             successfully launched - check all of the logic through here
-				retVal.m_subResult = exitCode;
-			}
-		}
-	}
-
-#else /* ! __unix__ */
+#else /* ! QT_GUI_LIB */
 
 	(void) a_stackSize;
 
@@ -402,12 +366,12 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 		}
 	}
 
-#endif /* ! __unix__ */
+#endif /* ! QT_GUI_LIB */
 
 	return retVal;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /**
  * Launches a child process.
@@ -462,4 +426,4 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	return retVal;
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
