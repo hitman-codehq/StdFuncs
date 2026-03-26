@@ -23,12 +23,12 @@ class RQtFileWatcher : public QObject
 
 private:
 
-	RFileWatcher				&m_parentWatcher;	/**< Reference to framework watcher that uses this Qt watcher */
 	QFileSystemWatcher			m_watcher;			/**< Qt native file watcher class */
 	QMap<QString, QDateTime>	m_files;			/**< List of files in the directory being watched */
 	QMetaObject::Connection		m_connection;		/**< Connection set up by call to QObject::connect() */
 	QString						m_directoryName;	/**< Name of the directory being watched */
 	QString						m_fileName;			/**< Name of the file being watched, if any */
+	RFileWatcher				&m_parentWatcher;	/**< Reference to framework watcher that uses this Qt watcher */
 
 private:
 

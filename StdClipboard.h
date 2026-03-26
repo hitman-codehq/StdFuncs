@@ -6,7 +6,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QtCore/QByteArray>
+#include <QByteArray>
 
 #endif /* QT_GUI_LIB */
 
