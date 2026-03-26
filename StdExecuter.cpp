@@ -8,11 +8,7 @@
 
 #include <dos/dostags.h>
 
-#elif defined(__unix__)
-
-#include <unistd.h>
-
-#endif /* __unix__ */
+#endif /* __amigaos__ */
 
 /* The size of the buffer used for capturing stdout */
 #define STDOUT_BUFFER_SIZE 1024
@@ -148,7 +144,7 @@ void RStdExecuter::read()
 }
 
 /**
- * Process the block of data read from the file system handler.
+ * Process a block of data read from the file system handler.
  * This method is called by the RApplication class when a message is received from the file system handler. It will
  * call the client's callback method and pass it the block of data read, and will kick off another call to read(), to
  * read the next block of data from the file system handler.
@@ -171,7 +167,7 @@ void RStdExecuter::readComplete()
 		{
 			/* NULL terminate and print the child's output, and send it to the client for processing */
 			m_buffer[bytesRead] = '\0';
-			m_callback(m_buffer, bytesRead);
+			m_callback(m_buffer, bytesRead, TResult{KErrNone, 0});
 
 			/* And read the next block of data */
 			read();
@@ -183,7 +179,30 @@ void RStdExecuter::readComplete()
 	}
 }
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+/**
+ * Process a block of data read from the Qt-specific helper.
+ * This method is called by the Qt-specific helper class when data becomes available asynchronously, or when the end
+ * of the file has been reached. It will simply pass the data and result to the client's callback method.
+ *
+ * On a successful read of data, a_buffer will point to the data read, a_size will indicate the size of the data read
+ * in bytes, and a_result.m_result will be KErrNone. When the end of the file is reached, a_buffer will be nullptr,
+ * a_size will be 0, and a_result.m_result will indicate whether the process exited normally or crashed. If the
+ * process exited normally, a_result.m_subResult will contain the exit code of the process.
+ *
+ * @date	Friday 27-Mar-2026 7:01 am, Code HQ Tokyo Tsukuda
+ * @param	a_buffer		Pointer to the buffer containing the data read
+ * @param	a_size			The size of the data read, in bytes
+ * @param	a_result		The result of the read operation
+ */
+
+void RStdExecuter::readComplete(const char *a_buffer, int a_size, const TResult &a_result)
+{
+	m_callback(a_buffer, a_size, a_result);
+}
+
+#endif /* QT_GUI_LIB */
 
 /**
  * Launches a command and streams its output to the client.
@@ -191,23 +210,27 @@ void RStdExecuter::readComplete()
  * of all stdio of the child process that has been launched. It will capture all output from that child process and
  * stream it back to the client that requested the launch.
  *
+ * The command name passed in can be either a full path to the executable, or just the name of the executable. If just
+ * the name is passed in, the system's path will be searched for the executable to be launched.
+ *
  * @date	Monday 15-Feb-2021 7:19 am, Code HQ Bergmannstrasse
  * @param	a_commandName	The name of the command to be launched
- * @param	a_stackSize		The stack size to be used on the target machine
+ * @param	a_stackSize		The stack size to be used on the target machine (Amiga OS only)
  * @param	a_callback		The callback to be called when data is available
  * @return	KErrNone if the command was launched successfully
  * @return	KErrNoMemory if not enough memory was available
  * @return	KErrNotFound if the command executable could not be found
+ * @return	KErrInUse if a command is already being executed
  * @return	KErrGeneral if any other error occurred
  */
 
-TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback)
+int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback)
 {
 
 #ifdef __amigaos__
 
 	ULONG stackSize = a_stackSize > 0 ? a_stackSize : DEFAULT_STACK_SIZE;
-	TResult retVal{ KErrNoMemory, 0 };
+	int retVal = KErrNoMemory; // TODO: CAW - This is not correct - we should also return KErrNotFound
 
 	m_callback = a_callback;
 
@@ -223,6 +246,8 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 	if ((m_stdInRead != 0) && (m_stdOutWrite != 0) && (m_stdOutRead != 0) &&
 		(m_port != nullptr && m_packet != nullptr && m_buffer != nullptr))
 	{
+		// TODO: CAW - ExitFunction needs to send a message to the callback that the process has exited, probably
+		//             by signalling the main message loop
 		int result = SystemTags(a_commandName, SYS_Input, (ULONG) m_stdInRead, SYS_Output, (ULONG) m_stdOutWrite,
 			NP_ExitCode, (ULONG) ExitFunction, NP_ExitData, (ULONG) &m_exitCode, SYS_Asynch, TRUE, NP_StackSize, stackSize,
 			TAG_DONE);
@@ -232,7 +257,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 			/* The shell was launched successfully, but the command specified by the user may not exist. In this */
 			/* case, the shell will print an error and we will capture it in the same way as if the command was */
 			/* executed successfully */
-			retVal.m_result = KErrNone;
+			retVal = KErrNone; // TODO: CAW - Test this when ExitFunction is implemented correctly
 
 			/* Add the executer to the list of active executers, so that the RApplication class can call it when */
 			/* data becomes available */
@@ -247,82 +272,28 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 		}
 		else
 		{
-			retVal.m_result = KErrNotFound;
+			retVal = KErrNotFound;
 		}
 	}
 
-	if (retVal.m_result != KErrNone)
+	if (retVal != KErrNone)
 	{
 		close();
 	}
 
-#elif defined(__unix__)
+#elif defined(QT_GUI_LIB)
 
 	(void) a_stackSize;
 
-	TResult retVal{ KErrGeneral, 0 };
+	m_callback = a_callback;
 
-	/* On UNIX systems, there is no way to programmatically capture stderr, but we can redirect it to stdout as a */
-	/* part of command invocation */
-	std::string command = std::string(a_commandName) + " 2>&1";
+	int retVal = m_executer.launchCommand(a_commandName);
 
-	FILE *pipe = popen(command.c_str(), "r");
-
-	if (pipe != nullptr)
-	{
-		char *buffer = new char[STDOUT_BUFFER_SIZE];
-		int exitCode;
-		size_t bytesRead;
-
-		retVal.m_result = KErrNone;
-
-		/* Loop around and read as much from the child's stdout as possible. When the child exits, the pipe will be */
-		/* closed and fread() will fail */
-		do
-		{
-			if ((bytesRead = fread(buffer, 1, (STDOUT_BUFFER_SIZE - 1), pipe)) > 0)
-			{
-				/* NULL terminate and print the child's output, and send it to the client for processing */
-				buffer[bytesRead] = '\0';
-				a_callback(buffer, bytesRead);
-			}
-		}
-		while (bytesRead > 0);
-
-		delete [] buffer;
-
-		exitCode = pclose(pipe);
-
-		/* If the client has exited with a non-zero exit code, convert it to one of The Framework's error codes. */
-		/* The error codes 126 and 127 are not in any header files, but are well-known shell error codes on Unix */
-		if (WIFEXITED(exitCode))
-		{
-			exitCode = (WEXITSTATUS(exitCode));
-
-			/* Exit code 126 means that the file is not in an executable format */
-			if (exitCode == 126)
-			{
-				retVal.m_result = KErrCorrupt;
-			}
-			/* Exit code 127 means that the file was not found */
-			else if (exitCode == 127)
-			{
-				retVal.m_result = KErrNotFound;
-			}
-			else
-			{
-				// TODO: CAW - This logic doesn't seem right, as m_subResult should only be set if the client was
-				//             successfully launched - check all of the logic through here
-				retVal.m_subResult = exitCode;
-			}
-		}
-	}
-
-#else /* ! __unix__ */
+#elif defined(WIN32)
 
 	(void) a_stackSize;
 
-	TResult retVal{ KErrGeneral, 0 };
+	int retVal = KErrGeneral;
 	SECURITY_ATTRIBUTES securityAttributes;
 
 	/* Set the bInheritHandle flag so pipe handles are inherited by the child, so that it is able to read  to and */
@@ -344,7 +315,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 
 					/* Create the child process. This will read from and write to the pipes we have created, */
 					/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
-					if ((retVal.m_result = createChildProcess(a_commandName, childProcess)) == KErrNone)
+					if ((retVal = createChildProcess(a_commandName, childProcess)) == KErrNone)
 					{
 						char *buffer = new char[STDOUT_BUFFER_SIZE];
 						BOOL success;
@@ -360,7 +331,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 							{
 								/* NULL terminate and print the child's output, and send it to the client for processing */
 								buffer[bytesRead] = '\0';
-								a_callback(buffer, bytesRead);
+								a_callback(buffer, bytesRead, TResult{KErrNone, 0});
 							}
 						}
 						while (success && bytesRead > 0);
@@ -369,7 +340,7 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 
 						if (GetExitCodeProcess(childProcess, &exitCode))
 						{
-							retVal.m_subResult = exitCode;
+							retVal = KErrGeneral;
 						}
 
 						/* And finally, close the handle to the child process now that we have its return code */
@@ -402,12 +373,20 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 		}
 	}
 
-#endif /* ! __unix__ */
+#else /* ! WIN32 */
+
+	(void) a_commandName;
+	(void) a_stackSize;
+	(void) a_callback;
+
+	int retVal = KErrGeneral;
+
+#endif /* ! WIN32 */
 
 	return retVal;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 /**
  * Launches a child process.
@@ -462,4 +441,4 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	return retVal;
 }
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */

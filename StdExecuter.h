@@ -2,6 +2,12 @@
 #ifndef STDEXECUTER_H
 #define STDEXECUTER_H
 
+#ifdef QT_GUI_LIB
+
+#include <Qt/QtExecuter.h>
+
+#endif /* QT_GUI_LIB */
+
 #include <functional>
 
 /**
@@ -25,6 +31,10 @@ class RStdExecuter
 	MsgPort			*m_port;		/**< Message port used to receive messages from DOS Handler */
 	DosPacket		*m_packet;		/**< DOS Packet used to request stdout reads from DOS Handler */
 
+#elif defined(QT_GUI_LIB)
+
+	RQtExecuter		m_executer;		/**< Qt-specific helper class for executing commands and capturing output */
+
 #elif defined(WIN32)
 
 	HANDLE			m_stdInRead;		/**< Handle for reading from stdin (child) */
@@ -37,13 +47,22 @@ class RStdExecuter
 protected:
 
 	/**< Type definition for client callback to invoke when data is received */
-	using Callback = std::function<void(const char *a_buffer, int a_size)>;
+	using Callback = std::function<void(const char *a_buffer, int a_size, const TResult &a_result)>;
 
 	Callback		m_callback;			/**< Client callback to invoke when data is received */
 
 public:
 
+#ifdef QT_GUI_LIB
+
+	RStdExecuter() : m_executer(*this)
+
+#else /* ! QT_GUI_LIB */
+
 	RStdExecuter()
+
+#endif /* ! QT_GUI_LIB */
+
 	{
 
 #ifdef __amigaos__
@@ -54,11 +73,11 @@ public:
 		m_port = nullptr;
 		m_packet = nullptr;
 
-#elif defined(WIN32)
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
 
 		m_stdInRead = m_stdInWrite = m_stdOutRead = m_stdOutWrite;
 
-#endif /* WIN32 */
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 	}
 
@@ -70,7 +89,11 @@ public:
 
 	void readComplete();
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+	void readComplete(const char *a_buffer, int a_size, const TResult &a_result);
+
+#endif /* QT_GUI_LIB */
 
 private:
 
@@ -82,7 +105,7 @@ private:
 
 public:
 
-	TResult launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback);
+	int launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback);
 
 #ifdef __amigaos__
 

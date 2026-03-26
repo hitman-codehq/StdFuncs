@@ -113,6 +113,7 @@ typedef signed long long TInt64;
 #define KErrInvalidVersion	-28
 #define KErrTimeOut			-29
 #define KErrBreak			-30
+#define KErrChildCrashed	-31
 
 /* Useful macros for the WinMain() and main() functions, enabling them to be used */
 /* without #ifdefs in portable code */
