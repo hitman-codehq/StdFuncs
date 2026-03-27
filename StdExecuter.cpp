@@ -114,7 +114,27 @@ void RStdExecuter::close()
 		m_port = nullptr;
 	}
 
-#endif /* ! __amigaos__ */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+	CloseHandle(m_childProcess);
+	m_childProcess = nullptr;
+
+	CloseHandle(m_stdInRead);
+	m_stdInRead = nullptr;
+
+	CloseHandle(m_stdInWrite);
+	m_stdInWrite = nullptr;
+
+	CloseHandle(m_stdOutRead);
+	m_stdOutRead = nullptr;
+
+	CloseHandle(m_stdOutWrite);
+	m_stdOutWrite = nullptr;
+
+	delete[] m_buffer;
+	m_buffer = nullptr;
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 }
 
@@ -224,7 +244,63 @@ void RStdExecuter::readComplete(const char *a_buffer, int a_size, const TResult 
 	m_callback(a_buffer, a_size, a_result);
 }
 
-#endif /* QT_GUI_LIB */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+/**
+ * Process a block of data read by an overlapped ReadFileEx() call.
+ * This method is called by the Windows-specific helper class when data becomes available asynchronously, or when the 
+ * end of the file has been reached. It will simply pass the data and result to the client's callback method.
+ *
+ * @date	Saturday 28-Mar-2026 7:36 am, Code HQ Tokyo Tsukuda
+ * @param	a_errorCode		The error code of the I/O operation
+ * @param	a_size			The number of bytes transferred in the I/O operation
+ */
+
+void RStdExecuter::readComplete(DWORD a_errorCode, int a_size)
+{
+	/* If no error occurred and some data was read, call the client's callback method and start another read for the */
+	/* next block of data */
+	if (a_errorCode == 0 && a_size > 0)
+	{
+		m_buffer[a_size] = '\0';
+		m_callback(m_buffer, a_size, TResult{ KErrNone, 0 });
+
+		if (!ReadFileEx(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), &m_overlapped, readCompletionRoutine))
+		{
+			m_callback(nullptr, 0, TResult{ KErrGeneral, KErrNone });
+			close();
+		}
+	}
+	/* Otherwise the child process has exited, so indicate this to the client */
+	else if (a_errorCode == ERROR_BROKEN_PIPE)
+	{
+		DWORD exitCode = 0;
+
+		GetExitCodeProcess(m_childProcess, &exitCode);
+
+		m_callback(nullptr, 0, TResult{ KErrNone, (int) exitCode });
+		close();
+	}
+}
+
+/**
+ * Callback for when a result from the overlapped I/O is available.
+ * Retrieves a pointer to the RStdExecuter instance that requested the I/O and calls its readCompletion() callback.
+ *
+ * @date	Saturday 28-Mar-2026 7:25 am, Code HQ Tokyo Tsukuda
+ * @param	a_errorCode			The error code of the I/O operation
+ * @param	a_bytesTransferred	The number of bytes transferred in the I/O operation
+ * @param	a_overlapped		Pointer to the OVERLAPPED structure associated with the I/O operation
+ */
+
+VOID CALLBACK RStdExecuter::readCompletionRoutine(DWORD a_errorCode, DWORD a_bytesTransferred, LPOVERLAPPED a_overlapped)
+{
+	RStdExecuter *executer = (RStdExecuter *) a_overlapped->hEvent;
+
+	executer->readComplete(a_errorCode, a_bytesTransferred);
+}
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /**
  * Launches a command and streams its output to the client.
@@ -323,6 +399,8 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 	(void) a_stackSize;
 
+	m_callback = a_callback;
+
 	int retVal = KErrGeneral;
 	SECURITY_ATTRIBUTES securityAttributes;
 
@@ -332,75 +410,47 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 	securityAttributes.bInheritHandle = TRUE;
 	securityAttributes.lpSecurityDescriptor = NULL;
 
+	char pipeName[MAX_PATH];
+	sprintf(pipeName, "\\\\.\\pipe\\BrunelBuild");
+
 	/* Create pipes that can be used for stdin, stdout and stderr */
-	if (CreatePipe(&m_stdOutRead, &m_stdOutWrite, &securityAttributes, 0))
+	m_stdOutRead = CreateNamedPipe(pipeName, PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_WAIT,
+		PIPE_UNLIMITED_INSTANCES, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT, &securityAttributes);
+
+	if (m_stdOutRead != INVALID_HANDLE_VALUE)
 	{
-		if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
+		m_stdOutWrite = CreateFile(pipeName, GENERIC_WRITE, 0, &securityAttributes, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (m_stdOutWrite != INVALID_HANDLE_VALUE)
 		{
-			if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
+			if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
 			{
-				if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
+				if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
 				{
-					HANDLE childProcess;
-
-					/* Create the child process. This will read from and write to the pipes we have created, */
-					/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
-					if ((retVal = createChildProcess(a_commandName, childProcess)) == KErrNone)
+					if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
 					{
-						char *buffer = new char[STDOUT_BUFFER_SIZE];
-						BOOL success;
-						DWORD bytesRead, exitCode;
+						m_overlapped.hEvent = (HANDLE) this;
 
-						/* Loop around and read as much from the child's stdout as possible. When the child exits, */
-						/* the pipe will be closed and ReadFile() will fail */
-						do
+						/* Create the child process. This will read from and write to the pipes we have created, */
+						/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
+						if ((retVal = createChildProcess(a_commandName, m_childProcess)) == KErrNone)
 						{
-							success = ReadFile(m_stdOutRead, buffer, (STDOUT_BUFFER_SIZE - 1), &bytesRead, NULL);
+							m_buffer = new char[STDOUT_BUFFER_SIZE];
 
-							if (success)
+							if (!ReadFileEx(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), &m_overlapped, readCompletionRoutine))
 							{
-								/* NULL terminate and print the child's output, and send it to the client for processing */
-								buffer[bytesRead] = '\0';
-								a_callback(buffer, bytesRead, TResult{KErrNone, 0});
+								retVal = KErrGeneral;
 							}
 						}
-						while (success && bytesRead > 0);
-
-						delete [] buffer;
-
-						if (GetExitCodeProcess(childProcess, &exitCode))
-						{
-							retVal = KErrGeneral;
-						}
-
-						/* And finally, close the handle to the child process now that we have its return code */
-						CloseHandle(childProcess);
 					}
-				}
-
-				/* Ensure that stdin related streams are closed. The read stream may or may not already be closed, */
-				/* depending on the success of prior operations */
-				CloseHandle(m_stdInWrite);
-				m_stdInWrite = nullptr;
-
-				if (m_stdInRead != nullptr)
-				{
-					CloseHandle(m_stdInRead);
-					m_stdInRead = nullptr;
 				}
 			}
 		}
+	}
 
-		/* Ensure that stdout related streams are closed. The write stream may or may not already be closed, */
-		/* depending on the success of prior operations */
-		CloseHandle(m_stdOutRead);
-		m_stdOutRead = nullptr;
-
-		if (m_stdOutWrite != nullptr)
-		{
-			CloseHandle(m_stdOutWrite);
-			m_stdOutWrite = nullptr;
-		}
+	if (retVal != KErrNone)
+	{
+		close();
 	}
 
 #else /* ! WIN32 */
@@ -448,7 +498,7 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	std::string commandName(a_commandName);
 
 	/* Create the requested child process */
-	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &startupInfo, &processInfo))
+	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
 	{
 		retVal = KErrNone;
 		a_childProcess = processInfo.hProcess;

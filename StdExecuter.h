@@ -56,10 +56,13 @@ private:
 
 #elif defined(WIN32)
 
+	char			*m_buffer;			/**< Buffer used to reading stdout data from the child */
+	HANDLE			m_childProcess;		/**< Handle for the child process */
 	HANDLE			m_stdInRead;		/**< Handle for reading from stdin (child) */
 	HANDLE			m_stdInWrite;		/**< Handle for writing to stdin (parent) */
 	HANDLE			m_stdOutRead;		/**< Handle for reading from stdout (parent) */
 	HANDLE			m_stdOutWrite;		/**< Handle for writing to std out (child) */
+	OVERLAPPED		m_overlapped;		/**< Overlapped structure for overlapped I/O */
 
 #endif /* WIN32 */
 
@@ -114,15 +117,21 @@ public:
 
 	void readComplete(const char *a_buffer, int a_size, const TResult &a_result);
 
-#endif /* QT_GUI_LIB */
+#elif defined(WIN32)
+
+	void readComplete(DWORD a_errorCode, int a_size);
+
+#endif /* WIN32 */
 
 private:
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(QT_GUI_LIB)
 
 	int createChildProcess(const char *a_commandName, HANDLE &a_childProcess);
 
-#endif /* WIN32 */
+	static void CALLBACK readCompletionRoutine(DWORD a_errorCode, DWORD a_bytesTransferred, LPOVERLAPPED a_overlapped);
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 public:
 
@@ -139,9 +148,13 @@ public:
 
 #elif defined(WIN32)
 
-		return false;
+	return (m_childProcess != nullptr);
 
-#endif /* WIN32 */
+#else /* ! WIN32 */
+
+	return false;
+
+#endif /* ! WIN32 */
 
 	}
 
