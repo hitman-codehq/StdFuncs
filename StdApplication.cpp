@@ -624,32 +624,48 @@ TInt RApplication::Main()
 
 #elif defined(WIN32)
 
+	bool running = true;
 	MSG Msg;
 
-	/* Standard Windows message loop with accelerator handling */
+	/* We use a modified Windows message loop with accelerator handling. Rather than loop around calling GetMessage(), */
+	/* we call the MsgWaitForMultipleObjectsEx() function with the MWMO_INPUTAVAILABLE flag, which allows us to wait */
+	/* for messages to arrive but also gives the Windows asynchronous system a chance to call APCs and I/O completion */
+	/* routines, which allows The Framework's asynchronous classes to handle processing in the background */
 
-	while (GetMessage(&Msg, NULL, 0, 0) > 0)
+	while (running)
 	{
-		/* Give the Windows asynchronous system a chance to call completion routines */
+		/* Give the Windows asynchronous system a chance to call APCs and I/O completion routines, as well as */
+		/* returning when input is available */
 
-		SleepEx(0, TRUE);
-
-		/* If a modeless dialog is currently active then try to handle any keyboard messages */
-		/* bound for it using the world's stupidest API.  All messages have to be passed to */
-		/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
-		/* dialog's! */
-
-		if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+		if (MsgWaitForMultipleObjectsEx(0, NULL, INFINITE, QS_ALLINPUT, MWMO_ALERTABLE | MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0)
 		{
-			/* No accelerator or dialog message was found so try to translate the accelerator; */
-			/* Windows will handle m_poAccelerators being NULL */
-
-			if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poWindows->m_poAccelerators, &Msg)))
+			while (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
 			{
-				/* Otherwise just perform the standard translation and despatch processing */
+				if (Msg.message == WM_QUIT)
+				{
+					running = false;
 
-				TranslateMessage(&Msg);
-				DispatchMessage(&Msg);
+					break;
+				}
+
+				/* If a modeless dialog is currently active then try to handle any keyboard messages */
+				/* bound for it using the world's stupidest API.  All messages have to be passed to */
+				/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
+				/* dialog's! */
+
+				if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+				{
+					/* No accelerator or dialog message was found so try to translate the accelerator; */
+					/* Windows will handle m_poAccelerators being NULL */
+
+					if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poWindows->m_poAccelerators, &Msg)))
+					{
+						/* Otherwise just perform the standard translation and despatch processing */
+
+						TranslateMessage(&Msg);
+						DispatchMessage(&Msg);
+					}
+				}
 			}
 		}
 	}
