@@ -37,6 +37,7 @@ class RStdExecuter
 
 #elif defined(WIN32)
 
+	char			*m_buffer;			/**< Buffer used to reading stdout data from the child */
 	HANDLE			m_stdInRead;		/**< Handle for reading from stdin (child) */
 	HANDLE			m_stdInWrite;		/**< Handle for writing to stdin (parent) */
 	HANDLE			m_stdOutRead;		/**< Handle for reading from stdout (parent) */
@@ -93,7 +94,11 @@ public:
 
 	void readComplete(const char *a_buffer, int a_size);
 
-#endif /* QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
+
+	void readComplete(int a_size);
+
+#endif /* ! QT_GUI_LIB */
 
 private:
 

@@ -141,6 +141,9 @@ TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 
 /* Written: Monday 08-Feb-2010 6:54 am */
 
+extern HANDLE hReadEvent;
+extern OVERLAPPED overlapped;
+
 TInt RApplication::Main()
 {
 
@@ -624,28 +627,79 @@ TInt RApplication::Main()
 
 	/* Standard Windows message loop with accelerator handling */
 
-	while (GetMessage(&Msg, NULL, 0, 0) > 0)
+	bool running = true;
+	HANDLE handles[1] = { NULL };
+
+	handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	while (running)
+	//while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
 		/* Give the Windows asynchronous system a chance to call completion routines */
 
-		SleepEx(0, TRUE);
+		//SleepEx(0, TRUE);
 
-		/* If a modeless dialog is currently active then try to handle any keyboard messages */
-		/* bound for it using the world's stupidest API.  All messages have to be passed to */
-		/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
-		/* dialog's! */
+		//DWORD numHandles = (hReadEvent != NULL) ? 1 : 0;
+		//handles[0] = hReadEvent != NULL ? hReadEvent : NULL;
 
-		if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+		//DWORD Result = MsgWaitForMultipleObjects(numHandles, numHandles ? handles : NULL, FALSE, INFINITE, QS_ALLINPUT);
+		//Utils::info("Calling MsgWaitForMultipleObjectsEx with numHandles: %u", numHandles);
+		//DWORD Result = MsgWaitForMultipleObjectsEx(1, handles, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
+		DWORD Result = MsgWaitForMultipleObjectsEx(0, NULL, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
+		//Utils::info("numHandles: %u, Result: %u", numHandles, Result);
+
+#if 0
+		//if (Result == WAIT_IO_COMPLETION)
+		//if (numHandles > 0 && Result == WAIT_OBJECT_0)
+		/*if (Result == WAIT_OBJECT_0)
 		{
-			/* No accelerator or dialog message was found so try to translate the accelerator; */
-			/* Windows will handle m_poAccelerators being NULL */
+			//Utils::info("Received I/O completion signal");
+			Utils::info("Completion routine was called");
+			RStdExecuter *executer = (RStdExecuter *) overlapped.hEvent;
 
-			if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poWindows->m_poAccelerators, &Msg)))
+			/* NULL terminate and print the child's output, and send it to the client for processing */
+			executer->readComplete(-1);//dwBytesTransferred);
+		}
+#endif
+		if (Result == WAIT_IO_COMPLETION)
+		{
+			Utils::info("Received I/O completion signal");
+//Utils::info("Completion routine was called");
+			RStdExecuter *executer = (RStdExecuter *) overlapped.hEvent;
+
+			/* NULL terminate and print the child's output, and send it to the client for processing */
+			executer->readComplete(-1);//dwBytesTransferred);
+		}
+		else if (Result == WAIT_OBJECT_0 + 0)// + numHandles)
+		{
+			Utils::info("Peeking messages due to event signal");
+			while (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE) > 0)
+			//if (GetMessage(&Msg, NULL, 0, 0) > 0)
 			{
-				/* Otherwise just perform the standard translation and despatch processing */
+				if (Msg.message == WM_QUIT) // TODO: CAW
+				{
+					running = false;
+					break;
+				}
 
-				TranslateMessage(&Msg);
-				DispatchMessage(&Msg);
+				/* If a modeless dialog is currently active then try to handle any keyboard messages */
+				/* bound for it using the world's stupidest API.  All messages have to be passed to */
+				/* IsDialogMessage() even if their MSG::hwnd member is not the same as that of the */
+				/* dialog's! */
+
+				if ((!(m_poCurrentDialog)) || (!(IsDialogMessage(m_poCurrentDialog, &Msg))))
+				{
+					/* No accelerator or dialog message was found so try to translate the accelerator; */
+					/* Windows will handle m_poAccelerators being NULL */
+
+					if (!(TranslateAccelerator(m_poWindows->m_poWindow, m_poWindows->m_poAccelerators, &Msg)))
+					{
+						/* Otherwise just perform the standard translation and despatch processing */
+
+						TranslateMessage(&Msg);
+						DispatchMessage(&Msg);
+					}
+				}
 			}
 		}
 	}

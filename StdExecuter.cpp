@@ -53,7 +53,46 @@ void ExitFunction(int32_t a_returnCode __asm("d0"), int32_t *a_exitData __asm("d
 	}
 }
 
-#endif /* __amigaos__ */
+#elif defined(WIN32) && !defined(QT_GUI_LIB)
+
+ /**
+  * Short description.
+  * Long multi line description.
+  *
+  * @pre		Some precondition here
+  *
+  * @date	Saturday 28-Mar-2026 7:25 am, Code HQ Tokyo Tsukuda
+  * @param	Parameter		Description
+  * @return	Return value
+  */
+
+VOID CALLBACK ReadCompletionRoutine(
+	DWORD dwErrorCode,
+	DWORD dwBytesTransferred,
+	LPOVERLAPPED lpOverlapped)
+{
+	if (dwErrorCode == 0 && dwBytesTransferred > 0)
+	{
+		Utils::info("*** Got data from child process: %d", dwBytesTransferred);
+		if (dwBytesTransferred > 0)
+		{
+			RStdExecuter *executer = (RStdExecuter *) lpOverlapped->hEvent;
+
+			/* NULL terminate and print the child's output, and send it to the client for processing */
+			executer->readComplete(dwBytesTransferred);
+			//executer->m_buffer[bytesRead] = '\0';
+			//executer->m_callback(executer->m_buffer, bytesRead);
+			/* And read the next block of data */
+			//read();
+		}
+		else
+		{
+			//close();
+		}
+	}
+}
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
 
 /**
  * Frees any resources associated with the class.
@@ -106,6 +145,11 @@ void RStdExecuter::close()
 		DeleteMsgPort(m_port);
 		m_port = nullptr;
 	}
+
+#elif defined(WIN32)
+
+	delete[] m_buffer;
+	m_buffer = nullptr;
 
 #endif /* ! __amigaos__ */
 
@@ -201,7 +245,44 @@ void RStdExecuter::readComplete(const char *a_buffer, int a_size)
 	m_callback(a_buffer, a_size);
 }
 
-#endif /* QT_GUI_LIB */
+#else /* ! QT_GUI_LIB */
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 28-Mar-2026 7:36 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+DWORD bytesRead;
+HANDLE hReadEvent;
+OVERLAPPED overlapped;
+
+void RStdExecuter::readComplete(int a_size) // TODO: CAW - ReadNext flag
+{
+	if (a_size >= 0)
+	{
+		m_buffer[a_size] = '\0';
+		Utils::info("*** Got data from child process: %s", m_buffer);
+		m_callback(m_buffer, a_size);
+	}
+	else
+	{
+		memset(&overlapped, 0, sizeof(overlapped));
+		overlapped.hEvent = (HANDLE) this; // hReadEvent;
+
+		Utils::info("Restarting the fucker");
+		BOOL success = ReadFileEx(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), &overlapped, ReadCompletionRoutine);
+		Utils::info("success: %d", success);
+		//read();
+	}
+}
+
+#endif /* ! QT_GUI_LIB */
 
 /**
  * Launches a command and streams its output to the client.
@@ -276,15 +357,17 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 
 #elif defined(QT_GUI_LIB)
 
-	TResult retVal{ KErrNone, 0 };
-
 	m_callback = a_callback;
+
+	TResult retVal{ KErrNone, 0 };
 
 	retVal.m_result = m_executer.launchCommand(a_commandName);
 
 #else /* ! QT_GUI_LIB */
 
 	(void) a_stackSize;
+
+	m_callback = a_callback;
 
 	TResult retVal{ KErrGeneral, 0 };
 	SECURITY_ATTRIBUTES securityAttributes;
@@ -295,75 +378,128 @@ TResult RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, 
 	securityAttributes.bInheritHandle = TRUE;
 	securityAttributes.lpSecurityDescriptor = NULL;
 
+	char pipeName[MAX_PATH];
+	static LONG pipeId = 0;
+	sprintf(pipeName, "\\\\.\\pipe\\BrunelBuild.%08x.%08x",
+		GetCurrentProcessId(), InterlockedIncrement(&pipeId));
+
 	/* Create pipes that can be used for stdin, stdout and stderr */
+#if 1
 	if (CreatePipe(&m_stdOutRead, &m_stdOutWrite, &securityAttributes, 0))
 	{
-		if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
 		{
-			if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
+#else
+	HANDLE hReadPipe = CreateNamedPipe(
+		pipeName,
+		PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,  // OVERLAPPED is key!
+		PIPE_TYPE_BYTE | PIPE_WAIT,
+		1,              // Max instances
+		4096,              // Out buffer size
+		4096,           // In buffer size
+		INFINITE,              // Timeout
+		&securityAttributes);          // Security
+
+	if (hReadPipe != INVALID_HANDLE_VALUE)
+	{
+		m_stdOutRead = hReadPipe;
+	
+		HANDLE hWritePipe = CreateFile(
+			pipeName,
+			GENERIC_WRITE,
+			0,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,  // Write end doesn't need overlapped
+			NULL);
+
+		if (hWritePipe != INVALID_HANDLE_VALUE)
+		{
+			m_stdOutWrite = hWritePipe;
+#endif
+			//HANDLE hReadPipeAsync;
+			//DuplicateHandle(GetCurrentProcess(), m_stdOutRead, GetCurrentProcess(),
+			//	&hReadPipeAsync, 0, FALSE, DUPLICATE_SAME_ACCESS);
+			//CloseHandle(m_stdOutRead);
+			//m_stdOutRead = hReadPipeAsync;
+
+			//SetHandleInformation(m_stdOutWrite, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0);
+			if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
 			{
-				if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
+				if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
 				{
-					HANDLE childProcess;
-
-					/* Create the child process. This will read from and write to the pipes we have created, */
-					/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
-					if ((retVal.m_result = createChildProcess(a_commandName, childProcess)) == KErrNone)
+					//if (SetHandleInformation(m_stdInRead, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
+					if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
 					{
-						char *buffer = new char[STDOUT_BUFFER_SIZE];
-						BOOL success;
-						DWORD bytesRead, exitCode;
+						hReadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-						/* Loop around and read as much from the child's stdout as possible. When the child exits, */
-						/* the pipe will be closed and ReadFile() will fail */
-						do
+						//OVERLAPPED overlapped = { 0 };
+						overlapped.hEvent = (HANDLE) this; // hReadEvent;
+						//overlapped.hEvent = (HANDLE) hReadEvent;
+
+						HANDLE childProcess;
+
+						/* Create the child process. This will read from and write to the pipes we have created, */
+						/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
+						if ((retVal.m_result = createChildProcess(a_commandName, childProcess)) == KErrNone)
 						{
-							success = ReadFile(m_stdOutRead, buffer, (STDOUT_BUFFER_SIZE - 1), &bytesRead, NULL);
+							m_buffer = new char[STDOUT_BUFFER_SIZE];
+							BOOL success;
+							//DWORD bytesRead, exitCode;
 
-							if (success)
+							/* Loop around and read as much from the child's stdout as possible. When the child exits, */
+							/* the pipe will be closed and ReadFile() will fail */
+							//do
 							{
-								/* NULL terminate and print the child's output, and send it to the client for processing */
-								buffer[bytesRead] = '\0';
-								a_callback(buffer, bytesRead);
+								//success = ReadFile(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), NULL, &overlapped);
+								success = ReadFileEx(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), &overlapped, ReadCompletionRoutine);
+								Utils::info("success: %d, bytesRead: %d", success, bytesRead);
+
+								//if (success)
+								//{
+								//	/* NULL terminate and print the child's output, and send it to the client for processing */
+								//	buffer[bytesRead] = '\0';
+								//	a_callback(buffer, bytesRead);
+								//}
 							}
+							//while (success && bytesRead > 0);
+
+
+							//delete [] buffer;
+
+							//if (GetExitCodeProcess(childProcess, &exitCode))
+							//{
+							//	retVal.m_subResult = exitCode;
+							//}
+
+							/* And finally, close the handle to the child process now that we have its return code */
+							//CloseHandle(childProcess);
 						}
-						while (success && bytesRead > 0);
-
-						delete [] buffer;
-
-						if (GetExitCodeProcess(childProcess, &exitCode))
-						{
-							retVal.m_subResult = exitCode;
-						}
-
-						/* And finally, close the handle to the child process now that we have its return code */
-						CloseHandle(childProcess);
 					}
-				}
 
-				/* Ensure that stdin related streams are closed. The read stream may or may not already be closed, */
-				/* depending on the success of prior operations */
-				CloseHandle(m_stdInWrite);
-				m_stdInWrite = nullptr;
+					/* Ensure that stdin related streams are closed. The read stream may or may not already be closed, */
+					/* depending on the success of prior operations */
+					//CloseHandle(m_stdInWrite);
+					//m_stdInWrite = nullptr;
 
-				if (m_stdInRead != nullptr)
-				{
-					CloseHandle(m_stdInRead);
-					m_stdInRead = nullptr;
+					//if (m_stdInRead != nullptr)
+					//{
+					//	CloseHandle(m_stdInRead);
+					//	m_stdInRead = nullptr;
+					//}
 				}
 			}
 		}
 
 		/* Ensure that stdout related streams are closed. The write stream may or may not already be closed, */
 		/* depending on the success of prior operations */
-		CloseHandle(m_stdOutRead);
-		m_stdOutRead = nullptr;
+		//CloseHandle(m_stdOutRead);
+		//m_stdOutRead = nullptr;
 
-		if (m_stdOutWrite != nullptr)
-		{
-			CloseHandle(m_stdOutWrite);
-			m_stdOutWrite = nullptr;
-		}
+		//if (m_stdOutWrite != nullptr)
+		//{
+		//	CloseHandle(m_stdOutWrite);
+		//	m_stdOutWrite = nullptr;
+		//}
 	}
 
 #endif /* ! QT_GUI_LIB */
