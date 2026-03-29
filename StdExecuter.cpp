@@ -291,7 +291,7 @@ void RStdExecuter::readComplete(int a_size) // TODO: CAW - ReadNext flag
 	{
 		m_buffer[a_size] = '\0';
 		Utils::info("*** Got data from child process: %s", m_buffer);
-		m_callback(m_buffer, a_size);
+		m_callback(m_buffer, a_size, TResult{ KErrNone, 0 });
 	}
 	else
 	{
@@ -415,11 +415,11 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 	char pipeName[MAX_PATH];
 	static LONG pipeId = 0;
-	sprintf(pipeName, "\\\\.\\pipe\\BrunelBuild.%08x.%08x",
-		GetCurrentProcessId(), InterlockedIncrement(&pipeId));
+	sprintf(pipeName, "\\\\.\\pipe\\BrunelBuild");// . %08x. %08x",
+		//GetCurrentProcessId(), InterlockedIncrement(&pipeId));
 
 	/* Create pipes that can be used for stdin, stdout and stderr */
-#if 1
+#if 0
 	if (CreatePipe(&m_stdOutRead, &m_stdOutWrite, &securityAttributes, 0))
 	{
 		{
@@ -428,10 +428,10 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 		pipeName,
 		PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,  // OVERLAPPED is key!
 		PIPE_TYPE_BYTE | PIPE_WAIT,
-		1,              // Max instances
+		PIPE_UNLIMITED_INSTANCES, //1,              // Max instances
 		4096,              // Out buffer size
 		4096,           // In buffer size
-		INFINITE,              // Timeout
+		NMPWAIT_USE_DEFAULT_WAIT,// INFINITE,              // Timeout
 		&securityAttributes);          // Security
 
 	if (hReadPipe != INVALID_HANDLE_VALUE)
@@ -442,14 +442,14 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 			pipeName,
 			GENERIC_WRITE,
 			0,
-			NULL,
+			&securityAttributes,
 			OPEN_EXISTING,
 			FILE_ATTRIBUTE_NORMAL,  // Write end doesn't need overlapped
 			NULL);
 
 		if (hWritePipe != INVALID_HANDLE_VALUE)
 		{
-			m_stdOutWrite = hWritePipe;
+			m_stdOutWrite = hWritePipe; // TODO: CHILD
 #endif
 			//HANDLE hReadPipeAsync;
 			//DuplicateHandle(GetCurrentProcess(), m_stdOutRead, GetCurrentProcess(),
@@ -457,13 +457,13 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 			//CloseHandle(m_stdOutRead);
 			//m_stdOutRead = hReadPipeAsync;
 
-			//SetHandleInformation(m_stdOutWrite, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0);
-			if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
+			//SetHandleInformation(m_stdOutWrite, HANDLE_FLAG_INHERIT, 0);
+			//if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
 			{
 				if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
 				{
-					//if (SetHandleInformation(m_stdInRead, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
-					if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT /* | FILE_FLAG_OVERLAPPED*/, 0))
+					if (SetHandleInformation(m_stdInRead, HANDLE_FLAG_INHERIT, 0))
+					//if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
 					{
 						hReadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
@@ -584,6 +584,11 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	/* Create the requested child process */
 	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &startupInfo, &processInfo))
 	{
+		DWORD fuck;
+		
+		DWORD cunt = GetExitCodeProcess(processInfo.hProcess, &fuck);
+		Utils::info("%d %x", fuck, cunt);
+
 		retVal = KErrNone;
 		a_childProcess = processInfo.hProcess;
 
