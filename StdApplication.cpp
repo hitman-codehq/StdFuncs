@@ -141,8 +141,12 @@ TInt RApplication::open(const struct SStdMenuItem *a_pcoMenuItems)
 
 /* Written: Monday 08-Feb-2010 6:54 am */
 
+#ifdef WIN32
+
 extern HANDLE hReadEvent;
 extern OVERLAPPED overlapped;
+
+#endif /* WIN32*/
 
 TInt RApplication::Main()
 {
@@ -420,6 +424,8 @@ TInt RApplication::Main()
 
 							/* Scan through the key mappings and find the one that has just been pressed */
 
+							Utils::info("%x", Code);
+
 							for (Index = 0; Index < (TInt) NUM_KEYMAPPINGS; ++Index)
 							{
 								if (g_aoKeyMap[Index].m_iNativeKey == Code)
@@ -630,7 +636,8 @@ TInt RApplication::Main()
 	bool running = true;
 	HANDLE handles[1] = { NULL };
 
-	handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	//handles[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	//DWORD numHandles = 1;
 
 	while (running)
 	//while (GetMessage(&Msg, NULL, 0, 0) > 0)
@@ -639,13 +646,13 @@ TInt RApplication::Main()
 
 		//SleepEx(0, TRUE);
 
-		//DWORD numHandles = (hReadEvent != NULL) ? 1 : 0;
-		//handles[0] = hReadEvent != NULL ? hReadEvent : NULL;
+		DWORD numHandles = (hReadEvent != NULL) ? 1 : 0;
+		handles[0] = hReadEvent != NULL ? hReadEvent : NULL;
 
 		//DWORD Result = MsgWaitForMultipleObjects(numHandles, numHandles ? handles : NULL, FALSE, INFINITE, QS_ALLINPUT);
 		//Utils::info("Calling MsgWaitForMultipleObjectsEx with numHandles: %u", numHandles);
-		//DWORD Result = MsgWaitForMultipleObjectsEx(1, handles, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
-		DWORD Result = MsgWaitForMultipleObjectsEx(0, NULL, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
+		DWORD Result = MsgWaitForMultipleObjectsEx(numHandles, handles, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
+		//DWORD Result = MsgWaitForMultipleObjectsEx(0, NULL, /*FALSE,*/ INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
 		//Utils::info("numHandles: %u, Result: %u", numHandles, Result);
 
 #if 0
@@ -670,7 +677,7 @@ TInt RApplication::Main()
 			/* NULL terminate and print the child's output, and send it to the client for processing */
 			executer->readComplete(-1);//dwBytesTransferred);
 		}
-		else if (Result == WAIT_OBJECT_0 + 0)// + numHandles)
+		else if (Result == WAIT_OBJECT_0 + numHandles)
 		{
 			Utils::info("Peeking messages due to event signal");
 			while (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE) > 0)
