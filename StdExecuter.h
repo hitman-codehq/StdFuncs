@@ -19,11 +19,30 @@
 
 class RStdExecuter
 {
+public:
+
+#ifdef __amigaos__
+
+	/**
+	 * Structure used to return the result of an asynchronous launch.
+	 * Contains information that can be used when a command that has been asynchronously launched has completed, to
+	 * signal the calling process that the command has completed and to provide the exit code of the command.
+	 */
+	struct SExitData
+	{
+		int32_t		m_exitCode;		/**< The exit code of the child process */
+		ULONG		m_sigBit;		/**< Signal bit used to send exit message to parent process */
+		Task		*m_parentTask;	/**< Task to which the signal should be sent */
+	};
+
+#endif /* __amigaos__ */
+
+private:
 
 #ifdef __amigaos__
 
 	char			*m_buffer;		/**< Buffer used to reading stdout data from the child */
-	int32_t			m_exitCode;		/**< Exit code of the child process */
+	SExitData		m_exitData;		/**< Exit data information for the child process */
 	ULONG			m_signal;		/**< Signal used to wait for messages from the DOS Handler */
 	BPTR			m_stdInRead;	/**< Handle for reading from stdin (child) */
 	BPTR			m_stdOutRead;	/**< Handle for reading from stdout (parent) */
@@ -67,6 +86,8 @@ public:
 
 #ifdef __amigaos__
 
+		m_exitData = {0, (ULONG) -1, nullptr};
+
 		m_buffer = nullptr;
 		m_signal = 0;
 		m_stdInRead = m_stdOutRead = m_stdOutWrite = 0;
@@ -87,7 +108,7 @@ public:
 
 	void read();
 
-	void readComplete();
+	void readComplete(bool a_dataAvailable);
 
 #elif defined(QT_GUI_LIB)
 
@@ -112,6 +133,11 @@ public:
 	ULONG getSignal()
 	{
 		return m_signal;
+	}
+
+	ULONG getCompletionSignal()
+	{
+		return 1 << m_exitData.m_sigBit;
 	}
 
 #endif /* __amigaos__ */

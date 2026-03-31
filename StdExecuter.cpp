@@ -23,30 +23,34 @@
  *
  * @date	Friday 10-Nov-2023 6:00 am, Code HQ Tokyo Tsukuda
  * @param	a_returnCode	The return code of the child process
- * @param	a_exitData		Pointer to an integer into which to write the client's exit code
+ * @param	a_exitData		Pointer to a structure containing exit data for the child process
  */
 
 #ifdef __amigaos4__
 
-void ExitFunction(int32_t a_returnCode, int32_t *a_exitData)
+void ExitFunction(int32_t a_returnCode, RStdExecuter::SExitData *a_exitData)
 {
-	*a_exitData = a_returnCode;
+	a_exitData->m_exitCode = a_returnCode;
+
+	Signal(a_exitData->m_parentTask, (1L << a_exitData->m_sigBit));
 }
 
 #elif defined(__amigaos__)
 
-void ExitFunction(int32_t a_returnCode __asm("d0"), int32_t *a_exitData __asm("d1"))
+void ExitFunction(int32_t a_returnCode __asm("d0"), RStdExecuter::SExitData *a_exitData __asm("d1"))
 {
 	CommandLineInterface *cli = Cli();
 
 	if (cli != nullptr)
 	{
-		*a_exitData = cli->cli_ReturnCode;
+		a_exitData->m_exitCode = cli->cli_ReturnCode;
 	}
 	else
 	{
-		*a_exitData = a_returnCode;
+		a_exitData->m_exitCode = a_returnCode;
 	}
+
+	Signal(a_exitData->m_parentTask, (1L << a_exitData->m_sigBit));
 }
 
 #endif /* __amigaos__ */
@@ -67,6 +71,13 @@ void RStdExecuter::close()
 
 	/* Remove this executer from the list of active executers */
 	CWindow::GetRootWindow()->GetApplication()->RemoveExecuter(this);
+
+	/* Free the signal used for waiting for the child process to exit, and reset the exit data structure members */
+	FreeSignal(m_exitData.m_sigBit);
+
+	m_exitData.m_exitCode = 0;
+	m_exitData.m_sigBit = (ULONG) -1;
+	m_exitData.m_parentTask = nullptr;
 
 	delete [] m_buffer;
 	m_buffer = nullptr;
@@ -153,29 +164,40 @@ void RStdExecuter::read()
  * this executer from the list of active executers. The class instance can then be reused by calling open() again.
  *
  * @date	Saturday 01-Nov-2025 6:36 am, Code HQ Tokyo Tsukuda
+ * @param	a_dataAvailable		True if data is available to read, or false if the child process has exited
  */
 
-void RStdExecuter::readComplete()
+void RStdExecuter::readComplete(bool a_dataAvailable)
 {
-	struct Message *Message;
-
-	if ((Message = GetMsg(m_port)) != nullptr)
+	/* If data is available then read it and pass it onto the client */
+	if (a_dataAvailable)
 	{
-		int bytesRead = m_packet->dp_Res1;
+		struct Message *Message;
 
-		if (bytesRead > 0)
+		if ((Message = GetMsg(m_port)) != nullptr)
 		{
-			/* NULL terminate and print the child's output, and send it to the client for processing */
-			m_buffer[bytesRead] = '\0';
-			m_callback(m_buffer, bytesRead, TResult{KErrNone, 0});
+			int bytesRead = m_packet->dp_Res1;
 
-			/* And read the next block of data */
-			read();
+			if (bytesRead > 0)
+			{
+				/* NULL terminate and print the child's output, and send it to the client for processing */
+				m_buffer[bytesRead] = '\0';
+				m_callback(m_buffer, bytesRead, TResult{KErrNone, 0});
+
+				/* And read the next block of data */
+				read();
+			}
+			else
+			{
+				close();
+			}
 		}
-		else
-		{
-			close();
-		}
+	}
+	/* Otherwise the child process has exited, so indicate this to the client */
+	else
+	{
+		m_callback(nullptr, 0, TResult{KErrNone, m_exitData.m_exitCode});
+		close();
 	}
 }
 
@@ -230,7 +252,7 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 #ifdef __amigaos__
 
 	ULONG stackSize = a_stackSize > 0 ? a_stackSize : DEFAULT_STACK_SIZE;
-	int retVal = KErrNoMemory; // TODO: CAW - This is not correct - we should also return KErrNotFound
+	int retVal = KErrNoMemory;
 
 	m_callback = a_callback;
 
@@ -246,10 +268,12 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 	if ((m_stdInRead != 0) && (m_stdOutWrite != 0) && (m_stdOutRead != 0) &&
 		(m_port != nullptr && m_packet != nullptr && m_buffer != nullptr))
 	{
-		// TODO: CAW - ExitFunction needs to send a message to the callback that the process has exited, probably
-		//             by signalling the main message loop
+		m_exitData.m_exitCode = 0;
+		m_exitData.m_sigBit = AllocSignal(-1);
+		m_exitData.m_parentTask = FindTask(nullptr);
+
 		int result = SystemTags(a_commandName, SYS_Input, (ULONG) m_stdInRead, SYS_Output, (ULONG) m_stdOutWrite,
-			NP_ExitCode, (ULONG) ExitFunction, NP_ExitData, (ULONG) &m_exitCode, SYS_Asynch, TRUE, NP_StackSize, stackSize,
+			NP_ExitCode, (ULONG) ExitFunction, NP_ExitData, (ULONG) &m_exitData, SYS_Asynch, TRUE, NP_StackSize, stackSize,
 			TAG_DONE);
 
 		if (result == 0)
@@ -257,7 +281,7 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 			/* The shell was launched successfully, but the command specified by the user may not exist. In this */
 			/* case, the shell will print an error and we will capture it in the same way as if the command was */
 			/* executed successfully */
-			retVal = KErrNone; // TODO: CAW - Test this when ExitFunction is implemented correctly
+			retVal = KErrNone;
 
 			/* Add the executer to the list of active executers, so that the RApplication class can call it when */
 			/* data becomes available */
