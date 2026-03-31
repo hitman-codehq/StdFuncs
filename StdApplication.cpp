@@ -181,9 +181,13 @@ TInt RApplication::Main()
 
 		for (auto Executer : m_oExecuters)
 		{
-			if (Signal & Executer->getSignal())
+			if (Signal & Executer->getCompletionSignal())
 			{
-				Executer->readComplete();
+				Executer->readComplete(false);
+			}
+			else if (Signal & Executer->getSignal())
+			{
+				Executer->readComplete(true);
 			}
 		}
 
@@ -699,7 +703,7 @@ void RApplication::AddExecuter(RStdExecuter *a_poExecuter)
 
 	/* And add the new executer's signal bit to the list of signals that the application waits on */
 
-	m_ulExecuterSignals |= a_poExecuter->getSignal();
+	m_ulExecuterSignals |= a_poExecuter->getSignal() | a_poExecuter->getCompletionSignal();
 
 #endif /* __amigaos__ */
 
@@ -798,7 +802,7 @@ void RApplication::RemoveExecuter(RStdExecuter *a_poExecuter)
 
 	/* And remove the old executer's signal bit from the list of signals that the application waits on */
 
-	m_ulExecuterSignals &= ~a_poExecuter->getSignal();
+	m_ulExecuterSignals &= ~(a_poExecuter->getSignal() | a_poExecuter->getCompletionSignal());
 
 #endif /* __amigaos__ */
 
