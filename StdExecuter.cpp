@@ -254,7 +254,6 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 	/* Only launch the command if a command is not already running */
 	if (m_stdOutRead != 0)
 	{
-		Utils::info("RStdExecuter::launchCommand() => Command is already running");
 		return KErrInUse;
 	}
 

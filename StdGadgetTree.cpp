@@ -368,6 +368,7 @@ void CStdGadgetTree::getSelectedItem(int a_column, std::string *a_text, uint32_t
 
 #else /* ! QT_GUI_LIB */
 
+	(void) a_column;
 	(void) a_text;
 
 	if (a_userData != nullptr)
