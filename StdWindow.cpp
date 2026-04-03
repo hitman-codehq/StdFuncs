@@ -3203,17 +3203,15 @@ TBool CWindow::ShiftPressed()
 void CWindow::Update()
 {
 
-#ifdef __amigaos__
-
-#elif defined(QT_GUI_LIB)
+#ifdef QT_GUI_LIB
 
 	GetRootWindow()->m_poWindow->update();
 
-#else /* ! QT_GUI_LIB */
+#elif defined(WIN32)
 
-	ASSERTM(RedrawWindow(m_poWindow, NULL, NULL, RDW_ERASE | RDW_INVALIDATE), "CWindow::Update() => Unable to update window");
+	DEBUGCHECK(RedrawWindow(m_poWindow, NULL, NULL, RDW_ERASE | RDW_INVALIDATE), "CWindow::Update() => Unable to update window");
 
-#endif /* ! QT_GUI_LIB */
+#endif /* ! WIN32 */
 
 }
 
