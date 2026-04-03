@@ -251,6 +251,13 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 #ifdef __amigaos__
 
+	/* Only launch the command if a command is not already running */
+	if (m_stdOutRead != 0)
+	{
+		Utils::info("RStdExecuter::launchCommand() => Command is already running");
+		return KErrInUse;
+	}
+
 	ULONG stackSize = a_stackSize > 0 ? a_stackSize : DEFAULT_STACK_SIZE;
 	int retVal = KErrNoMemory;
 
@@ -288,8 +295,8 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 			m_signal = 1 << m_port->mp_SigBit;
 			CWindow::GetRootWindow()->GetApplication()->AddExecuter(this);
 
-			/* The stdInRead and stdOutRead handles are closed by the asynchronous call to SystemTags() when */
-			/* the child process exits, but we need to close the stdOutWrite handle ourselves */
+			/* The m_stdInRead and m_stdOutWrite handles are closed by the asynchronous call to SystemTags() when */
+			/* the child process exits, but we need to close the m_stdOutRead handle ourselves */
 			m_stdInRead = m_stdOutWrite = 0;
 
 			read();
