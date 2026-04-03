@@ -27,6 +27,11 @@ public:
 
 	RQtExecuter(RStdExecuter &a_parentExecuter) : m_process(nullptr), m_parentExecuter(a_parentExecuter) { }
 
+	bool isRunning() const
+	{
+		return (m_process != nullptr);
+	}
+
 	int launchCommand(const char *a_commandName);
 };
 

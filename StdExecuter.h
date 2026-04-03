@@ -126,6 +126,25 @@ private:
 
 public:
 
+	bool isRunning() const
+	{
+
+#ifdef __amigaos__
+
+	return (m_stdOutRead != 0);
+
+#elif defined(QT_GUI_LIB)
+
+	return m_executer.isRunning();
+
+#elif defined(WIN32)
+
+		return false;
+
+#endif /* WIN32 */
+
+	}
+
 	int launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback);
 
 #ifdef __amigaos__
