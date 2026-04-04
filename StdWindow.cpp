@@ -2607,9 +2607,9 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	/* will be opened maximised. Otherwise, if we are opening on a second screen, take into account that the */
 	/* screen may be larger than the main screen and open the window non maximised, with the same size as the */
 	/* main screen, with the top left of the window at the location of the mouse pointer */
-	if (TargetScreen != Screens[0])
+	if (TargetScreen != nullptr && TargetScreen != Screens[0])
 	{
-		QRect ScreenRect = TargetScreen->availableGeometry();
+		QRect ScreenRect = TargetScreen->availableGeometry(); // TODO: CAW - Sometimes crashing
 
 		/* If the target screen is smaller than the window, resize the window to be the same size */
 		if (WindowSize.width() > ScreenRect.width() || WindowSize.height() > ScreenRect.height())
