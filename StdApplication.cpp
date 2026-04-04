@@ -683,7 +683,7 @@ TInt RApplication::Main()
 		}
 		else if (Result == WAIT_OBJECT_0 + numHandles)
 		{
-			Utils::info("Peeking messages due to event signal");
+			//Utils::info("Peeking messages due to event signal");
 			while (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE) > 0)
 			//if (GetMessage(&Msg, NULL, 0, 0) > 0)
 			{

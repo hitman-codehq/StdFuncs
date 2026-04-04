@@ -302,6 +302,13 @@ void RStdExecuter::readComplete(int a_size) // TODO: CAW - ReadNext flag
 		BOOL success = ReadFileEx(m_stdOutRead, m_buffer, (STDOUT_BUFFER_SIZE - 1), &overlapped, ReadCompletionRoutine);
 		Utils::info("success: %d", success);
 		//read();
+
+		if (!success)
+		{
+			//Utils::Error("Failed to read from child process: %d", Utils::MapLastError());
+			m_callback(nullptr, 0, TResult{ KErrNone, KErrNone /*m_exitData.m_exitCode*/});
+			close();
+		}
 	}
 }
 
@@ -404,6 +411,8 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 	(void) a_stackSize;
 
+	m_callback = a_callback;
+
 	int retVal = KErrGeneral;
 	SECURITY_ATTRIBUTES securityAttributes;
 
@@ -458,12 +467,12 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 			//m_stdOutRead = hReadPipeAsync;
 
 			//SetHandleInformation(m_stdOutWrite, HANDLE_FLAG_INHERIT, 0);
-			//if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
+			if (SetHandleInformation(m_stdOutRead, HANDLE_FLAG_INHERIT, 0))
 			{
 				if (CreatePipe(&m_stdInRead, &m_stdInWrite, &securityAttributes, 0))
 				{
-					if (SetHandleInformation(m_stdInRead, HANDLE_FLAG_INHERIT, 0))
-					//if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
+					//if (SetHandleInformation(m_stdInRead, HANDLE_FLAG_INHERIT, 0))
+					if (SetHandleInformation(m_stdInWrite, HANDLE_FLAG_INHERIT, 0))
 					{
 						hReadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
@@ -582,7 +591,7 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	std::string commandName(a_commandName);
 
 	/* Create the requested child process */
-	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &startupInfo, &processInfo))
+	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
 	{
 		DWORD fuck;
 		
