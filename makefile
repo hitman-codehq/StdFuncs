@@ -14,7 +14,7 @@ endif
 
 ifdef DEBUG
 	OBJ = Debug
-	CFLAGS += -gstabs -O0 -D_DEBUG -DMUNGWALL_NO_LINE_TRACKING
+	CFLAGS += -g -O0 -D_DEBUG -DMUNGWALL_NO_LINE_TRACKING
 else
 	OBJ = Release
 	CFLAGS += -O2
