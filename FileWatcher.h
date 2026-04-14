@@ -80,6 +80,19 @@ public:
 class RFileWatcher : public RFileWatcherObject
 {
 
+#if defined(WIN32) && !defined(QT_GUI_LIB)
+
+	/**
+	 * A structure for use when an OVERLAPPED structure is required, and when we want to save state associated with
+	 * that structure.
+	 */
+	struct SOverlapped : public OVERLAPPED
+	{
+		RFileWatcher	*m_fileWatcher;		/**< Pointer to the associated RFileWatcher object */
+	};
+
+#endif /* defined(WIN32) && !defined(QT_GUI_LIB) */
+
 #ifdef __amigaos__
 
 	RAmiFileWatcher		m_watcher;			/**< Amiga-specific helper class for file system monitoring */
@@ -92,7 +105,8 @@ class RFileWatcher : public RFileWatcherObject
 
 	BYTE				m_buffer[8192];		/**< Buffer for file change notification information */
 	HANDLE				m_changeHandle = INVALID_HANDLE_VALUE;	/**< Handle to the directory being watched */
-	OVERLAPPED			m_overlapped;		/**< OVERLAPPED structure passed to ReadDirectoryChangesW() */
+	HANDLE				m_stopEvent = INVALID_HANDLE_VALUE;		/**< Event used by the completion routine to indicate shutdown */
+	SOverlapped			m_overlapped;		/**< OVERLAPPED structure passed to ReadDirectoryChangesW() */
 	std::string			m_directoryName;	/**< Name of the directory being watched */
 	std::string			m_fileName;			/**< Name of the file being watched */
 
