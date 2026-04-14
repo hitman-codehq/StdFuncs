@@ -39,15 +39,23 @@ void RFileWatcher::changed(const std::string &a_directoryName, const std::string
 
 void CALLBACK RFileWatcher::completionRoutine(DWORD a_errorCode, DWORD a_bytesTransfered, LPOVERLAPPED a_overlapped)
 {
+	SOverlapped *overlapped = reinterpret_cast<SOverlapped *>(a_overlapped);
+	RFileWatcher *self = overlapped->m_fileWatcher;
+
+	if (a_errorCode == ERROR_OPERATION_ABORTED)
+	{
+		/* Signal stopWatching() that we are truly done, as it will be waiting for any pending notifications to */
+		/* complete before it returns. */
+		SetEvent(self->m_stopEvent);
+	}
 	/* The Windows file watching API does not handle the situation of the buffer being too small very well. If it is */
 	/* too small, notifications will be lost and there is no way to recover. So just check that some data was actually */
 	/* received and handle whatever we get */
-	if (a_errorCode == ERROR_SUCCESS && a_bytesTransfered > 0)
+	else if (a_errorCode == ERROR_SUCCESS && a_bytesTransfered > 0)
 	{
 		char fileName[MAX_PATH];
 		int length;
 		DWORD offset = 0;
-		RFileWatcher *self = reinterpret_cast<RFileWatcher *>(a_overlapped->hEvent);
 		FILE_NOTIFY_INFORMATION *info = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(self->m_buffer);
 
 		/* Iterate through the notifications that were received, check their type and call the generic watcher callback */
@@ -236,14 +244,30 @@ void RFileWatcher::stopWatching()
 
 		m_watcher.stopWatching();
 
-#elif defined(QT_GUI_LIB)
+#elif defined(WIN32)
 
-		m_watcher.stopWatching();
-
-#elif !defined(__unix__)
-
+		/* If a watch has been queued with ReadDirectoryChangesW(), cancel it and wait for the callback to complete */
+		/* before returning. This is necessary to prevent Windows from accessing any resources associated with this */
+		/* callback after stopWatching() has returned */
 		if (m_changeHandle != INVALID_HANDLE_VALUE)
 		{
+			BOOL bCancelled = CancelIoEx(m_changeHandle, nullptr);
+
+			if (bCancelled || GetLastError() == ERROR_NOT_FOUND)
+			{
+				m_stopEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+
+				if (m_stopEvent != nullptr)
+				{
+					/* Enter an alertable wait until the completion routine fires and signals m_stopEvent */
+					while (WaitForSingleObjectEx(m_stopEvent, INFINITE, TRUE) != WAIT_OBJECT_0) { }
+
+					CloseHandle(m_stopEvent);
+				}
+
+				m_stopEvent = INVALID_HANDLE_VALUE;
+			}
+
 			CloseHandle(m_changeHandle);
 			m_changeHandle = INVALID_HANDLE_VALUE;
 		}
@@ -251,7 +275,7 @@ void RFileWatcher::stopWatching()
 		m_directoryName.clear();
 		m_fileName.clear();
 
-#endif /* ! __unix__ */
+#endif /* WIN32 */
 
 	}
 
@@ -274,8 +298,8 @@ bool RFileWatcher::watchDirectory()
 {
 	ZeroMemory(&m_overlapped, sizeof(m_overlapped));
 
-	/* Stash "this" in hEvent so we can retrieve it inside the completion routine */
-	m_overlapped.hEvent = this;
+	/* Stash "this" in the overlapped structure so we can retrieve it inside the completion routine */
+	m_overlapped.m_fileWatcher = this;
 
 	/* We want to watch for adds, deletes, renames and modifications */
 	return ReadDirectoryChangesW(m_changeHandle, m_buffer, sizeof(m_buffer), FALSE,
