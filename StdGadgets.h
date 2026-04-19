@@ -29,13 +29,17 @@ class QLabel;
 class QWidget;
 struct ColumnInfo;
 
-#ifdef __amigaos__
-
 /* A typedef to make usage of the map of item lists easier */
+
+#ifdef __amigaos__
 
 typedef std::map<int, List> ItemsMap;
 
-#endif /* __amigaos__ */
+#elif defined(QT_GUI_LIB)
+
+typedef std::map<int, QList<QTreeWidgetItem *>> ItemsMap;
+
+#endif /* QT_GUI_LIB */
 
 /* Types of gadgets that can be created */
 
@@ -470,8 +474,8 @@ class CStdGadgetTree : public CStdGadget
 
 #elif defined(QT_GUI_LIB)
 
-	CQtGadgetTree							m_tree;		/**< Helper class for listening for signals */
-	std::map<int, QList<QTreeWidgetItem *>>	m_itemsMap;	/**< Map of the lists of items that can be displayed by the tree */
+	CQtGadgetTree	m_tree;				/**< Helper class for listening for signals */
+	ItemsMap		m_itemsMap;			/**< Map of the lists of items that can be displayed by the tree */
 
 #endif /* QT_GUI_LIB */
 

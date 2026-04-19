@@ -11,12 +11,13 @@
  *
  * @date	Friday 27-Mar-2026 6:13 am, Code HQ Tokyo Tsukuda
  * @param	a_commandName	The name of the command to be launched
+ * @param	a_arguments		The arguments to be passed to the command, or nullptr if no arguments
  * @return	KErrNone if the command was launched successfully
  * @return	KErrNotFound if the command could not be found
  * @return	KErrInUse if a command is already being executed
  */
 
-int RQtExecuter::launchCommand(const char *a_commandName)
+int RQtExecuter::launchCommand(const char *a_commandName, const char *a_arguments)
 {
 	/* Only launch the command if a command is not already running */
 	if (m_process != nullptr)
@@ -31,8 +32,17 @@ int RQtExecuter::launchCommand(const char *a_commandName)
 	connect(m_process, &QProcess::readyReadStandardError, this, &RQtExecuter::onReadyRead);
 	connect(m_process, &QProcess::finished, this, &RQtExecuter::onFinished);
 
+	/* Append any arguments passed in onto the command line */
+	QStringList arguments;
+
+	if (a_arguments != nullptr)
+	{
+		QString argsStr(a_arguments);
+		arguments = argsStr.split(' ', Qt::SkipEmptyParts);
+	}
+
 	/* Start the process asynchronously and wait for it to actually start */
-	m_process->start(a_commandName);
+	m_process->start(a_commandName, arguments);
 
 	if (m_process->waitForStarted())
 	{
