@@ -32,7 +32,7 @@ public:
 		return (m_process != nullptr);
 	}
 
-	int launchCommand(const char *a_commandName);
+	int launchCommand(const char *a_commandName, const char *a_arguments);
 };
 
 #endif /* ! QTEXECUTER_H */

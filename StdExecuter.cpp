@@ -248,7 +248,7 @@ void RStdExecuter::readComplete(const char *a_buffer, int a_size, const TResult 
 
 /**
  * Process a block of data read by an overlapped ReadFileEx() call.
- * This method is called by the Windows-specific helper class when data becomes available asynchronously, or when the 
+ * This method is called by the Windows-specific helper class when data becomes available asynchronously, or when the
  * end of the file has been reached. It will simply pass the data and result to the client's callback method.
  *
  * @date	Saturday 28-Mar-2026 7:36 am, Code HQ Tokyo Tsukuda
@@ -313,6 +313,7 @@ VOID CALLBACK RStdExecuter::readCompletionRoutine(DWORD a_errorCode, DWORD a_byt
  *
  * @date	Monday 15-Feb-2021 7:19 am, Code HQ Bergmannstrasse
  * @param	a_commandName	The name of the command to be launched
+ * @param	a_arguments		The arguments to be passed to the command, or nullptr if no arguments
  * @param	a_stackSize		The stack size to be used on the target machine (Amiga OS only)
  * @param	a_callback		The callback to be called when data is available
  * @return	KErrNone if the command was launched successfully
@@ -322,8 +323,9 @@ VOID CALLBACK RStdExecuter::readCompletionRoutine(DWORD a_errorCode, DWORD a_byt
  * @return	KErrGeneral if any other error occurred
  */
 
-int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback)
+int RStdExecuter::launchCommand(const char *a_commandName, const char *a_arguments, int a_stackSize, Callback a_callback)
 {
+	ASSERTM((a_commandName != nullptr), "Command name must not be NULL");
 
 #ifdef __amigaos__
 
@@ -354,7 +356,16 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 		m_exitData.m_sigBit = AllocSignal(-1);
 		m_exitData.m_parentTask = FindTask(nullptr);
 
-		int result = SystemTags(a_commandName, SYS_Input, (ULONG) m_stdInRead, SYS_Output, (ULONG) m_stdOutWrite,
+		/* Append any arguments passed in onto the command line */
+		std::string commandLine(a_commandName);
+
+		if (a_arguments != nullptr)
+		{
+			commandLine += " ";
+			commandLine += a_arguments;
+		}
+
+		int result = SystemTags(commandLine.c_str(), SYS_Input, (ULONG) m_stdInRead, SYS_Output, (ULONG) m_stdOutWrite,
 			NP_ExitCode, (ULONG) ExitFunction, NP_ExitData, (ULONG) &m_exitData, SYS_Asynch, TRUE, NP_StackSize, stackSize,
 			TAG_DONE);
 
@@ -393,7 +404,7 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 	m_callback = a_callback;
 
-	int retVal = m_executer.launchCommand(a_commandName);
+	int retVal = m_executer.launchCommand(a_commandName, a_arguments);
 
 #elif defined(WIN32)
 
@@ -433,7 +444,7 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
 
 						/* Create the child process. This will read from and write to the pipes we have created, */
 						/* and upon exit will close its end of the pipes, so that we can detect that it has exited */
-						if ((retVal = createChildProcess(a_commandName, m_childProcess)) == KErrNone)
+						if ((retVal = createChildProcess(a_commandName, a_arguments, m_childProcess)) == KErrNone)
 						{
 							m_buffer = new char[STDOUT_BUFFER_SIZE];
 
@@ -475,11 +486,12 @@ int RStdExecuter::launchCommand(const char *a_commandName, int a_stackSize, Call
  *
  * @date	Monday 15-Feb-2021 7:19 am, Code HQ Bergmannstrasse
  * @param	a_commandName	The name of the command to be launched
+ * @param	a_arguments		The arguments to be passed to the command, or nullptr if no arguments
  * @return	KErrNone if the command was launched successfully
  * @return	KErrNotFound if the command executable could not be found
  */
 
-int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childProcess)
+int RStdExecuter::createChildProcess(const char *a_commandName, const char *a_arguments, HANDLE &a_childProcess)
 {
 	int retVal;
 	PROCESS_INFORMATION processInfo;
@@ -495,10 +507,17 @@ int RStdExecuter::createChildProcess(const char *a_commandName, HANDLE &a_childP
 	startupInfo.hStdInput = m_stdInRead;
 	startupInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-	std::string commandName(a_commandName);
+	/* Append any arguments passed in onto the command line */
+	std::string commandLine(a_commandName);
+
+	if (a_arguments != nullptr)
+	{
+		commandLine += " ";
+		commandLine += a_arguments;
+	}
 
 	/* Create the requested child process */
-	if (CreateProcess(NULL, (char *) commandName.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
+	if (CreateProcess(NULL, (char *) commandLine.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
 	{
 		retVal = KErrNone;
 		a_childProcess = processInfo.hProcess;

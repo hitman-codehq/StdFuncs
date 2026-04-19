@@ -127,7 +127,7 @@ private:
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
-	int createChildProcess(const char *a_commandName, HANDLE &a_childProcess);
+	int createChildProcess(const char *a_commandName, const char *a_arguments, HANDLE &a_childProcess);
 
 	static void CALLBACK readCompletionRoutine(DWORD a_errorCode, DWORD a_bytesTransferred, LPOVERLAPPED a_overlapped);
 
@@ -158,7 +158,7 @@ public:
 
 	}
 
-	int launchCommand(const char *a_commandName, int a_stackSize, Callback a_callback);
+	int launchCommand(const char *a_commandName, const char *a_arguments, int a_stackSize, Callback a_callback);
 
 #ifdef __amigaos__
 
