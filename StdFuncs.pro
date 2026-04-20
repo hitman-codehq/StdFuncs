@@ -7,6 +7,7 @@ QT += core5compat
 
 # Some tricks to get rid of most of the contents of the largish .eh_frame section
 gcc:QMAKE_CXXFLAGS += -fno-asynchronous-unwind-tables
+win32-msvc:DEFINES += _CRT_SECURE_NO_WARNINGS
 
 build_pass:CONFIG(debug, debug|release) {
 	DEFINES += _DEBUG
