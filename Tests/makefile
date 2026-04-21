@@ -39,7 +39,7 @@ ifdef PREFIX
 	endif
 endif
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDLIST) $(T_STDTEXTFILE) \
+EXECUTABLES = $(T_ARGS) $(T_CHARCONVERTER) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDLIST) $(T_STDTEXTFILE) \
 	$(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
 
 ifdef PREFIX
@@ -49,6 +49,8 @@ EXECUTABLES += $(T_OS4SUPPORT)
 endif
 
 T_ARGS = $(OBJ)/T_Args
+
+T_CHARCONVERTER = $(OBJ)/T_CharConverter
 
 T_CONFIGFILE = $(OBJ)/T_ConfigFile
 
@@ -75,6 +77,8 @@ T_UTILS = $(OBJ)/T_Utils
 T_WILDCARD = $(OBJ)/T_Wildcard
 
 T_ARGS_OBJECTS = $(OBJ)/T_Args.o
+
+T_CHARCONVERTER_OBJECTS = $(OBJ)/T_CharConverter.o
 
 T_CONFIGFILE_OBJECTS = $(OBJ)/T_ConfigFile.o
 
@@ -108,6 +112,11 @@ $(OBJ):
 $(T_ARGS): $(T_ARGS_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_ARGS_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
+
+$(T_CHARCONVERTER): $(T_CHARCONVERTER_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_CHARCONVERTER_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
 	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_CONFIGFILE): $(T_CONFIGFILE_OBJECTS) ../$(OBJ)/libStdFuncs.a
