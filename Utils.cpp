@@ -2903,6 +2903,53 @@ char *Utils::ResolveProgDirName(const char *a_pccFileName)
 }
 
 /**
+ * Changes to the specified directory.
+ * Sets the current directory to the directory specified by a_directory.  The path passed in can be relative or
+ * absolute.
+ *
+ * @date	Wednesday 20-May-2026 5:34 am, Code HQ Tokyo Tsukuda
+ * @return	KErrNone if successful
+ * @return	KErrNotFound if the directory could not be found
+ */
+
+int Utils::setCurrentDirectory(const std::string &a_directory)
+{
+	int retVal;
+
+#ifdef __amigaos__
+
+	BPTR lock = Lock(a_directory.c_str(), ACCESS_READ);
+
+	if (lock != 0)
+	{
+		retVal = KErrNone;
+		BPTR oldLock = CurrentDir(lock);
+
+		/* To prevent the old lock from leaking, we must close it, and our new lock will become the current one */
+		if (oldLock != 0)
+		{
+			UnLock(oldLock);
+		}
+	}
+	else
+	{
+		retVal = KErrNotFound;
+	}
+
+#elif defined(__unix__)
+
+	retVal = (chdir(a_directory.c_str()) == 0) ? KErrNone : KErrNotFound;
+
+#else /* ! __unix__ */
+
+	retVal = (SetCurrentDirectory(a_directory.c_str()) != 0) ? KErrNone : KErrNotFound;
+
+#endif /* ! __unix__ */
+
+	return retVal;
+}
+
+/**
  * Removes write protection from a file.
  * Makes the file specified by the a_pccFileName parameter deleteable.  This is done in a slightly
  * different manner on different platfoms.  On Amiga OS it clears the 'd' bit.  On UNIX it sets
