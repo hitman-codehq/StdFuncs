@@ -52,6 +52,7 @@ void RefreshSetGadgetAttrs(struct Gadget *a_gadget, struct Window *a_window, str
 
 /* Functions pointlessly renamed in OS4 but still compatible with their OS3 equivalents */
 
+#define CurrentDir(lock) SetCurrentDir(lock)
 #define GetCurrentDirName(buffer, length) GetCliCurrentDirName(buffer, length)
 
 #ifndef Seek

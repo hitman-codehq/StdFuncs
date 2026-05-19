@@ -104,6 +104,8 @@ public:
 
 	static char *ResolveProgDirName(const char *a_pccFileName);
 
+	static int setCurrentDirectory(const std::string &a_directory);
+
 	static TInt SetDeleteable(const char *a_pccFileName);
 
 	static TInt setFileDate(const char *a_pccFileName, const TEntry &a_roEntry, TBool a_bResolveLink = ETrue);
