@@ -50,6 +50,10 @@ int RQtExecuter::launchCommand(const char *a_commandName, const char *a_argument
 	}
 	else
 	{
+		/* Delete the QProcess object, to indicate that the launch failed */
+		delete m_process;
+		m_process = nullptr;
+
 		return KErrNotFound;
 	}
 }
