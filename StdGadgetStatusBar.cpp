@@ -3,6 +3,7 @@
 #include <string.h>
 #include "StdGadgets.h"
 #include "StdReaction.h"
+#include "StdTheme.h"
 #include "StdWindow.h"
 
 #ifdef __amigaos__
@@ -156,16 +157,31 @@ TInt CStdGadgetStatusBar::Construct(TInt a_iNumParts, TInt *a_piPartsOffsets)
 		/* Create a style sheet and assign it to the status bar, to ensure that it looks */
 		/* half decent and is actually usable.  Without this it is almost invisible! */
 
-		QString styleSheet = "\
-			QStatusBar {\
-				background : #f2f1f0;\
-			}\
-			\
-			QStatusBar::item {\
-				border : 1px solid #c9c6c3;\
-				border-radius: 3px;\
-			}\
-		";
+		QString styleSheet;
+		RStdTheme stdTheme;
+
+		// TODO: CAW - This also needs to be done for other borders such as the file list, should use values
+		//             from Brunel.ini and should be performed on theme change
+		if (stdTheme.lightTheme())
+		{
+			styleSheet = "\
+				QStatusBar {\
+					background : #f2f1f0;\
+				}\
+				\
+				QStatusBar::item {\
+					border : 1px solid #c9c6c3;\
+					border-radius: 3px;\
+				}";
+		}
+		else
+		{
+			styleSheet = "\
+				QStatusBar::item {\
+					border : 1px solid;\
+					border-radius: 3px;\
+			}";
+		}
 
 		StatusBar->setStyleSheet(styleSheet);
 

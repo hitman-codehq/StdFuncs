@@ -5,6 +5,7 @@
 #include "QtWindow.h"
 #include <QLocale>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QStyleHints>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 
@@ -37,10 +38,8 @@ static const SKeyMapping g_aoKeyMap[] =
  */
 
 CQtWindow::CQtWindow(CWindow *a_poWindow, QPoint &a_roPosition, QSize &a_roSize)
+	: m_poWindow(a_poWindow), m_oSize(a_roSize), m_oCurrentScheme(Qt::ColorScheme::Unknown)
 {
-	m_poWindow = a_poWindow;
-	m_oSize = a_roSize;
-
 	move(a_roPosition);
 	resize(a_roSize);
 
@@ -247,6 +246,36 @@ void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
 	if ((X >= 0) && (Y >= 0))
 	{
 		m_poWindow->HandlePointerEvent(X, Y, MouseEvent);
+	}
+}
+
+/**
+ * Qt helper function to capture OS colour theme change events.
+ * This function is called whenever the OS's colour theme changes, for example from a dark to a light theme.
+ *
+ * @date	Friday 12-Jun-2026 6:42 am, Code HQ Tokyo Tsukuda
+ * @param	a_poEvent		Pointer to structure containing information for handling the event
+ */
+
+void CQtWindow::changeEvent(QEvent *a_event)
+{
+	QMainWindow::changeEvent(a_event);
+
+	/* Check whether this is a layout engine change or a palette modification */
+	if (a_event->type() == QEvent::ThemeChange || a_event->type() == QEvent::PaletteChange)
+	{
+		Qt::ColorScheme activeScheme = QGuiApplication::styleHints()->colorScheme();
+
+		/* Some operating systems will send multiple change events, so we only need to handle the first one. */
+		/* We keep a track of the current scheme so we can ignore duplicate events */
+		if (m_oCurrentScheme == activeScheme)
+		{
+			return;
+		}
+
+		/* The theme has actually changed, so save it for later and call the client callback */
+		m_oCurrentScheme = activeScheme;
+		m_poWindow->ThemeChanged();
 	}
 }
 

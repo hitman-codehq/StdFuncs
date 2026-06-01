@@ -620,6 +620,15 @@ TInt RApplication::Main()
 
 #elif defined(QT_GUI_LIB)
 
+#ifdef WIN32
+
+	/* For Windows, we have to set the Style to "Fusion", or the default "Windowsvista" will have trouble switching */
+	/* between light and dark OS colour themes */
+
+	m_poApplication->setStyle("Fusion");
+
+#endif /* WIN32 */
+
 	m_poApplication->exec();
 
 #elif defined(WIN32)

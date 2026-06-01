@@ -467,6 +467,7 @@ int RStdExecuter::launchCommand(const char *a_commandName, const char *a_argumen
 #else /* ! WIN32 */
 
 	(void) a_commandName;
+	(void) a_arguments;
 	(void) a_stackSize;
 	(void) a_callback;
 

@@ -121,6 +121,8 @@ public:
 
 	int PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength);
 
+	void setColours(const COLORREF *a_colours);
+
 	void SetHighlight(TBool a_bHighlight);
 
 	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);
