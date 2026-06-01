@@ -235,6 +235,7 @@
     <ClCompile Include="StdSocket.cpp" />
     <ClCompile Include="StdStringList.cpp" />
     <ClCompile Include="StdTextFile.cpp" />
+    <ClCompile Include="StdTheme.cpp" />
     <ClCompile Include="StdTime.cpp" />
     <ClCompile Include="StdWildcard.cpp" />
     <ClCompile Include="StdWindow.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="StdSocket.h" />
     <ClInclude Include="StdStringList.h" />
     <ClInclude Include="StdTextFile.h" />
+    <ClInclude Include="StdTheme.h" />
     <ClInclude Include="StdTime.h" />
     <ClInclude Include="StdWildcard.h" />
     <ClInclude Include="StdWindow.h" />

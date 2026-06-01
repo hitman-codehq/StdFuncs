@@ -2,6 +2,7 @@
 #include "StdFuncs.h"
 #include "StdApplication.h"
 #include "StdGadgets.h"
+#include "StdTheme.h"
 #include "StdWindow.h"
 #include <ctype.h>
 #include <string.h>
@@ -2641,6 +2642,13 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 
 	if ((m_poWindow = new CQtWindow(this, WindowPosition, WindowSize)) != NULL)
 	{
+		RStdTheme StdTheme;
+
+		if (!StdTheme.lightTheme())
+		{
+			QApplication::setStyle("fusion");
+		}
+
 		/* Install an event filter so that we receive notifications about events such as window resizing */
 
 		m_poWindow->installEventFilter(m_poWindow);
@@ -2743,7 +2751,12 @@ TInt CWindow::open(const char *a_pccTitle, const char *a_pccScreenName, TBool a_
 	WndClass.hInstance = Instance;
 	WndClass.hIcon = LoadIcon(Instance, MAKEINTRESOURCE(107));
 	WndClass.hCursor = LoadCursor (0, IDC_ARROW);
-	WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+	//WndClass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+	COLORREF bgColor = GetSysColor(COLOR_WINDOW);
+	HBRUSH hBrush = CreateSolidBrush(RGB(32, 32, 32));
+		//bgColor);
+	WndClass.hbrBackground = hBrush;
+
 	WndClass.lpszMenuName = MAKEINTRESOURCE(101);
 	WndClass.lpszClassName = a_pccTitle;
 

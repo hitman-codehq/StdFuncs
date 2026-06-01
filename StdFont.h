@@ -121,6 +121,9 @@ public:
 
 	int PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength);
 
+	// TODO: CAW - Number of colours in a_colours?
+	void setColours(const COLORREF *a_colours);
+
 	void SetHighlight(TBool a_bHighlight);
 
 	void SetDrawingRect(TInt a_iXOffset, TInt a_iYOffset, TInt a_iWidth, TInt a_iHeight);

@@ -3,7 +3,7 @@ TARGET = StdFuncs
 TEMPLATE = lib
 CONFIG += debug_and_release staticlib warn_on
 CONFIG -= rtti
-QT += core5compat
+QT += core5compat widgets
 
 # Some tricks to get rid of most of the contents of the largish .eh_frame section
 gcc:QMAKE_CXXFLAGS += -fno-asynchronous-unwind-tables
@@ -31,7 +31,7 @@ SOURCES += Args.cpp Dir.cpp File.cpp FileUtils.cpp FileWatcher.cpp Lex.cpp MungW
 	StdApplication.cpp StdCharConverter.cpp StdClipboard.cpp StdConfigFile.cpp StdCRC.cpp StdDialog.cpp StdExecuter.cpp \
 	StdFileRequester.cpp StdFont.cpp StdGadgets.cpp StdGadgetLayout.cpp StdGadgetSlider.cpp StdGadgetStatusBar.cpp \
 	StdGadgetTabPane.cpp StdGadgetTree.cpp StdImage.cpp StdPool.cpp StdRendezvous.cpp StdSocket.cpp StdStringList.cpp \
-	StdTextFile.cpp StdTime.cpp StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
+	StdTextFile.cpp StdTheme.cpp StdTime.cpp StdWildcard.cpp StdWindow.cpp Test.cpp Utils.cpp
 
 SOURCES += Qt/QtAction.cpp Qt/QtExecuter.cpp Qt/QtFileWatcher.cpp Qt/QtGadgetSlider.cpp Qt/QtGadgetTree.cpp \
 	Qt/QtLocalSocket.cpp Qt/QtWindow.cpp
@@ -39,8 +39,8 @@ SOURCES += Qt/QtAction.cpp Qt/QtExecuter.cpp Qt/QtFileWatcher.cpp Qt/QtGadgetSli
 HEADERS += Args.h Dir.h File.h FileUtils.h FileWatcher.h Lex.h MungWall.h RemoteDir.h RemoteFactory.h RemoteFile.h \
 	RemoteFileUtils.h RemoteFileWatcher.h StdApplication.h StdCharConverter.h StdClipboard.h StdConfigFile.h StdDialog.h \
 	StdExecuter.h StdFileRequester.h StdFont.h StdFuncs.h StdGadgets.h StdGadgetTabPane.h StdImage.h StdList.h StdPool.h \
-	StdReaction.h StdRendezvous.h StdSocket.h StdStringList.h StdTextFile.h StdTime.h StdWildcard.h StdWindow.h Test.h \
-	Utils.h
+	StdReaction.h StdRendezvous.h StdSocket.h StdStringList.h StdTextFile.h StdTheme.h StdTime.h StdWildcard.h StdWindow.h \
+	Test.h Utils.h
 
 HEADERS += Qt/QtAction.h Qt/QtExecuter.h Qt/QtFileWatcher.h Qt/QtGadgetSlider.h Qt/QtGadgetTree.h Qt/QtLocalSocket.h \
 	Qt/QtWindow.h

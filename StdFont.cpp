@@ -22,7 +22,8 @@
 /* Colours that can be printed by RFont::DrawColouredText().  This must match */
 /* STDFONT_NUM_COLOURS in StdFont.h */
 
-static const COLORREF g_acoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
+// TODO: CAW - For now, have one set of colours for all RFont instances
+static /*const*/ COLORREF g_acoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -391,8 +392,8 @@ TInt RFont::open(TInt a_iSize, const char *a_pccName)
 
 		/* Save the background and text colours for l8r use */
 
-		m_oBackground = GetBkColor(m_poWindow->m_poDC);
-		m_oText = GetTextColor(m_poWindow->m_poDC);
+		m_oBackground = RGB(32, 32, 32); // GetBkColor(m_poWindow->m_poDC);
+		m_oText = RGB(255, 255, 255); // GetTextColor(m_poWindow->m_poDC);
 	}
 	else
 	{
@@ -517,6 +518,11 @@ TInt RFont::Begin()
 	if (RetVal == KErrNone)
 	{
 		m_bBeginCalled = ETrue;
+
+		/* Set the text and background colours to their default as these are held by the operating system and may have */
+		/* changed during a previous use of the RFont class */
+
+		SetHighlight(EFalse);
 	}
 
 #endif /* _DEBUG */
@@ -820,6 +826,7 @@ void RFont::DrawText(const char *a_pccText, TInt a_iSize, TInt a_iX, TInt a_iY, 
 	{
 		if ((WideLength = MultiByteToWideChar(CodePage, 0, a_pccText, a_iSize, m_pwcWideBuffer, m_iWideBufferLength)) > 0)
 		{
+			//SetBkColor(m_poWindow->m_poDC, RGB(32, 32, 32));
 			TextOutW(m_poWindow->m_poDC, (m_iXOffset + a_iX), (m_iYOffset + (a_iY * m_iHeight)), m_pwcWideBuffer, WideLength);
 		}
 	}
@@ -1043,6 +1050,11 @@ void RFont::DrawColouredText(const char *a_pccText, TInt a_iStartOffset, TInt a_
 	/* Iterate through the source text and display the runs of characters in the required colour */
 
 	std::string LineText;
+
+	//if (!(m_bHighlight))
+	{
+		//SetBkColor(m_poWindow->m_poDC, RGB(32, 32, 32));
+	}
 
 	while (*a_pccText)
 	{
@@ -1272,6 +1284,27 @@ int RFont::PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength)
 #endif /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
 
 	return(RetVal);
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Wednesday 27-May-2026 1:54 pm, on board Jetstar flight JQ TODO from Tokyo to Naha
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void RFont::setColours(const COLORREF *a_colours)
+{
+	//ASSERTM((a_numColours == STDFONT_NUM_COLOURS), "RFont::setColours() => Incorrect number of colours passed in");
+
+	for (int index = 0; index < STDFONT_NUM_COLOURS; ++index)
+	{
+		g_acoColours[index] = a_colours[index];
+	}
 }
 
 /* Written: Saturday 21-Aug-2010 8:27 pm */

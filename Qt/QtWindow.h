@@ -23,6 +23,7 @@ private:
 	bool		m_bClosing;		/**< true if in the window is in the process of being closed */
 	CWindow		*m_poWindow;	/**< Ptr to framework window represented by this Qt window */
 	QSize		m_oSize;		/**< Preferred size of the non maximised window */
+	Qt::ColorScheme	m_oCurrentScheme = Qt::ColorScheme::Unknown;
 
 private:
 
@@ -33,6 +34,8 @@ private:
 protected:
 
 	/* From QMainWindow */
+
+	void changeEvent(QEvent *a_event) override;
 
 	void closeEvent(QCloseEvent *a_poCloseEvent) override;
 

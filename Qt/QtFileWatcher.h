@@ -30,7 +30,7 @@ private:
 	QString						m_fileName;			/**< Name of the file being watched, if any */
 	RFileWatcher				&m_parentWatcher;	/**< Reference to framework watcher that uses this Qt watcher */
 
-private:
+private slots:
 
 	void changed();
 

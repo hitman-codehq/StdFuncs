@@ -309,6 +309,8 @@ public:
 
 	virtual void Resize(TInt /*a_iOldInnerWidth*/, TInt /*a_iOldInnerHeight*/) { }
 
+	virtual void ThemeChanged() { }
+
 	/* RApplication and CStdGadgetLayout classes need to be able to access this class's internals */
 	/* in order to link windows into the window list and manage the gadgets' positions etc. */
 

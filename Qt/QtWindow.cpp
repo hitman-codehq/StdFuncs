@@ -3,8 +3,10 @@
 #include "../StdWindow.h"
 #include "QtAction.h"
 #include "QtWindow.h"
+#include <QEvent>
 #include <QLocale>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QStyleHints>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 
@@ -247,6 +249,41 @@ void CQtWindow::HandlePointerEvent(QMouseEvent *a_poMouseEvent)
 	if ((X >= 0) && (Y >= 0))
 	{
 		m_poWindow->HandlePointerEvent(X, Y, MouseEvent);
+	}
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Friday 12-Jun-2026 6:42 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void CQtWindow::changeEvent(QEvent *a_event)
+{
+	QMainWindow::changeEvent(a_event);
+
+	// Handles both layout engine changes and palette modifications safely
+	if (a_event->type() == QEvent::ThemeChange) // || a_event->type() == QEvent::PaletteChange)
+	{
+		Qt::ColorScheme activeScheme = QGuiApplication::styleHints()->colorScheme();
+
+		// Ignore duplicate events if the scheme has not actually changed
+		if (m_oCurrentScheme == activeScheme)
+		{
+			Utils::info("Theme changed, but already changed!");
+			return;
+		}
+
+		m_oCurrentScheme = activeScheme;
+
+		Utils::info("Theme changed!");
+		//onThemeChanged();
+		m_poWindow->ThemeChanged();
 	}
 }
 
