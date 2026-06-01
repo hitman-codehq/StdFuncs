@@ -19,10 +19,10 @@
 
 #endif /* QT_GUI_LIB */
 
-/* Colours that can be printed by RFont::DrawColouredText().  This must match */
-/* STDFONT_NUM_COLOURS in StdFont.h */
+/* Colours that can be printed by RFont::DrawColouredText().  This must match STDFONT_NUM_COLOURS in StdFont.h. */
+/* These colours can be changed and, when changed, apply to all instances of the RFont class */
 
-static const COLORREF g_acoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
+static COLORREF g_acoColours[] = { RGB(0, 0, 0), RGB(163, 21, 21), RGB(0, 128, 0), RGB(0, 0, 255) };
 
 #if defined(WIN32) && !defined(QT_GUI_LIB)
 
@@ -517,6 +517,11 @@ TInt RFont::Begin()
 	if (RetVal == KErrNone)
 	{
 		m_bBeginCalled = ETrue;
+
+		/* Set the text and background colours to their default as these are held by the operating system and may have */
+		/* changed during a previous use of the RFont class */
+
+		SetHighlight(EFalse);
 	}
 
 #endif /* _DEBUG */
@@ -1272,6 +1277,25 @@ int RFont::PixelToOffset(const char *a_pccText, int a_iPixelX, int a_iLength)
 #endif /* ! defined(QT_GUI_LIB) && defined(__APPLE__) */
 
 	return(RetVal);
+}
+
+/**
+ * Set the colours for all instances of the RFont class.
+ * Sets the colours to be used for all instances of the RFont class. The colours are specified as an array of COLORREF
+ * values, and the number of colours passed in must be equal to STDFONT_NUM_COLOURS. There are no check that this is
+ * actually the case. Each colour in the array passed in replaces the corresponding colour in the global array, and
+ * they are still indexed by the usual STDFONT_BLACK etc. indices.
+ *
+ * @date	Wednesday 27-May-2026 1:54 pm, on board Jetstar flight GK335 from Tokyo to Naha
+ * @param	a_colours		Array of colours to be used for all instances of the RFont class
+ */
+
+void RFont::setColours(const COLORREF *a_colours)
+{
+	for (int index = 0; index < STDFONT_NUM_COLOURS; ++index)
+	{
+		g_acoColours[index] = a_colours[index];
+	}
 }
 
 /* Written: Saturday 21-Aug-2010 8:27 pm */
