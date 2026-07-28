@@ -10,6 +10,8 @@
 
 #include <sys/socket.h>
 
+#define INVALID_SOCKET -1
+
 typedef int SOCKET;
 
 #else /* ! defined(__unix__) || defined(__amigaos__) */
@@ -48,7 +50,7 @@ private:
 	static int	m_useCount;		/**< Number of times the socket has been opened */
 
 #endif /* WIN32 */
-		
+
 	SOCKET	m_serverSocket;		/**< The socket on which to listen for connections */
 
 public:
@@ -57,7 +59,7 @@ public:
 
 private:
 
-	int connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout);
+	int _connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout);
 
 	int setBlocking(bool a_blocking);
 
@@ -65,26 +67,29 @@ public:
 
 	RSocket();
 
-	~RSocket()
+	virtual ~RSocket()
 	{
 		close();
 	}
 
-	int open(const char* a_host, unsigned short a_port);
+	int open(const char *a_host, unsigned short a_port);
 
 	void close();
 
-	int accept();
+	static void _shutdown();
+
+	int _accept();
 
 	bool isOpen();
 
-	int listen(unsigned short a_port);
+	int _listen(unsigned short a_port);
 
-	int read(void* a_buffer, int a_size, bool a_readAll = true);
+	virtual int read(void *a_buffer, int a_size, bool a_readAll = true);
 
-	int write(const void* a_buffer, int a_size);
+	// TODO: CAW - I don't like this. Check size with and without virtual
+	virtual int write(const void *a_buffer, int a_size);
 
-	int write(const char* a_buffer);
+	int write(const char *a_buffer);
 };
 
 #endif /* ! STDSOCKET_H */

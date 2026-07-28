@@ -21,6 +21,16 @@ int RSocket::m_useCount;
 
 #endif /* ! defined(__unix__) || defined(__amigaos__) */
 
+#ifdef __amigaos__
+
+#include <proto/socket.h>
+
+struct Library *SocketBase;
+
+#define select(nfds, r, w, e, t) WaitSelect(nfds, r, w, e, t, 0)
+
+#endif /* __amigaos__ */
+
 /**
  * Typeinfo workaround.
  * This is a workaround for Amiga GCC 6.5.0b.  In order to catch an exception that is derived from the
@@ -63,7 +73,7 @@ RSocket::RSocket()
  * @return	KErrGeneral if some other unexpected error occurred
  */
 
-int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout)
+int RSocket::_connect(const struct sockaddr *a_address, socklen_t a_addressLength, int timeout)
 {
 	int retVal = KErrGeneral;
 
@@ -71,7 +81,7 @@ int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength
 	if (setBlocking(false) == KErrNone)
 	{
 		/* Try to connect and ensure that the connection either succeeded immediately or would block */
-		if (::connect(m_socket, a_address, a_addressLength) == 0)
+		if (connect(m_socket, a_address, a_addressLength) == 0)
 		{
 			retVal = KErrNone;
 		}
@@ -92,13 +102,26 @@ int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength
 
 			{
 				fd_set descriptors;
-				struct timeval timeVal;
 
 				/* Wait for the connection to succeed, or for the attempt to timeout */
 				FD_ZERO(&descriptors);
 				FD_SET(m_socket, &descriptors);
+
+#ifdef __amigaos4__
+
+				struct TimeVal timeVal;
+
+				timeVal.Seconds = timeout;
+				timeVal.Microseconds = 0;
+
+#else /* ! __amigaos4__ */
+
+				struct timeval timeVal;
+
 				timeVal.tv_sec = timeout;
 				timeVal.tv_usec = 0;
+
+#endif /* ! __amigaos4__ */
 
 				int result = select(static_cast<int>(m_socket + 1), nullptr, &descriptors, nullptr, &timeVal);
 
@@ -136,6 +159,8 @@ int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength
  * be either a host name such as codehq.org or an IP address.  If no host is specified, the socket will be
  * opened in a state suitable for listening.
  *
+ * @pre		Socket must not already be open
+ *
  * @date	Saturday 11-Feb-2017 4:37 pm, Code HQ Habersaathstrasse
  * @param	a_host			The name of the host, an IP address or NULL
  * @param	a_port			The port to which to connect
@@ -147,13 +172,23 @@ int RSocket::connect(const struct sockaddr *a_address, socklen_t a_addressLength
 
 int RSocket::open(const char *a_host, unsigned short a_port)
 {
+	ASSERTM((!isOpen()), "RSocket::open() => Socket is already open");
+
 	int retVal = KErrGeneral;
 
 	struct hostent *hostEnt;
 	struct in_addr *inAddr;
 	struct sockaddr_in sockAddr;
 
-#ifdef WIN32
+	// TODO: CAW - I think this is the correct order
+#ifdef __amigaos__
+
+	if (SocketBase == nullptr)
+	{
+		SocketBase = OpenLibrary("bsdsocket.library", 4);
+	}
+
+#elif defined(WIN32)
 
 	WSAData wsaData;
 
@@ -180,7 +215,7 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 				sockAddr.sin_port = htons(a_port);
 				sockAddr.sin_addr = *inAddr;
 
-				if (RSocket::connect((struct sockaddr *) &sockAddr, sizeof(sockAddr), 5) == KErrNone)
+				if (RSocket::_connect((struct sockaddr *) &sockAddr, sizeof(sockAddr), 5) == KErrNone)
 				{
 					retVal = KErrNone;
 				}
@@ -202,7 +237,7 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 			/* immediately reopened for the next client connection */
 			struct linger Linger = { 1, 0 };
 
-			if (setsockopt(m_socket, SOL_SOCKET, SO_LINGER, (const char *) &Linger, sizeof(Linger)) == 0)
+			if (setsockopt(m_socket, SOL_SOCKET, SO_LINGER, (const char *) & Linger, sizeof(Linger)) == 0)
 			{
 				retVal = KErrNone;
 			}
@@ -245,7 +280,15 @@ void RSocket::close()
 		m_serverSocket = INVALID_SOCKET;
 	}
 
-#ifdef WIN32
+#ifdef __amigaos__
+
+	if (SocketBase != nullptr)
+	{
+		//CloseLibrary(SocketBase);
+		//SocketBase = nullptr;
+	}
+
+#elif defined(WIN32)
 
 	if (socketUsed)
 	{
@@ -256,6 +299,32 @@ void RSocket::close()
 	}
 
 #endif /* WIN32 */
+
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Tuesday 27-Oct-2026 6:38 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+void RSocket::_shutdown()
+{
+
+#ifdef __amigaos__
+
+	if (SocketBase != nullptr)
+	{
+		CloseLibrary(SocketBase);
+		SocketBase = nullptr;
+	}
+
+#endif /* __amigaos__ */
 
 }
 
@@ -272,7 +341,7 @@ void RSocket::close()
  * @return 	KErrGeneral if any other error occurred
  */
 
-int RSocket::accept()
+int RSocket::_accept()
 {
 	int retVal;
 	socklen_t clientSize;
@@ -281,7 +350,7 @@ int RSocket::accept()
 	ASSERTM((m_serverSocket != INVALID_SOCKET), "RSocket::accept() => Socket is not in listening state")
 
 	clientSize = sizeof(client);
-	m_socket = ::accept(m_serverSocket, (struct sockaddr*) &client, &clientSize);
+	m_socket = accept(m_serverSocket, (struct sockaddr*) &client, &clientSize);
 
 	if (m_socket != INVALID_SOCKET)
 	{
@@ -321,7 +390,7 @@ bool RSocket::isOpen()
  * @return	KErrNone if successful, otherwise KErrGeneral
  */
 
-int RSocket::listen(unsigned short a_port)
+int RSocket::_listen(unsigned short a_port)
 {
 	int retVal = KErrGeneral;
 
@@ -335,7 +404,7 @@ int RSocket::listen(unsigned short a_port)
 
 	if (bind(m_socket, (struct sockaddr *) &server, sizeof(server)) != SOCKET_ERROR)
 	{
-		if (::listen(m_socket, 1) == 0)
+		if (listen(m_socket, 1) == 0)
 		{
 			retVal = KErrNone;
 

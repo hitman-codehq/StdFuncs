@@ -90,6 +90,7 @@ public:
 
 #elif defined(WIN32)
 
+	// TODO: CAW - Huh? ../StdFuncs/StdImage.h:93:2: warning: type qualifiers ignored on function return type [-Wignored-qualifiers]
 	const HBITMAP Bitmap() const
 	{
 		return(m_poBitmap);

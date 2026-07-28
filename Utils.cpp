@@ -3277,6 +3277,7 @@ int Utils::splitHost(const char *a_host, std::string &a_server, unsigned short &
 				}
 				else
 				{
+					// TODO: CAW - Can we printf() this somewhere? Otherwise it fails silently
 					Utils::info("Utils::splitURL() => Specified port \"%s\" is invalid, using default port %d", portString, a_port);
 				}
 			}

@@ -44,6 +44,7 @@ CQtWindow::CQtWindow(CWindow *a_poWindow, QPoint &a_roPosition, QSize &a_roSize)
 	resize(a_roSize);
 
 	setAttribute(Qt::WA_InputMethodEnabled, true);
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 /**

@@ -1,8 +1,8 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -std=gnu++14 -Wall -Wextra
+CFLAGS = -c -std=gnu++14 -Wall -Wextra
 IFLAGS = -I.. -D__USE_INLINE__
 LFLAGS = -L../$(OBJ)
-LIBS = -lStdFuncs
+LIBS = -lStdFuncs -lcrypto -lssl
 
 ifdef PREFIX
 	AR = @$(PREFIX)ar
@@ -35,12 +35,17 @@ ifdef PREFIX
 		LFLAGS += -athread=native
 		OBJ := $(OBJ)_OS4
 	else
+		# TODO: CAW - Some makefiles have CFLAGS too
 		LFLAGS += -mcrt=clib2
 	endif
 endif
 
-EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDLIST) $(T_STDTEXTFILE) \
-	$(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
+ifeq ($(OS),Windows_NT)
+    LIBS += -lws2_32
+endif
+
+EXECUTABLES = $(T_ARGS) $(T_CONFIGFILE) $(T_DIR) $(T_FILE) $(T_LEX) $(T_POOL) $(T_STDHTTP) $(OBJ)/T_StdJSON $(T_STDLIST) \
+	$(T_STDTEXTFILE) $(T_STRINGLIST) $(T_TIME) $(T_UTILS) $(T_WILDCARD)
 
 ifdef PREFIX
 
@@ -61,6 +66,10 @@ T_LEX = $(OBJ)/T_Lex
 T_OS4SUPPORT = $(OBJ)/T_OS4Support
 
 T_POOL = $(OBJ)/T_Pool
+
+T_STDHTTP = $(OBJ)/T_StdHTTP
+
+T_STDJSON = $(OBJ)/T_StdJSON
 
 T_STDLIST = $(OBJ)/T_StdList
 
@@ -87,6 +96,10 @@ T_LEX_OBJECTS = $(OBJ)/T_Lex.o
 T_OS4SUPPORT_OBJECTS = $(OBJ)/T_OS4Support.o
 
 T_POOL_OBJECTS = $(OBJ)/T_Pool.o
+
+T_STDHTTP_OBJECTS = $(OBJ)/T_StdHTTP.o
+
+T_STDJSON_OBJECTS = $(OBJ)/T_StdJSON.o
 
 T_STDLIST_OBJECTS = $(OBJ)/T_StdList.o
 
@@ -138,6 +151,16 @@ $(T_OS4SUPPORT): $(T_OS4SUPPORT_OBJECTS) ../$(OBJ)/libStdFuncs.a
 $(T_POOL): $(T_POOL_OBJECTS) ../$(OBJ)/libStdFuncs.a
 	@echo Linking $@...
 	$(LD) $(T_POOL_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
+
+$(T_STDHTTP): $(T_STDHTTP_OBJECTS) ../$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(T_STDHTTP_OBJECTS) $(LFLAGS) $(LIBS) -o $@.debug
+	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
+
+$(T_STDJSON): $(T_STDJSON_OBJECTS) ../../StdFuncs/$(OBJ)/libStdFuncs.a
+	@echo Linking $@...
+	$(LD) $(LFLAGS) $(T_STDJSON_OBJECTS) $(LIBS) -o $@.debug
 	$(STRIP) $(STRIP_FLAGS) $@.debug -o $@
 
 $(T_STDLIST): $(T_STDLIST_OBJECTS) ../$(OBJ)/libStdFuncs.a

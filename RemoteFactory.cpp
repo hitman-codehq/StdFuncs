@@ -14,6 +14,15 @@
 
 #endif /* ! defined(__unix__) || defined(__amigaos__) */
 
+#ifdef __amigaos__
+
+#include <proto/socket.h>
+#include <sys/ioctl.h>
+
+#define ioctlsocket(s, f, v) IoctlSocket(s, f, v)
+
+#endif /* __amigaos__ */
+
 /**
  * Gets an object for directory manipulation.
  * Returns an instance of a class derived from RDirObject which can be used to manipulate directories, either
@@ -203,6 +212,8 @@ int RRemoteFactory::openRemote()
 
 void RRemoteFactory::close()
 {
+	m_blocking = true;
+
 	m_socket.close();
 }
 
@@ -234,49 +245,61 @@ int RRemoteFactory::checkConnection()
 		/* So we'll check for errors and handle but not report them, and if the final call to set the socket back */
 		/* to blocking mode fails, all hell will break loose, but so be it */
 
-#ifdef WIN32
+		// TODO: CAW - This is working well, but should be moved into RSocket so that it can be used by code completion
+		//             routines as well
+		ULONG nonBlocking = 1;
 
-		u_long blocking = 1;
-
-		if (ioctlsocket(m_socket.m_socket, FIONBIO, &blocking) == 0)
+		if (m_blocking)
 		{
-			char buffer[1];
-			result = recv(m_socket.m_socket, buffer, 1, 0);
-
-			blocking = 0;
-
-			if (ioctlsocket(m_socket.m_socket, FIONBIO, &blocking) != 0)
-			{
-				result = -1;
-			}
+			DEBUGCHECK((ioctlsocket(m_socket.m_socket, FIONBIO, &nonBlocking) == 0),
+				"RRemoteFactory::checkConnection() => Unable to set socket to non blocking mode");
 		}
 
-#else /* ! WIN32 */
+		char buffer[1];
+		result = recv(m_socket.m_socket, buffer, 1, MSG_PEEK);
 
-		int flags = fcntl(m_socket.m_socket, F_GETFL, 0);
-
-		if (flags != -1)
+		if (m_blocking)
 		{
-			if (fcntl(m_socket.m_socket, F_SETFL, flags | O_NONBLOCK) != -1)
-			{
-				char buffer[1];
-				result = recv(m_socket.m_socket, buffer, 1, 0);
+			nonBlocking = 0;
 
-				if (fcntl(m_socket.m_socket, F_SETFL, flags) == -1)
-				{
-					result = -1;
-				}
-			}
+			DEBUGCHECK((ioctlsocket(m_socket.m_socket, FIONBIO, &nonBlocking) == 0),
+				"RRemoteFactory::checkConnection() => Unable to set socket to blocking mode");
 		}
 
-#endif /* ! WIN32 */
-
+		/* If read() returned 0, the server has closed the connection or the connection has been lost somehow, so we */
+		/* have to reopen it */
 		if (result == 0)
 		{
 			close();
 
 			retVal = openRemote();
 		}
+
+#ifdef __amigaos__
+
+		/* If read() returned -1, there is no data available but the socket is alive. But just to be absolutely */
+		/* sure, check that the error is that the socket would block and not some other error, which would indicate */
+		/* a network error */
+		else if (result == -1)
+		{
+			LONG error = Errno();
+
+			if (error == EWOULDBLOCK || error == EAGAIN)
+			{
+				/* The connection is alive - there is just no data waiting! */
+
+				retVal = KErrNone;
+			}
+			else
+			{
+				/* An actual network fault occurred */
+				close();
+				retVal = openRemote();
+			}
+		}
+
+#endif /* __amigaos__ */
+
 	}
 	else
 	{
