@@ -4,8 +4,11 @@
 #include <string.h>
 #include "StdHTTP.h"
 #include "StdSocket.h"
+#include "StdSSL.h"
 
-#define BUFFER_SIZE 1024
+// TODO: CAW - This doesn't work with Anthropic
+//#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 1024*5
 
 /**
  * Short description.
@@ -41,23 +44,40 @@
 // TODO: CAW - This is using POST, so rename it
 int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std::vector<THTTPHeader> &a_headers)
 {
+	ASSERTM((m_socket != nullptr || m_ssl != nullptr), "RStdHTTP::get() => Neither Socket nor SSL instance has been passed in");
+
 	int retVal = KErrGeneral; // TODO: CAW
 
 	m_headers.clear();
 	m_body.clear();
 
+	printf("*** get: Getting %s\n", a_url.c_str());
+	fflush(stdout);
+
+	std::string url;
+
 	// TODO: CAW - Use string literals
-	if ((a_url.compare(0, 7, "http://", 0, 7) != 0) && (a_url.compare(0, 8, "https://", 0, 8) != 0))
+	if (a_url.compare(0, 7, "http://", 0, 7) == 0)
+	{
+		url = a_url.substr(7);
+	}
+	else if (a_url.compare(0, 8, "https://", 0, 8) == 0)
+	{
+		url = a_url.substr(8);
+	}
+	else
 	{
 		Utils::info("KErrCorrupt");
 		return KErrCorrupt;
 	}
 
 	// TODO: CAW - substr() inefficient + literal 8
-	std::string request = "POST /" + a_url.substr(8) + " HTTP/1.1\r\n";
+	//std::string request = "GET / HTTP/1.1\r\n"; // TODO: CAW - Hack + add test for this
+	std::string request = "POST /v1/messages HTTP/1.1\r\n"; // TODO: CAW - Hack + add test for this
 
 	// TODO: CAW - Bodgey hack for now!
 	request += "Host: api.anthropic.com\r\nConnection: close\r\n";
+	//request += "Host: google.com\r\nConnection: close\r\n";
 
 	if (a_body.size() > 0)
 	{
@@ -77,11 +97,29 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 	//Utils::info("Now size = %d (%d)\n", request.size(), a_body.size());
 	//request += "***";
 	//Utils::info(request.c_str());
-	//printf(request.c_str());
+	printf("--- request = ***%s***\n", request.c_str());
 
 	//return KErrNone;
 
-	int length = m_socket.write(request.c_str(), static_cast<int>(request.size()));
+	int length;
+
+	if (m_socket != nullptr)
+	{
+		printf("1\n");
+		fflush(stdout);
+		length = m_socket->write(request.c_str(), static_cast<int>(request.size()));
+		printf("1a\n");
+		fflush(stdout);
+	}
+	else
+	{
+		printf("2\n");
+		fflush(stdout);
+		length = m_ssl->write(request.c_str(), static_cast<int>(request.size()));
+		printf("2a\n");
+		fflush(stdout);
+	}
+
 	printf("*** Wrote %d bytes\n", length);
 
 	if (length <= 0)
@@ -106,12 +144,20 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 	do
 	{
-		length = m_socket.read(m_buffer, (BUFFER_SIZE - 1), false);
-		//length = m_socket.read(g_imageBuffer, (sizeof(g_imageBuffer) - 1), false);
+		if (m_socket != nullptr)
+		{
+			length = m_socket->read(m_buffer, (BUFFER_SIZE - 1), false);
+			//length = m_socket.read(g_imageBuffer, (sizeof(g_imageBuffer) - 1), false);
+		}
+		else
+		{
+			length = m_ssl->read(m_buffer, (BUFFER_SIZE - 1), false);
+		}
 
 		if (length > 0)
 		{
 			m_buffer[length] = '\0';
+			printf("*** m_buffer = %s\n", m_buffer);
 
 			// TODO: CAW - This will break if more than one read is required to get the headers.
 			//             We need to buffer the data and parse it for the headers before writing to the file
@@ -123,12 +169,15 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 				{
 					int headersSize = static_cast<int>((headersEnd + 4) - m_buffer);
 					int writeSize = length - headersSize;
-					//std::string headers(m_buffer, headersSize);
+					std::string headers(m_buffer, headersSize);
+					printf("headers = ***%s***\n", headers.c_str());
 					total += writeSize;
 					m_headers += std::string(m_buffer, headersSize);
+					m_body += std::string(m_buffer + headersSize, length - headersSize);
 					foundHeaders = true;
 
 					const char *contentLengthStart = strstr(m_buffer, "Content-Length: ");
+					const char *transferEncodingStart = strstr(m_buffer, "Transfer-Encoding: ");
 
 					if (contentLengthStart != nullptr)
 					{
@@ -140,18 +189,44 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 							totalLength = std::stoi(contentLength);
 						}
 					}
+					else if (transferEncodingStart != nullptr)
+					{
+						// loop:
+						// read a line, ending in \r\n ? parse as hex ? chunkSize
+						// if chunkSize == 0:
+						// 	read the final \r\n (end of chunked body)
+						// break
+						// read exactly chunkSize bytes ? this is real data, append to body
+						// read 2 more bytes and discard ? this is the \r\n trailing this chunk's data
+					}
+					else
+					{
+						totalLength = BUFFER_SIZE - 1; // TODO: CAW - Hack!
+						// TODO: CAW - Return error here
+					}
 				}
 			}
 			else
 			{
 				total += length;
 				m_body += std::string(m_buffer, length);
+				printf("body = ***%s***\n", m_body.c_str());
 				// TODO: CAW - Make an overload for this
 				//file.write(reinterpret_cast<unsigned char *>(g_imageBuffer), length);
 			}
 		}
+		else
+		{
+			printf("read() returned %d\n", length);
+			if (length == 0) // TODO: CAW - Hack for chunked bodies
+			{
+				break;
+			}
+		}
 	}
 	while (total < totalLength);
+
+	printf("total = %d, totalLength = %d\n", total, totalLength);
 
 	if (total == totalLength)
 	{

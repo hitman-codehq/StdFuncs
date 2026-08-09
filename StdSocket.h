@@ -48,7 +48,7 @@ private:
 	static int	m_useCount;		/**< Number of times the socket has been opened */
 
 #endif /* WIN32 */
-		
+
 	SOCKET	m_serverSocket;		/**< The socket on which to listen for connections */
 
 public:
@@ -70,7 +70,7 @@ public:
 		close();
 	}
 
-	int open(const char* a_host, unsigned short a_port);
+	int open(const char *a_host, unsigned short a_port);
 
 	void close();
 
@@ -80,11 +80,11 @@ public:
 
 	int listen(unsigned short a_port);
 
-	int read(void* a_buffer, int a_size, bool a_readAll = true);
+	int read(void *a_buffer, int a_size, bool a_readAll = true);
 
-	int write(const void* a_buffer, int a_size);
+	int write(const void *a_buffer, int a_size);
 
-	int write(const char* a_buffer);
+	int write(const char *a_buffer);
 };
 
 #endif /* ! STDSOCKET_H */

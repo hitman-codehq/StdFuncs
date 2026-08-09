@@ -7,6 +7,7 @@
 //#include "StdSocket.h"
 
 class RSocket;
+class RStdSSL;
 
 struct THTTPHeader
 {
@@ -17,7 +18,8 @@ struct THTTPHeader
 class RStdHTTP
 {
 	char		*m_buffer = nullptr;
-	RSocket		&m_socket;
+	RSocket		*m_socket;
+	RStdSSL		*m_ssl;
 
 protected:
 
@@ -29,7 +31,9 @@ protected:
 
 public:
 
-	RStdHTTP(RSocket &a_socket) : m_socket(a_socket) { }
+	RStdHTTP(RSocket *a_socket) : m_socket(a_socket), m_ssl(nullptr) { }
+
+	RStdHTTP(RStdSSL *a_ssl) : m_socket(nullptr), m_ssl(a_ssl) { }
 
 	~RStdHTTP()
 	{
