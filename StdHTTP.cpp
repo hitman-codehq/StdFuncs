@@ -14,6 +14,111 @@
  * Short description.
  * Long multi line description.
  *
+ * @pre		Some precondition here
+ *
+ * @date	Thursday 13-Aug-2026 5:52 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+bool RStdHTTP::appendBody(const char *a_newBodyData, int a_size)
+{
+	if (m_chunked)
+	{
+		while (a_size > 0)
+		{
+			//printf("appendBody, m_bodySize = %d, a_size = %d, m_newChunk = %d\n", m_bodySize, a_size, m_newChunk);
+
+			if (m_newChunk)
+			{
+				printf("*** ENTERING, a_size = %d ***\n", a_size);
+				const char *chunkSizeEnd = strstr(a_newBodyData, "\r\n");
+
+				if (chunkSizeEnd != nullptr)
+				{
+					printf("Found chunk end\n");
+					int chunkSizeSize = chunkSizeEnd - a_newBodyData;
+
+					// TODO: CAW - Avoid string and use Utils::AToI
+					std::string chunkSizeString(a_newBodyData, chunkSizeSize);
+					int chunkSize = std::stoi(chunkSizeString, nullptr, 16);
+					m_bodySize = chunkSize;
+					printf("*** chunkSize = %d (%x) %d\n", chunkSize, chunkSize, a_size);
+
+					a_newBodyData += chunkSizeSize + 2;
+					a_size -= chunkSizeSize + 2;
+					m_bodySize -= chunkSizeSize + 2;
+
+					if (chunkSize == 0)
+					{
+						printf("*** Found end chunk of zero size\n");
+
+						return true;
+					}
+
+					if (chunkSize < a_size)
+					{
+						printf("Appending %d bytes\n", chunkSize);
+						m_body.append(a_newBodyData, chunkSize);
+
+						a_newBodyData += chunkSize + 2;
+						a_size -= chunkSize + 2;
+						m_bodySize -= chunkSize + 2;
+
+						printf("Now a_size = %d, a_newBodyData = ***%s***\n", a_size, a_newBodyData);
+					}
+					else
+					{
+						printf("Appending remaining %d bytes and breaking out\n", a_size);
+						m_body.append(a_newBodyData, a_size);
+						m_newChunk = false;
+
+						return false;
+					}
+				}
+				else
+				{
+					// TODO: CAW - Better handling of this
+					printf("No chunk end, breaking out\n");
+
+					break;
+				}
+
+				//return true;
+			}
+			else
+			{
+				if (m_bodySize < a_size)
+				{
+					printf("Appending extra %d bytes\n", m_bodySize);
+					m_body.append(a_newBodyData, m_bodySize);
+
+					a_newBodyData += m_bodySize + 2;
+					a_size -= m_bodySize + 2;
+					m_bodySize = 0;//-= chunkSize + 2;
+
+					m_newChunk = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		m_body.append(a_newBodyData, a_size);
+		printf("*** Appended %d bytes, new size is %d\n", a_size, (int) m_bodySize);
+		m_bodySize -= a_size;
+		ASSERTM((m_bodySize >= 0), "RStdHTTP::appendBody() => Body size does not match expected body size");
+
+		return (m_bodySize == 0);
+	}
+
+	return false;
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
  * @pre		Socket referenced by m_socket must be open and connected // TODO: CAW - Assert on this
  *
  * @date	Sunday 18-Apr-2021 3:45 pm, Code HQ Bergmannstrasse
@@ -48,6 +153,7 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 	int retVal = KErrGeneral; // TODO: CAW
 
+	m_chunked = false;
 	m_headers.clear();
 	m_body.clear();
 
@@ -67,7 +173,7 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 	}
 	else
 	{
-		Utils::info("KErrCorrupt");
+		printf("KErrCorrupt\n");
 		return KErrCorrupt;
 	}
 
@@ -81,7 +187,7 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 	if (a_body.size() > 0)
 	{
-		Utils::info("Adding Content-Length of %d bytes\n", a_body.size());
+		printf("Adding Content-Length of %d bytes\n", (int) a_body.size());
 		request += "Content-Length: " + std::to_string(a_body.size()) + "\r\n";
 	}
 
@@ -92,40 +198,24 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 	}
 
 	request += "\r\n";
-	//Utils::info("size = %d\n", request.size());
 	request += a_body;
-	//Utils::info("Now size = %d (%d)\n", request.size(), a_body.size());
-	//request += "***";
-	//Utils::info(request.c_str());
 	printf("--- request = ***%s***\n", request.c_str());
 
-	//return KErrNone;
-
-	int length;
+	int length; // TODO: CAW - Should be size
 
 	if (m_socket != nullptr)
 	{
-		printf("1\n");
-		fflush(stdout);
 		length = m_socket->write(request.c_str(), static_cast<int>(request.size()));
-		printf("1a\n");
-		fflush(stdout);
 	}
 	else
 	{
-		printf("2\n");
-		fflush(stdout);
 		length = m_ssl->write(request.c_str(), static_cast<int>(request.size()));
-		printf("2a\n");
-		fflush(stdout);
 	}
-
-	printf("*** Wrote %d bytes\n", length);
 
 	if (length <= 0)
 	{
 		// TODO: CAW - Correct?
-		Utils::info("RSocket.write() returned %d\n", length);
+		printf("RSocket.write() returned %d\n", length);
 		retVal = length;
 		return retVal;
 	}
@@ -134,13 +224,13 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 	{
 		if ((m_buffer = new char[BUFFER_SIZE]) == nullptr)
 		{
-			Utils::info("Not enough memory");
+			printf("Not enough memory\n");
 			return KErrNoMemory;
 		}
 	}
 
-	bool foundHeaders = false;
-	int total = 0, totalLength = 0;
+	bool bodyComplete = false, foundHeaders = false;
+	int total = 0;//, totalLength = 0;
 
 	do
 	{
@@ -154,10 +244,12 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 			length = m_ssl->read(m_buffer, (BUFFER_SIZE - 1), false);
 		}
 
+		printf("length = %d\n", length);
+
 		if (length > 0)
 		{
 			m_buffer[length] = '\0';
-			printf("*** m_buffer = %s\n", m_buffer);
+			printf("*** m_buffer = %s***\n", m_buffer);
 
 			// TODO: CAW - This will break if more than one read is required to get the headers.
 			//             We need to buffer the data and parse it for the headers before writing to the file
@@ -165,15 +257,16 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 			{
 				const char *headersEnd = strstr(m_buffer, "\r\n\r\n");
 
-				if (headersEnd)
+				if (headersEnd != nullptr)
 				{
 					int headersSize = static_cast<int>((headersEnd + 4) - m_buffer);
-					int writeSize = length - headersSize;
+					int bodySize = length - headersSize;
 					std::string headers(m_buffer, headersSize);
-					printf("headers = ***%s***\n", headers.c_str());
-					total += writeSize;
 					m_headers += std::string(m_buffer, headersSize);
-					m_body += std::string(m_buffer + headersSize, length - headersSize);
+					printf("headers = ***%s***\n", headers.c_str());
+					total += bodySize;
+					printf("total = %d, headerSize = %d, bodySize = %d\n", total, headersSize, bodySize);
+
 					foundHeaders = true;
 
 					const char *contentLengthStart = strstr(m_buffer, "Content-Length: ");
@@ -185,12 +278,15 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 						if (contentLengthEnd != nullptr)
 						{
+							// TODO: CAW - Hard coded
 							std::string contentLength((contentLengthStart + 16), (contentLengthEnd - contentLengthStart - 16));
-							totalLength = std::stoi(contentLength);
+							m_bodySize = /*totalLength =*/ std::stoi(contentLength);
+							printf("*** m_bodySize = %d\n", m_bodySize);
 						}
 					}
 					else if (transferEncodingStart != nullptr)
 					{
+						m_chunked = m_newChunk = true;
 						// loop:
 						// read a line, ending in \r\n ? parse as hex ? chunkSize
 						// if chunkSize == 0:
@@ -201,16 +297,38 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 					}
 					else
 					{
-						totalLength = BUFFER_SIZE - 1; // TODO: CAW - Hack!
+						printf("*** BOO! ***\n");
+						//totalLength = BUFFER_SIZE - 1; // TODO: CAW - Hack!
 						// TODO: CAW - Return error here
+					}
+
+					/* If there was any data left after the headers, add it to the m_body member. We do this here, rather */
+					/* than above, as we need to first know whether or not the response is chunked */
+					if ((bodyComplete = appendBody(m_buffer + headersSize, bodySize)))
+					{
+						//m_body += std::string(m_buffer + headersSize, bodySize); //length - headersSize);
+						printf("Body complete, body = ***%s***\n", m_body.c_str());
+					}
+					else
+					{
+						printf("Body incomplete, continuing, body = ***%s***\n", m_body.c_str());
 					}
 				}
 			}
 			else
 			{
 				total += length;
-				m_body += std::string(m_buffer, length);
-				printf("body = ***%s***\n", m_body.c_str());
+
+				if ((bodyComplete = appendBody(m_buffer, length)))
+				{
+					//m_body += std::string(m_buffer + headersSize, bodySize); //length - headersSize);
+					printf("Body complete, body = ***%s***\n", m_body.c_str());
+				}
+				else
+				{
+					printf("Body incomplete, continuing, body = ***%s***\n", m_body.c_str());
+				}
+
 				// TODO: CAW - Make an overload for this
 				//file.write(reinterpret_cast<unsigned char *>(g_imageBuffer), length);
 			}
@@ -218,19 +336,19 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 		else
 		{
 			printf("read() returned %d\n", length);
-			if (length == 0) // TODO: CAW - Hack for chunked bodies
+			//if (length == 0) // TODO: CAW - Hack for chunked bodies
 			{
 				break;
 			}
 		}
 	}
-	while (total < totalLength);
+	while (!bodyComplete); //(total < totalLength);
 
-	printf("total = %d, totalLength = %d\n", total, totalLength);
+	printf("total = %d\n", total);//, totalLength);
 
-	if (total == totalLength)
+	//if (total == totalLength)
 	{
-		Utils::info("Read entire body!");
+		printf("Read entire body!\n");
 		retVal = KErrNone;
 	}
 
