@@ -17,17 +17,25 @@ struct THTTPHeader
 
 class RStdHTTP
 {
+	bool		m_chunked;
+	bool		m_newChunk;
 	char		*m_buffer = nullptr;
+	int			m_bodySize; // TODO: CAW - Type
 	RSocket		*m_socket;
 	RStdSSL		*m_ssl;
 
 protected:
 
+	// TODO: CAW - Use getters?
 	// String get body
 	std::string	m_body;
 	// final Map<String, String> headers
 	std::string	m_headers;
 	// final int statusCode;
+
+private:
+
+	bool appendBody(const char *a_newBodyData, int a_size);
 
 public:
 

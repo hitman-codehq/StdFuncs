@@ -6,7 +6,7 @@
 
 /* Fake command line to test a full set of arguments */
 
-static char *g_pccArgV[] =
+static /*const*/ char *g_pccArgV[] =
 {
 	"T_Args", "Source Dir", "Dest Dir", "copy", "delete", "deletedirs", "nocase", "noerrors", "noprotect"
 };

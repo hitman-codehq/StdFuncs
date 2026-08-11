@@ -86,6 +86,10 @@
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -234,6 +238,7 @@
     <ClCompile Include="StdPool.cpp" />
     <ClCompile Include="StdRendezvous.cpp" />
     <ClCompile Include="StdSocket.cpp" />
+    <ClCompile Include="StdSSL.cpp" />
     <ClCompile Include="StdStringList.cpp" />
     <ClCompile Include="StdTextFile.cpp" />
     <ClCompile Include="StdTheme.cpp" />
@@ -275,6 +280,7 @@
     <ClInclude Include="StdPool.h" />
     <ClInclude Include="StdRendezvous.h" />
     <ClInclude Include="StdSocket.h" />
+    <ClInclude Include="StdSSL.h" />
     <ClInclude Include="StdStringList.h" />
     <ClInclude Include="StdTextFile.h" />
     <ClInclude Include="StdTheme.h" />
