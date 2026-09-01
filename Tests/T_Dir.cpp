@@ -108,7 +108,7 @@ int main()
 #else /* ! __amigaos__ */
 
 	TestScan("*");
-	TestScan("*.sln", 1, 10393);
+	TestScan("*.sln", 1, 11156);
 	TestScan("SomeDir/*.txt", 1, SOME_FILE_SIZE);
 
 #endif /* ! __amigaos__ */
