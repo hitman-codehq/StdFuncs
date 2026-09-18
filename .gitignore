@@ -4,6 +4,7 @@
 .vscode
 *.user
 build
+vcpkg_installed
 Makefile.Debug
 Makefile.Release
 Debug

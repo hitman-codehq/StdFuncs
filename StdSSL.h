@@ -2,9 +2,13 @@
 #ifndef STDSSL_H
 #define STDSSL_H
 
-#include <openssl/ssl.h>
+//#include <openssl/ssl.h>
 
 class RSocket;
+struct ssl_st;
+struct ssl_ctx_st;
+typedef struct ssl_st SSL;
+typedef struct ssl_ctx_st SSL_CTX;
 
 // TODO: CAW - Double check use cases of this and RStdHTTP to ensure that the really should be R classes
 // TODO: CAW - Rename this to RStdSSLSocket and RSocket to RStdSocket?

@@ -38,9 +38,9 @@ ifdef PREFIX
 		$(OBJ)/Lex.o $(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o \
 		$(OBJ)/RemoteFileWatcher.o $(OBJ)/StdApplication.o $(OBJ)/StdCharConverter.o $(OBJ)/StdClipboard.o $(OBJ)/StdConfigFile.o \
 		$(OBJ)/StdCRC.o $(OBJ)/StdDialog.o $(OBJ)/StdExecuter.o $(OBJ)/StdFileRequester.o $(OBJ)/StdFont.o $(OBJ)/StdGadgets.o $(OBJ)/StdGadgetLayout.o \
-		$(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTabPane.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdHTTP.o $(OBJ)/StdImage.o $(OBJ)/StdPool.o \
-		$(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdSSL.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o \
-		$(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Utils.o
+		$(OBJ)/StdGadgetSlider.o $(OBJ)/StdGadgetStatusBar.o $(OBJ)/StdGadgetTabPane.o $(OBJ)/StdGadgetTree.o $(OBJ)/StdHTTP.o $(OBJ)/StdImage.o $(OBJ)/StdJSON.o \
+		$(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdSSL.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdTime.o \
+		$(OBJ)/StdWildcard.o $(OBJ)/StdWindow.o $(OBJ)/Test.o $(OBJ)/Utils.o
 
 	ifneq ($(PREFIX), ppc-amigaos-)
 		AUTO_OBJECTS = $(OBJ)/AutoAsl.o $(OBJ)/AutoBitMap.o $(OBJ)/AutoCheckBox.o $(OBJ)/AutoClickTab.o $(OBJ)/AutoDataTypes.o $(OBJ)/AutoDiskfont.o \
@@ -53,8 +53,9 @@ ifdef PREFIX
 else
 	OBJECTS = $(OBJ)/Args.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/FileWatcher.o $(OBJ)/Lex.o \
 		$(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/RemoteFileWatcher.o \
-		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdExecuter.o $(OBJ)/StdHTTP.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdSSL.o \
-		$(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
+		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdExecuter.o $(OBJ)/StdHTTP.o $(OBJ)/StdJSON.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o \
+		$(OBJ)/StdSocket.o $(OBJ)/StdSSL.o $(OBJ)/StdStringList.o $(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o \
+		$(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 OBJECTS += $(OBJ)/Handler.o

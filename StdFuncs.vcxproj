@@ -235,6 +235,7 @@
     <ClCompile Include="StdGadgetTree.cpp" />
     <ClCompile Include="StdHTTP.cpp" />
     <ClCompile Include="StdImage.cpp" />
+    <ClCompile Include="StdJSON.cpp" />
     <ClCompile Include="StdPool.cpp" />
     <ClCompile Include="StdRendezvous.cpp" />
     <ClCompile Include="StdSocket.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="StdGadgetTabPane.h" />
     <ClInclude Include="StdHTTP.h" />
     <ClInclude Include="StdImage.h" />
+    <ClInclude Include="StdJSON.h" />
     <ClInclude Include="StdList.h" />
     <ClInclude Include="StdPool.h" />
     <ClInclude Include="StdRendezvous.h" />
