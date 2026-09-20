@@ -26,6 +26,8 @@ public:
 
 	void close();
 
+	int get_errror(int a_result) const; // TODO: CAW - Dumb name
+
 	int read(void *a_buffer, int a_size, bool a_readAll = true);
 
 	int write(const void *a_buffer, int a_size);

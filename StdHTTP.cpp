@@ -1,14 +1,18 @@
 
 #include <StdFuncs.h>
-// TODO: CAW - Use a C++ version?
 #include <string.h>
+#include "Lex.h"
 #include "StdHTTP.h"
 #include "StdSocket.h"
 #include "StdSSL.h"
 
-// TODO: CAW - This doesn't work with Anthropic
-//#define BUFFER_SIZE 1024
-#define BUFFER_SIZE 1024*5
+#define BUFFER_SIZE 4096
+
+static const char g_contentLength[] = "Content-Length: ";
+#define CONTENT_LENGTH_SIZE (sizeof(g_contentLength) - 1)
+
+static const char g_transferEncoding[] = "Transfer-Encoding: ";
+#define TRANSFER_ENCODING_SIZE (sizeof(g_transferEncoding) - 1)
 
 /**
  * Short description.
@@ -27,27 +31,25 @@ bool RStdHTTP::appendBody(const char *a_newBodyData, int a_size)
 	{
 		while (a_size > 0)
 		{
-			//printf("appendBody, m_bodySize = %d, a_size = %d, m_newChunk = %d\n", m_bodySize, a_size, m_newChunk);
-
 			if (m_newChunk)
 			{
-				printf("*** ENTERING, a_size = %d ***\n", a_size);
+				printf("*** Getting new chunk, a_size = %d ***\n", a_size);
 				const char *chunkSizeEnd = strstr(a_newBodyData, "\r\n");
 
 				if (chunkSizeEnd != nullptr)
 				{
 					printf("Found chunk end\n");
-					int chunkSizeSize = chunkSizeEnd - a_newBodyData;
+					int chunkSizeSize = static_cast<int>(chunkSizeEnd - a_newBodyData);
 
-					// TODO: CAW - Avoid string and use Utils::AToI
+					// TODO: CAW - Use Utils::StringToInt() to avoid memory allocation.
 					std::string chunkSizeString(a_newBodyData, chunkSizeSize);
 					int chunkSize = std::stoi(chunkSizeString, nullptr, 16);
 					m_bodySize = chunkSize;
 					printf("*** chunkSize = %d (%x) %d\n", chunkSize, chunkSize, a_size);
 
+					// Skip past the chunk size and the trailing \r\n
 					a_newBodyData += chunkSizeSize + 2;
 					a_size -= chunkSizeSize + 2;
-					m_bodySize -= chunkSizeSize + 2;
 
 					if (chunkSize == 0)
 					{
@@ -56,24 +58,31 @@ bool RStdHTTP::appendBody(const char *a_newBodyData, int a_size)
 						return true;
 					}
 
+					// If the entire chunk has arrived in this read, append it to the body and move the pointer to the
+					// next chunk size
 					if (chunkSize < a_size)
 					{
 						printf("Appending %d bytes\n", chunkSize);
 						m_body.append(a_newBodyData, chunkSize);
 
+						// Skip past the chunk data and the trailing \r\n
 						a_newBodyData += chunkSize + 2;
 						a_size -= chunkSize + 2;
-						m_bodySize -= chunkSize + 2;
+						m_bodySize = 0;
 
 						printf("Now a_size = %d, a_newBodyData = ***%s***\n", a_size, a_newBodyData);
 					}
+					// Otherwise, append just the partial chunk data
 					else
 					{
 						printf("Appending remaining %d bytes and breaking out\n", a_size);
 						m_body.append(a_newBodyData, a_size);
+
+						m_bodySize -= a_size;
+						a_size = 0;
 						m_newChunk = false;
 
-						return false;
+						// return false;
 					}
 				}
 				else
@@ -84,45 +93,49 @@ bool RStdHTTP::appendBody(const char *a_newBodyData, int a_size)
 					break;
 				}
 
-				//return true;
+				// return true;
 			}
 			else
 			{
+				// If the entire remainder of the chunk has arrived in this read, append it to the body and move the
+				// pointer to the next chunk size
 				if (m_bodySize < a_size)
-				//if (m_body.size() < m_bodySize)
 				{
 					printf("Appending all extra %d bytes\n", m_bodySize);
 					m_body.append(a_newBodyData, m_bodySize);
 
-					a_newBodyData += m_bodySize + 2;
+					// Skip past the chunk data and the trailing \r\n
+					a_newBodyData += m_bodySize + 2; // TODO: CAW - This could overflow if the \r\n is not present
 					a_size -= m_bodySize + 2;
-					m_bodySize = 0;//-= chunkSize + 2;
+					m_bodySize = 0;
 
 					m_newChunk = true;
 				}
+				// Otherwise, append just the partial chunk data
 				else
 				{
 					printf("Appending extra %d bytes\n", a_size);
 					m_body.append(a_newBodyData, a_size);
 
-					a_newBodyData += a_size + 2;
-					//a_size -= a_size + 2;
+					m_bodySize -= a_size;
 					a_size = 0;
-					m_bodySize = 0;//-= chunkSize + 2;
-
-					m_newChunk = true;
 				}
 			}
 		}
 	}
 	else
 	{
+		printf("*** Appending %d bytes, new size is %d\n", a_size, (int) m_bodySize);
 		m_body.append(a_newBodyData, a_size);
-		printf("*** Appended %d bytes, new size is %d\n", a_size, (int) m_bodySize);
 		m_bodySize -= a_size;
+
 		ASSERTM((m_bodySize >= 0), "RStdHTTP::appendBody() => Body size does not match expected body size");
 
-		return (m_bodySize == 0);
+		/* For downwards compatibility with HTTP/1.0, we need to handle the case where the server does not send a */
+		/* Content-Length header and instead just closes the connection when it is done sending the body. In this case, */
+		/* even if we have read the entire body for *this* read, there may be more data available on the socket, so we */
+		/* cannot return true here, but must wait until the next socket read returns 0 */
+		return (m_bodySize == 0 && m_haveContentLength);
 	}
 
 	return false;
@@ -139,69 +152,59 @@ bool RStdHTTP::appendBody(const char *a_newBodyData, int a_size)
  * @return	Return value
  */
 
-// GET /somepage.html HTTP/1.1\r\n
-// Host: somedomain.org\r\n
-// Connection: close\r\n
-// \r\n
-
-// POST /v1/messages HTTP/1.1\r\n
-// Host: api.anthropic.com\r\n
-// Content-Type: application/json\r\n
-// Content-Length: 1234\r\n // TODO: CAW - Calculate after substitutions have happened
-// x-api-key: sk-ant-...\r\n
-// anthropic-version: 2023-06-01\r\n
-// Connection: close\r\n
-// \r\n
-// {...the JSON body itself...}
-//
-// TODO: CAW - Implement T_HTTP
-//
-// - Test passing in https:// -vs- no https:// and a_url with length < len(https://)
-
-// TODO: CAW - Swap order of a_headers and a_body and make them both optional
-// TODO: CAW - This is using POST, so rename it
-int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std::vector<THTTPHeader> &a_headers)
+// TODO: CAW - Test passing in https:// -vs- no https:// and a_url with length < len(https://)
+// TODO: CAW - Make a_headers and a_body optional
+int RStdHTTP::request(const std::string &a_url, const std::vector<THTTPHeader> &a_headers, const std::string &a_body, TMethod a_method)
 {
 	ASSERTM((m_socket != nullptr || m_ssl != nullptr), "RStdHTTP::get() => Neither Socket nor SSL instance has been passed in");
 
 	int retVal = KErrGeneral; // TODO: CAW
 
-	m_chunked = false;
+	printf("Before: m_headers.capacity() = %d, m_body.capacity() = %d\n", (int) m_headers.capacity(), (int) m_body.capacity());
+	m_chunked = m_newChunk = m_haveContentLength = false;
 	m_headers.clear();
 	m_body.clear();
+	m_statusCode = 0;
+	printf("After: m_headers.capacity() = %d, m_body.capacity() = %d\n", (int) m_headers.capacity(), (int) m_body.capacity());
 
-	printf("*** get: Getting %s\n", a_url.c_str());
+	std::string request = (a_method == EMethodPost) ? "POST" : "GET";
+	request += " /v1/messages HTTP/1.1\r\n";
+
+	printf("*** %s: Requesting %s\n", (a_method == EMethodPost) ? "POST" : "GET", a_url.c_str());
 	fflush(stdout);
 
-	std::string url;
+	std::string hostname;
 
-	// TODO: CAW - Use string literals
 	if (a_url.compare(0, 7, "http://", 0, 7) == 0)
 	{
-		url = a_url.substr(7);
+		hostname = a_url.substr(7);
 	}
 	else if (a_url.compare(0, 8, "https://", 0, 8) == 0)
 	{
-		url = a_url.substr(8);
+		hostname = a_url.substr(8);
 	}
 	else
 	{
-		printf("KErrCorrupt\n");
 		return KErrCorrupt;
 	}
 
-	// TODO: CAW - substr() inefficient + literal 8
-	//std::string request = "GET / HTTP/1.1\r\n"; // TODO: CAW - Hack + add test for this
-	std::string request = "POST /v1/messages HTTP/1.1\r\n"; // TODO: CAW - Hack + add test for this
+	size_t hostNameOffset = hostname.find('/');
 
-	// TODO: CAW - Bodgey hack for now!
-	request += "Host: api.anthropic.com\r\nConnection: close\r\n";
-	//request += "Host: google.com\r\nConnection: close\r\n";
+	if (hostNameOffset == std::string::npos)
+	{
+		return KErrCorrupt;
+	}
+
+	hostname.erase(hostNameOffset);
+	request += "Host: " + hostname + "\r\nConnection: close\r\n";
+
+	printf("*** Request is %s\n", request.c_str());
+	fflush(stdout);
 
 	if (a_body.size() > 0)
 	{
-		printf("Adding Content-Length of %d bytes\n", (int) a_body.size());
-		request += "Content-Length: " + std::to_string(a_body.size()) + "\r\n";
+		printf("Adding Content-Length of %d bytes\n", (int)a_body.size());
+		request += g_contentLength + std::to_string(a_body.size()) + "\r\n";
 	}
 
 	// TODO: CAW - Inefficient - profile how many allocations are done in this method
@@ -227,7 +230,7 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 	if (length <= 0)
 	{
-		// TODO: CAW - Correct?
+		// TODO: CAW - Map this onto a StdFuncs error code and test it, just like for read()
 		printf("RSocket.write() returned %d\n", length);
 		retVal = length;
 		return retVal;
@@ -237,20 +240,18 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 	{
 		if ((m_buffer = new char[BUFFER_SIZE]) == nullptr)
 		{
-			printf("Not enough memory\n");
 			return KErrNoMemory;
 		}
 	}
 
 	bool bodyComplete = false, foundHeaders = false;
-	int total = 0;//, totalLength = 0;
+	int total = 0; //, totalLength = 0;
 
 	do
 	{
 		if (m_socket != nullptr)
 		{
 			length = m_socket->read(m_buffer, (BUFFER_SIZE - 1), false);
-			//length = m_socket.read(g_imageBuffer, (sizeof(g_imageBuffer) - 1), false);
 		}
 		else
 		{
@@ -263,11 +264,14 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 		{
 			m_buffer[length] = '\0';
 			printf("*** m_buffer = %s***\n", m_buffer);
+			fflush(stdout);
 
 			// TODO: CAW - This will break if more than one read is required to get the headers.
 			//             We need to buffer the data and parse it for the headers before writing to the file
 			if (!foundHeaders)
 			{
+				// TODO: CAW - For parsing into a map later, we could use std::getline()
+				//             https://www.fluentcpp.com/2017/04/21/how-to-split-a-string-in-c/
 				const char *headersEnd = strstr(m_buffer, "\r\n\r\n");
 
 				if (headersEnd != nullptr)
@@ -280,52 +284,86 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 					total += bodySize;
 					printf("total = %d, headerSize = %d, bodySize = %d\n", total, headersSize, bodySize);
 
+					size_t statusLineEnd = m_headers.find("\r\n");
+
+					if (statusLineEnd != std::string::npos)
+					{
+						int tokenLength;
+						TLex lex(m_headers.c_str(), static_cast<int>(statusLineEnd));
+
+						Utils::info("Found %d tokens", lex.Count());
+
+						const char *token = lex.NextToken(&tokenLength);
+
+						if (token != nullptr && strncmp(token, "HTTP/", 5) == 0)
+						{
+							if ((token = lex.NextToken(&tokenLength)) != nullptr)
+							{
+								// TODO: CAW - Try using the destructive version of TLex to avoid the string copy, and profile this
+								//             entire routine for memory allocations
+								std::string statusCode(token, tokenLength);
+
+								if (Utils::StringToInt(statusCode.c_str(), &m_statusCode) != KErrNone)
+								{
+									return KErrCorrupt;
+								}
+							}
+						}
+					} // TODO: CAW - Else, we have a corrupt response, so return an error
+
 					foundHeaders = true;
 
-					const char *contentLengthStart = strstr(m_buffer, "Content-Length: ");
-					const char *transferEncodingStart = strstr(m_buffer, "Transfer-Encoding: ");
+					// TODO: CAW - When we have a map of headers, we can just look up the Content-Length and Transfer-Encoding headers,
+					//             rather than searching for them in the string
+					size_t contentLengthStart = m_headers.find(g_contentLength);
+					size_t transferEncodingStart = m_headers.find(g_transferEncoding);
 
-					if (contentLengthStart != nullptr)
+					if (contentLengthStart != std::string::npos)
 					{
-						const char *contentLengthEnd = strstr(contentLengthStart, "\r\n");
+						size_t contentLengthEnd = m_headers.find("\r\n", contentLengthStart);
 
-						if (contentLengthEnd != nullptr)
+						if (contentLengthEnd != std::string::npos)
 						{
-							// TODO: CAW - Hard coded
-							std::string contentLength((contentLengthStart + 16), (contentLengthEnd - contentLengthStart - 16));
-							m_bodySize = /*totalLength =*/ std::stoi(contentLength);
+							// TODO: CAW - Add a length parameter to StringToInt() to avoid the string copy
+							std::string contentLength(m_headers.c_str() + contentLengthStart + CONTENT_LENGTH_SIZE,
+								(contentLengthEnd - contentLengthStart - CONTENT_LENGTH_SIZE));
+
+							if (Utils::StringToInt(contentLength.c_str(), &m_bodySize) != KErrNone)
+							{
+								return KErrCorrupt;
+							}
+
+							m_haveContentLength = true;
 							printf("*** m_bodySize = %d\n", m_bodySize);
 						}
 					}
-					else if (transferEncodingStart != nullptr)
+					else if (transferEncodingStart != std::string::npos)
 					{
 						m_chunked = m_newChunk = true;
-						// loop:
-						// read a line, ending in \r\n ? parse as hex ? chunkSize
-						// if chunkSize == 0:
-						// 	read the final \r\n (end of chunked body)
-						// break
-						// read exactly chunkSize bytes ? this is real data, append to body
-						// read 2 more bytes and discard ? this is the \r\n trailing this chunk's data
 					}
 					else
 					{
-						printf("*** BOO! ***\n");
-						//totalLength = BUFFER_SIZE - 1; // TODO: CAW - Hack!
-						// TODO: CAW - Return error here
+						/* There is no Content-Length header and the body is not chunked, so just save the calculated size of the body */
+						/* and we will save just that for now. There may be more data to be read later */
+						m_bodySize = bodySize;
 					}
 
 					/* If there was any data left after the headers, add it to the m_body member. We do this here, rather */
 					/* than above, as we need to first know whether or not the response is chunked */
 					if ((bodyComplete = appendBody(m_buffer + headersSize, bodySize)))
 					{
-						//m_body += std::string(m_buffer + headersSize, bodySize); //length - headersSize);
 						printf("Body (headers) complete, body = ***%s***\n", m_body.c_str());
 					}
 					else
 					{
 						printf("Body (headers) incomplete, continuing, body = ***%s***\n", m_body.c_str());
 					}
+				}
+				/* Some, but not all headers were received, so copy those we received into the m_headers string, and later, we */
+				/* will append the reminder and process them */
+				else
+				{
+					m_headers += std::string(m_buffer, length);
 				}
 			}
 			else
@@ -334,84 +372,51 @@ int RStdHTTP::get(const std::string &a_url, const std::string &a_body, const std
 
 				if ((bodyComplete = appendBody(m_buffer, length)))
 				{
-					//m_body += std::string(m_buffer + headersSize, bodySize); //length - headersSize);
 					printf("Body complete, body = ***%s***\n", m_body.c_str());
 				}
 				else
 				{
 					printf("Body incomplete, continuing, body = ***%s***\n", m_body.c_str());
 				}
-
-				// TODO: CAW - Make an overload for this
-				//file.write(reinterpret_cast<unsigned char *>(g_imageBuffer), length);
 			}
 		}
-		else
+		else if (length == 0)
 		{
 			printf("read() returned %d\n", length);
-			//if (length == 0) // TODO: CAW - Hack for chunked bodies
+
+			/* Raw sockets and SSL connections return their results differently, so we have to handle this */
+			if (m_socket != nullptr)
 			{
-				break;
+				/* If length is 0, then the server has closed the connection */
+				retVal = (length == 0) ? KErrNone : KErrEof;
 			}
-		}
-	}
-	while (!bodyComplete); //(total < totalLength);
-
-	printf("total = %d\n", total);//, totalLength);
-
-	//if (total == totalLength)
-	{
-		printf("Read entire body!\n");
-		retVal = KErrNone;
-	}
-
-	/*if (length > 0)
-	{
-		m_buffer = new char[BUFFER_SIZE];
-
-		do
-		{
-			length = m_socket.read(m_buffer, (BUFFER_SIZE - 1), false);
-
-			if (length > 0)
+			else if (m_ssl != nullptr)
 			{
-				m_buffer[length] = '\0';
-
-				if (!foundHeaders)
-				{
-					// TODO: CAW - For parsing into a map later, we could use std::getline()
-					//             https://www.fluentcpp.com/2017/04/21/how-to-split-a-string-in-c/
-					endOfHeaders = strstr(m_buffer, "\r\n\r\n");
-
-					if (endOfHeaders != nullptr)
-					{
-						*endOfHeaders = '\0';
-						foundHeaders = true;
-
-						m_headers.append(m_buffer);
-
-						endOfHeaders += 4;
-						m_body.append(std::string(endOfHeaders));
-					}
-					else
-					{
-						m_headers.append(m_buffer);
-					}
-				}
-				else
-				{
-					m_body.append(m_buffer);
-				}
+				retVal = m_ssl->get_errror(length);
 			}
 			else
 			{
-				//retVal = KErrGeneral;
-				break;
+				// Defensive: both m_socket and m_ssl are null, should not happen
+				retVal = KErrGeneral; // TODO: CAW - How will this break out of the loop?
 			}
+
+			break;
 		}
-		// TODO: CAW - This will have the same problem as the PNG fetcher. Use Content-Length here as well
-		while (length == (BUFFER_SIZE - 1));
-	}*/
+		else
+		{
+			/* The length is negative (most probably -1), so break out and indicate there was an error reading more data */
+			retVal = KErrEof;
+
+			break;
+		}
+	}
+	while (!bodyComplete);
+
+	if (bodyComplete)
+	{
+		printf("total = %d\n", total);
+		retVal = KErrNone;
+	}
 
 	return retVal;
 }

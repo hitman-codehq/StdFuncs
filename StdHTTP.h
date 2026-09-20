@@ -4,7 +4,6 @@
 
 #include <string>
 #include <vector>
-//#include "StdSocket.h"
 
 class RSocket;
 class RStdSSL;
@@ -15,23 +14,25 @@ struct THTTPHeader
 	std::string	m_value;
 };
 
+enum TMethod
+{
+	EMethodGet,
+	EMethodPost
+};
+
 class RStdHTTP
 {
-	bool		m_chunked;
-	bool		m_newChunk;
+	// TODO: CAW - These are nice but mess up comments
+	bool		m_chunked = false;
+	bool		m_newChunk = false;
+	bool		m_haveContentLength = false;
 	char		*m_buffer = nullptr;
-	int			m_bodySize; // TODO: CAW - Type
+	int			m_bodySize = 0;
+	int			m_statusCode = 0;
+	std::string	m_body;
+	std::string	m_headers;
 	RSocket		*m_socket;
 	RStdSSL		*m_ssl;
-
-protected:
-
-	// TODO: CAW - Use getters?
-	// String get body
-	std::string	m_body;
-	// final Map<String, String> headers
-	std::string	m_headers;
-	// final int statusCode;
 
 private:
 
@@ -39,7 +40,10 @@ private:
 
 public:
 
-	RStdHTTP(RSocket *a_socket) : m_socket(a_socket), m_ssl(nullptr) { }
+	RStdHTTP(RSocket *a_socket) : m_socket(a_socket), m_ssl(nullptr)
+	{
+		m_chunked = m_newChunk = m_haveContentLength = false;
+	}
 
 	RStdHTTP(RStdSSL *a_ssl) : m_socket(nullptr), m_ssl(a_ssl) { }
 
@@ -48,11 +52,23 @@ public:
 		delete [] m_buffer;
 	}
 
-	int get(const std::string &a_url, const std::string &a_body, const std::vector<THTTPHeader> &a_headers);
+	int request(const std::string &a_url, const std::vector<THTTPHeader> &a_headers, const std::string &a_body, TMethod a_method);
 
-	std::string &body() { return m_body; }
+	int get(const std::string &a_url, const std::vector<THTTPHeader> &a_headers)
+	{
+		return request(a_url, a_headers, "", EMethodGet);
+	}
 
-	std::string &headers() { return m_headers; }
+	int post(const std::string &a_url, const std::vector<THTTPHeader> &a_headers, const std::string &a_body)
+	{
+		return request(a_url, a_headers, a_body, EMethodPost);
+	}
+
+	const std::string &body() const { return m_body; }
+
+	const std::string &headers() const { return m_headers; }
+
+	int statusCode() const { return m_statusCode; }
 };
 
 #endif /* ! STDHTTP_H */

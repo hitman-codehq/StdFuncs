@@ -29,7 +29,7 @@ int RStdSSL::open(const char *a_ssi)
 
 	// wrap the connected socket in an SSL object
 	m_ssl = SSL_new(m_context);
-	SSL_set_fd(m_ssl, m_socket.m_socket);
+	SSL_set_fd(m_ssl, static_cast<int>(m_socket.m_socket));
 
 	// Important: set the hostname for SNI (Server Name Indication) - many servers,
 	// including Anthropic's, require this to serve the correct certificate
@@ -96,6 +96,34 @@ void RStdSSL::close()
 	//close(sockFd);      // or your RSocket equivalent
 	SSL_CTX_free(m_context);
 	m_context = nullptr;
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Tuesday 22-Sep-2026 6:41 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+int RStdSSL::get_errror(int a_result) const
+{
+	int error = SSL_get_error(m_ssl, a_result);
+
+	/* SSL_ERROR_ZERO_RETURN means the server has cleanly closed the connection, and is the equivalent of a socket */
+	/* returning 0. SSL_ERROR_SYSCALL means the server has not sent a close_notify first, which is technically not */
+	/* correct, but many servers do it, so we will treat it as a successful close */
+	if (error == SSL_ERROR_ZERO_RETURN || error == SSL_ERROR_SYSCALL)
+	{
+		return KErrNone;
+	}
+	else
+	{
+		return KErrEof;
+	}
 }
 
 /**
