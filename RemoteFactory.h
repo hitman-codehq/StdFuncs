@@ -21,7 +21,7 @@
 
 class RRemoteFactory
 {
-	bool				m_useLocal;			/**< True to ignore m_serverName, if set */
+	bool				m_useLocal;			/**< True to ignore m_serverName and force local usage */
 	RDir				m_dir;				/**< Class for local directory scanning */
 	RRemoteDir			m_remoteDir;		/**< Class for remote directory scanning */
 	RFile				m_file;				/**< Class for local file access */

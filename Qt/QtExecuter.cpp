@@ -33,16 +33,11 @@ int RQtExecuter::launchCommand(const char *a_commandName, const char *a_argument
 	connect(m_process, &QProcess::finished, this, &RQtExecuter::onFinished);
 
 	/* Append any arguments passed in onto the command line */
-	QStringList arguments;
+	QString fullCommand = QString("%1 %2").arg(a_commandName, a_arguments);
 
-	if (a_arguments != nullptr)
-	{
-		QString argsStr(a_arguments);
-		arguments = argsStr.split(' ', Qt::SkipEmptyParts);
-	}
-
-	/* Start the process asynchronously and wait for it to actually start */
-	m_process->start(a_commandName, arguments);
+	/* Start the process asynchronously and wait for it to actually start. startCommand() is a better choice than */
+	/* than start(), as it automatically respects internal quotes just like a real terminal */
+	m_process->startCommand(fullCommand);
 
 	if (m_process->waitForStarted())
 	{
