@@ -421,6 +421,25 @@ void CQtWindow::inputMethodEvent(QInputMethodEvent *a_poInputMethodEvent)
 }
 
 /**
+ * Disable tabbing between widgets.
+ * Overriding this method prevents the system from stepping through widgets using the tab key. This is a Brunel-specific
+ * workaround to enable the tab key to insert tabs when the tab key is hit. Without this, it is not possible to enter
+ * tabs into text, and the build window gets activated when the user hits tab. It is temporary and will be replaced or
+ * removed when Brunel's architecture is updated to put its editors in a QWidget.
+ *
+ * @date	Saturday 31-Oct-2026 6:14 am, Code HQ Tokyo Tsukuda
+ * @param	a_next			True to tab to the next widget or false to tab to the previous one
+ * @return	Always false to indicate that the widget was not changed
+ */
+
+bool CQtWindow::focusNextPrevChild(bool a_next)
+{
+	(void) a_next;
+
+	return false;
+}
+
+/**
  * Qt helper function to configure IME input events.
  * Returns IME-related information to the IME editor on request, such as whether the functionality is enabled, and
  * where on the screen to pop up the IME editor window.
