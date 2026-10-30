@@ -47,6 +47,8 @@ protected:
 
 	void inputMethodEvent(QInputMethodEvent *a_poInputMethodEvent) override;
 
+	bool focusNextPrevChild(bool a_next) override;
+
 	QVariant inputMethodQuery(Qt::InputMethodQuery a_query) const override;
 
 	void keyPressEvent(QKeyEvent *a_poKeyEvent) override;
