@@ -126,6 +126,8 @@ public:
 
 	static void TrimString(char *a_pcString);
 
+	static void trimString(std::string &a_string);
+
 	static ULONG Red32(unsigned long a_ulColour);
 
 	static ULONG Green32(unsigned long a_ulColour);
