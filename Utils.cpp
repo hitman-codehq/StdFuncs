@@ -3594,6 +3594,35 @@ void Utils::TrimString(char *a_pcString)
 }
 
 /**
+ * Trims white space from either end of a string.
+ * Trims white space from the start and end of a string, modifying the string that was passed in.
+ *
+ * @date	Friday 06-Nov-2026 6:08 am, Code HQ Tokyo Tsukuda
+ * @param	a_string		Reference to the string to be trimmed of white space
+ */
+
+void Utils::trimString(std::string &a_string)
+{
+	size_t first = 0, last = a_string.length();
+
+	/* Find the last non-whitespace character */
+	while (last > 0 && (a_string[last - 1] == ' ' || a_string[last - 1] == '\t'))
+	{
+		--last;
+	}
+
+	/* Find the first non-whitespace character */
+	while (first < last && (a_string[first] == ' ' || a_string[first] == '\t'))
+	{
+		++first;
+	}
+
+	/* And now actually trim the string in place*/
+	a_string.erase(last);
+	a_string.erase(0, first);
+}
+
+/**
  * Extracts the red component of an RGB colour.
  *
  * @date		Saturday 16-Sep-2006 4:49 pm
