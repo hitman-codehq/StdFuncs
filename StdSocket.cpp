@@ -1,6 +1,7 @@
 
 #include "StdFuncs.h"
 #include "StdSocket.h"
+#include <assert.h>
 
 #if defined(__unix__) || defined(__amigaos__)
 
@@ -47,6 +48,69 @@ RSocket::Error::~Error() noexcept
 RSocket::RSocket()
 {
 	m_serverSocket = m_socket = INVALID_SOCKET;
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 14-Nov-2026 9:20 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+RSocket::RSocket(const RSocket &a_other)
+{
+	(void) a_other;
+
+	assert(false && "RSocket must never be copied");
+	std::abort();   // or __debugbreak() / std::terminate()
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 14-Nov-2026 6:39 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+RSocket::RSocket(RSocket &&a_other) noexcept
+{
+	*this = std::move(a_other);
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 14-Nov-2026 9:22 am, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+RSocket &RSocket::operator=(RSocket &&a_other) noexcept
+{
+	m_serverSocket = a_other.m_serverSocket;
+	m_socket = a_other.m_socket;
+	a_other.m_serverSocket = INVALID_SOCKET;
+
+	a_other.m_socket = INVALID_SOCKET;
+
+#ifdef WIN32
+
+	++m_useCount;
+
+#endif /* WIN32 */
+
+	return *this;
 }
 
 /**
@@ -157,13 +221,20 @@ int RSocket::open(const char *a_host, unsigned short a_port)
 
 	WSAData wsaData;
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) == 0)
+	if (m_useCount == 0)
 	{
-		++m_useCount;
+		if (WSAStartup(MAKEWORD(2, 2), &wsaData) == 0)
+		{
+			++m_useCount;
+		}
+		else
+		{
+			return KErrGeneral;
+		}
 	}
 	else
 	{
-		return KErrGeneral;
+		++m_useCount;
 	}
 
 #endif /* WIN32 */
@@ -272,24 +343,43 @@ void RSocket::close()
  * @return 	KErrGeneral if any other error occurred
  */
 
-int RSocket::accept()
+int RSocket::accept(RSocket *a_newSocket)
 {
-	int retVal;
+	int retVal = KErrGeneral;
 	socklen_t clientSize;
 	struct sockaddr_in client;
 
-	ASSERTM((m_serverSocket != INVALID_SOCKET), "RSocket::accept() => Socket is not in listening state")
+	ASSERTM((m_serverSocket != INVALID_SOCKET), "RSocket::accept() => Socket is not in listening state");
 
-	clientSize = sizeof(client);
-	m_socket = ::accept(m_serverSocket, (struct sockaddr*) &client, &clientSize);
-
-	if (m_socket != INVALID_SOCKET)
+	if (waitForConnection())
 	{
-		retVal = KErrNone;
+		clientSize = sizeof(client);
+		SOCKET socket = ::accept(m_serverSocket, (struct sockaddr *) &client, &clientSize);
+
+		if (socket != INVALID_SOCKET)
+		{
+			a_newSocket->m_socket = socket;
+			retVal = KErrNone;
+		}
+		else
+		{
+#if defined(__unix__) || defined(__amigaos__)
+
+			retVal = (errno == EINTR) ? KErrBreak : KErrGeneral;
+			printf("Returning %d (error = %d) for %d %d\n", retVal, errno, (int) m_serverSocket, (int) m_socket);
+
+#else /* ! defined(__unix__) || defined(__amigaos__) */
+
+			retVal = (WSAGetLastError() == WSAEINTR) ? KErrBreak : KErrGeneral;
+			printf("Returning %d (error = %d) for %d %d\n", retVal, WSAGetLastError(), (int) m_serverSocket, (int) m_socket);
+
+#endif /* ! defined(__unix__) || defined(__amigaos__) */
+				
+		}
 	}
 	else
 	{
-		retVal = (errno == EINTR) ? KErrBreak : KErrGeneral;
+		retVal = KErrTimeOut;
 	}
 
 	return retVal;
@@ -446,6 +536,42 @@ int RSocket::setBlocking(bool a_blocking)
 #endif /* ! defined(__unix__) || defined(__amigaos__) */
 
 	return retVal;
+}
+
+/**
+ * Short description.
+ * Long multi line description.
+ *
+ * @pre		Some precondition here
+ *
+ * @date	Saturday 14-Nov-2026 1:27 pm, Code HQ Tokyo Tsukuda
+ * @param	Parameter		Description
+ * @return	Return value
+ */
+
+// TODO: CAW - This might be only temporary
+// RStdSocket: returns true if a connection is waiting, false on timeout
+bool RSocket::waitForConnection()
+{
+	fd_set readSet;
+	FD_ZERO(&readSet);
+	FD_SET(m_serverSocket, &readSet);
+
+	timeval timeout;
+	timeout.tv_sec  = 0;
+	timeout.tv_usec = 500 * 1000;
+
+	// First argument is ignored on Windows
+	int result = ::select((int)m_serverSocket + 1, &readSet, nullptr, nullptr, &timeout);
+
+	if (result < 0)
+	{
+		//if (lastSocketError() == EINTR)		// Signal interrupted the wait: treat as a timeout
+//			return false;
+		//throw Error("select() failed on listener", lastSocketError());
+	}
+
+	return (result > 0);
 }
 
 /**

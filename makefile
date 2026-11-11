@@ -1,5 +1,6 @@
 
-CFLAGS = -c -fno-asynchronous-unwind-tables -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
+CFLAGS = -c -fno-strict-aliasing -fpermissive -std=gnu++14 -Wall -Wextra -Wwrite-strings
+#CFLAGS += -Wdeprecated-copy-with-dtor
 IFLAGS = -I. -D__USE_INLINE__
 
 ifdef PREFIX
@@ -54,7 +55,7 @@ else
 	OBJECTS = $(OBJ)/Args.o $(OBJ)/StdCharConverter.o $(OBJ)/Dir.o $(OBJ)/File.o $(OBJ)/FileUtils.o $(OBJ)/FileWatcher.o $(OBJ)/Lex.o \
 		$(OBJ)/MungWall.o $(OBJ)/RemoteDir.o $(OBJ)/RemoteFactory.o $(OBJ)/RemoteFile.o $(OBJ)/RemoteFileUtils.o $(OBJ)/RemoteFileWatcher.o \
 		$(OBJ)/StdConfigFile.o $(OBJ)/StdCRC.o $(OBJ)/StdExecuter.o $(OBJ)/StdPool.o $(OBJ)/StdRendezvous.o $(OBJ)/StdSocket.o $(OBJ)/StdStringList.o \
-		$(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
+		$(OBJ)/StdTextFile.o $(OBJ)/StdTheme.o $(OBJ)/StdThread.o $(OBJ)/StdTime.o $(OBJ)/StdWildcard.o $(OBJ)/Test.o $(OBJ)/Utils.o
 endif
 
 OBJECTS += $(OBJ)/Handler.o

@@ -25,6 +25,7 @@ MungWall oMungWall;
 
 static const char accAllocating[] = "*** MungWall info: Allocating %zu bytes in file %s, line %d";
 static const char accLeakage[] = "*** MungWall alert: Severe memory leakage, cleaned up %zu bytes in %lu allocation(s) manually";
+// TODO: CAW - These should be Amiga only
 static const char accLowStack[] = "MungWall alert: Only %d bytes of stack remaining";
 static const char accLowestStack[] = "MungWall alert: Lowest amount of stack remaining during execution was %d bytes";
 static const char accStackOverflow[] = "MungWall alert: Stack has overflowed by %d bytes";
@@ -356,6 +357,8 @@ void MungWall::Free(void *pvBlock, const char *pccSourceFile, int iSourceLine, B
 {
 	struct Arena *paArena = (struct Arena *) ((UBYTE *) pvBlock - sizeof(struct Arena) - MungeSize);
 
+	//printf("Free(): Freeing %p\n", pvBlock);
+
 	/* If the arena list is empty then return without doing anything.  This probably means that we are */
 	/* being called after MungWall has been destroyed, so nothing can be done anyway */
 
@@ -490,6 +493,7 @@ void *MungWall::New(size_t stSize, const char *pccSourceFile, int iSourceLine)
 		pvRetVal = (pubBlock + MungeSize + sizeof(struct Arena));
 	}
 
+	//printf("Returning %p\n", pvRetVal);
 	return(pvRetVal);
 }
 

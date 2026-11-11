@@ -36,6 +36,10 @@ public:
 
 		int	m_result;	/**< The error code that triggered the exception */
 
+	public:
+
+		Error(const Error &) = default;
+
 		Error(const char *a_message, int a_result) : std::runtime_error(a_message), m_result(a_result) { }
 
 		~Error() noexcept;
@@ -48,7 +52,7 @@ private:
 	static int	m_useCount;		/**< Number of times the socket has been opened */
 
 #endif /* WIN32 */
-		
+
 	SOCKET	m_serverSocket;		/**< The socket on which to listen for connections */
 
 public:
@@ -61,9 +65,19 @@ private:
 
 	int setBlocking(bool a_blocking);
 
+	bool waitForConnection();
+
 public:
 
 	RSocket();
+
+	RSocket(const RSocket &a_other);
+
+	RSocket &operator=(const RSocket &a_other) = delete;
+
+	RSocket(RSocket &&a_other) noexcept;
+
+	RSocket &operator=(RSocket &&a_other) noexcept;
 
 	~RSocket()
 	{
@@ -74,7 +88,7 @@ public:
 
 	void close();
 
-	int accept();
+	int accept(RSocket *a_newSocket);
 
 	bool isOpen();
 
