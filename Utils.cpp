@@ -2148,7 +2148,7 @@ void Utils::NormalisePath(char *a_pcPath)
 	/* Some Windows APIs return a capital drive letter and some return a lower case one, so */
 	/* make it consistent */
 
-	if (Length >= 2)
+	if (Length >= 2 && a_pcPath[1] == ':')
 	{
 		a_pcPath[0] = (char) toupper(a_pcPath[0]);
 	}
